@@ -233,7 +233,7 @@ extension WhiskyWineDownloadView {
             let versionInfo = try PropertyListDecoder().decode(WhiskyWineVersion.self, from: data)
             let version = versionInfo.version
             let gaming = DistributionConfig.gamingRuntime
-            let useGaming = version < SemanticVersion(4, 6, 5)
+            let useGaming = version < gaming.version
             expectedSHA256 = useGaming ? gaming.sha256 : versionInfo.sha256
             let versionString = useGaming ? gaming.tag : "\(version.major).\(version.minor).\(version.patch)"
             let downloadURLString = useGaming ? DistributionConfig.gamingRuntimeURL
