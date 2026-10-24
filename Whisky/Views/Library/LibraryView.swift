@@ -45,6 +45,11 @@ struct LibraryView: View {
 
     private var bottles: [Bottle] { bottleVM.bottles.filter(\.isAvailable) }
 
+    private var hasSteamGames: Bool {
+        _ = refresh
+        return bottles.contains { !SteamLibrary.enumerate(bottleURL: $0.url).isEmpty }
+    }
+
     private var visible: [LibraryRow] {
         guard !search.isEmpty else { return model.rows }
         return model.rows.filter { $0.item.name.localizedCaseInsensitiveContains(search) }
@@ -60,7 +65,9 @@ struct LibraryView: View {
 
     var body: some View {
         Group {
-            if model.rows.isEmpty {
+            // Until a Steam game is installed, the guide is what to do next,
+            // whatever else the bottles hold.
+            if model.rows.isEmpty || !hasSteamGames {
                 emptyState
             } else {
                 grid

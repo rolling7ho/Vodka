@@ -122,21 +122,9 @@ extension ContentView {
         } else if bottleVM.countActive() > 0 {
             LibraryView(selectedBottle: $selected, refresh: $triggerRefresh)
         } else {
+            // No bottles yet: the guide is the way in, and its first step makes one.
             if bottleVM.bottles.isEmpty || bottleVM.countActive() == 0, bottlesLoaded {
-                VStack {
-                    Text("main.createFirst")
-                    Button {
-                        showBottleCreation.toggle()
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus")
-                            Text("button.createBottle")
-                        }
-                        .padding(6)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.accentColor)
-                }
+                SteamSetupGuideView()
             }
         }
     }
