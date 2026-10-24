@@ -36,8 +36,10 @@ This fork of the community fork focuses on Steam games:
 - **Native resolution.** On by default for each bottle: Wine's Retina mode at 192 DPI, so Steam and
   every window are sized like macOS's own, and each installed game marked per-monitor DPI-aware
   (`dpiAwareness` in its Image File Execution Options), so games render at the panel's real pixels.
-- **Performance.** Steam's web views use software rendering (set only where Steam has no value), and
-  MoltenVK logs errors only and submits asynchronously.
+- **Performance.** MoltenVK logs errors only and submits asynchronously. Steam keeps GPU-rendered web
+  views: software-rendered, its window stays black under Wine's mac driver.
+- **Easy reset.** *Delete Bottle…* in the sidebar menu and in a bottle's settings closes what runs in
+  it and moves it to the Trash in one step.
 
 Games with a GameDB preset (Teardown included) get it applied when launched from Steam. Technical
 bottle settings sit behind *Show advanced settings*. To build and install locally, run

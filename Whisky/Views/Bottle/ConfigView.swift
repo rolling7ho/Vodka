@@ -81,6 +81,18 @@ struct ConfigView: View {
             if showAdvanced {
                 advancedSections
             }
+            Section {
+                Button(role: .destructive) {
+                    Task { await bottle.confirmAndDelete() }
+                } label: {
+                    Label("Delete Bottle…", systemImage: "trash")
+                }
+                .disabled(bottle.inFlight)
+            } footer: {
+                Text("Moves this bottle and everything in it to the Trash, to start over from scratch.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
         .animation(.whiskyDefault, value: wineSectionExpanded)

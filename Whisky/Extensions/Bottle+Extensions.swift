@@ -295,6 +295,49 @@ extension Bottle {
         BottleOperations.remove(bottleAt: url, deleteFiles: delete, registry: BottleVM.shared)
     }
 
+    /// Asks once, then closes whatever runs in the bottle and moves it to the
+    /// Trash: the one-click way to start over.
+    ///
+    /// The Trash rather than a permanent delete, so a slip is recoverable;
+    /// emptying it frees the space.
+    ///
+    /// - Returns: Whether the bottle was deleted.
+    @MainActor
+    @discardableResult
+    func confirmAndDelete() async -> Bool {
+        let alert = NSAlert()
+        alert.messageText = "Delete “\(settings.name)”?"
+        alert.informativeText = "Everything in this bottle — Steam, installed games and their saves — "
+            + "is moved to the Trash. Anything running in it is closed first. Cloud saves stay in Steam."
+        alert.alertStyle = .warning
+        let delete = alert.addButton(withTitle: "Move to Trash")
+        delete.hasDestructiveAction = true
+        alert.addButton(withTitle: "Cancel")
+        guard alert.runModal() == .alertFirstButtonReturn else { return false }
+
+        inFlight = true
+        if await Wine.isWineserverRunning(for: self) || ProcessRegistry.shared.getProcessCount(for: self) > 0 {
+            Wine.killBottle(bottle: self)
+            try? await Task.sleep(for: .seconds(2))
+            ProcessRegistry.shared.clearRegistry(for: url)
+        }
+        let bottleURL = url
+        let trashed = await Task.detached {
+            (try? FileManager.default.trashItem(at: bottleURL, resultingItemURL: nil)) != nil
+        }.value
+        guard trashed || !FileManager.default.fileExists(atPath: bottleURL.path(percentEncoded: false)) else {
+            inFlight = false
+            let failure = NSAlert()
+            failure.messageText = "Couldn't delete “\(settings.name)”"
+            failure.informativeText = "Quit any game or app using it and try again."
+            failure.runModal()
+            return false
+        }
+        GameRouting().removeRoutes(toBottle: bottleURL)
+        BottleOperations.remove(bottleAt: bottleURL, deleteFiles: false, registry: BottleVM.shared)
+        return true
+    }
+
     @MainActor
     func rename(newName: String) {
         settings.name = newName

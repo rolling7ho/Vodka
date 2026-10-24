@@ -145,7 +145,15 @@ struct BottleListEntry: View {
             }
             .disabled(!bottle.isAvailable || bottle.inFlight)
             .labelStyle(.titleAndIcon)
-            Button("button.removeAlert", systemImage: "trash") {
+            Button("Delete Bottle…", systemImage: "trash") {
+                Task {
+                    let wasSelected = selected == bottle.url
+                    if await bottle.confirmAndDelete(), wasSelected { selected = nil }
+                }
+            }
+            .disabled(bottle.inFlight)
+            .labelStyle(.titleAndIcon)
+            Button("Remove from List…", systemImage: "minus.circle") {
                 showRemoveAlert(bottle: bottle)
             }
             .disabled(bottle.inFlight)

@@ -49,7 +49,11 @@ extension Wine {
     ]
 
     /// Readies the runtime and the bottle for a game: the Game Mode bundle,
-    /// native resolution, and Steam's own preferences.
+    /// then native resolution.
+    ///
+    /// Steam's own GPU preferences are left alone: with its web views
+    /// software-rendered, Steam's window presents nothing under Wine's mac
+    /// driver and stays black.
     ///
     /// - Parameter gameExecutables: Executables this launch starts as games,
     ///   besides every installed Steam game's, which are always covered so a
@@ -57,8 +61,7 @@ extension Wine {
     @MainActor
     static func prepareGaming(bottle: Bottle, gameExecutables: [String] = [], importer: RegistryImporter) async {
         WineGameMode.apply()
-        var document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
-        document += steamPreferencesDocument(bottle: bottle)
+        let document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
         guard !document.isEmpty else { return }
         do {
             try await importer("Windows Registry Editor Version 5.00\n\n" + document, bottle)
@@ -135,22 +138,5 @@ extension Wine {
             else { return false }
             return seen.insert(lower).inserted
         }
-    }
-
-    /// Steam client preferences that keep its interface responsive under
-    /// translation, set only where Steam has no value of its own, so a choice
-    /// made in Steam's settings stands.
-    ///
-    /// GPU-accelerated web views and hardware video decoding go through layers
-    /// that make Steam's Chromium interface stutter and flicker on a Mac;
-    /// software rendering of it is steadier. DirectWrite is turned off for the
-    /// same reason.
-    static func steamPreferencesDocument(bottle: Bottle) -> String {
-        guard SteamLibrary.detectInstall(bottleURL: bottle.url) != nil else { return "" }
-        let existing = WineRegistryFile.valueNames(bottleURL: bottle.url, key: #"HKCU\Software\Valve\Steam"#) ?? []
-        let wanted = ["GPUAccelWebViewsV3", "H264HWAccel", "DWriteEnable"].filter { !existing.contains($0) }
-        guard !wanted.isEmpty else { return "" }
-        return "[HKEY_CURRENT_USER\\Software\\Valve\\Steam]\n"
-            + wanted.map { "\"\($0)\"=dword:00000000\n" }.joined() + "\n"
     }
 }
