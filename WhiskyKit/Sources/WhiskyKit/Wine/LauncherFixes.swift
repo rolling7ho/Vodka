@@ -104,12 +104,13 @@ public enum LauncherFixes {
     /// on D3DMetal. Switching the whole bottle to DXVK turned `d3d12` off for
     /// every one of them, and a DirectX 12 game with no D3D11 path never started
     /// (#276). A forced apply (Apply Launcher Fixes in troubleshooting) does the
-    /// same, or it would undo the fix it is meant to apply. Anywhere else the
-    /// bottle still goes to DXVK as before: an explicit backend is never
-    /// steered, and without the payload the bottle's games resolve to DXMT,
-    /// whose files share the prefix's `d3d11.dll` with DXVK's. A switch from
-    /// Recommended is recorded as the profile's, so the bottle goes back to
-    /// Recommended once the payload is installed (``LauncherBackendMigration``).
+    /// same, or it would undo the fix it is meant to apply. An explicit backend
+    /// is never steered: Steam's processes get DXVK through their own entries
+    /// whatever the bottle says. Only a bottle on Recommended without the
+    /// payload goes to DXVK, because its games resolve to DXMT, whose files
+    /// share the prefix's `d3d11.dll` with DXVK's. That switch is recorded as
+    /// the profile's, so the bottle goes back to Recommended once the payload
+    /// is installed (``LauncherBackendMigration``).
     ///
     /// **Important:** This method saves settings synchronously to disk via
     /// `bottle.saveBottleSettings()`, blocking until the write completes.
@@ -142,7 +143,7 @@ public enum LauncherFixes {
             // Steam requires en_US locale to avoid steamwebhelper crashes
             bottle.settings.launcherLocale = launcher.recommendedLocale
 
-            applySteamBackend(to: bottle, force: force, recommendedBackend: recommendedBackend)
+            applySteamBackend(to: bottle, recommendedBackend: recommendedBackend)
 
             // GPU spoofing helps with game compatibility checks
             bottle.settings.gpuSpoofing = true
@@ -215,31 +216,23 @@ public enum LauncherFixes {
 
     /// The Steam profile's part in the bottle's backend.
     ///
-    /// Over D3DMetal, a bottle on Recommended stays there, and one the profile
-    /// switched to DXVK before goes back (with the same notice the migration
-    /// shows), forced or not. Otherwise the bottle goes to DXVK, and a switch
-    /// from Recommended is marked as the profile's. A DXVK the user picked is
-    /// left alone either way.
+    /// Over D3DMetal, a bottle the profile switched to DXVK before goes back
+    /// to Recommended (with the same notice the migration shows). Without it, a
+    /// bottle on Recommended goes to DXVK and the switch is marked as the
+    /// profile's. A backend the user picked is left alone, forced or not:
+    /// overwriting it put a game such as Teardown, set to OpenGL, on DXVK.
     @MainActor
-    private static func applySteamBackend(
-        to bottle: Bottle, force: Bool, recommendedBackend: GraphicsBackend
-    ) {
+    private static func applySteamBackend(to bottle: Bottle, recommendedBackend: GraphicsBackend) {
         if recommendedBackend == .d3dMetal {
-            if bottle.settings.graphicsBackend == .recommended {
-                return
-            }
             if LauncherBackendMigration.isRestorable(bottle.settings) {
                 LauncherBackendMigration.restore(&bottle.settings)
-                return
             }
+            return
         }
-        guard force || !bottle.settings.dxvk else { return }
-        let fromRecommended = bottle.settings.graphicsBackend == .recommended
+        guard bottle.settings.graphicsBackend == .recommended else { return }
         bottle.settings.dxvk = true
         bottle.settings.dxvkAsync = true
-        if fromRecommended {
-            // After the switch: changing the backend clears the mark.
-            bottle.settings.launcherSwitchedBackend = true
-        }
+        // After the switch: changing the backend clears the mark.
+        bottle.settings.launcherSwitchedBackend = true
     }
 }
