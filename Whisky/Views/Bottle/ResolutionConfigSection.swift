@@ -342,6 +342,13 @@ struct GameEssentialsSection: View {
                 }
             }
             .onChange(of: gameModeEnabled) { WineGameMode.apply() }
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Graphics")
+                Text("Pick what your games use, or leave it on Automatic.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                GraphicsChoiceView(bottle: bottle)
+            }
         } header: {
             Text("Game Settings")
         } footer: {

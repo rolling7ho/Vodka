@@ -182,6 +182,7 @@ public enum WineGameMode {
             "NSPrincipalClass": "WineApplication",
             "LSUIElement": true,
             "NSHighResolutionCapable": true,
+            "NSAppSleepDisabled": true,
             "LSApplicationCategoryType": "public.app-category.games",
             "LSSupportsGameMode": true,
             "GCSupportsGameMode": true

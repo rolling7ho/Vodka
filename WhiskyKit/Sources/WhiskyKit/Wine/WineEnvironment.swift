@@ -66,6 +66,14 @@ extension Wine {
         builder.set("WINEPREFIX", bottle.url.path, layer: .base)
         builder.set("WINEDEBUG", "fixme-all", layer: .base)
         builder.set("GST_DEBUG", "1", layer: .base)
+        // MoltenVK logs every pipeline at info level, which costs frames in
+        // Vulkan games; errors are all a game needs. Async submits keep the
+        // render thread from waiting on Metal, and a lost device is resumed
+        // rather than ending the game.
+        builder.set("MVK_CONFIG_LOG_LEVEL", "1", layer: .base)
+        builder.set("MVK_CONFIG_SYNCHRONOUS_QUEUE_SUBMITS", "0", layer: .base)
+        builder.set("MVK_CONFIG_RESUME_LOST_DEVICE", "1", layer: .base)
+        builder.set("DXVK_LOG_LEVEL", "warn", layer: .base)
 
         // Layer 2: Platform -- macOS compatibility fixes
         // Apply fixes from the MacOSCompatibilityFixes registry with reason strings.

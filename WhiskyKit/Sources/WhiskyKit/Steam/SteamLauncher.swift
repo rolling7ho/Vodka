@@ -91,6 +91,7 @@ public enum SteamLauncher {
         )
         let steamExe = steamRoot.appending(path: "steam.exe")
         let gameExecutables = gameExecutables(installURL: installURL, plan: plan)
+        let overrides = automaticBackend(for: plan, installURL: installURL, bottle: bottle)
 
         return Task {
             try await Wine.prepareBottlePrefix(bottle: bottle)
@@ -105,7 +106,7 @@ public enum SteamLauncher {
             }
             return try await Wine.runProgram(
                 at: steamExe, args: ["-applaunch", String(appId)], bottle: bottle,
-                programOverrides: plan.overrides,
+                programOverrides: overrides,
                 gameProfileEnvironment: plan.gameProfileEnvironment,
                 // The plan is the game's; steam.exe is only the vehicle. It goes
                 // into the game executables' own entries, so it reaches the game
@@ -117,6 +118,28 @@ public enum SteamLauncher {
                 onOutput: onOutput
             )
         }
+    }
+
+    /// The plan's overrides, with a translation layer picked for the game's
+    /// graphics API when the bottle is on Automatic and nothing chose one.
+    ///
+    /// Like CrossOver's Auto: a DirectX 12 game gets D3DMetal, a DirectX 9,
+    /// OpenGL or Vulkan one Wine's own renderer, and DirectX 11 the bottle's
+    /// recommended layer.
+    @MainActor
+    static func automaticBackend(for plan: LaunchPlan, installURL: URL?, bottle: Bottle) -> ProgramOverrides {
+        var overrides = plan.overrides
+        guard overrides.graphicsBackend == nil, bottle.settings.graphicsBackend == .recommended,
+              let installURL
+        else { return overrides }
+        let listed = Set(plan.gameExecutables.map { $0.lowercased() })
+        let all = SteamLibrary.executableURLs(under: installURL)
+        let scanned = listed.isEmpty ? all : all.filter { listed.contains($0.lastPathComponent.lowercased()) }
+        guard let api = GraphicsAPIDetector.detect(executables: scanned.isEmpty ? all : scanned),
+              let backend = GraphicsAPIDetector.backend(for: api, d3dMetalAvailable: GPTKImporter.isDeployed())
+        else { return overrides }
+        overrides.graphicsBackend = backend
+        return overrides
     }
 
     /// Starts `steam.exe -silent` with the user's own overrides for it, the

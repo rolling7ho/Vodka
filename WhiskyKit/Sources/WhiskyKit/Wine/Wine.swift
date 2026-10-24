@@ -447,7 +447,8 @@ public class Wine {
 
         // Retina mode, DPI and the game bundle are read once per process too,
         // so they go in before anything starts.
-        await prepareGaming(bottle: bottle, importer: importer)
+        let games = overridesApplyToDescendants ? descendantExecutables : []
+        await prepareGaming(bottle: bottle, gameExecutables: games, importer: importer)
 
         // The effective backend for this launch: a program-level override wins
         // over the bottle setting, and `.recommended` resolves to its concrete
@@ -529,16 +530,14 @@ public class Wine {
 
         return PreparedLaunch(
             environment: wineEnvironment,
-            arguments: launchArguments(for: url, args: args, bottle: bottle, programOverrides: programOverrides)
+            arguments: launchArguments(for: url, args: args, programOverrides: programOverrides)
         )
     }
 
     /// The `wine64` arguments for a launch, with an optional per-program virtual desktop.
-    @MainActor
     private static func launchArguments(
-        for url: URL, args: [String], bottle: Bottle, programOverrides: ProgramOverrides?
+        for url: URL, args: [String], programOverrides: ProgramOverrides?
     ) -> [String] {
-        let args = nativeResolutionArguments(for: url, args: args, bottle: bottle)
         guard let overrides = programOverrides,
               let vdEnabled = overrides.virtualDesktopEnabled, vdEnabled
         else {

@@ -19,15 +19,25 @@
 
 ## Steam gaming edition
 
-This fork of the community fork focuses on Steam games, with three additions:
+This fork of the community fork focuses on Steam games:
 
-- **Guided Steam setup.** The library opens on a three-step guide: create the Steam bottle,
-  install Steam (downloaded from Valve and installed silently), then sign in.
+- **Guided Steam setup.** The library opens on a four-step guide: create the Steam bottle, choose
+  graphics, install Steam (downloaded from Valve and installed silently), then sign in.
+- **Graphics by DirectX version.** Like CrossOver, the choice is named after what games use, with
+  examples: Automatic, DirectX 12 (Apple D3DMetal), DirectX 11 (DXMT), DirectX 9 and OpenGL/Vulkan
+  (WineD3D). Automatic reads a game's import tables (`GraphicsAPIDetector`) when it is played from the
+  library and picks per game.
+- **DirectX 12.** Installs the GPTK-capable engine (frankea's v4.6.4, CrossOver 26 changes on Wine 11.16).
+  Apple's Game Porting Toolkit can't be redistributed, so the guide links to Apple's download, then
+  finds the `.dmg` in Downloads and installs it.
 - **macOS Game Mode.** Every Wine process runs from a games-category app bundle
-  (`Libraries/Wine/lib/wine/Wine.app`), so Game Mode turns on when a game is full screen.
+  (`Libraries/Wine/lib/wine/Wine.app`, App Nap off), so Game Mode turns on when a game is full screen.
   `WineGameMode` keeps that layout in sync and can turn it off in Settings › Gaming.
-- **Native resolution.** On by default for each bottle: Wine's Retina mode at 96 DPI, so games render
-  at the panel's real pixels with no DPI upscaling, and Steam's own UI scaled with `-forcedesktopscaling 2`.
+- **Native resolution.** On by default for each bottle: Wine's Retina mode at 192 DPI, so Steam and
+  every window are sized like macOS's own, and each installed game marked per-monitor DPI-aware
+  (`dpiAwareness` in its Image File Execution Options), so games render at the panel's real pixels.
+- **Performance.** Steam's web views use software rendering (set only where Steam has no value), and
+  MoltenVK logs errors only and submits asynchronously.
 
 Games with a GameDB preset (Teardown included) get it applied when launched from Steam. Technical
 bottle settings sit behind *Show advanced settings*. To build and install locally, run

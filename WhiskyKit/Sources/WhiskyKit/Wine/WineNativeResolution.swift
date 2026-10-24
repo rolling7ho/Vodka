@@ -19,7 +19,7 @@
 import Foundation
 import os.log
 
-/// Native-resolution rendering for a bottle's games.
+/// Native-resolution rendering for a bottle's games, with Windows sized to match.
 ///
 /// Wine's mac driver reports the display in points unless `RetinaMode` is on,
 /// and then a game renders at half the panel's pixels and macOS upscales it.
@@ -28,34 +28,54 @@ import os.log
 /// Wine reads `RetinaMode` for the whole prefix only (never per app), so it is
 /// a bottle setting.
 ///
-/// The DPI stays at 96: at a higher DPI Wine scales every program that is not
-/// DPI-aware, which most games are not, back down to points. The Steam client
-/// is the one thing that should not be pixel-sized, so it gets Steam's own
-/// `-forcedesktopscaling` instead.
+/// The DPI goes to 192 with it, as Windows does on a 2x panel, so Steam, its
+/// installer and updater and every other window come out the size macOS draws
+/// its own. Wine stretches a program that is not DPI-aware to that size, which
+/// for a game would mean rendering at half resolution again, so each game
+/// executable is marked per-monitor DPI-aware through its Image File Execution
+/// Options, the per-executable `dpiAwareness` Wine reads at startup, and keeps
+/// every pixel.
 extension Wine {
-    /// The factor Wine's Retina mode scales the display by, and Steam's UI with it.
-    static let nativeResolutionScale = "2"
-
     private static let nativeResolutionLogger = Logger(
         subsystem: "com.franke.Whisky", category: "NativeResolution"
     )
 
+    /// `LogPixels` for a 2x display: 192 DPI.
+    static let nativeResolutionDPI = "dword:000000c0"
+
+    /// 32-bit programs read the same key: Wine links its `Wow6432Node` twin to it.
+    private static let executionOptionsKeys = [
+        #"Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options"#
+    ]
+
     /// Readies the runtime and the bottle for a game: the Game Mode bundle,
-    /// then native resolution.
+    /// native resolution, and Steam's own preferences.
+    ///
+    /// - Parameter gameExecutables: Executables this launch starts as games,
+    ///   besides every installed Steam game's, which are always covered so a
+    ///   game started from inside the Steam client gets the same.
     @MainActor
-    static func prepareGaming(bottle: Bottle, importer: RegistryImporter) async {
+    static func prepareGaming(bottle: Bottle, gameExecutables: [String] = [], importer: RegistryImporter) async {
         WineGameMode.apply()
-        await syncNativeResolution(bottle: bottle, importer: importer)
+        var document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
+        document += steamPreferencesDocument(bottle: bottle)
+        guard !document.isEmpty else { return }
+        do {
+            try await importer("Windows Registry Editor Version 5.00\n\n" + document, bottle)
+        } catch {
+            nativeResolutionLogger.error("Could not prepare the bottle for games: \(error.localizedDescription)")
+        }
     }
 
-    /// Puts the bottle's Retina mode and DPI where native resolution needs them.
+    /// The registry changes native resolution still needs, or an empty string.
     ///
     /// Reads the prefix's `.reg` files first, so a bottle that is already set
     /// costs no Wine process. Takes effect for processes started afterwards; a
     /// Steam client already running in the old mode keeps it until it restarts.
     @MainActor
-    static func syncNativeResolution(bottle: Bottle, importer: RegistryImporter) async {
-        guard bottle.settings.nativeResolution else { return }
+    static func nativeResolutionDocument(bottle: Bottle, gameExecutables: [String]) -> String {
+        guard bottle.settings.nativeResolution else { return "" }
+        var document = ""
 
         let retina = WineRegistryFile.readValue(
             bottleURL: bottle.url, key: #"HKCU\Software\Wine\Mac Driver"#, valueName: "RetinaMode"
@@ -63,35 +83,74 @@ extension Wine {
         let dpi = WineRegistryFile.readValue(
             bottleURL: bottle.url, key: #"HKCU\Control Panel\Desktop"#, valueName: "LogPixels"
         )
-        let isSet = retina?.lowercased() == "y" && (dpi == nil || dpi?.lowercased() == "dword:00000060")
-        guard !isSet else { return }
+        if retina?.lowercased() != "y" || dpi?.lowercased() != nativeResolutionDPI {
+            document += """
+            [HKEY_CURRENT_USER\\Software\\Wine\\Mac Driver]
+            "RetinaMode"="y"
 
-        let document = """
-        Windows Registry Editor Version 5.00
+            [HKEY_CURRENT_USER\\Control Panel\\Desktop]
+            "LogPixels"=\(nativeResolutionDPI)
 
-        [HKEY_CURRENT_USER\\Software\\Wine\\Mac Driver]
-        "RetinaMode"="y"
 
-        [HKEY_CURRENT_USER\\Control Panel\\Desktop]
-        "LogPixels"=dword:00000060
+            """
+        }
 
-        """
-        do {
-            try await importer(document, bottle)
-        } catch {
-            nativeResolutionLogger.error("Could not turn on native resolution: \(error.localizedDescription)")
+        let system = (try? String(contentsOf: bottle.url.appending(path: "system.reg"), encoding: .utf8))?
+            .lowercased() ?? ""
+        for exe in dpiAwareExecutables(bottle: bottle, gameExecutables: gameExecutables) {
+            for key in executionOptionsKeys {
+                // Wine's own files double each backslash in a key's name.
+                let section = ("[" + key.replacingOccurrences(of: "\\", with: "\\\\") + "\\\\" + exe + "]")
+                    .lowercased()
+                guard let range = system.range(of: section) else {
+                    document += executionOptionsEntry(key: key, exe: exe)
+                    continue
+                }
+                let body = system[range.upperBound...].prefix { $0 != "[" }
+                if !body.contains("\"dpiawareness\"=dword:00000002") {
+                    document += executionOptionsEntry(key: key, exe: exe)
+                }
+            }
+        }
+        return document
+    }
+
+    private static func executionOptionsEntry(key: String, exe: String) -> String {
+        "[HKEY_LOCAL_MACHINE\\\(key)\\\(exe)]\n\"dpiAwareness\"=dword:00000002\n\n"
+    }
+
+    /// The executables that should get every pixel: the launch's games and
+    /// every installed Steam game's, never Steam's own.
+    @MainActor
+    static func dpiAwareExecutables(bottle: Bottle, gameExecutables: [String]) -> [String] {
+        let library = SteamLibrary.enumerate(bottleURL: bottle.url).flatMap { game in
+            SteamLibrary.executableURLs(under: game.installURL).map(\.lastPathComponent)
+        }
+        let steamOwn: Set = ["steam.exe", "steamwebhelper.exe", "steamservice.exe", "steamerrorreporter.exe"]
+        var seen = Set<String>()
+        return (gameExecutables + library).filter { name in
+            let lower = name.lowercased()
+            guard lower.hasSuffix(".exe"), !steamOwn.contains(lower), !lower.contains("\\"),
+                  !lower.contains("]")
+            else { return false }
+            return seen.insert(lower).inserted
         }
     }
 
-    /// The arguments for launching `url`, with Steam's UI scaled to match Retina mode.
-    @MainActor
-    static func nativeResolutionArguments(for url: URL, args: [String], bottle: Bottle) -> [String] {
-        guard bottle.settings.nativeResolution,
-              url.lastPathComponent.lowercased() == "steam.exe",
-              !args.contains(where: { $0.lowercased() == "-forcedesktopscaling" })
-        else {
-            return args
-        }
-        return args + ["-forcedesktopscaling", nativeResolutionScale]
+    /// Steam client preferences that keep its interface responsive under
+    /// translation, set only where Steam has no value of its own, so a choice
+    /// made in Steam's settings stands.
+    ///
+    /// GPU-accelerated web views and hardware video decoding go through layers
+    /// that make Steam's Chromium interface stutter and flicker on a Mac;
+    /// software rendering of it is steadier. DirectWrite is turned off for the
+    /// same reason.
+    static func steamPreferencesDocument(bottle: Bottle) -> String {
+        guard SteamLibrary.detectInstall(bottleURL: bottle.url) != nil else { return "" }
+        let existing = WineRegistryFile.valueNames(bottleURL: bottle.url, key: #"HKCU\Software\Valve\Steam"#) ?? []
+        let wanted = ["GPUAccelWebViewsV3", "H264HWAccel", "DWriteEnable"].filter { !existing.contains($0) }
+        guard !wanted.isEmpty else { return "" }
+        return "[HKEY_CURRENT_USER\\Software\\Valve\\Steam]\n"
+            + wanted.map { "\"\($0)\"=dword:00000000\n" }.joined() + "\n"
     }
 }
