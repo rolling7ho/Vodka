@@ -111,6 +111,21 @@ struct LibraryView: View {
         } message: {
             Text(model.launchError ?? "")
         }
+        .alert(
+            "Game Porting Toolkit needed",
+            isPresented: Binding(
+                get: { model.gptkNotice != nil },
+                set: { if !$0 { model.gptkNotice = nil } }
+            )
+        ) {
+            Button("Set Up") {
+                model.gptkNotice = nil
+                showSteamGuide = true
+            }
+            Button("button.ok", role: .cancel) { model.gptkNotice = nil }
+        } message: {
+            Text(model.gptkNotice ?? "")
+        }
     }
 
     @ToolbarContentBuilder
@@ -169,6 +184,11 @@ struct LibraryView: View {
             Button("library.card.stop") { model.stop(row, bottles: bottles) }
         }
         Divider()
+        if case let .steam(appID) = row.item.launch,
+           let bottle = bottles.first(where: { $0.url == row.item.bottleURL }),
+           bottle.settings.nativeResolution {
+            resolutionMenu(appID: appID, bottle: bottle)
+        }
         if case let .program(url) = row.item.launch {
             Button("button.showInFinder") {
                 NSWorkspace.shared.activateFileViewerSelecting([url])
@@ -180,6 +200,29 @@ struct LibraryView: View {
         // gets without a deep link into it.
         Button("library.card.configure") {
             selectedBottle = row.item.bottleURL
+        }
+    }
+
+    /// Sharp draws every Retina pixel; Faster draws a quarter of them and lets
+    /// macOS scale up, for a game short of frames. Takes effect next launch.
+    private func resolutionMenu(appID: Int, bottle: Bottle) -> some View {
+        Picker("Resolution", selection: Binding(
+            get: { bottle.settings.fasterSteamApps.contains(appID) },
+            set: { faster in
+                if faster {
+                    bottle.settings.fasterSteamApps.insert(appID)
+                } else {
+                    bottle.settings.fasterSteamApps.remove(appID)
+                }
+                model.toast = ToastData(
+                    message: faster ? "Faster: half resolution from the next launch"
+                        : "Sharp: full resolution from the next launch",
+                    style: .success
+                )
+            }
+        )) {
+            Text("Sharp (Full Resolution)").tag(false)
+            Text("Faster (Half Resolution)").tag(true)
         }
     }
 

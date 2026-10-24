@@ -61,6 +61,8 @@ final class LibraryModel: ObservableObject {
     @Published private(set) var rows: [LibraryRow] = []
     @Published var launchError: String?
     @Published var toast: ToastData?
+    /// Set when a DirectX 12 game starts without Apple's D3DMetal installed.
+    @Published var gptkNotice: String?
 
     /// App IDs with a launch in flight, per bottle.
     @Published private var steamLaunching: [URL: Set<Int>] = [:]
@@ -202,8 +204,20 @@ extension LibraryModel {
                 launchError = String(localized: "library.launch.steamGameMissing")
                 return
             }
+            noteMissingD3DMetal(for: game)
             orchestrator(for: bottle).launch(game)
         }
+    }
+
+    /// DirectX 12 runs through D3DMetal, from Apple's Game Porting Toolkit,
+    /// which Whisky can't ship. Without it the game falls back to Wine's own
+    /// renderer, which is slow at best, so say why before it disappoints.
+    private func noteMissingD3DMetal(for game: SteamGame) {
+        guard !GPTKImporter.isDeployed(),
+              GraphicsAPIDetector.detect(executables: SteamLibrary.executableURLs(under: game.installURL)) == .d3d12
+        else { return }
+        gptkNotice = "\(game.name) uses DirectX 12, which needs Apple's Game Porting Toolkit. "
+            + "Without it the game may not start, or run slowly. Add it under Steam Setup › Choose your graphics."
     }
 
     /// Stops a running Steam game. Programs have no per-entry stop: the launch

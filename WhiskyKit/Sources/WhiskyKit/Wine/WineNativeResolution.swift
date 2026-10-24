@@ -56,7 +56,7 @@ extension Wine {
     /// Readies the runtime and the bottle for a game: the Game Mode bundle,
     /// then native resolution.
     ///
-    /// Steam's own GPU preferences are left alone: with its web views
+    /// Steam's GPU preference is only ever put back to on: with its web views
     /// software-rendered, Steam's window presents nothing under Wine's mac
     /// driver and stays black.
     ///
@@ -68,6 +68,7 @@ extension Wine {
         WineGameMode.apply()
         let document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
             + steamAutostartRemoval(bottle: bottle)
+            + steamGPURecovery(bottle: bottle)
         guard !document.isEmpty else { return }
         do {
             try await importer("Windows Registry Editor Version 5.00\n\n" + document, bottle)
@@ -119,26 +120,45 @@ extension Wine {
 
         let system = (try? String(contentsOf: bottle.url.appending(path: "system.reg"), encoding: .utf8))?
             .lowercased() ?? ""
-        for exe in dpiAwareExecutables(bottle: bottle, gameExecutables: gameExecutables) {
+        for (exe, awareness) in dpiAwareness(bottle: bottle, gameExecutables: gameExecutables) {
+            let value = String(format: "dword:%08x", awareness)
             for key in executionOptionsKeys {
                 // Wine's own files double each backslash in a key's name.
                 let section = ("[" + key.replacingOccurrences(of: "\\", with: "\\\\") + "\\\\" + exe + "]")
                     .lowercased()
                 guard let range = system.range(of: section) else {
-                    document += executionOptionsEntry(key: key, exe: exe)
+                    document += executionOptionsEntry(key: key, exe: exe, value: value)
                     continue
                 }
                 let body = system[range.upperBound...].prefix { $0 != "[" }
-                if !body.contains("\"dpiawareness\"=dword:00000002") {
-                    document += executionOptionsEntry(key: key, exe: exe)
+                if !body.contains("\"dpiawareness\"=\(value)") {
+                    document += executionOptionsEntry(key: key, exe: exe, value: value)
                 }
             }
         }
         return document
     }
 
-    private static func executionOptionsEntry(key: String, exe: String) -> String {
-        "[HKEY_LOCAL_MACHINE\\\(key)\\\(exe)]\n\"dpiAwareness\"=dword:00000002\n\n"
+    private static func executionOptionsEntry(key: String, exe: String, value: String) -> String {
+        "[HKEY_LOCAL_MACHINE\\\(key)\\\(exe)]\n\"dpiAwareness\"=\(value)\n\n"
+    }
+
+    /// Each game executable's `dpiAwareness`: 2 (per-monitor aware) to get
+    /// every pixel, or 0 for a game set to Faster, which Wine then draws at
+    /// the 96 DPI size and stretches, so the game renders a quarter of the
+    /// pixels. Written explicitly rather than deleted, so a switch back from
+    /// Sharp takes effect without clearing the key.
+    @MainActor
+    static func dpiAwareness(bottle: Bottle, gameExecutables: [String]) -> [(exe: String, awareness: Int)] {
+        let faster = bottle.settings.fasterSteamApps
+        let fasterExes: Set<String> = faster.isEmpty ? [] : Set(
+            SteamLibrary.enumerate(bottleURL: bottle.url)
+                .filter { faster.contains($0.appId) }
+                .flatMap { SteamLibrary.executableURLs(under: $0.installURL).map { $0.lastPathComponent.lowercased() } }
+        )
+        return dpiAwareExecutables(bottle: bottle, gameExecutables: gameExecutables).map { exe in
+            (exe, fasterExes.contains(exe.lowercased()) ? 0 : 2)
+        }
     }
 
     /// The executables that should get every pixel: the launch's games and
@@ -157,6 +177,21 @@ extension Wine {
             else { return false }
             return seen.insert(lower).inserted
         }
+    }
+
+    /// Turns Steam's GPU-drawn web views back on after Steam turned them off.
+    ///
+    /// When Steam's GPU process crashes it switches itself to software
+    /// rendering and saves that, and software rendering presents nothing under
+    /// Wine's mac driver: every later start is a black window. Set back here,
+    /// it takes effect at the client's next start.
+    static func steamGPURecovery(bottle: Bottle) -> String {
+        let value = WineRegistryFile.readValue(
+            bottleURL: bottle.url, key: #"HKCU\Software\Valve\Steam"#, valueName: "GPUAccelWebViewsV3"
+        )
+        guard value?.lowercased() == "dword:00000000" else { return "" }
+        nativeResolutionLogger.info("Steam had switched to software rendering; turning GPU web views back on")
+        return "[HKEY_CURRENT_USER\\Software\\Valve\\Steam]\n\"GPUAccelWebViewsV3\"=dword:00000001\n\n"
     }
 
     /// Takes Steam out of the bottle's startup programs.

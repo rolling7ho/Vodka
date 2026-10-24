@@ -142,6 +142,9 @@ struct LibraryCard: View {
                     if artwork == nil {
                         iconView
                     }
+                    if let warning = CompatibilityWarning(item: item) {
+                        warningBadge(warning)
+                    }
                     Spacer()
                     statusView
                 }
@@ -207,6 +210,18 @@ struct LibraryCard: View {
                     .transition(.opacity.combined(with: .scale))
             }
         }
+    }
+
+    private func warningBadge(_ warning: CompatibilityWarning) -> some View {
+        Label(warning.label, systemImage: "exclamationmark.triangle.fill")
+            .labelStyle(.titleAndIcon)
+            .font(.caption2.weight(.semibold))
+            .imageScale(.small)
+            .foregroundStyle(.orange)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .cardGlass(.capsule)
+            .help(warning.detail)
     }
 
     @ViewBuilder

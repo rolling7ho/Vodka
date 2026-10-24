@@ -486,6 +486,13 @@ public struct BottleSettings: Codable, Equatable {
         set { displayConfig.nativeResolution = newValue }
     }
 
+    /// Steam games set to Faster: drawn at half resolution and scaled up.
+    /// See ``BottleDisplayConfig/fasterSteamApps``.
+    public var fasterSteamApps: Set<Int> {
+        get { displayConfig.fasterSteamApps }
+        set { displayConfig.fasterSteamApps = newValue }
+    }
+
     public var virtualDesktopEnabled: Bool {
         get { displayConfig.virtualDesktopEnabled }
         set { displayConfig.virtualDesktopEnabled = newValue }

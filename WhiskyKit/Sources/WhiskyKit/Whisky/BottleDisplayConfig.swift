@@ -105,6 +105,11 @@ public struct BottleDisplayConfig: Codable, Equatable {
     /// Steam client's own UI. On unless turned off.
     var nativeResolution: Bool = true
 
+    /// Steam games drawn at half the panel's pixels, which macOS scales up:
+    /// a quarter of the work per frame, for games that run short of frames
+    /// at full Retina resolution. Only matters while ``nativeResolution`` is on.
+    var fasterSteamApps: Set<Int> = []
+
     /// Creates a new display config with default values.
     public init() {}
 
@@ -125,6 +130,9 @@ public struct BottleDisplayConfig: Codable, Equatable {
         self.nativeResolution = try container.decodeIfPresent(
             Bool.self, forKey: .nativeResolution
         ) ?? true
+        self.fasterSteamApps = try container.decodeIfPresent(
+            Set<Int>.self, forKey: .fasterSteamApps
+        ) ?? []
     }
 
     /// The resolved pixel dimensions based on the current preset and custom values.

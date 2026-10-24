@@ -40,8 +40,13 @@ This fork of the community fork focuses on Steam games:
   ([rolling7ho/winecx@191577b](https://github.com/rolling7ho/winecx/commit/191577b67055d5a95e0d793abedccda1e66edbab)):
   Chromium's cross-process Metal layer was laid out in pixels inside a window measured in points, so in
   Retina mode Steam showed its top-left quarter magnified. Published on this fork's releases.
-- **Performance.** MoltenVK logs errors only and submits asynchronously. Steam keeps GPU-rendered web
-  views: software-rendered, its window stays black under Wine's mac driver.
+- **Performance.** MoltenVK logs errors only and submits asynchronously. Right-click a Steam game in
+  the library and choose *Resolution › Faster* to draw it at half resolution, a quarter of the pixels,
+  scaled up by macOS.
+- **Steam stays visible.** If Steam switches itself to software rendering after a GPU crash, which
+  leaves its window black under Wine's mac driver, the next launch switches it back.
+- **Warnings before Play.** Library cards flag games whose anti-cheat blocks Wine, or that are known
+  not to run, and a DirectX 12 game started without Apple's Game Porting Toolkit says what's missing.
 - **Easy reset.** *Delete Bottle…* in the sidebar menu and in a bottle's settings closes what runs in
   it and moves it to the Trash in one step.
 
