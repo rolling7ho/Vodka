@@ -445,6 +445,10 @@ public class Wine {
         // like every Wine process it reconciles the user profile before starting.
         await syncCJKFontReplacements(bottle: bottle, importer: importer)
 
+        // Retina mode, DPI and the game bundle are read once per process too,
+        // so they go in before anything starts.
+        await prepareGaming(bottle: bottle, importer: importer)
+
         // The effective backend for this launch: a program-level override wins
         // over the bottle setting, and `.recommended` resolves to its concrete
         // backend. This decides which translation layer's files are deployed;
@@ -525,14 +529,16 @@ public class Wine {
 
         return PreparedLaunch(
             environment: wineEnvironment,
-            arguments: launchArguments(for: url, args: args, programOverrides: programOverrides)
+            arguments: launchArguments(for: url, args: args, bottle: bottle, programOverrides: programOverrides)
         )
     }
 
     /// The `wine64` arguments for a launch, with an optional per-program virtual desktop.
+    @MainActor
     private static func launchArguments(
-        for url: URL, args: [String], programOverrides: ProgramOverrides?
+        for url: URL, args: [String], bottle: Bottle, programOverrides: ProgramOverrides?
     ) -> [String] {
+        let args = nativeResolutionArguments(for: url, args: args, bottle: bottle)
         guard let overrides = programOverrides,
               let vdEnabled = overrides.virtualDesktopEnabled, vdEnabled
         else {

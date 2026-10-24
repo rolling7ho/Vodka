@@ -6003,6 +6003,76 @@
         "lastUpdated": "2026-04-30T00:00:00Z",
         "referenceURL": "https://github.com/whisky-app/whisky/issues/1119"
       }
+    },
+    {
+      "id": "teardown",
+      "title": "Teardown",
+      "aliases": [
+        "Teardown Game"
+      ],
+      "subtitle": "Tuxedo Labs",
+      "store": "steam",
+      "steamAppId": 1167630,
+      "rating": "unverified",
+      "exeNames": [
+        "teardown.exe"
+      ],
+      "pathPatterns": [
+        "teardown"
+      ],
+      "antiCheat": null,
+      "constraints": {
+        "cpuArchitectures": [
+          "arm64"
+        ],
+        "minMacOSVersion": "15.0.0",
+        "minWineVersion": "10.0"
+      },
+      "variants": [
+        {
+          "id": "native-opengl",
+          "label": "Native resolution (OpenGL)",
+          "isDefault": true,
+          "whenToUse": "Recommended: Teardown renders with OpenGL, which Wine runs on macOS OpenGL directly",
+          "rationale": [
+            "Teardown is an OpenGL 3.3 game, so no Direct3D translation layer is involved",
+            "WineD3D keeps DXMT/DXVK DLLs out of the game's way",
+            "msync lowers synchronisation overhead for its many worker threads",
+            "Pair with the bottle's Native resolution and macOS Game Mode for full-panel rendering"
+          ],
+          "settings": {
+            "graphicsBackend": "wined3d",
+            "dxvk": false,
+            "dxvkAsync": false,
+            "enhancedSync": "msync",
+            "shaderCacheEnabled": true,
+            "avxEnabled": false,
+            "sequoiaCompatMode": false
+          },
+          "environmentVariables": {},
+          "dllOverrides": [],
+          "winetricksVerbs": [
+            "vcrun2022"
+          ],
+          "testedWith": {
+            "lastTestedAt": "2026-10-24T00:00:00Z",
+            "macOSVersion": "27.0.1",
+            "wineVersion": "11.0",
+            "cpuArchitecture": "arm64"
+          }
+        }
+      ],
+      "notes": [
+        "Choose Fullscreen and the highest resolution in Options > Display; with native resolution on, that is the panel's pixel size",
+        "Teardown's voxel renderer is GPU-heavy at native resolution; lower Render scale in Options if the frame rate is low"
+      ],
+      "knownIssues": [],
+      "provenance": {
+        "source": "community-reference",
+        "author": "Whisky Steam fork",
+        "lastUpdated": "2026-10-24T00:00:00Z",
+        "referenceURL": "https://store.steampowered.com/app/1167630/Teardown/"
+      }
     }
   ]
 }

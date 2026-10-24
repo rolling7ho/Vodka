@@ -313,3 +313,52 @@ extension ResolutionConfigSection {
         bottle.settings.customResolutionHeight = height
     }
 }
+
+/// The settings most people need for a Steam bottle, shown above everything else.
+///
+/// Everything here has a recommended value already; the rest of the bottle's
+/// configuration sits behind Advanced.
+struct GameEssentialsSection: View {
+    @ObservedObject var bottle: Bottle
+    @AppStorage(WineGameMode.enabledDefaultsKey) private var gameModeEnabled = true
+
+    var body: some View {
+        Section {
+            Toggle(isOn: $bottle.settings.nativeResolution) {
+                VStack(alignment: .leading) {
+                    Text("Sharp, full-resolution games")
+                    Text(nativeResolutionCaption)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Toggle(isOn: $gameModeEnabled) {
+                VStack(alignment: .leading) {
+                    Text("macOS Game Mode")
+                    Text("Gives games top priority for the CPU and GPU and lowers controller and "
+                        + "AirPods latency. Turns on by itself when a game is full screen.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .onChange(of: gameModeEnabled) { WineGameMode.apply() }
+        } header: {
+            Text("Game Settings")
+        } footer: {
+            Text("Games with a preset, like Teardown, get their best settings automatically when you press Play. "
+                + "If Steam is open, quit and reopen it after changing these.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var nativeResolutionCaption: String {
+        guard let screen = NSScreen.main else {
+            return "Games render at your display's full pixel resolution. Steam's window is scaled to match."
+        }
+        let width = Int(screen.frame.width * screen.backingScaleFactor)
+        let height = Int(screen.frame.height * screen.backingScaleFactor)
+        return "Games render at your display's full \(width) × \(height) pixels instead of being upscaled. "
+            + "Steam's window is scaled to match."
+    }
+}

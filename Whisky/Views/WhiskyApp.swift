@@ -102,6 +102,9 @@ struct WhiskyApp: App {
                         await WhiskyApp.deleteOldLogs()
                     }
                     updateGPTKPayloadIfNeeded()
+                    Task.detached(priority: .utility) {
+                        WineGameMode.apply()
+                    }
                     startAudioDeviceListening()
                 }
                 .onReceive(

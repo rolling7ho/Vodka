@@ -65,9 +65,163 @@ struct ConfigView: View {
     @AppStorage("inputSectionExpanded") private var inputSectionExpanded: Bool = false
     @AppStorage("dllOverrideSectionExpanded") private var dllOverrideSectionExpanded: Bool = false
     @AppStorage("cleanupSectionExpanded") private var cleanupSectionExpanded: Bool = false
+    @AppStorage("showAdvancedBottleSettings") private var showAdvanced: Bool = false
 
     var body: some View {
         Form {
+            GameEssentialsSection(bottle: bottle)
+            Section {
+                Toggle("Show advanced settings", isOn: $showAdvanced.animation(.whiskyDefault))
+            } footer: {
+                Text("Wine, graphics translation, DLL overrides, diagnostics and repair tools. "
+                    + "The defaults work for most games, so you rarely need these.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if showAdvanced {
+                advancedSections
+            }
+        }
+        .formStyle(.grouped)
+        .animation(.whiskyDefault, value: wineSectionExpanded)
+        .animation(.whiskyDefault, value: launcherSectionExpanded)
+        .animation(.whiskyDefault, value: inputSectionExpanded)
+        .animation(.whiskyDefault, value: performanceSectionExpanded)
+        .animation(.whiskyDefault, value: dllOverrideSectionExpanded)
+        .animation(.whiskyDefault, value: cleanupSectionExpanded)
+        .sheet(isPresented: $showTroubleshootingWizard) {
+            TroubleshootingWizardView(
+                bottle: bottle,
+                program: nil,
+                entryContext: .bottleDiagnostics(bottleURL: bottle.url)
+            )
+        }
+        .sheet(isPresented: $showStabilityDiagnostics) {
+            DiagnosticsReportView(
+                title: "Stability Diagnostics Report",
+                report: stabilityDiagnosticReport,
+                defaultFilenamePrefix: "whisky-stability-diagnostics"
+            )
+        }
+        // Both item-based: presenting on a flag while the content reads a
+        // separate optional can build the sheet before the diagnosis lands.
+        .sheet(item: $exportPresentation) { presentation in
+            DiagnosticExportSheet(
+                diagnosis: presentation.diagnosis,
+                bottle: bottle,
+                program: presentation.program,
+                logFileURL: presentation.program.settings.lastLogFileURL
+            )
+        }
+        .sheet(item: $crashPresentation) { presentation in
+            DiagnosticsView(
+                diagnosis: presentation.diagnosis,
+                logText: presentation.logText,
+                programName: presentation.program.name,
+                bottleName: bottle.settings.name,
+                timestamp: presentation.program.settings.lastDiagnosisDate ?? Date(),
+                applyBottle: bottle
+            )
+            .frame(minWidth: 600, minHeight: 400)
+        }
+        .alert(item: $prefixRepairResult) { result in
+            switch result {
+            case .success:
+                Alert(
+                    title: Text("config.repairPrefix.success"),
+                    message: Text("config.repairPrefix.successMessage"),
+                    dismissButton: .default(Text("button.ok"))
+                )
+            case let .failure(message):
+                Alert(
+                    title: Text("config.repairPrefix.failed"),
+                    message: Text(message),
+                    dismissButton: .default(Text("button.ok"))
+                )
+            }
+        }
+        .bottomBar {
+            if showAdvanced {
+                HStack {
+                    Spacer()
+                    Button("config.controlPanel") {
+                        Task(priority: .userInitiated) {
+                            do {
+                                try await Wine.control(bottle: bottle)
+                            } catch {
+                                logger.error("Failed to launch control: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                    Button("config.regedit") {
+                        Task(priority: .userInitiated) {
+                            do {
+                                try await Wine.regedit(bottle: bottle)
+                            } catch {
+                                logger.error("Failed to launch regedit: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                    Button("config.winecfg") {
+                        Task(priority: .userInitiated) {
+                            do {
+                                try await Wine.cfg(bottle: bottle)
+                            } catch {
+                                logger.error("Failed to launch winecfg: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+        }
+        .navigationTitle("tab.config")
+        .onAppear {
+            winVersionLoadingState = .success
+
+            loadBuildName()
+            loadRetinaMode()
+            loadDpi()
+
+            gameConfigSnapshot = GameConfigSnapshot.load(from: bottle.url)
+            hasActiveSession = sessionStore.hasActiveSession(for: bottle.url)
+        }
+        .onChange(of: bottle.settings.windowsVersion) { _, newValue in
+            if winVersionLoadingState == .success {
+                winVersionLoadingState = .loading
+                buildVersionLoadingState = .loading
+                Task(priority: .userInitiated) {
+                    do {
+                        try await Wine.changeWinVersion(bottle: bottle, win: newValue)
+                        winVersionLoadingState = .success
+                        bottle.settings.windowsVersion = newValue
+                        loadBuildName()
+                    } catch {
+                        logger.error("Failed to change Windows version: \(error.localizedDescription)")
+                        winVersionLoadingState = .failed
+                    }
+                }
+            }
+        }
+        .onChange(of: dpiConfig) {
+            if dpiConfigLoadingState == .success {
+                Task(priority: .userInitiated) {
+                    dpiConfigLoadingState = .modifying
+                    do {
+                        try await Wine.changeDpiResolution(bottle: bottle, dpi: dpiConfig)
+                        dpiConfigLoadingState = .success
+                    } catch {
+                        logger.error("Failed to change DPI resolution: \(error.localizedDescription)")
+                        dpiConfigLoadingState = .failed
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var advancedSections: some View {
+        Group {
             WineConfigSection(
                 bottle: bottle,
                 isExpanded: $wineSectionExpanded,
@@ -172,139 +326,6 @@ struct ConfigView: View {
                 .help("config.repairPrefix.help")
             }
             CleanupConfigSection(bottle: bottle, isExpanded: $cleanupSectionExpanded)
-        }
-        .formStyle(.grouped)
-        .animation(.whiskyDefault, value: wineSectionExpanded)
-        .animation(.whiskyDefault, value: launcherSectionExpanded)
-        .animation(.whiskyDefault, value: inputSectionExpanded)
-        .animation(.whiskyDefault, value: performanceSectionExpanded)
-        .animation(.whiskyDefault, value: dllOverrideSectionExpanded)
-        .animation(.whiskyDefault, value: cleanupSectionExpanded)
-        .sheet(isPresented: $showTroubleshootingWizard) {
-            TroubleshootingWizardView(
-                bottle: bottle,
-                program: nil,
-                entryContext: .bottleDiagnostics(bottleURL: bottle.url)
-            )
-        }
-        .sheet(isPresented: $showStabilityDiagnostics) {
-            DiagnosticsReportView(
-                title: "Stability Diagnostics Report",
-                report: stabilityDiagnosticReport,
-                defaultFilenamePrefix: "whisky-stability-diagnostics"
-            )
-        }
-        // Both item-based: presenting on a flag while the content reads a
-        // separate optional can build the sheet before the diagnosis lands.
-        .sheet(item: $exportPresentation) { presentation in
-            DiagnosticExportSheet(
-                diagnosis: presentation.diagnosis,
-                bottle: bottle,
-                program: presentation.program,
-                logFileURL: presentation.program.settings.lastLogFileURL
-            )
-        }
-        .sheet(item: $crashPresentation) { presentation in
-            DiagnosticsView(
-                diagnosis: presentation.diagnosis,
-                logText: presentation.logText,
-                programName: presentation.program.name,
-                bottleName: bottle.settings.name,
-                timestamp: presentation.program.settings.lastDiagnosisDate ?? Date(),
-                applyBottle: bottle
-            )
-            .frame(minWidth: 600, minHeight: 400)
-        }
-        .alert(item: $prefixRepairResult) { result in
-            switch result {
-            case .success:
-                Alert(
-                    title: Text("config.repairPrefix.success"),
-                    message: Text("config.repairPrefix.successMessage"),
-                    dismissButton: .default(Text("button.ok"))
-                )
-            case let .failure(message):
-                Alert(
-                    title: Text("config.repairPrefix.failed"),
-                    message: Text(message),
-                    dismissButton: .default(Text("button.ok"))
-                )
-            }
-        }
-        .bottomBar {
-            HStack {
-                Spacer()
-                Button("config.controlPanel") {
-                    Task(priority: .userInitiated) {
-                        do {
-                            try await Wine.control(bottle: bottle)
-                        } catch {
-                            logger.error("Failed to launch control: \(error.localizedDescription)")
-                        }
-                    }
-                }
-                Button("config.regedit") {
-                    Task(priority: .userInitiated) {
-                        do {
-                            try await Wine.regedit(bottle: bottle)
-                        } catch {
-                            logger.error("Failed to launch regedit: \(error.localizedDescription)")
-                        }
-                    }
-                }
-                Button("config.winecfg") {
-                    Task(priority: .userInitiated) {
-                        do {
-                            try await Wine.cfg(bottle: bottle)
-                        } catch {
-                            logger.error("Failed to launch winecfg: \(error.localizedDescription)")
-                        }
-                    }
-                }
-            }
-            .padding()
-        }
-        .navigationTitle("tab.config")
-        .onAppear {
-            winVersionLoadingState = .success
-
-            loadBuildName()
-            loadRetinaMode()
-            loadDpi()
-
-            gameConfigSnapshot = GameConfigSnapshot.load(from: bottle.url)
-            hasActiveSession = sessionStore.hasActiveSession(for: bottle.url)
-        }
-        .onChange(of: bottle.settings.windowsVersion) { _, newValue in
-            if winVersionLoadingState == .success {
-                winVersionLoadingState = .loading
-                buildVersionLoadingState = .loading
-                Task(priority: .userInitiated) {
-                    do {
-                        try await Wine.changeWinVersion(bottle: bottle, win: newValue)
-                        winVersionLoadingState = .success
-                        bottle.settings.windowsVersion = newValue
-                        loadBuildName()
-                    } catch {
-                        logger.error("Failed to change Windows version: \(error.localizedDescription)")
-                        winVersionLoadingState = .failed
-                    }
-                }
-            }
-        }
-        .onChange(of: dpiConfig) {
-            if dpiConfigLoadingState == .success {
-                Task(priority: .userInitiated) {
-                    dpiConfigLoadingState = .modifying
-                    do {
-                        try await Wine.changeDpiResolution(bottle: bottle, dpi: dpiConfig)
-                        dpiConfigLoadingState = .success
-                    } catch {
-                        logger.error("Failed to change DPI resolution: \(error.localizedDescription)")
-                        dpiConfigLoadingState = .failed
-                    }
-                }
-            }
         }
     }
 }

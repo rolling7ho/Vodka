@@ -168,6 +168,7 @@ public class WhiskyWineInstaller {
     /// - Important: Ensure the tarball is from a trusted source.
     public static func install(from: URL) throws {
         try install(tarball: from, into: applicationFolder)
+        WineGameMode.apply()
     }
 
     /// Extracts a WhiskyWine tarball into `destination`, replacing any existing

@@ -17,6 +17,22 @@
   [![Documentation](https://img.shields.io/badge/Documentation-DocC-blue?style=for-the-badge)](https://frankea.github.io/Whisky/documentation/whiskykit/)
 </div>
 
+## Steam gaming edition
+
+This fork of the community fork focuses on Steam games, with three additions:
+
+- **Guided Steam setup.** The library opens on a three-step guide: create the Steam bottle,
+  install Steam (downloaded from Valve and installed silently), then sign in.
+- **macOS Game Mode.** Every Wine process runs from a games-category app bundle
+  (`Libraries/Wine/lib/wine/Wine.app`), so Game Mode turns on when a game is full screen.
+  `WineGameMode` keeps that layout in sync and can turn it off in Settings › Gaming.
+- **Native resolution.** On by default for each bottle: Wine's Retina mode at 96 DPI, so games render
+  at the panel's real pixels with no DPI upscaling, and Steam's own UI scaled with `-forcedesktopscaling 2`.
+
+Games with a GameDB preset (Teardown included) get it applied when launched from Steam. Technical
+bottle settings sit behind *Show advanced settings*. To build and install locally, run
+`scripts/install-local.sh` (ad-hoc signed, for this Mac only).
+
 ## Overview
 
 Whisky provides a clean and easy-to-use graphical wrapper for Wine built in native SwiftUI. You can make and manage bottles, install and run Windows apps and games, and unlock the full potential of your Mac with no technical knowledge required.

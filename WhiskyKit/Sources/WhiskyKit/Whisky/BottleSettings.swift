@@ -480,6 +480,12 @@ public struct BottleSettings: Codable, Equatable {
     /// When enabled, Wine runs in a windowed virtual desktop instead of
     /// directly managing individual windows. The resolution is controlled
     /// by ``resolutionPreset`` and ``customResolutionWidth``/``customResolutionHeight``.
+    /// Whether games render at the display's native pixel resolution.
+    public var nativeResolution: Bool {
+        get { displayConfig.nativeResolution }
+        set { displayConfig.nativeResolution = newValue }
+    }
+
     public var virtualDesktopEnabled: Bool {
         get { displayConfig.virtualDesktopEnabled }
         set { displayConfig.virtualDesktopEnabled = newValue }

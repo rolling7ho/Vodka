@@ -20,12 +20,14 @@ import SwiftUI
 import WhiskyKit
 
 struct SettingsView: View {
-    @AppStorage("SUEnableAutomaticChecks") var whiskyUpdate = true
+    @AppStorage("SUEnableAutomaticChecks") var whiskyUpdate = false
     @AppStorage("killOnTerminate") var killOnTerminate = true
     @AppStorage("showMenuBarExtra") var showMenuBarExtra = false
     @AppStorage("checkWhiskyWineUpdates") var checkWhiskyWineUpdates = true
     @AppStorage("defaultBottleLocation") var defaultBottleLocation = BottleData.defaultBottleDir
     @AppStorage("preferredTerminal") var preferredTerminal = "terminal"
+    @AppStorage(WineGameMode.enabledDefaultsKey) var gameModeEnabled = true
+    @AppStorage(WineGameMode.fitBelowNotchDefaultsKey) var fitGamesBelowNotch = false
     @AppStorage(Telemetry.consentDefaultsKey) private var telemetryConsentRaw: String = Telemetry.ConsentState
         .undecided.rawValue
 
@@ -69,6 +71,14 @@ struct SettingsView: View {
                     }
                 }
             }
+            Section("Gaming") {
+                Toggle("Game Mode for Windows games", isOn: $gameModeEnabled)
+                    .help("Marks Wine processes as games, so macOS turns on Game Mode when a game is full screen.")
+                Toggle("Fit full-screen games below the notch", isOn: $fitGamesBelowNotch)
+                    .help("Games see the display without the area beside the camera, so nothing is hidden behind it.")
+            }
+            .onChange(of: gameModeEnabled) { WineGameMode.apply() }
+            .onChange(of: fitGamesBelowNotch) { WineGameMode.apply() }
             Section("settings.updates") {
                 Toggle("settings.toggle.whisky.updates", isOn: $whiskyUpdate)
                 Toggle("settings.toggle.whiskywine.updates", isOn: $checkWhiskyWineUpdates)
