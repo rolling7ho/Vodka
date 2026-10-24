@@ -24,7 +24,7 @@ import WhiskyKit
 /// a game uses with familiar games as examples, the way CrossOver names its
 /// options, rather than after the translation layer behind them.
 enum GraphicsChoice: String, CaseIterable, Identifiable {
-    case automatic, directX12, directX11, directX9, openGL
+    case automatic, directX12, directX11, directX11Compatibility, directX9, openGL
 
     var id: String { rawValue }
 
@@ -33,6 +33,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
         case .automatic: "Automatic (Recommended)"
         case .directX12: "DirectX 12"
         case .directX11: "DirectX 11"
+        case .directX11Compatibility: "DirectX 11 (Compatibility)"
         case .directX9: "DirectX 9 and older"
         case .openGL: "OpenGL and Vulkan"
         }
@@ -43,6 +44,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
         case .automatic: "Checks each game you install and picks the right option for it."
         case .directX12: "Teardown, Cyberpunk 2077, Elden Ring, Hogwarts Legacy, Forza Horizon 5"
         case .directX11: "Skyrim Special Edition, Fallout 4, The Witcher 3, Dark Souls III, Sekiro"
+        case .directX11Compatibility: "Use if a DirectX 10 or 11 game glitches or won't start on the option above."
         case .directX9: "Fallout: New Vegas, Oblivion, Left 4 Dead 2, Dishonored"
         case .openGL: "Doom (2016), Half-Life, Wolfenstein: The New Order"
         }
@@ -53,6 +55,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
         case .automatic: "wand.and.stars"
         case .directX12: "bolt.fill"
         case .directX11: "cube.fill"
+        case .directX11Compatibility: "cube.transparent"
         case .directX9: "clock.arrow.circlepath"
         case .openGL: "circle.hexagongrid.fill"
         }
@@ -64,6 +67,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
         case .automatic: "D3DMetal, DXMT or WineD3D, per game"
         case .directX12: "Apple D3DMetal"
         case .directX11: "DXMT (DirectX 11 to Metal)"
+        case .directX11Compatibility: "DXVK (DirectX to Vulkan, on MoltenVK)"
         case .directX9, .openGL: "WineD3D (OpenGL)"
         }
     }
@@ -73,6 +77,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
         case .automatic: .recommended
         case .directX12: .d3dMetal
         case .directX11: .dxmt
+        case .directX11Compatibility: .dxvk
         case .directX9, .openGL: .wined3d
         }
     }
@@ -84,7 +89,8 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
         switch backend {
         case .recommended: self = .automatic
         case .d3dMetal: self = .directX12
-        case .dxmt, .dxvk: self = .directX11
+        case .dxmt: self = .directX11
+        case .dxvk: self = .directX11Compatibility
         case .wined3d: self = .directX9
         }
     }

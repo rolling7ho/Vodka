@@ -21,7 +21,6 @@ import WhiskyKit
 
 struct ResolutionConfigSection: View {
     @ObservedObject var bottle: Bottle
-    @AppStorage("displayAdvancedMode") private var advancedMode: Bool = false
     @State private var hasRunningProcesses: Bool = false
     @State private var widthText: String = ""
     @State private var heightText: String = ""
@@ -29,86 +28,51 @@ struct ResolutionConfigSection: View {
 
     var body: some View {
         Section("config.title.display") {
-            // Simple/Advanced segmented control
-            Picker("", selection: $advancedMode) {
-                Text("config.display.simple").tag(false)
-                Text("config.display.advanced").tag(true)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-
-            // Simple mode: read-only summary
-            if !advancedMode {
-                virtualDesktopSummary
-            }
-
-            // Advanced mode: full controls
-            if advancedMode {
-                Toggle(isOn: $bottle.settings.virtualDesktopEnabled) {
-                    VStack(alignment: .leading) {
-                        Text("config.virtualDesktop")
-                        Text("config.virtualDesktop.info")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .onChange(of: bottle.settings.virtualDesktopEnabled) { _, enabled in
-                    persistVirtualDesktop(enabled: enabled)
-                }
-
-                if bottle.settings.virtualDesktopEnabled {
-                    Picker("config.virtualDesktop.resolution", selection: $bottle.settings.resolutionPreset) {
-                        ForEach(ResolutionPreset.allCases, id: \.self) { preset in
-                            Text(presetLabel(preset)).tag(preset)
-                        }
-                    }
-                    .onChange(of: bottle.settings.resolutionPreset) { _, _ in
-                        syncCustomFields()
-                        persistResolution()
-                    }
-
-                    if bottle.settings.resolutionPreset == .matchDisplay {
-                        matchDisplayHint
-                    }
-
-                    if bottle.settings.resolutionPreset == .custom {
-                        customResolutionFields
-                    }
-
-                    Text("config.virtualDesktop.nextLaunch")
+            Toggle(isOn: $bottle.settings.virtualDesktopEnabled) {
+                VStack(alignment: .leading) {
+                    Text("config.virtualDesktop")
+                    Text("config.virtualDesktop.info")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
+            .onChange(of: bottle.settings.virtualDesktopEnabled) { _, enabled in
+                persistVirtualDesktop(enabled: enabled)
+            }
 
-                if hasRunningProcesses {
-                    runningProcessWarning
+            if bottle.settings.virtualDesktopEnabled {
+                Picker("config.virtualDesktop.resolution", selection: $bottle.settings.resolutionPreset) {
+                    ForEach(ResolutionPreset.allCases, id: \.self) { preset in
+                        Text(presetLabel(preset)).tag(preset)
+                    }
                 }
+                .onChange(of: bottle.settings.resolutionPreset) { _, _ in
+                    syncCustomFields()
+                    persistResolution()
+                }
+
+                if bottle.settings.resolutionPreset == .matchDisplay {
+                    matchDisplayHint
+                }
+
+                if bottle.settings.resolutionPreset == .custom {
+                    customResolutionFields
+                }
+
+                Text("config.virtualDesktop.nextLaunch")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if hasRunningProcesses {
+                runningProcessWarning
             }
         }
-        .animation(.default, value: advancedMode)
         .animation(.default, value: bottle.settings.virtualDesktopEnabled)
         .task {
             await loadRegistryState()
             syncCustomFields()
             await checkRunningProcesses()
-        }
-    }
-
-    // MARK: - Simple Mode Summary
-
-    private var virtualDesktopSummary: some View {
-        HStack {
-            Text("config.virtualDesktop")
-                .foregroundStyle(.secondary)
-            Spacer()
-            if bottle.settings.virtualDesktopEnabled {
-                let res = currentResolutionSummary()
-                Text(res)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("config.virtualDesktop.off")
-                    .foregroundStyle(.secondary)
-            }
         }
     }
 
@@ -189,17 +153,6 @@ struct ResolutionConfigSection: View {
     }
 
     // MARK: - Helpers
-
-    func currentResolutionSummary() -> String {
-        let preset = bottle.settings.resolutionPreset
-        if let dims = preset.dimensions {
-            return "\(dims.width)x\(dims.height)"
-        }
-        if preset == .custom {
-            return "\(bottle.settings.customResolutionWidth)x\(bottle.settings.customResolutionHeight)"
-        }
-        return effectiveResolutionString()
-    }
 
     func presetLabel(_ preset: ResolutionPreset) -> String {
         switch preset {
@@ -342,6 +295,15 @@ struct GameEssentialsSection: View {
                 }
             }
             .onChange(of: gameModeEnabled) { WineGameMode.apply() }
+            Toggle(isOn: $bottle.settings.metalHud) {
+                VStack(alignment: .leading) {
+                    Text("Show FPS counter")
+                    Text("Apple's Metal performance overlay in the corner of every game: frame rate, "
+                        + "frame time and GPU memory.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
             VStack(alignment: .leading, spacing: 6) {
                 Text("Graphics")
                 Text("Pick what your games use, or leave it on Automatic.")

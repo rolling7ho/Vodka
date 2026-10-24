@@ -81,44 +81,6 @@ struct WineConfigSection: View {
                     }
                 }
             }
-            SettingItemView(
-                title: "config.retinaMode",
-                description: "config.retinaMode.info",
-                loadingState: retinaModeLoadingState,
-                onRetry: onRetryRetinaMode
-            ) {
-                VStack(alignment: .trailing, spacing: 4) {
-                    Picker("config.retinaMode", selection: $retinaModeState) {
-                        Text("config.retinaMode.on").tag(RetinaModeState.enabled)
-                        Text("config.retinaMode.off").tag(RetinaModeState.disabled)
-                        Text("config.retinaMode.unknown").tag(RetinaModeState.unknown)
-                    }
-                    .pickerStyle(.segmented)
-                    .onChange(of: retinaModeState) { oldValue, newValue in
-                        guard newValue != .unknown, newValue != oldValue else { return }
-                        let boolValue = newValue == .enabled
-                        Task(priority: .userInitiated) {
-                            retinaModeLoadingState = .modifying
-                            do {
-                                try await Wine.changeRetinaMode(
-                                    bottle: bottle, retinaMode: boolValue
-                                )
-                                retinaModeLoadingState = .success
-                            } catch {
-                                Self.logger.error(
-                                    "Failed to change retina mode: \(error.localizedDescription)"
-                                )
-                                retinaModeLoadingState = .failed
-                            }
-                        }
-                    }
-                    if retinaModeState == .unknown {
-                        Text("config.retinaMode.unknownHint")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
             VStack(alignment: .leading, spacing: 2) {
                 Picker("config.enhancedSync", selection: $bottle.settings.enhancedSync) {
                     Text("config.enhancedSync.none").tag(EnhancedSync.none)
@@ -130,24 +92,70 @@ struct WineConfigSection: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            SettingItemView(
-                title: "config.dpi",
-                description: "config.dpi.info",
-                loadingState: dpiConfigLoadingState,
-                onRetry: onRetryDpi
-            ) {
-                Button("config.inspect") {
-                    dpiSheetPresented = true
+            // Sharp, full-resolution games sets both of these at every launch,
+            // so offering them here as well would only let the two fight.
+            if bottle.settings.nativeResolution {
+                Text("Retina mode and DPI are set by \u{201C}Sharp, full-resolution games\u{201D} in Game Settings.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                SettingItemView(
+                    title: "config.retinaMode",
+                    description: "config.retinaMode.info",
+                    loadingState: retinaModeLoadingState,
+                    onRetry: onRetryRetinaMode
+                ) {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Picker("config.retinaMode", selection: $retinaModeState) {
+                            Text("config.retinaMode.on").tag(RetinaModeState.enabled)
+                            Text("config.retinaMode.off").tag(RetinaModeState.disabled)
+                            Text("config.retinaMode.unknown").tag(RetinaModeState.unknown)
+                        }
+                        .pickerStyle(.segmented)
+                        .onChange(of: retinaModeState) { oldValue, newValue in
+                            guard newValue != .unknown, newValue != oldValue else { return }
+                            let boolValue = newValue == .enabled
+                            Task(priority: .userInitiated) {
+                                retinaModeLoadingState = .modifying
+                                do {
+                                    try await Wine.changeRetinaMode(
+                                        bottle: bottle, retinaMode: boolValue
+                                    )
+                                    retinaModeLoadingState = .success
+                                } catch {
+                                    Self.logger.error(
+                                        "Failed to change retina mode: \(error.localizedDescription)"
+                                    )
+                                    retinaModeLoadingState = .failed
+                                }
+                            }
+                        }
+                        if retinaModeState == .unknown {
+                            Text("config.retinaMode.unknownHint")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                .sheet(isPresented: $dpiSheetPresented) {
-                    DPIConfigSheetView(
-                        dpiConfig: $dpiConfig,
-                        isRetinaMode: Binding(
-                            get: { retinaModeState == .enabled },
-                            set: { _ in }
-                        ),
-                        presented: $dpiSheetPresented
-                    )
+                SettingItemView(
+                    title: "config.dpi",
+                    description: "config.dpi.info",
+                    loadingState: dpiConfigLoadingState,
+                    onRetry: onRetryDpi
+                ) {
+                    Button("config.inspect") {
+                        dpiSheetPresented = true
+                    }
+                    .sheet(isPresented: $dpiSheetPresented) {
+                        DPIConfigSheetView(
+                            dpiConfig: $dpiConfig,
+                            isRetinaMode: Binding(
+                                get: { retinaModeState == .enabled },
+                                set: { _ in }
+                            ),
+                            presented: $dpiSheetPresented
+                        )
+                    }
                 }
             }
             Toggle(isOn: $bottle.settings.avxEnabled) {

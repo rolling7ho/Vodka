@@ -41,31 +41,6 @@ struct PerformanceConfigSection: View {
                         .foregroundColor(.secondary)
                 }
             }
-            // Install VC++ Runtime button (needed for Unity IL2CPP and other C++ games)
-            if !bottle.settings.vcRedistInstalled {
-                Button {
-                    Task {
-                        await Winetricks.runCommand(command: "vcrun2019", bottle: bottle)
-                        bottle.settings.vcRedistInstalled = true
-                    }
-                } label: {
-                    HStack {
-                        Image(systemName: "wrench.and.screwdriver")
-                        VStack(alignment: .leading) {
-                            Text("config.installVcRedist")
-                            Text("config.installVcRedist.info")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-            } else {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text("config.vcRedistInstalled")
-                }
-            }
         }
     }
 }

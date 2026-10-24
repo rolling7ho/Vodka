@@ -70,11 +70,12 @@ struct ConfigView: View {
     var body: some View {
         Form {
             GameEssentialsSection(bottle: bottle)
+            troubleshootingSection
             Section {
                 Toggle("Show advanced settings", isOn: $showAdvanced.animation(.whiskyDefault))
             } footer: {
-                Text("Wine, graphics translation, DLL overrides, diagnostics and repair tools. "
-                    + "The defaults work for most games, so you rarely need these.")
+                Text("Graphics tuning, display, controllers, audio, Steam and Wine options, and "
+                    + "diagnostic reports. The defaults work for most games, so you rarely need these.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -231,9 +232,58 @@ struct ConfigView: View {
         }
     }
 
+    /// What anyone with a game that will not start needs, without Advanced.
+    private var troubleshootingSection: some View {
+        Section {
+            if hasActiveSession {
+                TroubleshootingEntryBanner(bannerType: .resumeSession) {
+                    showTroubleshootingWizard = true
+                }
+            }
+            Button {
+                showTroubleshootingWizard = true
+            } label: {
+                Label(String(localized: "troubleshooting.entry.startGuided"), systemImage: "stethoscope")
+            }
+            Button {
+                repairPrefix()
+            } label: {
+                HStack {
+                    Label("config.repairPrefix", systemImage: "wrench.and.screwdriver")
+                    if isRepairingPrefix {
+                        ProgressView()
+                            .controlSize(.small)
+                            .padding(.leading, 4)
+                    }
+                }
+            }
+            .disabled(isRepairingPrefix)
+            .help("config.repairPrefix.help")
+        } header: {
+            Text("Troubleshooting")
+        } footer: {
+            Text("Walks through why a game won't start or misbehaves, and fixes what it can.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    /// Ordered by how often a Steam player needs them: how games look and run
+    /// first, then input and sound, then the client and Wine underneath.
     @ViewBuilder
     private var advancedSections: some View {
         Group {
+            GraphicsConfigSection(bottle: bottle)
+            ResolutionConfigSection(bottle: bottle)
+            PerformanceConfigSection(bottle: bottle, isExpanded: $performanceSectionExpanded)
+            InputConfigSection(bottle: bottle, isExpanded: $inputSectionExpanded)
+            AudioConfigSection(bottle: bottle)
+            LauncherConfigSection(
+                bottle: bottle,
+                isExpanded: $launcherSectionExpanded,
+                onViewDiagnostics: loadLatestDiagnosisAndView
+            )
+            DiscordConfigSection(bottle: bottle)
             WineConfigSection(
                 bottle: bottle,
                 isExpanded: $wineSectionExpanded,
@@ -249,95 +299,62 @@ struct ConfigView: View {
                 onRetryRetinaMode: loadRetinaMode,
                 onRetryDpi: loadDpi
             )
-            LauncherConfigSection(
-                bottle: bottle,
-                isExpanded: $launcherSectionExpanded,
-                onViewDiagnostics: loadLatestDiagnosisAndView
-            )
-            InputConfigSection(bottle: bottle, isExpanded: $inputSectionExpanded)
-            GraphicsConfigSection(bottle: bottle)
-            AudioConfigSection(bottle: bottle)
-            DiscordConfigSection(bottle: bottle)
-            ResolutionConfigSection(bottle: bottle)
-            PerformanceConfigSection(bottle: bottle, isExpanded: $performanceSectionExpanded)
-            DLLOverrideConfigSection(bottle: bottle, isExpanded: $dllOverrideSectionExpanded)
             DependencyConfigSection(bottle: bottle)
+            DLLOverrideConfigSection(bottle: bottle, isExpanded: $dllOverrideSectionExpanded)
             gameConfigRevertSection
-            Section("Diagnostics") {
-                Text("Analyze Wine crash output for troubleshooting guidance")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                if hasActiveSession {
-                    TroubleshootingEntryBanner(bannerType: .resumeSession) {
-                        showTroubleshootingWizard = true
-                    }
-                }
-
-                Button(String(localized: "troubleshooting.entry.startGuided")) {
-                    showTroubleshootingWizard = true
-                }
-
-                Button("Export Diagnostic Report\u{2026}") {
-                    loadLatestDiagnosisAndExport()
-                }
-                .disabled(mostRecentlyDiagnosedProgram == nil)
-
-                Button("View Latest Diagnosis") {
-                    loadLatestDiagnosisAndView()
-                }
-                .disabled(mostRecentlyDiagnosedProgram == nil)
-
-                TroubleshootingHistoryView(
-                    bottleURL: bottle.url,
-                    programURL: nil
-                )
-            }
-            Section("Stability") {
-                Button("Generate Stability Diagnostics") {
-                    Task {
-                        stabilityDiagnosticReport = await StabilityDiagnostics.generateDiagnosticReport(for: bottle)
-                        showStabilityDiagnostics = true
-                    }
-                }
-                .help("Generates a bounded, privacy-safe report for issue triage.")
-
-                Button {
-                    Task {
-                        isRepairingPrefix = true
-                        defer {
-                            bottle.clearWineUsernameCache()
-                            isRepairingPrefix = false
-                        }
-                        do {
-                            try await Wine.repairPrefix(bottle: bottle)
-                            // Validate immediately after repair to confirm directories were created
-                            let result = WinePrefixValidation.validatePrefix(for: bottle)
-                            if result.isValid {
-                                prefixRepairResult = .success
-                            } else {
-                                prefixRepairResult = .failure(
-                                    String(localized: "config.repairPrefix.validationFailed")
-                                )
-                            }
-                        } catch {
-                            prefixRepairResult = .failure(error.localizedDescription)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text("config.repairPrefix")
-                        if isRepairingPrefix {
-                            ProgressView()
-                                .controlSize(.small)
-                                .padding(.leading, 4)
-                        }
-                    }
-                }
-                .disabled(isRepairingPrefix)
-                .help("config.repairPrefix.help")
-            }
+            diagnosticReportsSection
             CleanupConfigSection(bottle: bottle, isExpanded: $cleanupSectionExpanded)
+        }
+    }
+
+    private var diagnosticReportsSection: some View {
+        Section("Diagnostic Reports") {
+            Button("View Latest Diagnosis") {
+                loadLatestDiagnosisAndView()
+            }
+            .disabled(mostRecentlyDiagnosedProgram == nil)
+
+            Button("Export Diagnostic Report\u{2026}") {
+                loadLatestDiagnosisAndExport()
+            }
+            .disabled(mostRecentlyDiagnosedProgram == nil)
+
+            Button("Generate Stability Diagnostics") {
+                Task {
+                    stabilityDiagnosticReport = await StabilityDiagnostics.generateDiagnosticReport(for: bottle)
+                    showStabilityDiagnostics = true
+                }
+            }
+            .help("Generates a bounded, privacy-safe report for issue triage.")
+
+            TroubleshootingHistoryView(
+                bottleURL: bottle.url,
+                programURL: nil
+            )
+        }
+    }
+
+    private func repairPrefix() {
+        Task {
+            isRepairingPrefix = true
+            defer {
+                bottle.clearWineUsernameCache()
+                isRepairingPrefix = false
+            }
+            do {
+                try await Wine.repairPrefix(bottle: bottle)
+                // Validate immediately after repair to confirm directories were created
+                let result = WinePrefixValidation.validatePrefix(for: bottle)
+                if result.isValid {
+                    prefixRepairResult = .success
+                } else {
+                    prefixRepairResult = .failure(
+                        String(localized: "config.repairPrefix.validationFailed")
+                    )
+                }
+            } catch {
+                prefixRepairResult = .failure(error.localizedDescription)
+            }
         }
     }
 }

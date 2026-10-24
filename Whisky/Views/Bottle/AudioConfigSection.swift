@@ -26,7 +26,6 @@ import WhiskyKit
 struct AudioConfigSection: View {
     @ObservedObject var bottle: Bottle
 
-    @AppStorage("audioAdvancedMode") private var advancedMode: Bool = false
     @State private var monitor = AudioDeviceMonitor()
 
     @State private var audioStatus: AudioStatus = .unknown
@@ -68,38 +67,23 @@ struct AudioConfigSection: View {
                 testExeURL: Bundle.main.url(forResource: "WhiskyAudioTest", withExtension: "exe")
             )
 
-            // 3. Simple/Advanced toggle
-            Picker("", selection: $advancedMode) {
-                Text("Simple").tag(false)
-                Text("Advanced").tag(true)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            // 3. Settings, all of them: the section already sits behind the
+            // bottle's Advanced toggle.
+            AudioSettingsView(bottle: bottle, advancedMode: true)
 
-            // 4. Settings
-            AudioSettingsView(bottle: bottle, advancedMode: advancedMode)
-
-            // 5. Badge if advanced overrides in Simple mode
-            if !advancedMode, hasAdvancedAudioOverrides {
-                advancedOverridesBadge
-            }
-
-            // 6. Findings (if any from last test)
+            // 4. Findings (if any from last test)
             if !currentFindings.isEmpty {
                 AudioFindingsView(findings: currentFindings, onApplyFix: handleApplyFix)
             }
 
-            // 7. Advanced device views
-            if advancedMode {
-                advancedDeviceViews
-            }
+            // 5. Device views
+            advancedDeviceViews
 
-            // 8. Troubleshooting link
+            // 6. Troubleshooting link
             Button("Audio Troubleshooting\u{2026}") {
                 openTroubleshootingWizard()
             }
         }
-        .animation(.default, value: advancedMode)
         .onAppear {
             startDeviceListening()
         }
@@ -112,9 +96,7 @@ struct AudioConfigSection: View {
                 onDismiss: {
                     wizardPresentation = nil
                 },
-                onOpenAdvanced: {
-                    advancedMode = true
-                }
+                onOpenAdvanced: {}
             )
         }
     }
@@ -123,35 +105,9 @@ struct AudioConfigSection: View {
 // MARK: - Computed Properties
 
 extension AudioConfigSection {
-    /// True if any advanced-only audio settings differ from defaults.
-    private var hasAdvancedAudioOverrides: Bool {
-        bottle.settings.audioDriver != .auto
-            || bottle.settings.audioLatencyPreset != .defaultPreset
-            || bottle.settings.outputDeviceMode != .followSystem
-    }
-
     /// Aggregated findings from the most recent probe results.
     private var currentFindings: [AudioFinding] {
         probeResults.flatMap(\.findings)
-    }
-}
-
-// MARK: - Advanced Overrides Badge
-
-extension AudioConfigSection {
-    private var advancedOverridesBadge: some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle")
-                .foregroundStyle(.secondary)
-            Text("Advanced audio settings active")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Button("Show") {
-                advancedMode = true
-            }
-            .font(.caption)
-        }
     }
 }
 

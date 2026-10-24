@@ -54,14 +54,18 @@ struct BottleView: View {
                 }
                 .padding()
                 Form {
-                    NavigationLink(value: BottleStage.programs) {
-                        Label("tab.programs", systemImage: "list.bullet")
-                    }
-                    .accessibilityIdentifier("nav.installedPrograms")
                     NavigationLink(value: BottleStage.config) {
                         Label("tab.config", systemImage: "gearshape")
                     }
                     .accessibilityIdentifier("nav.bottleConfiguration")
+                    NavigationLink(value: BottleStage.gameConfigs) {
+                        Label("tab.gameConfigs", systemImage: "gamecontroller")
+                    }
+                    .accessibilityIdentifier("nav.gameConfigurations")
+                    NavigationLink(value: BottleStage.programs) {
+                        Label("tab.programs", systemImage: "list.bullet")
+                    }
+                    .accessibilityIdentifier("nav.installedPrograms")
                     NavigationLink(value: BottleStage.processes) {
                         HStack {
                             Label("tab.processes", systemImage: "hockey.puck.circle")
@@ -78,10 +82,6 @@ struct BottleView: View {
                         }
                     }
                     .accessibilityIdentifier("nav.runningProcesses")
-                    NavigationLink(value: BottleStage.gameConfigs) {
-                        Label("tab.gameConfigs", systemImage: "gamecontroller")
-                    }
-                    .accessibilityIdentifier("nav.gameConfigurations")
                 }
                 .formStyle(.grouped)
                 .scrollDisabled(true)

@@ -20,9 +20,12 @@ import Metal
 import SwiftUI
 import WhiskyKit
 
+/// Fine-tuning for how games are drawn, under the bottle's Advanced toggle.
+///
+/// Which translation layer a bottle uses is picked once, in the Game Settings
+/// section (``GraphicsChoiceView``); this section only tunes it.
 struct GraphicsConfigSection: View {
     @ObservedObject var bottle: Bottle
-    @AppStorage("graphicsAdvancedMode") private var advancedMode: Bool = false
     @State private var hasRunningProcesses: Bool = false
 
     private var resolvedBackend: GraphicsBackend {
@@ -33,24 +36,7 @@ struct GraphicsConfigSection: View {
     }
 
     var body: some View {
-        Section("config.title.graphics") {
-            // Simple/Advanced segmented control
-            Picker("", selection: $advancedMode) {
-                Text("config.graphics.simple").tag(false)
-                Text("config.graphics.advanced").tag(true)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-
-            // Backend picker -- always visible
-            BackendPickerView(
-                selection: $bottle.settings.graphicsBackend,
-                resolvedBackend: resolvedBackend,
-                isBackendAvailable: { backend in
-                    WhiskyWineInstaller.isBackendAvailable(backend)
-                }
-            )
-
+        Section("Graphics Tuning") {
             // Said once, after an update put a bottle the old Steam profile had
             // switched to DXVK back on Recommended (#276).
             if bottle.settings.launcherBackendResetNotice {
@@ -64,7 +50,6 @@ struct GraphicsConfigSection: View {
                 d3dMetalMissingWarning
             }
 
-            // Running process warning banner
             if hasRunningProcesses {
                 runningProcessWarning
             }
@@ -73,89 +58,21 @@ struct GraphicsConfigSection: View {
             // own command-encoding backend, so both are meaningless under any
             // other backend rather than merely inactive.
             if resolvedBackend == .d3dMetal {
-                Toggle(isOn: $bottle.settings.metalFX) {
-                    VStack(alignment: .leading) {
-                        Text("config.metalFX")
-                        Text("config.metalFX.info")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Toggle(isOn: $bottle.settings.metal4Enabled) {
-                    VStack(alignment: .leading) {
-                        Text("config.metal4")
-                        Text("config.metal4.info")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                // Frame generation reaches MetalFX through the same DLSS bridge
-                // as upscaling, so it has nothing to switch on without it.
-                Toggle(isOn: $bottle.settings.frameGeneration) {
-                    VStack(alignment: .leading) {
-                        Text("config.frameGeneration")
-                        Text("config.frameGeneration.info")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .disabled(!bottle.settings.metalFX)
+                metalFXToggles
             }
 
-            // The Sequoia compatibility toggle is gone: everything it set is a
-            // platform-layer fix applied on every supported macOS, so the
-            // switch changed nothing in either position.
+            DXVKSettingsView(
+                bottle: bottle,
+                resolvedBackend: resolvedBackend,
+                bottleURL: bottle.url
+            )
 
-            // "Advanced settings active" badge in Simple mode
-            if !advancedMode, hasAdvancedSettingsConfigured {
-                advancedSettingsBadge
-            }
+            metalDebugToggles
 
-            // Per-program override note in Simple mode
-            if !advancedMode, !programsWithGraphicsOverrides.isEmpty {
-                programOverridesBadge
-            }
-
-            // Advanced mode content
-            if advancedMode {
-                // DXVK settings subsection
-                DXVKSettingsView(
-                    bottle: bottle,
-                    resolvedBackend: resolvedBackend,
-                    bottleURL: bottle.url
-                )
-
-                // Metal settings subsection (migrated from MetalConfigSection)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("config.metal.title")
-                        .font(.headline)
-                    Toggle(isOn: $bottle.settings.metalHud) {
-                        Text("config.metalHud")
-                    }
-                    Toggle(isOn: $bottle.settings.metalTrace) {
-                        Text("config.metalTrace")
-                        Text("config.metalTrace.info")
-                    }
-                    if let device = MTLCreateSystemDefaultDevice() {
-                        if device.supportsFamily(.apple9) {
-                            Toggle(isOn: $bottle.settings.dxrEnabled) {
-                                Text("config.dxr")
-                                Text("config.dxr.info")
-                            }
-                        }
-                    }
-                    Toggle(isOn: $bottle.settings.metalValidation) {
-                        Text("config.metalValidation")
-                    }
-                }
-
-                // Per-program override info
-                if !programsWithGraphicsOverrides.isEmpty {
-                    programOverridesInfo
-                }
+            if !programsWithGraphicsOverrides.isEmpty {
+                programOverridesInfo
             }
         }
-        .animation(.default, value: advancedMode)
         .onChange(of: bottle.settings.graphicsBackend) {
             // Picking a backend answers the notice.
             if bottle.settings.launcherBackendResetNotice {
@@ -164,6 +81,62 @@ struct GraphicsConfigSection: View {
         }
         .task {
             await checkRunningProcesses()
+        }
+    }
+
+    // MARK: - D3DMetal Upscaling
+
+    @ViewBuilder
+    private var metalFXToggles: some View {
+        Toggle(isOn: $bottle.settings.metalFX) {
+            VStack(alignment: .leading) {
+                Text("config.metalFX")
+                Text("config.metalFX.info")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        Toggle(isOn: $bottle.settings.metal4Enabled) {
+            VStack(alignment: .leading) {
+                Text("config.metal4")
+                Text("config.metal4.info")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        // Frame generation reaches MetalFX through the same DLSS bridge
+        // as upscaling, so it has nothing to switch on without it.
+        Toggle(isOn: $bottle.settings.frameGeneration) {
+            VStack(alignment: .leading) {
+                Text("config.frameGeneration")
+                Text("config.frameGeneration.info")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .disabled(!bottle.settings.metalFX)
+    }
+
+    // MARK: - Metal Debugging
+
+    /// The frame-rate overlay lives in Game Settings; these are for chasing bugs.
+    private var metalDebugToggles: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("config.metal.title")
+                .font(.headline)
+            Toggle(isOn: $bottle.settings.metalTrace) {
+                Text("config.metalTrace")
+                Text("config.metalTrace.info")
+            }
+            if let device = MTLCreateSystemDefaultDevice(), device.supportsFamily(.apple9) {
+                Toggle(isOn: $bottle.settings.dxrEnabled) {
+                    Text("config.dxr")
+                    Text("config.dxr.info")
+                }
+            }
+            Toggle(isOn: $bottle.settings.metalValidation) {
+                Text("config.metalValidation")
+            }
         }
     }
 
@@ -231,52 +204,10 @@ struct GraphicsConfigSection: View {
         hasRunningProcesses = wineserverActive || trackedCount > 0
     }
 
-    // MARK: - Advanced Settings Badge
-
-    private var hasAdvancedSettingsConfigured: Bool {
-        // Default dxvkAsync is true; check if any advanced-only settings differ from defaults
-        !bottle.settings.dxvkAsync
-            || bottle.settings.dxvkHud != .off
-            || bottle.settings.metalHud
-            || bottle.settings.metalTrace
-            || bottle.settings.metalValidation
-            || bottle.settings.dxrEnabled
-    }
-
-    private var advancedSettingsBadge: some View {
-        HStack {
-            Image(systemName: "gearshape.2")
-                .foregroundStyle(.secondary)
-            Text("config.graphics.advancedActive")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Button("config.graphics.showAdvanced") {
-                advancedMode = true
-            }
-            .font(.caption)
-        }
-    }
-
     // MARK: - Per-Program Override Info
 
     private var programsWithGraphicsOverrides: [Program] {
         bottle.programs.filter { $0.settings.overrides?.graphicsBackend != nil }
-    }
-
-    private var programOverridesBadge: some View {
-        HStack {
-            Image(systemName: "slider.horizontal.3")
-                .foregroundStyle(.secondary)
-            Text("config.graphics.programOverridesActive")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Button("config.graphics.showAdvanced") {
-                advancedMode = true
-            }
-            .font(.caption)
-        }
     }
 
     private var programOverridesInfo: some View {

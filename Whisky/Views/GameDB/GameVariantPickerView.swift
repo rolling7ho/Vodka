@@ -23,7 +23,7 @@ import WhiskyKit
 ///
 /// Each variant is displayed as a selectable card with label, description,
 /// and optional constraint information. The selected card has a highlighted
-/// border following the BackendPickerView selection card pattern.
+/// border, in the style of the graphics choice cards.
 struct GameVariantPickerView: View {
     let variants: [GameConfigVariant]
     @Binding var selected: GameConfigVariant?
