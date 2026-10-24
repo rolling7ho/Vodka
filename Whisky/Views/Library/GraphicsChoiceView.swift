@@ -41,10 +41,10 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
     var examples: String {
         switch self {
         case .automatic: "Checks each game you install and picks the right option for it."
-        case .directX12: "Cyberpunk 2077, Elden Ring, Hogwarts Legacy, Forza Horizon 5, Starfield"
+        case .directX12: "Teardown, Cyberpunk 2077, Elden Ring, Hogwarts Legacy, Forza Horizon 5"
         case .directX11: "Skyrim Special Edition, Fallout 4, The Witcher 3, Dark Souls III, Sekiro"
         case .directX9: "Fallout: New Vegas, Oblivion, Left 4 Dead 2, Dishonored"
-        case .openGL: "Teardown, Doom (2016), Half-Life, Wolfenstein: The New Order"
+        case .openGL: "Doom (2016), Half-Life, Wolfenstein: The New Order"
         }
     }
 

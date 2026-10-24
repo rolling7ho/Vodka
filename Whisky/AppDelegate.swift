@@ -50,6 +50,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             await TempFileTracker.shared.cleanupOldFiles(olderThan: 24 * 60 * 60)
         }
 
+        // An engine replaced outside the app's own install arrives without the
+        // stored D3DMetal payload, and DirectX 12 games then find no GPU.
+        Task.detached(priority: .utility) {
+            GPTKImporter.deployStoredPayloadIfCapable()
+        }
+
         // Startup orphan process detection
         // Probe each known bottle's wineserver to detect processes from previous sessions
         Task {

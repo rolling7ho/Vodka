@@ -6030,15 +6030,45 @@
       },
       "variants": [
         {
-          "id": "native-opengl",
-          "label": "Native resolution (OpenGL)",
+          "id": "d3dmetal",
+          "label": "DirectX 12 (D3DMetal)",
           "isDefault": true,
-          "whenToUse": "Recommended: Teardown renders with OpenGL, which Wine runs on macOS OpenGL directly",
+          "whenToUse": "Recommended: current Teardown renders with DirectX 12, which runs on Apple's D3DMetal",
           "rationale": [
-            "Teardown is an OpenGL 3.3 game, so no Direct3D translation layer is involved",
-            "WineD3D keeps DXMT/DXVK DLLs out of the game's way",
+            "Teardown 1.6 and later start in DirectX 12 and only fall back to OpenGL",
+            "Without a DirectX 12 device it logs 'Failed to find any suitable GPU adapter', then fails to create an OpenGL 3.3 context and quits",
             "msync lowers synchronisation overhead for its many worker threads",
             "Pair with the bottle's Native resolution and macOS Game Mode for full-panel rendering"
+          ],
+          "settings": {
+            "graphicsBackend": "d3dMetal",
+            "dxvk": false,
+            "dxvkAsync": false,
+            "enhancedSync": "msync",
+            "shaderCacheEnabled": true,
+            "avxEnabled": false,
+            "sequoiaCompatMode": false
+          },
+          "environmentVariables": {},
+          "dllOverrides": [],
+          "winetricksVerbs": [
+            "vcrun2022"
+          ],
+          "testedWith": {
+            "lastTestedAt": "2026-10-24T00:00:00Z",
+            "macOSVersion": "27.0.1",
+            "wineVersion": "11.0",
+            "cpuArchitecture": "arm64"
+          }
+        },
+        {
+          "id": "opengl",
+          "label": "OpenGL",
+          "isDefault": false,
+          "whenToUse": "Only if DirectX 12 support (Apple's Game Porting Toolkit) is not installed; Teardown may fail to create its OpenGL 3.3 context",
+          "rationale": [
+            "Teardown falls back to OpenGL 3.3 when DirectX 12 finds no GPU",
+            "WineD3D keeps DXMT/DXVK DLLs out of the game's way"
           ],
           "settings": {
             "graphicsBackend": "wined3d",
@@ -6063,6 +6093,7 @@
         }
       ],
       "notes": [
+        "Needs Apple's Game Porting Toolkit for DirectX 12; Whisky offers to set it up",
         "Choose Fullscreen and the highest resolution in Options > Display; with native resolution on, that is the panel's pixel size",
         "Teardown's voxel renderer is GPU-heavy at native resolution; lower Render scale in Options if the frame rate is low"
       ],
