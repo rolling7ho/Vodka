@@ -41,6 +41,15 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Gaming") {
+                Toggle("Game Mode for Windows games", isOn: $gameModeEnabled)
+                    .help("Marks Wine processes as games, so macOS turns on Game Mode when a game is full screen.")
+                Toggle("Fit full-screen games below the notch", isOn: $fitGamesBelowNotch)
+                    .help("Games see the display without the area beside the camera, so nothing is hidden behind it.")
+            }
+            .onChange(of: gameModeEnabled) { WineGameMode.apply() }
+            .onChange(of: fitGamesBelowNotch) { WineGameMode.apply() }
+            GPTKSettingsSection()
             Section("settings.general") {
                 Toggle("settings.toggle.kill.on.terminate", isOn: $killOnTerminate)
                 Toggle("settings.toggle.menubar", isOn: $showMenuBarExtra)
@@ -71,19 +80,10 @@ struct SettingsView: View {
                     }
                 }
             }
-            Section("Gaming") {
-                Toggle("Game Mode for Windows games", isOn: $gameModeEnabled)
-                    .help("Marks Wine processes as games, so macOS turns on Game Mode when a game is full screen.")
-                Toggle("Fit full-screen games below the notch", isOn: $fitGamesBelowNotch)
-                    .help("Games see the display without the area beside the camera, so nothing is hidden behind it.")
-            }
-            .onChange(of: gameModeEnabled) { WineGameMode.apply() }
-            .onChange(of: fitGamesBelowNotch) { WineGameMode.apply() }
             Section("settings.updates") {
                 Toggle("settings.toggle.whisky.updates", isOn: $whiskyUpdate)
                 Toggle("settings.toggle.whiskywine.updates", isOn: $checkWhiskyWineUpdates)
             }
-            GPTKSettingsSection()
             Section("settings.privacy") {
                 Toggle("settings.toggle.telemetry", isOn: telemetryOptIn)
                     .help("setup.telemetry.consent.help")

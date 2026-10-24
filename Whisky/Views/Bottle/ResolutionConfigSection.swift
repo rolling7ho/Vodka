@@ -273,7 +273,6 @@ extension ResolutionConfigSection {
 /// configuration sits behind Advanced.
 struct GameEssentialsSection: View {
     @ObservedObject var bottle: Bottle
-    @AppStorage(WineGameMode.enabledDefaultsKey) private var gameModeEnabled = true
 
     var body: some View {
         Section {
@@ -285,16 +284,6 @@ struct GameEssentialsSection: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            Toggle(isOn: $gameModeEnabled) {
-                VStack(alignment: .leading) {
-                    Text("macOS Game Mode")
-                    Text("Gives games top priority for the CPU and GPU and lowers controller and "
-                        + "AirPods latency. Turns on by itself when a game is full screen.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .onChange(of: gameModeEnabled) { WineGameMode.apply() }
             Toggle(isOn: $bottle.settings.metalHud) {
                 VStack(alignment: .leading) {
                     Text("Show FPS counter")
@@ -315,7 +304,8 @@ struct GameEssentialsSection: View {
             Text("Game Settings")
         } footer: {
             Text("Games with a preset, like Teardown, get their best settings automatically when you press Play. "
-                + "If Steam is open, quit and reopen it after changing these.")
+                + "If Steam is open, quit and reopen it after changing these. macOS Game Mode, for every "
+                + "bottle, is in Whisky Settings \u{203A} Gaming.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
