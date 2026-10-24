@@ -102,6 +102,10 @@ struct GraphicsConfigSection: View {
                 Text("config.metal4.info")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                Label("Experimental: can freeze games on loading screens, as in Teardown. "
+                    + "Leave off unless a game needs it.", systemImage: "exclamationmark.triangle")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
             }
         }
         // Frame generation reaches MetalFX through the same DLSS bridge
