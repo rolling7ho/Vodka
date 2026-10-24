@@ -178,6 +178,19 @@ public extension Wine {
             scopes.add(descendantExecutables, gamePlan)
         }
 
+        // Every installed Steam game's own plan too, so a game started from
+        // inside the Steam client, which Whisky never sees, gets the same
+        // translation layer Play would give it. After the launch's own game.
+        if steamRoot != nil {
+            for game in SteamLauncher.libraryGamePlans(bottle: bottle) {
+                let overrides = constructWineEnvironment(
+                    for: bottle, programOverrides: game.overrides,
+                    recommendedBackend: recommendedBackend, builtinD3D12IsD3DMetal: builtinD3D12IsD3DMetal
+                )["WINEDLLOVERRIDES"] ?? ""
+                scopes.add(game.executables, overrides)
+            }
+        }
+
         scopes.add(
             chainExecutables(for: launcher, descendantLaunchers: descendantLaunchers, bottleURL: bottle.url),
             disablingD3D12(in: launcherSet(nil))

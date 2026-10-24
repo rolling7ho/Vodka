@@ -107,14 +107,25 @@ struct GraphicsChoiceView: View {
         }
     }
 
+    /// DirectX 9 and OpenGL/Vulkan share a backend, so the row picked is
+    /// remembered per bottle; it counts while the bottle is still on its backend.
+    @State private var picked: GraphicsChoice?
+
+    private var pickedKey: String { "graphicsChoice." + bottle.url.path(percentEncoded: false) }
+
     private var selection: GraphicsChoice {
-        GraphicsChoice(backend: bottle.settings.graphicsBackend)
+        let backend = bottle.settings.graphicsBackend
+        let stored = picked ?? UserDefaults.standard.string(forKey: pickedKey).flatMap(GraphicsChoice.init(rawValue:))
+        if let stored, stored.backend == backend { return stored }
+        return GraphicsChoice(backend: backend)
     }
 
     private func row(_ choice: GraphicsChoice) -> some View {
         let selected = selection == choice
         return Button {
             bottle.settings.graphicsBackend = choice.backend
+            picked = choice
+            UserDefaults.standard.set(choice.rawValue, forKey: pickedKey)
             onChoose?()
         } label: {
             HStack(alignment: .top, spacing: 12) {

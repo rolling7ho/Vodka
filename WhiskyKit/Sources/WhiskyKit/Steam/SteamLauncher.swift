@@ -142,6 +142,22 @@ public enum SteamLauncher {
         return overrides
     }
 
+    /// The executables and overrides of each installed game that needs its
+    /// own: a GameDB preset, the user's overrides, or a layer Automatic picks
+    /// for its graphics API. Games the bottle's setting already suits are left
+    /// out, so they follow the bottle when it changes.
+    @MainActor
+    static func libraryGamePlans(bottle: Bottle) -> [(executables: [String], overrides: ProgramOverrides)] {
+        SteamLibrary.enumerate(bottleURL: bottle.url).compactMap { game in
+            let plan = LaunchResolver.plan(
+                steamAppId: game.appId, userOverrides: userOverrides(forInstallURL: game.installURL, bottle: bottle)
+            )
+            let overrides = automaticBackend(for: plan, installURL: game.installURL, bottle: bottle)
+            guard !overrides.isEmpty else { return nil }
+            return (gameExecutables(installURL: game.installURL, plan: plan), overrides)
+        }
+    }
+
     /// Starts `steam.exe -silent` with the user's own overrides for it, the
     /// way the Programs tab would, so the client's entry matches the one a
     /// game launch writes for it. Runs for the whole session, so it is never

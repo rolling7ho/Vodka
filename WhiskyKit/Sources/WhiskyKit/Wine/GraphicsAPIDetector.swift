@@ -87,8 +87,27 @@ public enum GraphicsAPIDetector {
         }
     }
 
+    private static let cacheLock = NSLock()
+    nonisolated(unsafe) private static var cache: [String: (modified: Date, dlls: Set<String>)] = [:]
+
     /// Lowercased names of the DLLs `url` imports, directly or delay-loaded.
+    /// Remembered per file until it changes, since every launch asks again.
     static func importedDLLs(of url: URL) -> Set<String> {
+        let modified = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate ?? .distantPast
+        let key = url.standardizedFileURL.path
+        cacheLock.lock()
+        let cached = cache[key]
+        cacheLock.unlock()
+        if let cached, cached.modified == modified { return cached.dlls }
+        let dlls = readImportedDLLs(of: url)
+        cacheLock.lock()
+        cache[key] = (modified, dlls)
+        cacheLock.unlock()
+        return dlls
+    }
+
+    private static func readImportedDLLs(of url: URL) -> Set<String> {
         guard let handle = try? FileHandle(forReadingFrom: url) else { return [] }
         defer { try? handle.close() }
         guard let image = ImportTableReader(handle: handle) else { return [] }
