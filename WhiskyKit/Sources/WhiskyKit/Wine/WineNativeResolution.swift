@@ -69,6 +69,7 @@ extension Wine {
         let document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
             + steamAutostartRemoval(bottle: bottle)
             + steamGPURecovery(bottle: bottle)
+            + WineGameInput.document(bottle: bottle, gameExecutables: gameExecutables)
         guard !document.isEmpty else { return }
         do {
             try await importer("Windows Registry Editor Version 5.00\n\n" + document, bottle)

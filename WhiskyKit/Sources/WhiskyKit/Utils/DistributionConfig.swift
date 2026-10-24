@@ -38,9 +38,9 @@ public enum DistributionConfig {
     /// mac driver. Published on this fork's releases; its version, release tag
     /// and the archive's SHA-256.
     public static let gamingRuntime = (
-        version: SemanticVersion(4, 6, 5),
-        tag: "4.6.5-gaming.1",
-        sha256: "7d539193cb43b187cad9b2f1beea2fd3eb5382516c454f63432636c4e5364fa4"
+        version: SemanticVersion(4, 6, 6),
+        tag: "4.6.6-gaming.1",
+        sha256: "9b010420640bbb300855e4fba79eee19af595ec6ffe226ea3ebf8aa7f7032e9e"
     )
 
     /// Where this edition's engine releases live.
