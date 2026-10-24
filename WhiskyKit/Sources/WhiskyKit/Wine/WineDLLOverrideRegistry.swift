@@ -153,7 +153,12 @@ public extension Wine {
             scopes.add(launcher.helperExecutables, disablingNVAPI(in: own))
             scopes.add([url.lastPathComponent], own)
         } else if !applyToDescendants {
-            let own = wineEnvironment.removeValue(forKey: "WINEDLLOVERRIDES") ?? ""
+            // A launcher run directly gets the launcher's own set, as on a game
+            // launch: the run's set is the bottle's, which for a bottle on
+            // D3DMetal has no DXVK, and Steam's helpers then crash at startup.
+            let runSet = wineEnvironment.removeValue(forKey: "WINEDLLOVERRIDES") ?? ""
+            let own = launcher == nil
+                ? runSet : launcherSet(Program.persistedOverrides(for: url, bottleURL: bottle.url))
             scopes.add(helperExecutables(for: url), disablingNVAPI(in: own))
             // The launched executable needs its own entry too: AppDefaults is per
             // executable and children do not inherit it.
