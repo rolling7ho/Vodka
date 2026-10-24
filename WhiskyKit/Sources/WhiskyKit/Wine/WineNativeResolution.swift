@@ -21,10 +21,10 @@ import os.log
 
 /// Native-resolution rendering for a bottle's games, with Windows sized to match.
 ///
-/// Off by default: on the current engine (Wine 11.16 with CrossOver 26's
-/// changes) Retina mode presents GPU-drawn windows at one pixel per point, so
-/// Steam's window shows its top-left quarter magnified, and software-drawn
-/// ones come out black. Turning it off puts both values back.
+/// Needs this edition's engine (4.6.5): on 4.6.4 the mac driver laid out
+/// Chromium's cross-process Metal layer in pixels inside a window measured in
+/// points, so Steam showed its top-left quarter magnified. Turning the setting
+/// off puts both values back.
 ///
 /// Wine's mac driver reports the display in points unless `RetinaMode` is on,
 /// and then a game renders at half the panel's pixels and macOS upscales it.

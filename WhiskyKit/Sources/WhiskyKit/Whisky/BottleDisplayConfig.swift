@@ -103,7 +103,7 @@ public struct BottleDisplayConfig: Codable, Equatable {
     /// Turns on Wine's Retina mode at 96 DPI, so games see the panel's real
     /// pixels and are not upscaled by Wine's DPI scaling, and scales only the
     /// Steam client's own UI. On unless turned off.
-    var nativeResolution: Bool = false
+    var nativeResolution: Bool = true
 
     /// Creates a new display config with default values.
     public init() {}
@@ -124,7 +124,7 @@ public struct BottleDisplayConfig: Codable, Equatable {
         ) ?? 1_080
         self.nativeResolution = try container.decodeIfPresent(
             Bool.self, forKey: .nativeResolution
-        ) ?? false
+        ) ?? true
     }
 
     /// The resolved pixel dimensions based on the current preset and custom values.

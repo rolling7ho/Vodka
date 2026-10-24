@@ -31,13 +31,23 @@ public enum DistributionConfig {
     /// URL for the Sparkle appcast feed
     public static let appcastURL = "\(baseURL)/appcast.xml"
 
-    /// The engine this edition installs instead of the channel's: the build
-    /// with CrossOver 26's changes that runs Apple's D3DMetal, which DirectX 12
-    /// games need. A release tag and the archive's SHA-256.
+    /// The engine this edition installs instead of the channel's: frankea's
+    /// GPTK-capable build (CrossOver 26's changes on Wine 11.16, which runs
+    /// Apple's D3DMetal for DirectX 12) with this edition's Retina fix to the
+    /// mac driver. Published on this fork's releases; a release tag and the
+    /// archive's SHA-256.
     public static let gamingRuntime = (
-        tag: "4.6.4-beta.1",
-        sha256: "c8e6a10dfeb54fc16d3dd3382ee2e9d2cec3eb1f5641613cad8b07903818cb12"
+        tag: "4.6.5-gaming.1",
+        sha256: "7d539193cb43b187cad9b2f1beea2fd3eb5382516c454f63432636c4e5364fa4"
     )
+
+    /// Where this edition's engine releases live.
+    public static let gamingReleasesBaseURL = "https://github.com/rolling7ho/Whisky/releases/download"
+
+    /// The download URL for this edition's engine.
+    public static var gamingRuntimeURL: String {
+        "\(gamingReleasesBaseURL)/v\(gamingRuntime.tag)/Libraries.tar.gz"
+    }
 
     /// Constructs the download URL for Wine Libraries from GitHub Releases
     /// - Parameter version: The version string (e.g., "2.5.0")

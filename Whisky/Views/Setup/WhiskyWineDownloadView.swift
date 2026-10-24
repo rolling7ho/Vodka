@@ -231,13 +231,13 @@ extension WhiskyWineDownloadView {
             }
 
             let versionInfo = try PropertyListDecoder().decode(WhiskyWineVersion.self, from: data)
-            // The gaming engine, until the channel ships something newer.
             let version = versionInfo.version
             let gaming = DistributionConfig.gamingRuntime
-            let useGaming = version < SemanticVersion(4, 6, 4)
+            let useGaming = version < SemanticVersion(4, 6, 5)
             expectedSHA256 = useGaming ? gaming.sha256 : versionInfo.sha256
             let versionString = useGaming ? gaming.tag : "\(version.major).\(version.minor).\(version.patch)"
-            let downloadURLString = DistributionConfig.librariesURL(version: versionString)
+            let downloadURLString = useGaming ? DistributionConfig.gamingRuntimeURL
+                : DistributionConfig.librariesURL(version: versionString)
             diagnostics.record("Resolved version \(versionString)")
 
             guard let downloadURL = URL(string: downloadURLString) else {

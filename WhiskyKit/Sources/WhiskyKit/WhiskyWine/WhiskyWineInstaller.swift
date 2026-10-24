@@ -370,6 +370,12 @@ public class WhiskyWineInstaller {
                 return (true, remoteVersion)
             }
         }
+        // This edition's engine is newer than the channel's and is what the
+        // download installs; an older engine is offered it as an update.
+        let gamingVersion = SemanticVersion(4, 6, 5)
+        if let localVersion, localVersion < gamingVersion {
+            return (true, gamingVersion)
+        }
 
         return (false, SemanticVersion(0, 0, 0))
     }
