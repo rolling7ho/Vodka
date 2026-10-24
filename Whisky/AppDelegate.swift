@@ -179,6 +179,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func sweepOrphanProcesses() async {
         var cleanedCount = 0
 
+        // Strays whose wineserver is gone spin on failed waits; no policy
+        // keeps them, since they cannot run anything.
+        if await Task.detached(operation: { Wine.killServerlessEngineProcesses() }).value > 0 {
+            cleanedCount += 1
+        }
+
         for bottle in BottleVM.shared.bottles {
             let isRunning = await Wine.isWineserverRunning(for: bottle)
             guard isRunning else { continue }
