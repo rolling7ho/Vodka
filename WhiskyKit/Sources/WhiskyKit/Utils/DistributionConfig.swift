@@ -33,14 +33,14 @@ public enum DistributionConfig {
     public static let appcastURL = "\(baseURL)/appcast.xml"
 
     /// The engine this edition installs instead of the channel's: the
-    /// winecx-gptk build (CrossOver 26's changes on Wine 11.17, which runs
+    /// winecx-gptk build (CrossOver 26's changes on Wine 11.16, which runs
     /// Apple's D3DMetal for DirectX 12) with this edition's Retina fix to the
     /// mac driver. Published on this fork's releases; its version, release tag
     /// and the archive's SHA-256.
     public static let gamingRuntime = (
-        version: SemanticVersion(4, 7, 4),
-        tag: "4.7.4-gaming.1",
-        sha256: "5cb7aedeb3abf39353d2217642f604cc12cc2416ad547cdf27b2a0942c636600"
+        version: SemanticVersion(4, 6, 5),
+        tag: "4.6.5-gaming.1",
+        sha256: "7d539193cb43b187cad9b2f1beea2fd3eb5382516c454f63432636c4e5364fa4"
     )
 
     /// Where this edition's engine releases live.
