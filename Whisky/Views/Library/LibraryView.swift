@@ -42,11 +42,15 @@ struct LibraryView: View {
     @StateObject private var model = LibraryModel()
     @State private var search: String = ""
     @State private var showSteamGuide = false
+    /// Counts up while the guide shows, so a game finishing its download in
+    /// Steam brings up the grid without a manual refresh.
+    @State private var guideTick = 0
 
     private var bottles: [Bottle] { bottleVM.bottles.filter(\.isAvailable) }
 
     private var hasSteamGames: Bool {
         _ = refresh
+        _ = guideTick
         return bottles.contains { !SteamLibrary.enumerate(bottleURL: $0.url).isEmpty }
     }
 
@@ -60,7 +64,7 @@ struct LibraryView: View {
     /// without a relaunch.
     private var reloadTrigger: String {
         let pins = bottles.flatMap { $0.settings.pins.map(\.name) }
-        return (bottles.map(\.url.path) + pins + ["\(refresh)"]).joined(separator: "\u{1F}")
+        return (bottles.map(\.url.path) + pins + ["\(refresh)", "\(guideTick)"]).joined(separator: "\u{1F}")
     }
 
     var body: some View {
@@ -69,6 +73,12 @@ struct LibraryView: View {
             // whatever else the bottles hold.
             if model.rows.isEmpty || !hasSteamGames {
                 emptyState
+                    .task {
+                        while !Task.isCancelled {
+                            try? await Task.sleep(for: .seconds(5))
+                            guideTick += 1
+                        }
+                    }
             } else {
                 grid
             }

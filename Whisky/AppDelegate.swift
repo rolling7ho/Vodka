@@ -61,12 +61,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// The "Terminate Wine processes when Whisky closes" setting.
     ///
+    /// Off unless turned on: Steam and the game it runs are their own apps, so
+    /// closing Whisky's window, which quits Whisky, must not take them down,
+    /// and neither may opening Whisky again while they run.
+    ///
     /// Read as an optional: the Settings toggle is an `@AppStorage` that
     /// defaults to on without ever writing the key, and `bool(forKey:)`
     /// reports an absent key as off, which silently disabled kill-on-quit
     /// for anyone who never touched the toggle.
     static var killOnTerminate: Bool {
-        UserDefaults.standard.object(forKey: "killOnTerminate") as? Bool ?? true
+        UserDefaults.standard.object(forKey: "killOnTerminate") as? Bool ?? false
     }
 
     func applicationWillTerminate(_ notification: Notification) {

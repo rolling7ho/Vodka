@@ -33,7 +33,13 @@ struct SteamSetupGuideView: View {
     @State private var errorMessage: String?
     @State private var steamOpened = false
     @State private var pollTick = 0
-    @AppStorage("graphicsChoiceMade") private var graphicsChosen = false
+    /// Whether a graphics choice was made for the Steam bottle. Kept per bottle
+    /// (the key the picker writes), so a new bottle starts at this step again.
+    private var graphicsChosen: Bool {
+        _ = pollTick
+        guard let bottle = steamBottle else { return false }
+        return UserDefaults.standard.string(forKey: GraphicsChoiceView.pickedKey(for: bottle)) != nil
+    }
 
     private static let bottleName = "Steam"
 
@@ -59,7 +65,7 @@ struct SteamSetupGuideView: View {
                     Text("Play your Steam games on this Mac")
                         .font(.largeTitle.bold())
                     Text("Four steps, about 10 minutes. Everything is set up with recommended settings "
-                        + "for sharp, full-resolution games and macOS Game Mode.")
+                        + "for games and macOS Game Mode.")
                         .foregroundStyle(.secondary)
                 }
 
@@ -145,9 +151,15 @@ struct SteamSetupGuideView: View {
                     + "one kind of game, pick it — you can change this any time in the bottle's settings.")
                     .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if let bottle = steamBottle {
-                    GraphicsChoiceView(bottle: bottle) { graphicsChosen = true }
+                    GraphicsChoiceView(bottle: bottle) { pollTick += 1 }
                     if !graphicsChosen {
-                        Button("Use Automatic") { graphicsChosen = true }
+                        Button("Use Automatic") {
+                            bottle.settings.graphicsBackend = .recommended
+                            UserDefaults.standard.set(
+                                GraphicsChoice.automatic.rawValue, forKey: GraphicsChoiceView.pickedKey(for: bottle)
+                            )
+                            pollTick += 1
+                        }
                             .buttonStyle(.borderedProminent).padding(.top, 2)
                     }
                 }

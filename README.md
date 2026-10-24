@@ -33,9 +33,10 @@ This fork of the community fork focuses on Steam games:
 - **macOS Game Mode.** Every Wine process runs from a games-category app bundle
   (`Libraries/Wine/lib/wine/Wine.app`, App Nap off), so Game Mode turns on when a game is full screen.
   `WineGameMode` keeps that layout in sync and can turn it off in Settings › Gaming.
-- **Native resolution.** On by default for each bottle: Wine's Retina mode at 192 DPI, so Steam and
-  every window are sized like macOS's own, and each installed game marked per-monitor DPI-aware
-  (`dpiAwareness` in its Image File Execution Options), so games render at the panel's real pixels.
+- **Native resolution (experimental, off by default).** Wine's Retina mode at 192 DPI, with each
+  installed game marked per-monitor DPI-aware (`dpiAwareness` in its Image File Execution Options).
+  On the current engine Retina mode presents GPU-drawn windows at one pixel per point (Steam shows its
+  top-left quarter magnified) and software-drawn ones black, so it stays off until that is fixed.
 - **Performance.** MoltenVK logs errors only and submits asynchronously. Steam keeps GPU-rendered web
   views: software-rendered, its window stays black under Wine's mac driver.
 - **Easy reset.** *Delete Bottle…* in the sidebar menu and in a bottle's settings closes what runs in

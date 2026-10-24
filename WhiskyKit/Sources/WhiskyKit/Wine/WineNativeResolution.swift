@@ -21,6 +21,11 @@ import os.log
 
 /// Native-resolution rendering for a bottle's games, with Windows sized to match.
 ///
+/// Off by default: on the current engine (Wine 11.16 with CrossOver 26's
+/// changes) Retina mode presents GPU-drawn windows at one pixel per point, so
+/// Steam's window shows its top-left quarter magnified, and software-drawn
+/// ones come out black. Turning it off puts both values back.
+///
 /// Wine's mac driver reports the display in points unless `RetinaMode` is on,
 /// and then a game renders at half the panel's pixels and macOS upscales it.
 /// With `RetinaMode` the display's original mode is reported at twice its
@@ -62,6 +67,7 @@ extension Wine {
     static func prepareGaming(bottle: Bottle, gameExecutables: [String] = [], importer: RegistryImporter) async {
         WineGameMode.apply()
         let document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
+            + steamAutostartRemoval(bottle: bottle)
         guard !document.isEmpty else { return }
         do {
             try await importer("Windows Registry Editor Version 5.00\n\n" + document, bottle)
@@ -77,15 +83,28 @@ extension Wine {
     /// Steam client already running in the old mode keeps it until it restarts.
     @MainActor
     static func nativeResolutionDocument(bottle: Bottle, gameExecutables: [String]) -> String {
-        guard bottle.settings.nativeResolution else { return "" }
-        var document = ""
-
         let retina = WineRegistryFile.readValue(
             bottleURL: bottle.url, key: #"HKCU\Software\Wine\Mac Driver"#, valueName: "RetinaMode"
         )
         let dpi = WineRegistryFile.readValue(
             bottleURL: bottle.url, key: #"HKCU\Control Panel\Desktop"#, valueName: "LogPixels"
         )
+        guard bottle.settings.nativeResolution else {
+            // Off: undo what turning it on set (both values together, so a
+            // Retina mode chosen by hand under Advanced stays).
+            guard retina?.lowercased() == "y", dpi?.lowercased() == nativeResolutionDPI else { return "" }
+            return """
+            [HKEY_CURRENT_USER\\Software\\Wine\\Mac Driver]
+            "RetinaMode"="n"
+
+            [HKEY_CURRENT_USER\\Control Panel\\Desktop]
+            "LogPixels"=dword:00000060
+
+
+            """
+        }
+        var document = ""
+
         if retina?.lowercased() != "y" || dpi?.lowercased() != nativeResolutionDPI {
             document += """
             [HKEY_CURRENT_USER\\Software\\Wine\\Mac Driver]
@@ -138,5 +157,19 @@ extension Wine {
             else { return false }
             return seen.insert(lower).inserted
         }
+    }
+
+    /// Takes Steam out of the bottle's startup programs.
+    ///
+    /// Steam's installer, and Steam itself on every run, lists it under `Run`,
+    /// and Wine starts what is listed whenever the bottle boots: a registry
+    /// import or a game's first process brought Steam up silently, outside
+    /// Whisky and without the environment its launch gives it.
+    static func steamAutostartRemoval(bottle: Bottle) -> String {
+        let key = #"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"#
+        guard WineRegistryFile.valueNames(bottleURL: bottle.url, key: key)?.contains("Steam") == true else {
+            return ""
+        }
+        return "[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run]\n\"Steam\"=-\n\n"
     }
 }

@@ -52,19 +52,14 @@ struct BottleListEntry: View {
                         .clipShape(Capsule())
                         .foregroundStyle(.blue)
                 } else if hasOrphanProcesses {
-                    // A button, not a decoration: this is the strongest signal
-                    // in the sidebar and it used to be a tooltip with nothing
-                    // behind it.
-                    Button {
-                        stopBottle()
-                    } label: {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.orange)
-                    }
-                    .buttonStyle(.plain)
-                    .help(String(localized: "bottle.orphan.tooltip"))
-                    .accessibilityLabel(Text("bottle.orphan.stop"))
+                    // Steam and its games run on their own once started, and
+                    // keep running when Whisky quits: running is normal, so a
+                    // calm dot rather than a warning that stops them on click.
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 7))
+                        .foregroundStyle(.green)
+                        .help("Running — Steam or a game is open in this bottle.")
+                        .accessibilityLabel(Text("Running"))
                 }
             }
             if let phase = duplicationPhase {
@@ -144,6 +139,11 @@ struct BottleListEntry: View {
                 showBottleRename.toggle()
             }
             .disabled(!bottle.isAvailable || bottle.inFlight)
+            .labelStyle(.titleAndIcon)
+            Button("Quit Everything Running", systemImage: "stop.circle") {
+                stopBottle()
+            }
+            .disabled(!hasOrphanProcesses && runningCount == 0)
             .labelStyle(.titleAndIcon)
             Button("Delete Bottle…", systemImage: "trash") {
                 Task {

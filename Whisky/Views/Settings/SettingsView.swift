@@ -21,7 +21,7 @@ import WhiskyKit
 
 struct SettingsView: View {
     @AppStorage("SUEnableAutomaticChecks") var whiskyUpdate = false
-    @AppStorage("killOnTerminate") var killOnTerminate = true
+    @AppStorage("killOnTerminate") var killOnTerminate = false
     @AppStorage("showMenuBarExtra") var showMenuBarExtra = false
     @AppStorage("checkWhiskyWineUpdates") var checkWhiskyWineUpdates = true
     @AppStorage("defaultBottleLocation") var defaultBottleLocation = BottleData.defaultBottleDir

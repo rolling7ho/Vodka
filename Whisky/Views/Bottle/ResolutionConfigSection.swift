@@ -326,7 +326,7 @@ struct GameEssentialsSection: View {
         Section {
             Toggle(isOn: $bottle.settings.nativeResolution) {
                 VStack(alignment: .leading) {
-                    Text("Sharp, full-resolution games")
+                    Text("Full-resolution games (experimental)")
                     Text(nativeResolutionCaption)
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -360,12 +360,13 @@ struct GameEssentialsSection: View {
     }
 
     private var nativeResolutionCaption: String {
-        guard let screen = NSScreen.main else {
-            return "Games render at your display's full pixel resolution. Steam's window is scaled to match."
+        var pixels = "full pixel resolution"
+        if let screen = NSScreen.main {
+            let width = Int(screen.frame.width * screen.backingScaleFactor)
+            let height = Int(screen.frame.height * screen.backingScaleFactor)
+            pixels = "full \(width) × \(height) pixels"
         }
-        let width = Int(screen.frame.width * screen.backingScaleFactor)
-        let height = Int(screen.frame.height * screen.backingScaleFactor)
-        return "Games render at your display's full \(width) × \(height) pixels instead of being upscaled. "
-            + "Steam's window is scaled to match."
+        return "Renders games at your display's \(pixels) instead of upscaling. Not ready yet: with the "
+            + "current engine, Steam's window shows zoomed in or black while this is on."
     }
 }

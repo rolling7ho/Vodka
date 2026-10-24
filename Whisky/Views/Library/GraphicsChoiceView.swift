@@ -40,7 +40,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
 
     var examples: String {
         switch self {
-        case .automatic: "Checks each game when you press Play and picks the right option for it."
+        case .automatic: "Checks each game you install and picks the right option for it."
         case .directX12: "Cyberpunk 2077, Elden Ring, Hogwarts Legacy, Forza Horizon 5, Starfield"
         case .directX11: "Skyrim Special Edition, Fallout 4, The Witcher 3, Dark Souls III, Sekiro"
         case .directX9: "Fallout: New Vegas, Oblivion, Left 4 Dead 2, Dishonored"
@@ -111,7 +111,12 @@ struct GraphicsChoiceView: View {
     /// remembered per bottle; it counts while the bottle is still on its backend.
     @State private var picked: GraphicsChoice?
 
-    private var pickedKey: String { "graphicsChoice." + bottle.url.path(percentEncoded: false) }
+    private var pickedKey: String { Self.pickedKey(for: bottle) }
+
+    /// Where the row picked for `bottle` is remembered.
+    static func pickedKey(for bottle: Bottle) -> String {
+        "graphicsChoice." + bottle.url.path(percentEncoded: false)
+    }
 
     private var selection: GraphicsChoice {
         let backend = bottle.settings.graphicsBackend
