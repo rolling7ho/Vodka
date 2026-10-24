@@ -18,29 +18,36 @@
 
 import Foundation
 
-/// Input settings games get from the mac driver, per executable.
+/// Mac driver settings games get, per executable.
 ///
 /// A trackpad or Magic Mouse keeps sending scroll events after the fingers
 /// lift, to coast. A game reads every one as a wheel notch, so it goes on
 /// switching weapons or zooming after the player stopped, which reads as
 /// scrolling that lags behind. The engine's `ScrollMomentum` option (from
-/// 4.6.6) drops those events; it is set under each game's own `AppDefaults`
-/// key, so Steam and other programs in the bottle still coast.
+/// 4.6.6) drops those events.
+///
+/// `MetalFXUpscale` (from 4.6.7) has a game that renders below its window's
+/// pixel size, as one set to Faster does, upscaled with MetalFX instead of
+/// stretched, so Faster keeps its frame rate with a much sharper image. It
+/// does nothing for a game already rendering every pixel.
+///
+/// Both are set under each game's own `AppDefaults` key, so Steam and other
+/// programs in the bottle keep the defaults.
 enum WineGameInput {
+    private static let values = [("ScrollMomentum", "n"), ("MetalFXUpscale", "y")]
+
     /// The registry changes the bottle's games still need, or an empty string.
     @MainActor
     static func document(bottle: Bottle, gameExecutables: [String]) -> String {
-        Wine.dpiAwareExecutables(bottle: bottle, gameExecutables: gameExecutables)
-            .filter { exe in
-                WineRegistryFile.readValue(
-                    bottleURL: bottle.url,
-                    key: #"HKCU\Software\Wine\AppDefaults\"# + exe + #"\Mac Driver"#,
-                    valueName: "ScrollMomentum"
-                )?.lowercased() != "n"
+        Wine.dpiAwareExecutables(bottle: bottle, gameExecutables: gameExecutables).map { exe in
+            let key = #"HKCU\Software\Wine\AppDefaults\"# + exe + #"\Mac Driver"#
+            let missing = values.filter { name, value in
+                WineRegistryFile.readValue(bottleURL: bottle.url, key: key, valueName: name)?.lowercased() != value
             }
-            .map { exe in
-                "[HKEY_CURRENT_USER\\Software\\Wine\\AppDefaults\\\(exe)\\Mac Driver]\n\"ScrollMomentum\"=\"n\"\n\n"
-            }
-            .joined()
+            guard !missing.isEmpty else { return "" }
+            return "[HKEY_CURRENT_USER\\Software\\Wine\\AppDefaults\\\(exe)\\Mac Driver]\n"
+                + missing.map { "\"\($0.0)\"=\"\($0.1)\"\n" }.joined() + "\n"
+        }
+        .joined()
     }
 }

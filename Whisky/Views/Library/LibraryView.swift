@@ -203,8 +203,9 @@ struct LibraryView: View {
         }
     }
 
-    /// Sharp draws every Retina pixel; Faster draws a quarter of them and lets
-    /// macOS scale up, for a game short of frames. Takes effect next launch.
+    /// Sharp draws every Retina pixel; Faster draws a quarter of them and the
+    /// engine upscales them with MetalFX, for a game short of frames. Takes
+    /// effect next launch.
     private func resolutionMenu(appID: Int, bottle: Bottle) -> some View {
         Picker("Resolution", selection: Binding(
             get: { bottle.settings.fasterSteamApps.contains(appID) },
@@ -215,14 +216,14 @@ struct LibraryView: View {
                     bottle.settings.fasterSteamApps.remove(appID)
                 }
                 model.toast = ToastData(
-                    message: faster ? "Faster: half resolution from the next launch"
+                    message: faster ? "Faster: MetalFX upscaling from the next launch"
                         : "Sharp: full resolution from the next launch",
                     style: .success
                 )
             }
         )) {
             Text("Sharp (Full Resolution)").tag(false)
-            Text("Faster (Half Resolution)").tag(true)
+            Text("Faster (MetalFX Upscaled)").tag(true)
         }
     }
 
