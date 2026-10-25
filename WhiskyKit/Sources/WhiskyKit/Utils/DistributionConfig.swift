@@ -35,13 +35,14 @@ public enum DistributionConfig {
     /// The engine this edition installs instead of the channel's: the
     /// winecx-gptk build (CrossOver 26's changes on Wine 11.16, which runs
     /// Apple's D3DMetal for DirectX 12) with this edition's Retina fix to the
-    /// mac driver, its scroll, MetalFX upscaling and sharpening options.
+    /// mac driver, its scroll, MetalFX upscaling and sharpening options, and
+    /// its fixes for Steam's menus, app names and scaled fullscreen modes.
     /// Published on this fork's releases; its version, release tag and the
     /// archive's SHA-256.
     public static let gamingRuntime = (
-        version: SemanticVersion(4, 6, 8),
-        tag: "4.6.8-gaming.1",
-        sha256: "b5284b5907f59bd9b02bcd1d466e7c5303b0630833fcda60420f47a835e2e76e"
+        version: SemanticVersion(4, 6, 9),
+        tag: "4.6.9-gaming.1",
+        sha256: "2d8971f8da527842c1d64070bab60c18d35debf132336729ab5a28239d3611f5"
     )
 
     /// Where this edition's engine releases live.
