@@ -28,16 +28,6 @@ struct SettingsView: View {
     @AppStorage("preferredTerminal") var preferredTerminal = "terminal"
     @AppStorage(WineGameMode.enabledDefaultsKey) var gameModeEnabled = true
     @AppStorage(WineGameMode.fitBelowNotchDefaultsKey) var fitGamesBelowNotch = false
-    @AppStorage(Telemetry.consentDefaultsKey) private var telemetryConsentRaw: String = Telemetry.ConsentState
-        .undecided.rawValue
-
-    /// Mirrors the setup-flow opt-in; writing records the explicit choice.
-    private var telemetryOptIn: Binding<Bool> {
-        Binding(
-            get: { telemetryConsentRaw == Telemetry.ConsentState.granted.rawValue },
-            set: { Telemetry.setConsent(granted: $0) }
-        )
-    }
 
     var body: some View {
         Form {
@@ -83,10 +73,6 @@ struct SettingsView: View {
             Section("settings.updates") {
                 Toggle("settings.toggle.whisky.updates", isOn: $whiskyUpdate)
                 Toggle("settings.toggle.whiskywine.updates", isOn: $checkWhiskyWineUpdates)
-            }
-            Section("settings.privacy") {
-                Toggle("settings.toggle.telemetry", isOn: telemetryOptIn)
-                    .help("setup.telemetry.consent.help")
             }
         }
         .formStyle(.grouped)

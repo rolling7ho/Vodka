@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   games, longest session and storage used. Steam games use Steam's own
   playtime; other programs are totalled by Whisky as they run.
 
+### Removed
+- Usage telemetry and the PostHog SDK, along with the opt-in checkbox in
+  setup and the Privacy section in Settings. Whisky sends no usage data.
+
 ### Fixed
 - Removing a stale native dxgi.dll from a bottle now puts Wine's own marked
   builtin copy back in its place. Wine's loader only finds a builtin through
