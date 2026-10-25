@@ -40,9 +40,9 @@ public enum DistributionConfig {
     /// Published on this fork's releases; its version, release tag and the
     /// archive's SHA-256.
     public static let gamingRuntime = (
-        version: SemanticVersion(4, 6, 9),
-        tag: "4.6.9-gaming.1",
-        sha256: "2d8971f8da527842c1d64070bab60c18d35debf132336729ab5a28239d3611f5"
+        version: SemanticVersion(4, 6, 10),
+        tag: "4.6.10-gaming.1",
+        sha256: "8288fb65fba1975b802752aaf5b72be7b1860a6371075a696904d5659ae7546d"
     )
 
     /// Where this edition's engine releases live.
