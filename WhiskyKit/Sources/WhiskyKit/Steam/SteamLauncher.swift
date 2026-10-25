@@ -158,6 +158,18 @@ public enum SteamLauncher {
         }
     }
 
+    /// What every `steam.exe` run starts with, ahead of its own arguments.
+    ///
+    /// `-cef-force-gpu` is Chromium's `--ignore-gpu-blocklist`. The blocklist
+    /// only trusts NVIDIA, Intel and AMD with GPU rasterization on Direct3D 11,
+    /// so on Apple's GPU every page was rasterized on the CPU, under Rosetta,
+    /// at the panel's full resolution: Big Picture mode lagged with it. Steam
+    /// reads it only when the client starts; a running client ignores it.
+    static func clientArguments(for url: URL, args: [String]) -> [String] {
+        guard url.lastPathComponent.lowercased() == "steam.exe", !args.contains("-shutdown") else { return args }
+        return args.contains("-cef-force-gpu") ? args : ["-cef-force-gpu"] + args
+    }
+
     /// Hands a `steam://` link, or a command such as `-shutdown`, to the
     /// bottle's client, as Steam's own buttons do: a running client acts on it
     /// and brings its window forward, and one that is not running starts first.

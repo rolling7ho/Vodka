@@ -538,6 +538,7 @@ public class Wine {
     private static func launchArguments(
         for url: URL, args: [String], programOverrides: ProgramOverrides?
     ) -> [String] {
+        let args = SteamLauncher.clientArguments(for: url, args: args)
         guard let overrides = programOverrides,
               let vdEnabled = overrides.virtualDesktopEnabled, vdEnabled
         else {
