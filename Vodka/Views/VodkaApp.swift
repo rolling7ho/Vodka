@@ -407,8 +407,13 @@ extension VodkaApp {
         NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: Wine.logsFolder.path)
     }
 
-    static func deleteOldLogs() {
-        let pastDate = Date().addingTimeInterval(-7 * 24 * 60 * 60)
+    /// Settings › Storage. Zero keeps logs forever.
+    static let logRetentionDaysKey = "logRetentionDays"
+
+    nonisolated static func deleteOldLogs() {
+        let days = UserDefaults.standard.object(forKey: logRetentionDaysKey) as? Int ?? 7
+        guard days > 0 else { return }
+        let pastDate = Date().addingTimeInterval(-Double(days) * 24 * 60 * 60)
 
         guard let urls = try? FileManager.default.contentsOfDirectory(
             at: Wine.logsFolder,
@@ -439,6 +444,17 @@ extension VodkaApp {
                 logger.warning("Failed to delete log: \(error.localizedDescription)")
             }
         }
+    }
+
+    nonisolated static func logsFolderSize() -> Int64 {
+        let files = FileManager.default.enumerator(
+            at: Wine.logsFolder, includingPropertiesForKeys: [.fileSizeKey]
+        )
+        var total: Int64 = 0
+        while let url = files?.nextObject() as? URL {
+            total += Int64((try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        }
+        return total
     }
 
     static func wipeShaderCaches() {

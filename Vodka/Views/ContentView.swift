@@ -169,6 +169,7 @@ struct ContentView: View {
         .task {
             bottleVM.loadBottles()
             bottlesLoaded = true
+            SteamAtLaunch.startIfWanted(bottles: bottleVM.bottles)
 
             // Surface a registry that couldn't be read and was moved aside at
             // startup, so the reset bottle list doesn't pass silently (#61).
@@ -221,6 +222,25 @@ struct ContentView: View {
                     VodkaWineInstaller.uninstall()
                     showSetup = true
                 }
+            }
+        }
+    }
+}
+
+/// Settings › Gaming › Open Steam when Vodka opens.
+enum SteamAtLaunch {
+    static let defaultsKey = "openSteamAtLaunch"
+
+    @MainActor
+    static func startIfWanted(bottles: [Bottle]) {
+        guard UserDefaults.standard.bool(forKey: defaultsKey),
+              let bottle = SteamInstaller.steamBottle(in: bottles.filter(\.isAvailable))
+        else { return }
+        Task {
+            // Steam left running from before, or started from a Dock icon.
+            let running = await Task.detached { RunningWinePrograms.names().contains("Steam") }.value
+            if !running {
+                SteamInstaller.open(in: bottle)
             }
         }
     }

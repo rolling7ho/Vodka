@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The New PC sheet has a centered title, with Cancel and Create at the bottom.
 - The accent color is now RGB 221, 54, 111, and the app icon has been redrawn.
 
+### Added (settings)
+- General: open Vodka at login, ask before quitting while games run, and the Windows version for new PCs.
+- Gaming: open Steam when Vodka opens.
+- Storage tab: how long to keep Wine logs (1 day, 1 week, 1 month or forever), the logs' size, buttons to
+  show the logs and PCs folders, and clearing shader caches.
+
 ### Removed (interface)
 - The "Install Vodka CLI" menu item. Dock shortcuts still use the bundled VodkaCmd.
 

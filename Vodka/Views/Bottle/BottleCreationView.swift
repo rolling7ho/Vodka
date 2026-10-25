@@ -23,11 +23,15 @@ struct BottleCreationView: View {
     @Binding var newlyCreatedBottleURL: URL?
 
     @State private var newBottleName: String = ""
-    @State private var newBottleVersion: WinVersion = .win10
+    @State private var newBottleVersion: WinVersion = UserDefaults.standard.string(forKey: Self.defaultWinVersionKey)
+        .flatMap(WinVersion.init(rawValue:)) ?? .win10
     @State private var newBottleURL: URL = UserDefaults.standard.url(forKey: "defaultBottleLocation")
         ?? BottleData.defaultBottleDir
     @State private var nameValid: Bool = false
     @State private var locationIssue: BottleLocationValidation.ValidationResult?
+
+    /// Settings › General › New PCs.
+    static let defaultWinVersionKey = "defaultWinVersion"
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
