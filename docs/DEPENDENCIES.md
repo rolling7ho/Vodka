@@ -68,6 +68,6 @@ every install through a normal app update, with no runtime re-download.
 
 Building and maintaining the macOS Wine runtime is the single most specialized, fragile job in this
 ecosystem — it is effectively Gcenx's entire role and CodeWeavers' paid team's. On a deliberately
-solo-maintained project (see [`GOVERNANCE.md`](GOVERNANCE.md)), taking that on would
+solo-maintained project, taking that on would
 *deepen* the bus-factor risk it was meant to reduce. So we consume upstream binaries and invest instead
 in **discipline**: pinned versions, automated staleness detection, and a documented, reproducible assembly.

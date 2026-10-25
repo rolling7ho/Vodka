@@ -1,176 +1,126 @@
 <div align="center">
 
-  <img src="./images/vodka-icon.png" width="128" alt="Vodka icon">
+<img src="./images/vodka-icon.png" width="160" alt="Vodka icon">
 
-  # Vodka 🍸
-  *Windows games on your Mac, neat*
+# Vodka
 
-  > Vodka is a fork of [Whisky](https://github.com/whisky-app/whisky) by Isaac Marovitz, by way of
-  > [frankea's community fork](https://github.com/frankea/Whisky). It is not affiliated with either
-  > project. Like Whisky, it is free software under the GNU GPL v3.
+**Windows games on your Mac, neat.**
+
+A free, native macOS app for running Steam and Windows games on Apple Silicon.
+
+[Install](#install) · [Features](#features) · [Troubleshooting](#troubleshooting) · [Report a bug](https://github.com/rolling7ho/Vodka/issues)
+
 </div>
 
-## What's different
+<p align="center">
+  <img src="./images/library.png" width="760" alt="The Vodka library with Steam and Teardown">
+</p>
 
-Vodka is built for playing Steam games on a Mac:
+Vodka sets up a Windows PC on your Mac (a Wine prefix), installs Steam into it and puts your games
+in a library you play from. You don't have to configure anything to get started; the settings are
+there for when a game needs them.
 
-- **Guided Steam setup.** The library opens on a four-step guide: create the Steam bottle, choose
-  graphics, install Steam (downloaded from Valve and installed silently), then sign in.
-- **Graphics by DirectX version.** Like CrossOver, the choice is named after what games use, with
-  examples: Automatic, DirectX 12 (Apple D3DMetal), DirectX 11 (DXMT), DirectX 9 and OpenGL/Vulkan
-  (WineD3D). Automatic reads a game's import tables (`GraphicsAPIDetector`) when it is played from the
-  library and picks per game.
-- **DirectX 12.** Installs the GPTK-capable engine (frankea's v4.6.4, CrossOver 26 changes on Wine 11.16).
-  Apple's Game Porting Toolkit can't be redistributed, so the guide links to Apple's download, then
-  finds the `.dmg` in Downloads and installs it.
-- **macOS Game Mode.** Every Wine process runs from a games-category app bundle
-  (`Libraries/Wine/lib/wine/Wine.app`, App Nap off), so Game Mode turns on when a game is full screen.
-  `WineGameMode` keeps that layout in sync and can turn it off in Settings › Gaming.
-- **Native resolution.** On by default: Wine's Retina mode at 192 DPI, with each installed game marked
-  per-monitor DPI-aware (`dpiAwareness` in its Image File Execution Options), so games render at the
-  panel's real pixels and Steam is sized and sharp like a Mac app. Needs this edition's engine, below.
-- **Its own engine.** frankea's GPTK engine plus Vodka's mac-driver fixes
-  ([rolling7ho/winecx](https://github.com/rolling7ho/winecx)): Retina sizing for Steam, Steam menus that
-  draw, app names in the menu bar, fixed fullscreen modes, and MetalFX upscaling with sharpening.
-- **Performance.** MoltenVK logs errors only and submits asynchronously. Right-click a Steam game in
-  the library and choose *Resolution › Faster* to draw it at half resolution, a quarter of the pixels,
-  scaled up by macOS.
-- **Steam stays visible.** If Steam switches itself to software rendering after a GPU crash, which
-  leaves its window black under Wine's mac driver, the next launch switches it back.
-- **Warnings before Play.** Library cards flag games whose anti-cheat blocks Wine, or that are known
-  not to run, and a DirectX 12 game started without Apple's Game Porting Toolkit says what's missing.
-- **Easy reset.** *Delete Bottle…* in the sidebar menu and in a bottle's settings closes what runs in
-  it and moves it to the Trash in one step.
+It's a fork of [Whisky](https://github.com/whisky-app/whisky), by way of
+[frankea's community fork](https://github.com/frankea/Whisky), focused on Steam gaming.
 
-- **Statistics.** Total and recent playtime per game, most played, longest session and storage used.
-- **Add to Dock.** Any library game can become a Dock icon that starts it without opening Vodka.
+## Features
 
-Games with a GameDB preset (Teardown included) get it applied when launched from Steam. Technical
-settings sit behind *Show advanced settings*.
+**Getting started**
+- **Guided Steam setup.** Four steps: create a PC, pick graphics, install Steam, sign in.
+- **Library first.** Installed games show up as cards with their artwork. Click one to play.
+- **Add to Dock.** Any game can get its own Dock icon that starts it without opening Vodka.
 
-## Overview
+**Graphics and performance**
+- **Graphics by DirectX version.** Choose Automatic, or set it per game: DirectX 12 (Apple D3DMetal),
+  DirectX 11 (DXMT), or DirectX 9 and OpenGL/Vulkan (WineD3D). Automatic reads each game's imports.
+- **DirectX 12.** Vodka points you to Apple's Game Porting Toolkit download, then finds and installs it.
+- **Native resolution.** Games render at your display's real pixel count, and Steam stays sharp on Retina.
+- **Faster mode.** Draws a game at a lower resolution and upscales it with MetalFX and sharpening.
+- **macOS Game Mode.** Turns on by itself when a game goes full screen.
 
-Vodka provides a clean and easy-to-use graphical wrapper for Wine built in native SwiftUI. You can make and manage bottles, install and run Windows apps and games, and unlock the full potential of your Mac with no technical knowledge required.
+**Everyday**
+- **Statistics.** Total and recent playtime, most played, longest session and storage used.
+- **Clean quit.** Quitting Vodka stops Steam and every game it started, after asking first.
+- **Warnings before Play.** Games that are known not to run, or whose anti-cheat blocks Wine, are flagged.
+- **Easy reset.** Deleting a PC stops what's running in it and moves it to the Trash.
 
-<img width="650" alt="Vodka in action" src="./images/demo.gif">
+<p align="center">
+  <img src="./images/statistics.png" width="560" alt="Statistics in Vodka's Settings">
+</p>
 
-<img width="650" alt="Config" src="./images/config-screenshot.png">
+## Requirements
 
-*Familiar UI that integrates seamlessly with macOS*
+- A Mac with Apple Silicon (M1 or later)
+- macOS Sequoia 15 or later
+- About 1 GB free for the engine, plus room for your games
 
-<div align="right">
-  <img width="650" alt="New Bottle" src="./images/new-bottle-screenshot.png">
+## Install
 
-  *One-click bottle creation and management*
-</div>
-
-<img width="650" alt="debug" src="./images/debug-screenshot.png">
-
-*Debug and profile with ease*
-
----
-
-## Key Features
-
-- **Wine 11.0** - Latest stable Wine with improved compatibility and networking
-- **DXMT & DXVK Graphics** - DirectX 11 through native Metal translation (DXMT) out of the box, with DXVK over MoltenVK as the universal fallback
-- **Launcher Compatibility** - Built-in support for Steam, Epic, EA App, Rockstar, Battle.net, and more
-- **Controller Support** - SDL environment variable controls for gamepad detection and mapping issues
-- **Stability Diagnostics** - One-click diagnostic reports for troubleshooting crashes and freezes
-- **Native SwiftUI** - Beautiful, familiar macOS interface
-
-## System requirements
-
-- **CPU**: Apple Silicon (M-series chips)
-- **OS**: macOS Sequoia 15.0 or later
-
-## Installation
-
-Vodka isn't distributed as a signed download yet. To build and install it on your Mac:
+Vodka isn't available as a signed download yet, so you build it yourself. You need Xcode 16 or later.
 
 ```sh
-git clone https://github.com/rolling7ho/Whisky.git Vodka
+git clone https://github.com/rolling7ho/Vodka.git
 cd Vodka
-scripts/install-local.sh   # ad-hoc signed, for this Mac only
+scripts/install-local.sh
 ```
 
-On first launch Vodka downloads its Wine engine (~330 MB) from this repo's releases.
+The script builds Vodka, signs it for your Mac only and copies it to `/Applications`. The first time
+Vodka opens, it downloads its Wine engine (about 330 MB).
 
 ### Coming from Whisky
 
-- **From an earlier build of this fork** (`com.rolling7ho.Whisky`): the first launch of Vodka moves
-  your Windows PCs, engine, logs and settings over by itself.
-- **From the original Whisky:** choose **File → Migrate from the Original Whisky**. It imports the
-  bottles the original app left in `~/Library/Containers/com.isaacmarovitz.Whisky/` in place, so
-  nothing is moved or copied.
+- **Earlier builds of this fork** (`com.rolling7ho.Whisky`) carry over automatically the first time
+  Vodka opens: PCs, engine, logs, settings and Dock icons.
+- **The original Whisky:** choose **File › Migrate from the Original Whisky**. Your bottles are
+  imported from where they already are, so nothing is copied.
 
-## Uninstalling
+## Troubleshooting
 
-Dragging **Vodka.app** to the Trash leaves the engine, your Windows PCs and settings behind, so a
-reinstall doesn't download them again. To remove everything, back up anything you want to keep and
-delete:
+- [Steam guide](docs/SteamCompatibility.md): Steam windows, sign-in, downloads and launching games
+- [Launcher troubleshooting](docs/LauncherTroubleshooting.md): Epic, EA App, Battle.net, Rockstar and others
+- [Crashes and freezes](docs/StabilityTroubleshooting.md): what to collect and how to narrow down the cause
+- **Help › Run Diagnostics…** in the app writes a report you can attach to an issue.
+
+## Uninstall
+
+Moving Vodka.app to the Trash keeps your PCs and the engine, so if you reinstall, you pick up where
+you left off. To remove everything, first back up anything you want to keep, then run:
 
 ```sh
 rm -rf /Applications/Vodka.app
-rm -rf ~/Library/Containers/com.rolling7ho.Vodka          # Windows PCs and their list
-rm -rf ~/Library/Application\ Support/com.rolling7ho.Vodka # the Wine engine
+rm -rf ~/Library/Containers/com.rolling7ho.Vodka           # PCs and their list
+rm -rf ~/Library/Application\ Support/com.rolling7ho.Vodka  # the Wine engine
 rm -rf ~/Library/Caches/com.rolling7ho.Vodka ~/Library/Logs/com.rolling7ho.Vodka
 rm -f  ~/Library/Preferences/com.rolling7ho.Vodka.plist
 ```
 
-Windows PCs made in a custom folder live wherever you put them.
+PCs you created in a custom folder stay wherever you put them.
 
 ## Privacy
 
-Vodka collects no usage data and has no analytics SDK. The only network
-requests it makes on its own are update checks (Sparkle's appcast) and Wine
-runtime downloads from GitHub Releases.
+Vodka has no analytics and collects no usage data. It goes online only to download its engine and
+Steam's installer and to check for updates. Game artwork comes from Steam's cache on your Mac.
 
-## Documentation
+## Contributing
 
-- **[Runtime dependencies](docs/DEPENDENCIES.md)** - The bundled Wine/DXVK/D3DMetal/DXMT versions and their upstream sources
+Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for building,
+testing and code style, and [SECURITY.md](SECURITY.md) for how to report a vulnerability privately.
 
-### Troubleshooting
+## License and credits
 
-- **[Launcher Troubleshooting](docs/LauncherTroubleshooting.md)** - Fix issues with Steam, Epic, Battle.net, etc.
-- **[Steam Compatibility Guide](docs/SteamCompatibility.md)** - Detailed guide for Steam on Vodka
-- **[Stability Troubleshooting](docs/StabilityTroubleshooting.md)** - Diagnose crashes, freezes, reboots, and kernel panics
-- **Controller Issues** - Enable "Controller Compatibility Mode" in Bottle Config → Controller & Input
-- **[Game Configurations](VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json)** - 80+ curated per-game compatibility configs, also browsable in-app under Game Configurations
+Vodka is free software under the [GNU GPL v3](LICENSE). Wine is licensed under the LGPL. D3DMetal
+belongs to Apple and isn't included; Vodka installs it from Apple's own Game Porting Toolkit.
 
----
+Vodka is built on the work of:
 
-## Credits & Acknowledgments
-
-Vodka is possible thanks to the magic of several projects:
-
-- [Whisky](https://github.com/whisky-app/whisky) by Isaac Marovitz and contributors, which Vodka is built from
+- [Whisky](https://github.com/whisky-app/whisky) by Isaac Marovitz and contributors
 - [frankea/Whisky](https://github.com/frankea/Whisky), the community fork Vodka continues from
+- [Wine](https://www.winehq.org), and [CrossOver](https://www.codeweavers.com/crossover) by CodeWeavers
+- [DXVK-macOS](https://github.com/Gcenx/DXVK-macOS) by Gcenx and doitsujin, [DXMT](https://github.com/3Shain/dxmt) by 3Shain,
+  [MoltenVK](https://github.com/KhronosGroup/MoltenVK) by Khronos, [msync](https://github.com/marzent/wine-msync) by marzent
+- [Sparkle](https://github.com/sparkle-project/Sparkle), [SemanticVersion](https://github.com/SwiftPackageIndex/SemanticVersion)
+  and [swift-argument-parser](https://github.com/apple/swift-argument-parser)
 
-- [msync](https://github.com/marzent/wine-msync) by marzent
-- [DXVK-macOS](https://github.com/Gcenx/DXVK-macOS) by Gcenx and doitsujin
-- [DXMT](https://github.com/3Shain/dxmt) by 3Shain
-- [MoltenVK](https://github.com/KhronosGroup/MoltenVK) by KhronosGroup
-- [Sparkle](https://github.com/sparkle-project/Sparkle) by sparkle-project
-- [SemanticVersion](https://github.com/SwiftPackageIndex/SemanticVersion) by SwiftPackageIndex
-- [swift-argument-parser](https://github.com/apple/swift-argument-parser) by Apple
-- [CrossOver](https://www.codeweavers.com/crossover) by CodeWeavers and WineHQ
-- D3DMetal by Apple
-
-Special thanks to Gcenx, ohaiibuzzle, Nat Brown, and [Isaac Marovitz](https://github.com/IsaacMarovitz) (original author) for their support and contributions!
-
----
-
-<table>
-  <tr>
-    <td>
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="./images/cw-dark.png">
-          <img src="./images/cw-light.png" width="500">
-        </picture>
-    </td>
-    <td>
-        Vodka doesn't exist without CrossOver. If you want a fully-supported commercial Wine experience on macOS, check out <a href="https://www.codeweavers.com/crossover">CrossOver</a> from CodeWeavers. (This fork has no affiliate arrangement and receives nothing from CrossOver sales.)
-    </td>
-  </tr>
-</table>
+If you'd like a fully supported commercial way to run Windows software on a Mac, consider
+[CrossOver](https://www.codeweavers.com/crossover). CodeWeavers' work on Wine is what makes projects
+like this one possible.

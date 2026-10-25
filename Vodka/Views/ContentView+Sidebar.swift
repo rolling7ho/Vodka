@@ -29,57 +29,23 @@ extension ContentView {
             List(selection: $selected) {
                 Section {
                     libraryRow
-                    statisticsRow
                 }
                 // A bottle is a Wine prefix, so it belongs under a heading rather
                 // than being the whole sidebar. With one bottle this is the row
                 // that reaches its config; with several it is also the switcher.
                 // Making another is rare, so its button lives on the heading
                 // rather than in the window's toolbar beside the library's own.
-                Section {
+                // Pinned open: a click on the header's + also toggled the
+                // section, so opening New PC collapsed the list of PCs.
+                Section(isExpanded: .constant(true)) {
                     ForEach(sortedBottles) { bottle in
-                        Group {
-                            if bottle.inFlight {
-                                HStack {
-                                    Text(bottle.settings.name)
-                                    Spacer()
-                                    ProgressView().controlSize(.small)
-                                }
-                                .opacity(0.5)
-                            } else if !bottle.isAvailable {
-                                HStack {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundStyle(.orange)
-                                        .font(.caption)
-                                    Text(bottle.settings.name)
-                                    Spacer()
-                                    Button {
-                                        Task { await bottle.remove(delete: false) }
-                                    } label: {
-                                        Image(systemName: "xmark.circle")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .help("button.removeFromList.help")
-                                }
-                                .opacity(0.6)
-                                .selectionDisabled(true)
-                            } else {
-                                BottleListEntry(
-                                    bottle: bottle,
-                                    selected: $selected,
-                                    refresh: $triggerRefresh,
-                                    toast: $toast
-                                )
-                                .accessibilityIdentifier("sidebar.bottle")
-                            }
-                        }
-                        .id(bottle.url)
+                        bottleRow(bottle)
+                            .id(bottle.url)
                     }
                 } header: {
-                    // The + sits beside the title it adds to, not out at the edge.
                     HStack(spacing: 6) {
                         Text("sidebar.bottles")
+                        Spacer()
                         Button {
                             showBottleCreation.toggle()
                         } label: {
@@ -88,13 +54,24 @@ extension ContentView {
                         .buttonStyle(.borderless)
                         .help("button.createBottle")
                         .accessibilityIdentifier("toolbar.createBottle")
-                        Spacer()
                     }
                 }
             }
             .animation(.default, value: bottleVM.bottles)
             .listStyle(.sidebar)
             .accessibilityIdentifier("bottleSidebar")
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                SettingsLink {
+                    Label("Settings", systemImage: "gearshape")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 10)
+                .accessibilityIdentifier("sidebar.settings")
+            }
             // No search field here. The library has one, and two fields forty
             // points apart searching different things (bottles here, programs
             // there) is a choice nobody should have to make to find a game.
@@ -113,32 +90,60 @@ extension ContentView {
     /// the home screen, and a person who has not picked a bottle has not made a
     /// mistake.
     var libraryRow: some View {
-        pageRow("library.title", systemImage: "square.grid.2x2", statistics: false)
-            .accessibilityIdentifier("sidebar.library")
-    }
-
-    var statisticsRow: some View {
-        pageRow("Statistics", systemImage: "chart.bar", statistics: true)
-            .accessibilityIdentifier("sidebar.statistics")
-    }
-
-    /// A page that is not a bottle. These are buttons drawing their own
-    /// selection because the list's selection is a bottle URL.
-    private func pageRow(_ title: LocalizedStringKey, systemImage: String, statistics: Bool) -> some View {
+        // A button drawing its own selection, because the list's selection is
+        // a bottle URL.
         Button {
             selected = nil
-            showStatistics = statistics
         } label: {
-            Label(title, systemImage: systemImage)
+            Label("library.title", systemImage: "square.grid.2x2")
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .listRowBackground(
             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(selected == nil && showStatistics == statistics
-                    ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
+                .fill(selected == nil ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
         )
+        .accessibilityIdentifier("sidebar.library")
+    }
+
+    /// One PC's row: in progress, missing from disk, or ready.
+    @ViewBuilder
+    private func bottleRow(_ bottle: Bottle) -> some View {
+        if bottle.inFlight {
+            HStack {
+                Text(bottle.settings.name)
+                Spacer()
+                ProgressView().controlSize(.small)
+            }
+            .opacity(0.5)
+        } else if !bottle.isAvailable {
+            HStack {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .font(.caption)
+                Text(bottle.settings.name)
+                Spacer()
+                Button {
+                    Task { await bottle.remove(delete: false) }
+                } label: {
+                    Image(systemName: "xmark.circle")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("button.removeFromList.help")
+            }
+            .opacity(0.6)
+            .selectionDisabled(true)
+        } else {
+            BottleListEntry(
+                bottle: bottle,
+                selected: $selected,
+                refresh: $triggerRefresh,
+                toast: $toast
+            )
+            .accessibilityIdentifier("sidebar.bottle")
+        }
     }
 
     @ViewBuilder
@@ -149,8 +154,6 @@ extension ContentView {
                     .disabled(bottle.inFlight)
                     .id(bottle.url)
             }
-        } else if showStatistics {
-            StatisticsView(refresh: $triggerRefresh)
         } else if bottleVM.countActive() > 0 {
             LibraryView(selectedBottle: $selected, refresh: $triggerRefresh)
         } else {

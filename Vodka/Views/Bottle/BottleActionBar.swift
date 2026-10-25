@@ -20,7 +20,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import VodkaKit
 
-/// The action along the bottom of a Windows PC: running a Windows app. The
+/// The action along the bottom of a PC: running a Windows app. The
 /// C: drive, Terminal and Winetricks moved under the page's Advanced section.
 struct BottleActionBar: View {
     @ObservedObject var bottle: Bottle

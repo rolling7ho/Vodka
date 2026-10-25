@@ -98,5 +98,5 @@ body:
       options:
         - label: I tested this config on a fresh bottle (not one carrying unrelated tweaks).
           required: true
-        - label: I'm running this fork (`frankea/Whisky`, confirmed via **Vodka → About**).
+        - label: I'm running this fork (`rolling7ho/Vodka`, confirmed via **Vodka → About**).
           required: true

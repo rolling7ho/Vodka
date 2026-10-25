@@ -22,7 +22,7 @@ import os.log
 /// Moves the data of this fork's builds from before it was called Vodka.
 ///
 /// Those builds ran as `com.rolling7ho.Whisky`, and everything they kept is in
-/// folders named after that identifier: the Windows PCs and their list, the
+/// folders named after that identifier: the PCs and their list, the
 /// Wine engine, the logs, the settings. Vodka moves the folders rather than
 /// importing in place the way it does for the original Whisky's bottles,
 /// because these are the same app's own data and leaving them under the old

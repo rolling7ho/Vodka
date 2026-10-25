@@ -104,12 +104,12 @@ struct ConfigView: View {
                 Button(role: .destructive) {
                     Task { await bottle.confirmAndDelete() }
                 } label: {
-                    FormActionRow("Delete Windows PC…", systemImage: "trash", destructive: true)
+                    FormActionRow("Delete PC…", systemImage: "trash", destructive: true)
                 }
                 .buttonStyle(.plain)
                 .disabled(bottle.inFlight)
             } footer: {
-                Text("Moves this Windows PC, with Steam and every game in it, to the Trash, "
+                Text("Moves this PC, with Steam and every game in it, to the Trash, "
                     + "to start over from scratch.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

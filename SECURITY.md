@@ -1,81 +1,37 @@
-# Security Policy
+# Security
 
-## Supported Versions
+## Reporting a vulnerability
 
-The following versions of Vodka are currently supported with security updates:
+Please don't open a public issue. Report it privately through
+[GitHub's vulnerability reporting](https://github.com/rolling7ho/Vodka/security/advisories/new)
+(the repository's **Security** tab, then **Report a vulnerability**), and include:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| Latest  | :white_check_mark: |
-| < Latest | :x:               |
+- what the problem is and what an attacker could do with it
+- steps to reproduce it, and the Vodka and macOS versions you used
+- a fix, if you have one in mind
 
-We recommend always using the latest version of Vodka for the best security and feature support.
+You'll get a reply within a few days. Vodka is a small volunteer project, so fixes take as long as
+they take, but a serious issue goes ahead of everything else. If you'd like credit in the advisory,
+say how you want to be named.
 
-## Reporting a Vulnerability
+## What's covered
 
-If you discover a security vulnerability in Vodka, please report it responsibly:
+Only the latest version of Vodka gets fixes. In scope:
 
-1. **Do not** open a public GitHub issue for security vulnerabilities
-2. **Use** GitHub's private vulnerability reporting feature via the **Security** tab of this repository:
-   - Navigate to **Security** → **Report a vulnerability**
-   - Or use this direct link: [Report a vulnerability](https://github.com/frankea/Whisky/security/advisories/new)
-3. **Include** the following information in your report:
-   - Description of the vulnerability
-   - Steps to reproduce the issue
-   - Potential impact assessment
-   - Any suggested fixes (optional)
+- the Vodka app, VodkaKit, the VodkaCmd tool and the Quick Look extension
+- how Vodka downloads, checks and installs its engine and Apple's Game Porting Toolkit
+- the build and install scripts in this repository
 
-### What to Expect
+Out of scope (please report these upstream):
 
-- **Acknowledgment**: We will acknowledge receipt of your report within 48 hours
-- **Assessment**: We will assess the vulnerability and determine its severity
-- **Timeline**: We aim to address critical vulnerabilities within 7 days, and other issues within 30 days
-- **Credit**: With your permission, we will credit you in the security advisory
+- bugs in Wine itself ([WineHQ](https://bugs.winehq.org)), DXVK, DXMT, MoltenVK or D3DMetal
+- Windows programs you run inside Vodka. Wine isn't a sandbox: a Windows program can read and write
+  anything your Mac account can, so only run software you trust.
 
-### Scope
+Vodka bundles the Wine engine rather than writing it. When a serious vulnerability is fixed upstream,
+the response is to rebuild the engine on the fixed version and release it.
 
-This security policy applies to:
-- The Vodka application
-- VodkaKit library
-- Related command-line tools (VodkaCmd)
-- Build and release infrastructure
+## Data
 
-### Out of Scope
-
-The following are generally out of scope:
-- Vulnerabilities in Wine itself (report to [WineHQ](https://wiki.winehq.org/Bugs))
-- Vulnerabilities in DXVK (report to the respective project)
-- Issues in third-party dependencies (report upstream, then notify us)
-
-### Wine / DXVK Vulnerability Response
-
-Vodka bundles a Wine runtime (Wine, DXVK, D3DMetal, and related components) that it does not develop.
-A vulnerability in those components is fixed upstream, not here — but it still reaches Vodka users, so
-we track it as a runtime-currency concern rather than a closed door:
-
-- Bundled component versions are pinned and checked against their upstream sources, so a new upstream
-  build carrying a security fix is surfaced rather than missed.
-- A **critical** vulnerability in a bundled component (one exploitable through normal Vodka use) is a
-  trigger to rebuild the runtime archive on the patched upstream version and cut a new app release out
-  of band, rather than waiting for the next scheduled runtime update.
-- Non-critical upstream fixes are picked up as part of the normal runtime-update cadence.
-
-If you believe a bundled-runtime vulnerability is being mishandled or under-prioritized in Vodka's
-packaging, report it through the private channel above and say so explicitly.
-
-## Telemetry & Data Collection
-
-Vodka collects no usage data and has no analytics SDK. The only network
-requests it makes on its own are update checks (Sparkle's appcast) and Wine
-runtime downloads from GitHub Releases.
-
-## Security Best Practices for Users
-
-- Only run trusted Windows applications within Vodka
-- Keep Vodka and macOS updated to the latest versions
-- Be cautious when downloading Windows executables from untrusted sources
-- Review application permissions before running unknown software
-
-## Acknowledgments
-
-We thank the security research community for helping keep Vodka secure.
+Vodka collects no usage data and has no analytics. It goes online only to download its engine and
+Steam's installer and to check for updates.

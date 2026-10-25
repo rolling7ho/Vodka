@@ -169,15 +169,14 @@ struct VodkaApp: App {
             CommandGroup(after: .appInfo) {
                 SparkleView(updater: updaterController.updater)
             }
+            // Statistics lives in Settings, so its item sits beside Settings….
+            CommandGroup(after: .appSettings) {
+                StatisticsMenuButton()
+            }
             CommandGroup(before: .systemServices) {
                 Divider()
                 Button("open.setup") {
                     showSetup = true
-                }
-                Button("install.cli") {
-                    Task {
-                        await VodkaCmd.install()
-                    }
                 }
             }
             CommandGroup(replacing: .newItem) {}
@@ -221,12 +220,12 @@ struct VodkaApp: App {
             }
             CommandGroup(replacing: .help) {
                 Button("help.github") {
-                    if let url = URL(string: "https://github.com/frankea/Whisky") {
+                    if let url = URL(string: "https://github.com/rolling7ho/Vodka") {
                         openURL(url)
                     }
                 }
                 Button("help.issues") {
-                    if let url = URL(string: "https://github.com/frankea/Whisky/issues") {
+                    if let url = URL(string: "https://github.com/rolling7ho/Vodka/issues") {
                         openURL(url)
                     }
                 }
@@ -243,6 +242,7 @@ struct VodkaApp: App {
         }
         Settings {
             SettingsView()
+                .environmentObject(BottleVM.shared)
         }
         MenuBarExtra("Vodka", systemImage: "wineglass", isInserted: $showMenuBarExtra) {
             VodkaMenuBarView()
@@ -493,7 +493,7 @@ extension VodkaApp {
             case let .blocked(reason):
                 let alert = NSAlert()
                 alert.messageText = "Close Whisky to move your games to Vodka"
-                alert.informativeText = "\(reason) Vodka moves your Windows PCs, engine and settings over from "
+                alert.informativeText = "\(reason) Vodka moves your PCs, engine and settings over from "
                     + "Whisky the first time it opens, and can't while they are in use. Quit Whisky, Steam and "
                     + "any games, then click Try Again."
                 alert.addButton(withTitle: "Try Again")

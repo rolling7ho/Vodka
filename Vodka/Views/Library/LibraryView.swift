@@ -23,7 +23,7 @@ import VodkaKit
 // swiftlint:disable type_body_length
 /// The home screen: Steam, its installed games, and any other apps pinned.
 ///
-/// This is the thing people open Vodka to do. A bottle (a "Windows PC" on
+/// This is the thing people open Vodka to do. A bottle (a "PC" on
 /// screen) is a Wine prefix, which is an implementation detail of running a
 /// Windows program on a Mac, and it only earns space on screen once there is
 /// more than one of them.

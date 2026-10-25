@@ -65,45 +65,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// The "Terminate Wine processes when Vodka closes" setting.
-    ///
-    /// Off unless turned on: Steam and the game it runs are their own apps, so
-    /// closing Vodka's window, which quits Vodka, must not take them down,
-    /// and neither may opening Vodka again while they run.
-    ///
-    /// Read as an optional: the Settings toggle is an `@AppStorage` that
-    /// defaults to on without ever writing the key, and `bool(forKey:)`
-    /// reports an absent key as off, which silently disabled kill-on-quit
-    /// for anyone who never touched the toggle.
-    static var killOnTerminate: Bool {
-        UserDefaults.standard.object(forKey: "killOnTerminate") as? Bool ?? false
+    /// Quitting Vodka stops everything it runs: Steam, games and Wine's own
+    /// services in every PC. That is a force stop, so a game loses whatever it
+    /// hasn't saved, and Vodka asks first whenever something is running.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard RunningWinePrograms.anyRunning else { return .terminateNow }
+        if !UserDefaults.standard.bool(forKey: Self.skipQuitConfirmationKey) {
+            guard confirmStoppingEverything() else { return .terminateCancel }
+        }
+        // AppKit asks on the main thread.
+        MainActor.assumeIsolated { stopEverything() }
+        return .terminateNow
+    }
+
+    static let skipQuitConfirmationKey = "skipQuitConfirmation"
+
+    private func confirmStoppingEverything() -> Bool {
+        let names = RunningWinePrograms.names()
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = names.isEmpty
+            ? "Quit Vodka and stop its PCs?"
+            : "Quit Vodka and stop \(names.formatted(.list(type: .and)))?"
+        alert.informativeText = "Quitting force-stops everything running in your PCs. "
+            + "Anything a game hasn't saved will be lost."
+        alert.addButton(withTitle: "Quit and Stop All").hasDestructiveAction = true
+        alert.addButton(withTitle: "Cancel")
+        alert.showsSuppressionButton = true
+        alert.suppressionButton?.title = "Don't ask again"
+        guard alert.runModal() == .alertFirstButtonReturn else { return false }
+        if alert.suppressionButton?.state == .on {
+            UserDefaults.standard.set(true, forKey: Self.skipQuitConfirmationKey)
+        }
+        return true
+    }
+
+    /// Synchronous, because the app exits as soon as termination is allowed.
+    @MainActor
+    private func stopEverything() {
+        for bottle in BottleVM.shared.bottles {
+            Wine.killBottleAndWait(bottle: bottle)
+            ProcessRegistry.shared.clearRegistry(for: bottle.url)
+        }
+        // A server whose PC isn't in the list, or whose list entry moved.
+        _ = Wine.killServerlessEngineProcesses()
+        logger.info("Stopped every PC on quit")
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        let globalKill = Self.killOnTerminate
-
-        // Per-bottle kill-on-quit with policy overrides
-        for bottle in BottleVM.shared.bottles {
-            let bottlePolicy = bottle.settings.killOnQuit
-            let shouldKill: Bool = switch bottlePolicy {
-            case .inherit:
-                globalKill
-            case .alwaysKill:
-                true
-            case .neverKill:
-                false
-            }
-
-            if shouldKill {
-                // Synchronous: the app exits when this delegate returns.
-                Wine.killBottleAndWait(bottle: bottle)
-                ProcessRegistry.shared.clearRegistry(for: bottle.url)
-                logger.info(
-                    "Killing bottle '\(bottle.settings.name)' on quit (policy: \(String(describing: bottlePolicy)))"
-                )
-            }
-        }
-
         // Synchronous best-effort temp file cleanup (cannot await in applicationWillTerminate)
         let trackedFiles = TempFileTracker.shared.getAllTrackedFiles()
         for (fileURL, _) in trackedFiles {
@@ -185,32 +194,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             cleanedCount += 1
         }
 
+        // A PC left running is flagged, not stopped: it may be a game opened
+        // from a Dock shortcut while Vodka was closed.
         for bottle in BottleVM.shared.bottles {
-            let isRunning = await Wine.isWineserverRunning(for: bottle)
-            guard isRunning else { continue }
-
-            let bottleName = bottle.settings.name
-            let policy = bottle.settings.killOnQuit
-            let globalKill = Self.killOnTerminate
-            let shouldAutoClean: Bool = switch policy {
-            case .inherit: globalKill
-            case .alwaysKill: true
-            case .neverKill: false
-            }
-
-            if shouldAutoClean {
-                // Auto-clean orphans per kill-on-quit policy
-                Wine.killBottle(bottle: bottle)
-                cleanedCount += 1
-                logger.info(
-                    "Auto-cleaned orphan processes in bottle '\(bottleName)' (kill-on-quit policy active)"
-                )
-            } else {
-                // Flag only -- do NOT auto-clean
-                logger.info(
-                    "Detected orphan Wine processes in bottle '\(bottleName)' (flagged, not auto-cleaned)"
-                )
-            }
+            guard await Wine.isWineserverRunning(for: bottle) else { continue }
+            logger.info("Found Wine processes running in '\(bottle.settings.name)' at launch")
         }
 
         // Post notification for cleaned orphans (toast display in ContentView)

@@ -32,13 +32,6 @@ struct CleanupConfigSection: View {
                 Text("config.cleanup.clipboardPolicy.never").tag(ClipboardPolicy.never)
             }
             .help("config.cleanup.clipboardPolicy.help")
-
-            Picker("config.cleanup.killOnQuit", selection: $bottle.settings.killOnQuit) {
-                Text("config.cleanup.killOnQuit.inherit").tag(KillOnQuitPolicy.inherit)
-                Text("config.cleanup.killOnQuit.always").tag(KillOnQuitPolicy.alwaysKill)
-                Text("config.cleanup.killOnQuit.never").tag(KillOnQuitPolicy.neverKill)
-            }
-            .help("config.cleanup.killOnQuit.help")
         }
     }
 }

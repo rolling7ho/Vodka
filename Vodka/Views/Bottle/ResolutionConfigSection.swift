@@ -296,7 +296,7 @@ struct GameEssentialsSection: View {
         } header: {
             Text("Game Settings")
         } footer: {
-            Text("macOS Game Mode, for every Windows PC, is in Vodka Settings \u{203A} Gaming.")
+            Text("macOS Game Mode, for every PC, is in Vodka Settings \u{203A} Gaming.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

@@ -40,7 +40,7 @@ struct LauncherConfigSection: View {
                 Toggle("Launcher Compatibility Mode", isOn: $bottle.settings.launcherCompatibilityMode)
                     .help("""
                     Enables automatic fixes for Steam, Rockstar, EA App, Epic Games, \
-                    and other game launchers (frankea/Whisky#41)
+                    and other game launchers
                     """)
 
                 if bottle.settings.launcherCompatibilityMode {
@@ -164,7 +164,7 @@ extension LauncherConfigSection {
                     Text(launcher.rawValue).tag(launcher as LauncherType?)
                 }
             }
-            .help("Manually select the launcher type for this Windows PC")
+            .help("Manually select the launcher type for this PC")
 
             if let launcher = bottle.settings.detectedLauncher {
                 HStack(alignment: .top, spacing: 8) {

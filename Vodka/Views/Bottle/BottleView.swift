@@ -211,7 +211,7 @@ extension BottleView {
     }
 
     /// For fixing things by hand: the Windows drive in Finder, a shell set up
-    /// for this Windows PC, and Winetricks.
+    /// for this PC, and Winetricks.
     private var windowsTools: some View {
         HStack(spacing: 8) {
             Button("button.cDrive", systemImage: "internaldrive") { bottle.openCDrive() }

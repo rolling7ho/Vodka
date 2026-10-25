@@ -59,7 +59,7 @@ struct MigrateBottlesSheet: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Import Windows PCs (Bottles) from the Original Whisky")
+            Text("Import PCs (Bottles) from the Original Whisky")
                 .font(.headline)
             Text(
                 """

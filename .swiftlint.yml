@@ -6,6 +6,7 @@ excluded:
   - .build
   - VodkaKit/.build
   - build
+  - scripts/draw-icon.swift
 
 file_header:
     severity: error

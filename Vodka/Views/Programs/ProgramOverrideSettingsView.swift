@@ -153,7 +153,7 @@ struct ProgramOverrideSettingsView: View {
                     object: nil
                 )
             }
-            .help("Open audio diagnostics and troubleshooting for this Windows PC")
+            .help("Open audio diagnostics and troubleshooting for this PC")
         }
     }
 

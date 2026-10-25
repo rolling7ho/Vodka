@@ -73,7 +73,7 @@
 	<key>NSRemovableVolumesUsageDescription</key>
 	<string>Vodka needs access to removable volumes when bottles are stored on external drives.</string>
 	<key>SUFeedURL</key>
-	<string>https://rolling7ho.github.io/Whisky/appcast.xml</string>
+	<string>https://rolling7ho.github.io/Vodka/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUPublicEDKey</key>

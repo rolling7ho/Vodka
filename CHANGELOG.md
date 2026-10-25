@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (interface)
+- Quitting Vodka now stops Steam, games and everything else running in your PCs. Vodka asks first and
+  names what's running; "Don't ask again" turns the question off.
+- "Windows PC" is now just "PC" throughout the app.
+- Settings has one tab per section (General, Gaming, Graphics, Updates), plus Statistics, which
+  replaces the sidebar page. **Vodka › Statistics…** (⇧⌘S) opens it.
+- A Settings button sits at the bottom of the sidebar, and the PCs heading's + is right-aligned.
+- The New PC sheet has a centered title, with Cancel and Create at the bottom.
+- The accent color is now RGB 221, 54, 111, and the app icon has been redrawn.
+
+### Removed (interface)
+- The "Install Vodka CLI" menu item. Dock shortcuts still use the bundled VodkaCmd.
+
+### Fixed
+- Opening New PC no longer collapses the list of PCs in the sidebar.
+- Help menu and diagnostics links now go to rolling7ho/Vodka.
+
+
 ### Changed
 - Renamed to **Vodka**: new name, icon and bundle identifier
   (`com.rolling7ho.Vodka`), with `VodkaKit`, `VodkaCmd` and `vodka://`

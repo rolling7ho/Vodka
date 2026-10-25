@@ -27,7 +27,7 @@ import VodkaKit
 /// says Show rather than Open: opening one that is already up only brings
 /// its window forward, and saying Open there read as if it were closed.
 struct SteamPanel: View {
-    /// Shown only with Steam in more than one Windows PC.
+    /// Shown only with Steam in more than one PC.
     let bottleName: String?
     let icon: URL?
     let isRunning: Bool

@@ -32,8 +32,14 @@ struct BottleCreationView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
+    // A plain title and bottom buttons rather than a navigation stack: in a
+    // sheet the stack's title sits off-centre beside its toolbar buttons.
     var body: some View {
-        NavigationStack {
+        VStack(spacing: 0) {
+            Text("create.title")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 18)
             Form {
                 TextField("create.name", text: $newBottleName)
                     .onChange(of: newBottleName) { _, name in
@@ -73,27 +79,27 @@ struct BottleCreationView: View {
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("create.title")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("create.cancel") {
-                        dismiss()
-                    }
-                    .keyboardShortcut(.cancelAction)
-                    .accessibilityIdentifier("create.cancelButton")
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button("create.create") {
-                        submit()
-                    }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(!nameValid || locationIssue != nil)
-                    .accessibilityIdentifier("create.createButton")
-                }
-            }
+            // Sized to fit, so it never needs to scroll; without this the
+            // sheet flashes a scroller as it opens.
+            .scrollDisabled(true)
             .onSubmit {
                 submit()
             }
+            HStack {
+                Spacer()
+                Button("create.cancel") {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+                .accessibilityIdentifier("create.cancelButton")
+                Button("create.create") {
+                    submit()
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(!nameValid || locationIssue != nil)
+                .accessibilityIdentifier("create.createButton")
+            }
+            .padding([.horizontal, .bottom], 20)
         }
         .fixedSize(horizontal: false, vertical: true)
         .frame(width: ViewWidth.small)
