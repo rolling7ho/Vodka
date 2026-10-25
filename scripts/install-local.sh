@@ -32,7 +32,14 @@ find "$APP/Contents/PlugIns" -maxdepth 1 -name '*.appex' -print0 |
 codesign --force --sign - --entitlements "$ENTITLEMENTS" "$APP"
 rm -f "$ENTITLEMENTS"
 
-osascript -e 'quit app id "com.rolling7ho.Vodka"' 2>/dev/null || true
+# scripts/publish-update.sh only wants the signed build.
+if [ "${INSTALL:-1}" = 0 ]; then
+    echo "$APP"
+    exit 0
+fi
+
+# Not a normal quit: that asks, then stops Steam and every game.
+pkill -x Vodka 2>/dev/null && sleep 1 || true
 rm -rf "$DEST"
 ditto "$APP" "$DEST"
 codesign --verify --deep --strict "$DEST" && echo "Installed $DEST"

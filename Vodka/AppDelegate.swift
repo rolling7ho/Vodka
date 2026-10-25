@@ -69,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// services in every PC. That is a force stop, so a game loses whatever it
     /// hasn't saved, and Vodka asks first whenever something is running.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        guard RunningWinePrograms.anyRunning else { return .terminateNow }
+        guard !Self.relaunchingForUpdate, RunningWinePrograms.anyRunning else { return .terminateNow }
         if !UserDefaults.standard.bool(forKey: Self.skipQuitConfirmationKey) {
             guard confirmStoppingEverything() else { return .terminateCancel }
         }
@@ -79,6 +79,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     static let skipQuitConfirmationKey = "skipQuitConfirmation"
+
+    /// Set by Sparkle just before it quits Vodka to install an update.
+    nonisolated(unsafe) static var relaunchingForUpdate = false
 
     private func confirmStoppingEverything() -> Bool {
         let names = RunningWinePrograms.names()

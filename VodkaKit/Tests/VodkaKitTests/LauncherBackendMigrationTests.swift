@@ -126,15 +126,16 @@ final class LauncherBackendMigrationTests: LauncherFixesTestCase {
     }
 
     @MainActor
-    func testAnExplicitBackendTheProfileSwitchedIsNotPutOnRecommended() {
-        // It was not on Recommended before, so Recommended is not where it goes back to.
+    func testAnExplicitBackendIsNeitherSwitchedNorPutOnRecommended() {
+        // The profile leaves a picked backend alone, so there is no switch for
+        // the migration to undo.
         let bottle = makeBottle()
         bottle.settings.graphicsBackend = .wined3d
         LauncherFixes.apply(to: bottle, launcher: .steam, recommendedBackend: .dxmt)
-        XCTAssertEqual(bottle.settings.graphicsBackend, .dxvk)
+        XCTAssertEqual(bottle.settings.graphicsBackend, .wined3d)
 
         XCTAssertFalse(LauncherBackendMigration.migrateIfNeeded(bottle, d3dMetalInstalled: true))
-        XCTAssertEqual(bottle.settings.graphicsBackend, .dxvk)
+        XCTAssertEqual(bottle.settings.graphicsBackend, .wined3d)
     }
 
     @MainActor

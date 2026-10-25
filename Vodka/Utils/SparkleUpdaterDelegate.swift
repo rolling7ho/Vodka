@@ -36,12 +36,19 @@ import Sparkle
 /// the main thread — Sparkle invokes these `SPUStandardUserDriverDelegate`
 /// callbacks on the main thread, so each one hops through `MainActor` before
 /// touching `NSApp` or the published flag.
-final class SparkleUpdaterDelegate: NSObject, ObservableObject, SPUStandardUserDriverDelegate, @unchecked Sendable {
+final class SparkleUpdaterDelegate: NSObject, ObservableObject, SPUStandardUserDriverDelegate, SPUUpdaterDelegate,
+    @unchecked Sendable {
     static let shared = SparkleUpdaterDelegate()
 
     /// True when a scheduled check found an update whose modal alert we deferred.
     /// Drives the in-app "Install Update…" affordance.
     @Published var updateAvailable = false
+
+    /// An update relaunches Vodka straight away, so the quit it starts leaves
+    /// Steam and games running rather than stopping them.
+    func updaterWillRelaunchApplication(_ updater: SPUUpdater) {
+        AppDelegate.relaunchingForUpdate = true
+    }
 
     /// Opt into handling our own gentle reminders for scheduled updates.
     var supportsGentleScheduledUpdateReminders: Bool {

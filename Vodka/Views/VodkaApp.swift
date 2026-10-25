@@ -65,7 +65,7 @@ struct VodkaApp: App {
         Self.migrateWhiskyBuildData()
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
-            updaterDelegate: nil,
+            updaterDelegate: SparkleUpdaterDelegate.shared,
             userDriverDelegate: SparkleUpdaterDelegate.shared
         )
     }

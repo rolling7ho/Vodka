@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The "Install Vodka CLI" menu item. Dock shortcuts still use the bundled VodkaCmd.
 
 ### Fixed
+- Updates work: Vodka checks its own feed at rolling7ho.github.io/Vodka, signed with Vodka's own key
+  (the feed and key inherited from frankea's fork were ones this fork couldn't publish to). Installing an
+  update leaves Steam and games running.
 - Opening New PC no longer collapses the list of PCs in the sidebar.
 - Help menu and diagnostics links now go to rolling7ho/Vodka.
 

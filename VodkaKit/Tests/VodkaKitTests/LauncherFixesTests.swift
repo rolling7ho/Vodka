@@ -182,7 +182,9 @@ final class LauncherFixesApplyTests: LauncherFixesTestCase {
         bottle.settings.dxvk = true
         bottle.settings.dxvkAsync = false
 
-        LauncherFixes.apply(to: bottle, launcher: .steam)
+        // Pinned rather than read from this Mac's engine, so the test doesn't
+        // change with what is installed.
+        LauncherFixes.apply(to: bottle, launcher: .steam, recommendedBackend: .dxmt)
 
         XCTAssertTrue(bottle.settings.dxvk)
         XCTAssertFalse(bottle.settings.dxvkAsync)
@@ -192,15 +194,19 @@ final class LauncherFixesApplyTests: LauncherFixesTestCase {
     }
 
     @MainActor
-    func testForceReappliesSteamDXVKSettings() {
-        let bottle = makeBottle()
-        bottle.settings.dxvk = true
-        bottle.settings.dxvkAsync = false
+    func testForceLeavesAPickedDXVKAsItIs() {
+        // DXVK the user picked is an explicit backend, and a forced apply
+        // doesn't steer one any more than a normal apply does.
+        for recommended in [GraphicsBackend.d3dMetal, .dxmt] {
+            let bottle = makeBottle()
+            bottle.settings.dxvk = true
+            bottle.settings.dxvkAsync = false
 
-        LauncherFixes.apply(to: bottle, launcher: .steam, force: true)
+            LauncherFixes.apply(to: bottle, launcher: .steam, force: true, recommendedBackend: recommended)
 
-        XCTAssertTrue(bottle.settings.dxvk)
-        XCTAssertTrue(bottle.settings.dxvkAsync)
+            XCTAssertTrue(bottle.settings.dxvk, "\(recommended)")
+            XCTAssertFalse(bottle.settings.dxvkAsync, "\(recommended)")
+        }
     }
 
     @MainActor
@@ -252,16 +258,19 @@ final class LauncherFixesScopingTests: LauncherFixesTestCase {
     }
 
     @MainActor
-    func testSteamProfileStillSwitchesAnExplicitBackend() {
-        // Only Recommended is steered per launch, so an explicit D3DMetal
-        // bottle would start Steam on D3DMetal.
-        for backend in [GraphicsBackend.d3dMetal, .dxmt, .wined3d] {
-            let bottle = makeBottle()
-            bottle.settings.graphicsBackend = backend
+    func testSteamProfileLeavesAnExplicitBackend() {
+        // Steam's own processes get DXVK through their AppDefaults entries, so
+        // the bottle's backend is the games': a bottle set to OpenGL for
+        // Teardown stays on it.
+        for recommended in [GraphicsBackend.d3dMetal, .dxmt] {
+            for backend in [GraphicsBackend.d3dMetal, .dxmt, .wined3d] {
+                let bottle = makeBottle()
+                bottle.settings.graphicsBackend = backend
 
-            LauncherFixes.apply(to: bottle, launcher: .steam, recommendedBackend: .d3dMetal)
+                LauncherFixes.apply(to: bottle, launcher: .steam, recommendedBackend: recommended)
 
-            XCTAssertEqual(bottle.settings.graphicsBackend, .dxvk, "\(backend)")
+                XCTAssertEqual(bottle.settings.graphicsBackend, backend, "\(backend) over \(recommended)")
+            }
         }
     }
 
