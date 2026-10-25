@@ -35,10 +35,10 @@ public enum AudioStatus: Sendable, Equatable {
     /// Human-readable display name.
     public var displayName: String {
         switch self {
-        case .healthy: "OK"
+        case .healthy: "Working"
         case .degraded: "Degraded"
         case .broken: "Broken"
-        case .unknown: "Unknown"
+        case .unknown: "Not Tested Yet"
         }
     }
 

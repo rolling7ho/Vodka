@@ -166,19 +166,7 @@ extension RunningProcessesView {
                 TableColumn(String(localized: "process.column.name")) { process in
                     Text(process.imageName)
                 }
-                .width(min: 120, ideal: 180)
-
-                TableColumn(String(localized: "process.column.pid")) { process in
-                    Text(String(process.winePID))
-                        .monospacedDigit()
-                }
-                .width(min: 50, ideal: 60)
-
-                TableColumn(String(localized: "process.column.memory")) { process in
-                    Text(process.memoryUsage)
-                        .monospacedDigit()
-                }
-                .width(min: 60, ideal: 80)
+                .width(min: 160, ideal: 320)
 
                 TableColumn(String(localized: "process.column.started")) { process in
                     if let launchTime = process.launchTime {
@@ -188,18 +176,16 @@ extension RunningProcessesView {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .width(min: 70, ideal: 90)
+                .width(min: 70, ideal: 110)
 
-                TableColumn(String(localized: "process.column.kind")) { process in
-                    Text(localizedKind(process.kind))
+                // Wine's tasklist reports no memory use, and kind and source are
+                // in the detail pane, so the table keeps to what people scan for.
+                TableColumn(String(localized: "process.column.pid")) { process in
+                    Text(String(process.winePID))
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
                 }
-                .width(min: 50, ideal: 60)
-
-                TableColumn(String(localized: "process.column.source")) { process in
-                    Text(localizedSource(process.source))
-                        .foregroundStyle(process.source == .untracked ? .orange : .primary)
-                }
-                .width(min: 60, ideal: 80)
+                .width(min: 50, ideal: 60, max: 80)
             }
             .contextMenu(forSelectionType: Int32.self) { selectedIDs in
                 if let processID = selectedIDs.first,

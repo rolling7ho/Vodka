@@ -37425,13 +37425,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Repair Wine Prefix"
+            "value" : "Repair This Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Repair Wine Prefix"
+            "value" : "Repair This Windows PC"
           }
         },
         "es" : {
@@ -55427,13 +55427,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Game Configurations"
+            "value" : "Game Presets"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Game Configurations"
+            "value" : "Game Presets"
           }
         },
         "es" : {
@@ -62227,13 +62227,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pin Program"
+            "value" : "Add App"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pin Program"
+            "value" : "Add App"
           }
         },
         "es" : {
@@ -67703,13 +67703,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Untracked"
+            "value" : "Outside Whisky"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Untracked"
+            "value" : "Outside Whisky"
           }
         },
         "es" : {
@@ -69479,13 +69479,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Blocklist"
+            "value" : "Hidden Apps"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Blocklist"
+            "value" : "Hidden Apps"
           }
         },
         "es" : {
@@ -70384,13 +70384,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Programs"
+            "value" : "Apps"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All Programs"
+            "value" : "Apps"
           }
         },
         "es" : {
@@ -84287,7 +84287,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Game Configurations"
+            "value" : "Game Presets"
           }
         },
         "es" : {
@@ -85954,13 +85954,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start Guided Troubleshooting"
+            "value" : "Fix a Game That Won’t Start"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start Guided Troubleshooting"
+            "value" : "Fix a Game That Won’t Start"
           }
         },
         "es" : {

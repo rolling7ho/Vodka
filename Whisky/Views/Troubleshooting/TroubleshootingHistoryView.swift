@@ -27,6 +27,9 @@ import WhiskyKit
 struct TroubleshootingHistoryView: View {
     let bottleURL: URL
     let programURL: URL?
+    /// Off where the history sits among other rows and an empty one would
+    /// only be a large placeholder.
+    var showsEmptyState = true
 
     @State private var history: TroubleshootingHistory = .init()
     @State private var expandedEntryId: UUID?
@@ -35,10 +38,12 @@ struct TroubleshootingHistoryView: View {
     var body: some View {
         Group {
             if filteredEntries.isEmpty {
-                ContentUnavailableView(
-                    String(localized: "troubleshooting.history.empty"),
-                    systemImage: "clock.arrow.circlepath"
-                )
+                if showsEmptyState {
+                    ContentUnavailableView(
+                        String(localized: "troubleshooting.history.empty"),
+                        systemImage: "clock.arrow.circlepath"
+                    )
+                }
             } else {
                 ForEach(filteredEntries) { entry in
                     entryRow(entry)

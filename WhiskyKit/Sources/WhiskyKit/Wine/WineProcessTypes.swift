@@ -39,7 +39,10 @@ public enum ProcessKind: String, CaseIterable, Codable, Sendable {
         "svchost.exe",
         "rpcss.exe",
         "tabtip.exe",
-        "conhost.exe"
+        "conhost.exe",
+        // Steam's own helpers: Steam shows as steam.exe alone.
+        "steamservice.exe",
+        "steamwebhelper.exe"
     ]
 
     /// Known Wine system process image names (lowercase).
@@ -50,7 +53,9 @@ public enum ProcessKind: String, CaseIterable, Codable, Sendable {
         "wininit.exe",
         "winlogon.exe",
         "lsass.exe",
-        "smss.exe"
+        "smss.exe",
+        // Whisky's own process poll.
+        "tasklist.exe"
     ]
 
     /// Classifies a Windows image name into the appropriate ``ProcessKind``.

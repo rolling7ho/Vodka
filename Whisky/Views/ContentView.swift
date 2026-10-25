@@ -33,7 +33,6 @@ struct ContentView: View {
     @State var newlyCreatedBottleURL: URL?
     @State var openedFileURL: URL?
     @State var triggerRefresh: Bool = false
-    @State var refreshAnimation: Angle = .degrees(0)
 
     @State var toast: ToastData?
     @State var corruptRegistryBackupURL: URL?
@@ -114,25 +113,11 @@ struct ContentView: View {
                 bottleVM.orphanedBottles.map(\.name).joined(separator: ", ")
             ))
         }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    bottleVM.loadBottles()
-                    if let bottle = bottleVM.bottles.first(where: { $0.url == selected }) {
-                        Task { await bottle.updateInstalledPrograms() }
-                    }
-                    triggerRefresh.toggle()
-                    withAnimation(.default) {
-                        refreshAnimation = .degrees(360)
-                    } completion: {
-                        refreshAnimation = .degrees(0)
-                    }
-                } label: {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                        .help("button.refresh")
-                        .rotationEffect(refreshAnimation)
-                }
-            }
+        // Coming back to Whisky refreshes in place of a toolbar button: pages
+        // with lists that go stale have their own refresh, and one more beside
+        // it read as a duplicate.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            triggerRefresh.toggle()
         }
         .sheet(isPresented: $showBottleCreation) {
             BottleCreationView(newlyCreatedBottleURL: $newlyCreatedBottleURL)
@@ -193,6 +178,13 @@ struct ContentView: View {
             // about — pairs with the corrupt-registry backup above: after a
             // registry reset the scan offers everything back (issue #145).
             bottleVM.scanForOrphanedBottles()
+
+            #if DEBUG
+            // Screenshots of a screen without clicking through to it.
+            if let screen = ProcessInfo.processInfo.environment["WHISKY_DEBUG_SCREEN"], screen != "library" {
+                selected = bottleVM.bottles.first?.url
+            }
+            #endif
 
             // Deliberately does not select a bottle. The library is the landing
             // screen, and restoring a prefix selection would put the plumbing in

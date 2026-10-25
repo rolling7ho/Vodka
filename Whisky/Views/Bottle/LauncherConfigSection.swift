@@ -34,7 +34,7 @@ struct LauncherConfigSection: View {
     @State private var overridesExpanded: Bool = false
 
     var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded) {
+        Section(isExpanded: $isExpanded) {
             VStack(alignment: .leading, spacing: 12) {
                 // Enable launcher compatibility mode
                 Toggle("Launcher Compatibility Mode", isOn: $bottle.settings.launcherCompatibilityMode)
@@ -48,29 +48,8 @@ struct LauncherConfigSection: View {
                 }
             }
             .padding(.vertical, 8)
-        } label: {
-            launcherSectionLabel
-        }
-    }
-
-    // MARK: - Section Label
-
-    private var launcherSectionLabel: some View {
-        HStack {
-            Label("Launcher Compatibility", systemImage: "gamecontroller.fill")
-                .font(.headline)
-
-            if bottle.settings.launcherCompatibilityMode {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                    .font(.caption)
-            }
-
-            if let launcher = bottle.settings.detectedLauncher {
-                Text("(\(launcher.rawValue))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+        } header: {
+            Text("Launcher Compatibility")
         }
     }
 }

@@ -293,19 +293,20 @@ struct GameEssentialsSection: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Graphics")
-                Text("Pick what your games use, or leave it on Automatic.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                GraphicsChoiceView(bottle: bottle)
-            }
         } header: {
             Text("Game Settings")
         } footer: {
-            Text("Games with a preset, like Teardown, get their best settings automatically when you press Play. "
-                + "If Steam is open, quit and reopen it after changing these. macOS Game Mode, for every "
-                + "Windows PC, is in Whisky Settings \u{203A} Gaming.")
+            Text("macOS Game Mode, for every Windows PC, is in Whisky Settings \u{203A} Gaming.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        Section {
+            GraphicsChoiceView(bottle: bottle, compact: true)
+        } header: {
+            Text("Graphics")
+        } footer: {
+            Text("Automatic picks for each game, and games with a preset, like Teardown, get their best settings "
+                + "when you press Play. If Steam is open, quit and reopen it after changing this.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

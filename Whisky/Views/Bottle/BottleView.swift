@@ -37,53 +37,69 @@ struct BottleView: View {
     /// The page's under-the-hood links and tools, closed until asked for.
     @AppStorage("bottleAdvancedExpanded") private var showAdvanced = false
 
-    private let gridLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity))]
+    private let gridLayout = [GridItem(.adaptive(minimum: 96, maximum: 120), alignment: .top)]
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                LazyVGrid(columns: gridLayout, alignment: .center) {
-                    ForEach(bottle.pinnedPrograms, id: \.id) { pinnedProgram in
-                        PinView(
-                            bottle: bottle,
-                            program: pinnedProgram.program,
-                            pin: pinnedProgram.pin,
-                            path: $path,
-                            toast: $toast
-                        )
-                    }
-                    PinAddView(bottle: bottle)
-                }
-                .padding()
-                Form {
-                    Section {
-                        NavigationLink(value: BottleStage.config) {
-                            Label("tab.config", systemImage: "gearshape")
+            Form {
+                Section("Apps") {
+                    LazyVGrid(columns: gridLayout, alignment: .leading, spacing: 4) {
+                        ForEach(bottle.pinnedPrograms, id: \.id) { pinnedProgram in
+                            PinView(
+                                bottle: bottle,
+                                program: pinnedProgram.program,
+                                pin: pinnedProgram.pin,
+                                path: $path,
+                                toast: $toast
+                            )
                         }
-                        .accessibilityIdentifier("nav.bottleConfiguration")
-                    }
-                    // What a person needs here is the settings; the rest is
-                    // for looking under the hood.
-                    Section {
-                        DisclosureGroup("Advanced", isExpanded: $showAdvanced.animation(.whiskyDefault)) {
-                            advancedLinks
-                        }
+                        PinAddView(bottle: bottle)
                     }
                 }
-                .formStyle(.grouped)
-                .scrollDisabled(true)
+                Section {
+                    NavigationLink(value: BottleStage.config) {
+                        Label("tab.config", systemImage: "gearshape")
+                    }
+                    .accessibilityIdentifier("nav.bottleConfiguration")
+                }
+                // What a person needs here is the settings; the rest is for
+                // looking under the hood.
+                Section {
+                    if showAdvanced {
+                        advancedLinks
+                        windowsTools
+                    }
+                } header: {
+                    AdvancedSectionHeader(isExpanded: $showAdvanced)
+                } footer: {
+                    if !showAdvanced {
+                        Text("Game presets, installed and running apps, and Windows tools.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
+            .formStyle(.grouped)
+            .labelStyle(FormRowLabelStyle())
             .bottomBar {
                 BottleActionBar(
                     bottle: bottle,
                     showWinetricksSheet: $showWinetricksSheet,
                     programLoading: $programLoading,
                     toast: $toast,
-                    showAdvanced: showAdvanced,
                     onLaunch: updateStartMenu
                 )
             }
             .task {
+                #if DEBUG
+                switch ProcessInfo.processInfo.environment["WHISKY_DEBUG_SCREEN"] {
+                case "settings": path.append(BottleStage.config)
+                case "programs": path.append(BottleStage.programs)
+                case "processes": path.append(BottleStage.processes)
+                case "presets": path.append(BottleStage.gameConfigs)
+                default: break
+                }
+                #endif
                 await updateStartMenu()
             }
             .disabled(!bottle.isAvailable)
@@ -97,14 +113,6 @@ struct BottleView: View {
             )
             .accessibilityIdentifier("bottleDetail")
             .toast($toast)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("button.duplicateBottle", systemImage: "doc.on.doc") {
-                        showDuplicate = true
-                    }
-                    .disabled(bottle.inFlight)
-                }
-            }
             .sheet(isPresented: $showWinetricksSheet) {
                 WinetricksView(bottle: bottle)
             }
@@ -202,6 +210,21 @@ extension BottleView {
         .accessibilityIdentifier("nav.runningProcesses")
     }
 
+    /// For fixing things by hand: the Windows drive in Finder, a shell set up
+    /// for this Windows PC, and Winetricks.
+    private var windowsTools: some View {
+        HStack(spacing: 8) {
+            Button("button.cDrive", systemImage: "internaldrive") { bottle.openCDrive() }
+                .accessibilityIdentifier("bottle.openCDrive")
+            Button("button.terminal", systemImage: "terminal") { bottle.openTerminal() }
+                .accessibilityIdentifier("bottle.openTerminal")
+            Button("button.winetricks", systemImage: "wrench.and.screwdriver") { showWinetricksSheet.toggle() }
+                .accessibilityIdentifier("bottle.openWinetricks")
+            Spacer(minLength: 0)
+        }
+        .labelStyle(.titleAndIcon)
+    }
+
     private func updateStartMenu() async {
         await bottle.updateInstalledPrograms()
 
@@ -217,6 +240,70 @@ extension BottleView {
                 // Setting `pinned` appends the pin to the bottle's settings.
                 program.pinned = true
             }
+        }
+    }
+}
+
+/// The heading of an Advanced section, with the button that opens it.
+///
+/// A heading rather than a disclosure row, so a page says up front that it
+/// has more, and what is under it stays out of the way until asked for.
+struct AdvancedSectionHeader: View {
+    @Binding var isExpanded: Bool
+
+    var body: some View {
+        HStack {
+            Text("Advanced")
+            Spacer()
+            Button(isExpanded ? "Hide" : "Show") {
+                withAnimation(.whiskyDefault) { isExpanded.toggle() }
+            }
+            .buttonStyle(.link)
+            .font(.callout)
+        }
+    }
+}
+
+/// A button that reads as a row of the form: icon, title, and the whole row
+/// clickable, rather than a bordered push button floating in it.
+struct FormActionRow: View {
+    let title: String
+    let systemImage: String
+    var working = false
+    var destructive = false
+
+    init(_ title: String, systemImage: String, working: Bool = false, destructive: Bool = false) {
+        self.title = title
+        self.systemImage = systemImage
+        self.working = working
+        self.destructive = destructive
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .foregroundStyle(destructive ? Color.red : Color.accentColor)
+                .frame(width: 20)
+            Text(title)
+                .foregroundStyle(destructive ? Color.red : Color.primary)
+            Spacer()
+            if working {
+                ProgressView().controlSize(.small)
+            }
+        }
+        .contentShape(Rectangle())
+    }
+}
+
+/// A form row's icon in a column of its own width, so titles line up
+/// whatever the symbol's width.
+struct FormRowLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            configuration.icon
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 20)
+            configuration.title
         }
     }
 }

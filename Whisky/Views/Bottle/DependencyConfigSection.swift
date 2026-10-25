@@ -48,7 +48,7 @@ struct DependencyConfigSection: View {
             }
         } header: {
             HStack {
-                Label("Dependencies", systemImage: "shippingbox")
+                Text("Dependencies")
                 Spacer()
                 Button {
                     loadDependencies()
@@ -87,12 +87,6 @@ struct DependencyConfigSection: View {
 
                 statusBadge(depStatus.status)
 
-                if depStatus.confidence == .cached || depStatus.confidence == .heuristic {
-                    Text("(\(depStatus.confidence.rawValue))")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-
                 if !isInstalled(depStatus.status) {
                     Button("Install") {
                         selectedDependency = depStatus.definition
@@ -100,42 +94,8 @@ struct DependencyConfigSection: View {
                     .controlSize(.small)
                 }
             }
-
-            dependencyRowDetails(depStatus)
         }
         .padding(.vertical, 2)
-    }
-
-    private func dependencyRowDetails(_ depStatus: DependencyStatus) -> some View {
-        HStack(spacing: 4) {
-            if let lastChecked = depStatus.lastChecked {
-                Text("Checked ")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    +
-                    Text(lastChecked, style: .relative)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    +
-                    Text(" ago")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-
-            Spacer()
-
-            DisclosureGroup {
-                Text(depStatus.definition.winetricksVerbs.joined(separator: ", "))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-            } label: {
-                Text("Details")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: 200)
-        }
     }
 
     // MARK: - Status Badge

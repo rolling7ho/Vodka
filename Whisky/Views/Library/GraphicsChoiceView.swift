@@ -102,15 +102,77 @@ struct GraphicsChoiceView: View {
     @ObservedObject var bottle: Bottle
     /// Called when a choice is made, so onboarding can move on.
     var onChoose: (() -> Void)?
+    /// One plain row per choice, for a settings form, rather than the large
+    /// cards onboarding shows. Each row is its own row of the form.
+    var compact = false
+
+    private var toolkitInstalled: Bool { GPTKImporter.isDeployed() }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        if compact {
             ForEach(GraphicsChoice.allCases) { choice in
-                row(choice)
+                compactRow(choice)
             }
-            GPTKInstallCard()
-                .padding(.top, 4)
+            if !toolkitInstalled {
+                GPTKInstallCard()
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(GraphicsChoice.allCases) { choice in
+                    row(choice)
+                }
+                GPTKInstallCard()
+                    .padding(.top, 4)
+            }
         }
+    }
+
+    private func choose(_ choice: GraphicsChoice) {
+        bottle.settings.graphicsBackend = choice.backend
+        picked = choice
+        UserDefaults.standard.set(choice.rawValue, forKey: pickedKey)
+        onChoose?()
+    }
+
+    private func compactRow(_ choice: GraphicsChoice) -> some View {
+        let selected = selection == choice
+        return Button {
+            choose(choice)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: choice.symbol)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 20)
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 6) {
+                        Text(choice.title)
+                        if choice.needsGPTK, !toolkitInstalled {
+                            toolkitBadge
+                        }
+                    }
+                    Text(choice.examples)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "checkmark")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .opacity(selected ? 1 : 0)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    private var toolkitBadge: some View {
+        Text("Needs Apple's free toolkit")
+            .font(.caption2.bold())
+            .padding(.horizontal, 6).padding(.vertical, 2)
+            .background(.orange.opacity(0.25), in: Capsule())
     }
 
     /// DirectX 9 and OpenGL/Vulkan share a backend, so the row picked is
@@ -134,10 +196,7 @@ struct GraphicsChoiceView: View {
     private func row(_ choice: GraphicsChoice) -> some View {
         let selected = selection == choice
         return Button {
-            bottle.settings.graphicsBackend = choice.backend
-            picked = choice
-            UserDefaults.standard.set(choice.rawValue, forKey: pickedKey)
-            onChoose?()
+            choose(choice)
         } label: {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: choice.symbol)
@@ -147,11 +206,8 @@ struct GraphicsChoiceView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         Text(choice.title).font(.headline)
-                        if choice.needsGPTK {
-                            Text("Needs Apple's free toolkit")
-                                .font(.caption2.bold())
-                                .padding(.horizontal, 6).padding(.vertical, 2)
-                                .background(.orange.opacity(0.25), in: Capsule())
+                        if choice.needsGPTK, !toolkitInstalled {
+                            toolkitBadge
                         }
                     }
                     Text(choice.examples)

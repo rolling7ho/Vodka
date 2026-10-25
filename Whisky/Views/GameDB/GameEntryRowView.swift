@@ -20,16 +20,19 @@ import SwiftUI
 import WhiskyKit
 
 /// A list row displaying a game database entry with rating badge, tags, and a note.
+///
+/// Minimum Wine versions are not tagged: the bundled engine is newer than all of them.
 struct GameEntryRowView: View {
     let entry: GameDBEntry
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            // A fixed-width badge keeps every title on the same edge.
             ratingBadge
+                .frame(width: 84, alignment: .leading)
             titleArea
-            Spacer()
+            Spacer(minLength: 12)
             tagsArea
-            noteArea
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
@@ -77,6 +80,13 @@ struct GameEntryRowView: View {
                 Text(subtitle)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            }
+            if let note = entry.notes?.first {
+                Text(note)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
         }
     }
@@ -132,10 +142,6 @@ struct GameEntryRowView: View {
             tags.append(String(localized: "gamedb.tag.appleSilicon"))
         }
 
-        if let minWine = entry.constraints?.minWineVersion {
-            tags.append("Wine \(minWine)+")
-        }
-
         return tags.isEmpty ? nil : tags
     }
 
@@ -145,18 +151,5 @@ struct GameEntryRowView: View {
             .padding(4)
             .background(.yellow.opacity(0.15))
             .clipShape(RoundedRectangle(cornerRadius: 4))
-    }
-
-    // MARK: - Note Area
-
-    @ViewBuilder
-    private var noteArea: some View {
-        if let note = entry.notes?.first {
-            Text(note)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .frame(maxWidth: 200, alignment: .trailing)
-        }
     }
 }

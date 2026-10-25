@@ -39,9 +39,9 @@ import WhiskyKit
 struct LibraryView: View {
     @EnvironmentObject var bottleVM: BottleVM
     @Binding var selectedBottle: URL?
-    /// Toggled by the toolbar's refresh button. Folded into the reload trigger
+    /// Toggled when Whisky comes back to the front. Folded into the reload trigger
     /// because the bottle list is unchanged by a refresh, so watching only that
-    /// left the button spinning without rebuilding anything.
+    /// would rebuild nothing.
     @Binding var refresh: Bool
 
     @AppStorage("librarySort") private var sort: LibrarySort = .recent

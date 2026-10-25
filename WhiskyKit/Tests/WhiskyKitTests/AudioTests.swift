@@ -177,10 +177,10 @@ final class AudioTests: XCTestCase {
     // MARK: - AudioStatus
 
     func testStatusDisplayNames() {
-        XCTAssertEqual(AudioStatus.healthy.displayName, "OK")
+        XCTAssertEqual(AudioStatus.healthy.displayName, "Working")
         XCTAssertEqual(AudioStatus.degraded(primaryIssue: "test").displayName, "Degraded")
         XCTAssertEqual(AudioStatus.broken(primaryIssue: "test").displayName, "Broken")
-        XCTAssertEqual(AudioStatus.unknown.displayName, "Unknown")
+        XCTAssertEqual(AudioStatus.unknown.displayName, "Not Tested Yet")
     }
 
     func testStatusSFSymbols() {

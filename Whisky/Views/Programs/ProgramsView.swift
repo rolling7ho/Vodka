@@ -43,6 +43,17 @@ struct ProgramsView: View {
         return blocklist.filter { $0.absoluteString.localizedCaseInsensitiveContains(searchText) }
     }
 
+    /// Names that more than one program shares, like wordpad.exe in both
+    /// Program Files folders; those rows also say where they live.
+    private var duplicateNames: Set<String> {
+        var seen = Set<String>()
+        var dupes = Set<String>()
+        for program in sortedPrograms where !seen.insert(program.name).inserted {
+            dupes.insert(program.name)
+        }
+        return dupes
+    }
+
     private var selectedSearchedPrograms: [Program] {
         searchResults.filter { selectedPrograms.contains($0) }
     }
@@ -52,7 +63,8 @@ struct ProgramsView: View {
             Section("program.title", isExpanded: $areProgramsExpanded) {
                 List(searchResults, id: \.self, selection: $selectedPrograms) { program in
                     ProgramItemView(
-                        bottle: bottle, program: program, path: $path, toast: $toast
+                        bottle: bottle, program: program, path: $path, toast: $toast,
+                        showsLocation: duplicateNames.contains(program.name)
                     )
                     .contextMenu {
                         let selectedPrograms = selectedSearchedPrograms
@@ -174,6 +186,7 @@ struct ProgramItemView: View {
     @ObservedObject var program: Program
     @Binding var path: NavigationPath
     @Binding var toast: ToastData?
+    var showsLocation = false
     @State private var showButtons = false
     @State private var pinHovered = false
     @State private var isLaunching = false
@@ -193,8 +206,17 @@ struct ProgramItemView: View {
             .buttonStyle(.plain)
             .foregroundColor(program.pinned ? .accentColor : .secondary)
             .opacity(program.pinned ? 1 : showButtons ? 1 : 0)
-            Text(program.name)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 6) {
+                Text(program.name)
+                if showsLocation {
+                    Text(location)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             if showButtons {
                 if let peFile = program.peFile,
                    let archString = peFile.architecture.toString() {
@@ -235,6 +257,13 @@ struct ProgramItemView: View {
         .onHover { hover in
             showButtons = hover
         }
+    }
+
+    /// The program's folder from C: down, such as `Program Files (x86)/Windows NT`.
+    private var location: String {
+        let components = program.url.deletingLastPathComponent().pathComponents
+        guard let drive = components.firstIndex(of: "drive_c") else { return "" }
+        return components[(drive + 1)...].joined(separator: "/")
     }
 
     private func launchProgram() {

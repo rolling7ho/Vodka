@@ -52,17 +52,7 @@ struct PinView: View {
         }
         .frame(width: 90, height: 90)
         .padding(10)
-        .overlay {
-            HStack {
-                Spacer()
-                Image(systemName: "play.fill")
-                    .resizable()
-                    .foregroundColor(.green)
-                    .frame(width: 16, height: 16)
-            }
-            .frame(width: 45, height: 45)
-            .padding(EdgeInsets(top: 0, leading: 0, bottom: 12, trailing: 0))
-        }
+        .contentShape(Rectangle())
         .contextMenu {
             ProgramMenuView(program: program, path: $path)
 
@@ -87,7 +77,14 @@ struct PinView: View {
             }
         }
         .task {
-            name = pin.name
+            // A pin made from the start menu is named after its executable,
+            // which is how Steam showed as "steam". A launcher gets its name.
+            if let launcher = LauncherType.detect(from: program.url),
+               pin.name.caseInsensitiveCompare(program.url.deletingPathExtension().lastPathComponent) == .orderedSame {
+                name = launcher.displayName
+            } else {
+                name = pin.name
+            }
             let icon = await IconCache.shared.iconOrFallback(for: program.url, peFile: program.peFile)
             self.image = Image(nsImage: icon)
         }

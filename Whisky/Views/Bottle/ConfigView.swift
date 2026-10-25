@@ -68,28 +68,45 @@ struct ConfigView: View {
     @AppStorage("showAdvancedBottleSettings") private var showAdvanced: Bool = false
 
     var body: some View {
+        ScrollViewReader { proxy in
+            form
+                #if DEBUG
+                .task {
+                    // Screenshots of the lower sections without scrolling by hand.
+                    if let anchor = ProcessInfo.processInfo.environment["WHISKY_DEBUG_SCROLL"] {
+                        try? await Task.sleep(for: .seconds(1))
+                        proxy.scrollTo(anchor, anchor: .top)
+                    }
+                }
+                #endif
+        }
+    }
+
+    private var form: some View {
         Form {
             GameEssentialsSection(bottle: bottle)
             troubleshootingSection
-            Section {
-                Toggle("Show Advanced Settings", isOn: $showAdvanced.animation(.whiskyDefault))
-            } header: {
-                Text("Advanced")
+            Section {} header: {
+                AdvancedSectionHeader(isExpanded: $showAdvanced)
             } footer: {
-                Text("Graphics tuning, display, controllers, audio, Steam and Wine options, and "
-                    + "diagnostic reports. The defaults work for most games, so you rarely need these.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if !showAdvanced {
+                    Text("Graphics tuning, display, controllers, audio, Steam and Wine options, and "
+                        + "diagnostic reports. The defaults work for most games, so you rarely need these.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             if showAdvanced {
                 advancedSections
+                windowsToolsSection.id("tools")
             }
             Section {
                 Button(role: .destructive) {
                     Task { await bottle.confirmAndDelete() }
                 } label: {
-                    Label("Delete Windows PC…", systemImage: "trash")
+                    FormActionRow("Delete Windows PC…", systemImage: "trash", destructive: true)
                 }
+                .buttonStyle(.plain)
                 .disabled(bottle.inFlight)
             } footer: {
                 Text("Moves this Windows PC, with Steam and every game in it, to the Trash, "
@@ -156,41 +173,6 @@ struct ConfigView: View {
                 )
             }
         }
-        .bottomBar {
-            if showAdvanced {
-                HStack {
-                    Spacer()
-                    Button("config.controlPanel") {
-                        Task(priority: .userInitiated) {
-                            do {
-                                try await Wine.control(bottle: bottle)
-                            } catch {
-                                logger.error("Failed to launch control: \(error.localizedDescription)")
-                            }
-                        }
-                    }
-                    Button("config.regedit") {
-                        Task(priority: .userInitiated) {
-                            do {
-                                try await Wine.regedit(bottle: bottle)
-                            } catch {
-                                logger.error("Failed to launch regedit: \(error.localizedDescription)")
-                            }
-                        }
-                    }
-                    Button("config.winecfg") {
-                        Task(priority: .userInitiated) {
-                            do {
-                                try await Wine.cfg(bottle: bottle)
-                            } catch {
-                                logger.error("Failed to launch winecfg: \(error.localizedDescription)")
-                            }
-                        }
-                    }
-                }
-                .padding()
-            }
-        }
         .navigationTitle("tab.config")
         .onAppear {
             winVersionLoadingState = .success
@@ -235,6 +217,29 @@ struct ConfigView: View {
         }
     }
 
+    /// Wine's own Control Panel, Registry Editor and configuration, for
+    /// fixing things by hand.
+    private var windowsToolsSection: some View {
+        Section("Windows Tools") {
+            HStack(spacing: 8) {
+                Button("config.controlPanel") { runTool(Wine.control(bottle:)) }
+                Button("config.regedit") { runTool(Wine.regedit(bottle:)) }
+                Button("config.winecfg") { runTool(Wine.cfg(bottle:)) }
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private func runTool(_ tool: @escaping (Bottle) async throws -> String) {
+        Task(priority: .userInitiated) {
+            do {
+                _ = try await tool(bottle)
+            } catch {
+                logger.error("Failed to open a Windows tool: \(error.localizedDescription)")
+            }
+        }
+    }
+
     /// What anyone with a game that will not start needs, without Advanced.
     private var troubleshootingSection: some View {
         Section {
@@ -246,20 +251,16 @@ struct ConfigView: View {
             Button {
                 showTroubleshootingWizard = true
             } label: {
-                Label(String(localized: "troubleshooting.entry.startGuided"), systemImage: "stethoscope")
+                FormActionRow(String(localized: "troubleshooting.entry.startGuided"), systemImage: "stethoscope")
             }
+            .buttonStyle(.plain)
             Button {
                 repairPrefix()
             } label: {
-                HStack {
-                    Label("config.repairPrefix", systemImage: "wrench.and.screwdriver")
-                    if isRepairingPrefix {
-                        ProgressView()
-                            .controlSize(.small)
-                            .padding(.leading, 4)
-                    }
-                }
+                FormActionRow(String(localized: "config.repairPrefix"), systemImage: "wrench.and.screwdriver",
+                              working: isRepairingPrefix)
             }
+            .buttonStyle(.plain)
             .disabled(isRepairingPrefix)
             .help("config.repairPrefix.help")
         } header: {
@@ -276,17 +277,17 @@ struct ConfigView: View {
     @ViewBuilder
     private var advancedSections: some View {
         Group {
-            GraphicsConfigSection(bottle: bottle)
-            ResolutionConfigSection(bottle: bottle)
-            PerformanceConfigSection(bottle: bottle, isExpanded: $performanceSectionExpanded)
-            InputConfigSection(bottle: bottle, isExpanded: $inputSectionExpanded)
-            AudioConfigSection(bottle: bottle)
+            GraphicsConfigSection(bottle: bottle).id("a1")
+            ResolutionConfigSection(bottle: bottle).id("a2")
+            PerformanceConfigSection(bottle: bottle, isExpanded: $performanceSectionExpanded).id("a3")
+            InputConfigSection(bottle: bottle, isExpanded: $inputSectionExpanded).id("a4")
+            AudioConfigSection(bottle: bottle).id("a5")
             LauncherConfigSection(
                 bottle: bottle,
                 isExpanded: $launcherSectionExpanded,
                 onViewDiagnostics: loadLatestDiagnosisAndView
-            )
-            DiscordConfigSection(bottle: bottle)
+            ).id("a6")
+            DiscordConfigSection(bottle: bottle).id("a7")
             WineConfigSection(
                 bottle: bottle,
                 isExpanded: $wineSectionExpanded,
@@ -301,38 +302,50 @@ struct ConfigView: View {
                 onRetryBuildVersion: loadBuildName,
                 onRetryRetinaMode: loadRetinaMode,
                 onRetryDpi: loadDpi
-            )
-            DependencyConfigSection(bottle: bottle)
-            DLLOverrideConfigSection(bottle: bottle, isExpanded: $dllOverrideSectionExpanded)
+            ).id("a8")
+            DependencyConfigSection(bottle: bottle).id("a9")
+            DLLOverrideConfigSection(bottle: bottle, isExpanded: $dllOverrideSectionExpanded).id("a10")
             gameConfigRevertSection
             diagnosticReportsSection
-            CleanupConfigSection(bottle: bottle, isExpanded: $cleanupSectionExpanded)
+            CleanupConfigSection(bottle: bottle, isExpanded: $cleanupSectionExpanded).id("a11")
         }
     }
 
     private var diagnosticReportsSection: some View {
         Section("Diagnostic Reports") {
-            Button("View Latest Diagnosis") {
+            Button {
                 loadLatestDiagnosisAndView()
+            } label: {
+                FormActionRow("View Latest Diagnosis", systemImage: "doc.text.magnifyingglass")
             }
+            .buttonStyle(.plain)
             .disabled(mostRecentlyDiagnosedProgram == nil)
 
-            Button("Export Diagnostic Report\u{2026}") {
+            Button {
                 loadLatestDiagnosisAndExport()
+            } label: {
+                FormActionRow("Export Diagnostic Report\u{2026}", systemImage: "square.and.arrow.up")
             }
+            .buttonStyle(.plain)
             .disabled(mostRecentlyDiagnosedProgram == nil)
 
-            Button("Generate Stability Diagnostics") {
+            Button {
                 Task {
                     stabilityDiagnosticReport = await StabilityDiagnostics.generateDiagnosticReport(for: bottle)
                     showStabilityDiagnostics = true
                 }
+            } label: {
+                FormActionRow("Generate Stability Diagnostics", systemImage: "waveform.path.ecg")
             }
+            .buttonStyle(.plain)
             .help("Generates a bounded, privacy-safe report for issue triage.")
 
+            // Past sessions only: an empty history is not worth a placeholder
+            // the size of the rest of the section.
             TroubleshootingHistoryView(
                 bottleURL: bottle.url,
-                programURL: nil
+                programURL: nil,
+                showsEmptyState: false
             )
         }
     }

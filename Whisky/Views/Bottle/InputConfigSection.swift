@@ -27,7 +27,7 @@ struct InputConfigSection: View {
     @State private var controllersExpanded = false
 
     var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded) {
+        Section(isExpanded: $isExpanded) {
             VStack(alignment: .leading, spacing: 12) {
                 // Main toggle for controller compatibility mode
                 Toggle("Controller Compatibility Mode", isOn: $bottle.settings.controllerCompatibilityMode)
@@ -109,17 +109,8 @@ struct InputConfigSection: View {
                 }
             }
             .padding(.vertical, 8)
-        } label: {
-            HStack {
-                Label("Controller & Input", systemImage: "gamecontroller")
-                    .font(.headline)
-
-                if bottle.settings.controllerCompatibilityMode {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.caption)
-                }
-            }
+        } header: {
+            Text("Controller & Input")
         }
         .onAppear {
             controllerMonitor.startMonitoring()
