@@ -63,9 +63,12 @@ public extension Wine {
     static func syncDLLOverrides(
         bottle: Bottle, scopes: [(scope: DLLOverrideScope, overrides: String)]
     ) async throws {
-        let document = registryDocument(
-            for: scopes.map { (key: $0.scope.registryKey, overrides: parseDLLOverrides($0.overrides)) }
-        )
+        let parsed = scopes.map { (key: $0.scope.registryKey, overrides: parseDLLOverrides($0.overrides)) }
+        let document = registryDocument(for: parsed)
+        guard !isAlreadyImported(document, scopes: parsed, bottle: bottle) else {
+            dllOverrideLogger.debug("DLL overrides unchanged; skipped the import")
+            return
+        }
         let url = FileManager.default.temporaryDirectory
             .appending(path: "whisky-dll-overrides-\(UUID().uuidString).reg")
         // Wine detects a Unicode .reg by its BOM alone, and `.utf16LittleEndian`
@@ -78,6 +81,7 @@ public extension Wine {
         // `reg import`, not `regedit`: regedit has no silent switch, so it puts up
         // the import confirmation and never exits.
         try await runWine(["reg", "import", url.path(percentEncoded: false)], bottle: bottle)
+        lastImports[bottle.url] = (document, Date())
         dllOverrideLogger.debug("Synced DLL overrides for \(scopes.count) scope(s) in one import")
     }
 

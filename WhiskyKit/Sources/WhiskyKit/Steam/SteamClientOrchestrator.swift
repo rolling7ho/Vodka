@@ -99,6 +99,10 @@ public final class SteamClientOrchestrator: ObservableObject {
     let timing: Timing
 
     private var trackingTask: Task<Void, Never>?
+    /// When tracking last found the client running in this bottle.
+    private var clientSeenRunningAt: Date?
+    /// Tracking's last answer, and the host's Windows programs it was read with.
+    private var lastTracked: (host: Set<String>, names: Set<String>)?
     private var executableNamesByAppId: [Int: Set<String>] = [:]
     /// The in-flight client startup, shared by every concurrent launch.
     private var clientStartup: Task<Void, Error>?
@@ -156,6 +160,7 @@ public final class SteamClientOrchestrator: ObservableObject {
             await driver.killProcess(winePID: process.winePID)
         }
         processSnapshot = nil
+        lastTracked = nil
         await refreshRunningState()
     }
 
@@ -247,8 +252,16 @@ public final class SteamClientOrchestrator: ObservableObject {
         throw SteamOrchestratorError.clientTimeout
     }
 
+    /// Whether the client is running, from tracking's last look when that was
+    /// recent and a `steam.exe` is still on the host: Play skips a whole
+    /// `tasklist.exe` run that way. Otherwise from the bottle's process list.
     private func clientIsUp() async -> Bool {
-        await runningImageNames().contains("steam.exe")
+        if let seen = clientSeenRunningAt,
+           Date().timeIntervalSince(seen) < Double(timing.trackingInterval.components.seconds) + 5,
+           await driver.hostWineImageNames().contains("steam.exe") {
+            return true
+        }
+        return await runningImageNames().contains("steam.exe")
     }
 
     /// Waits for any of the game's executables to appear in the process list.
@@ -261,8 +274,27 @@ public final class SteamClientOrchestrator: ObservableObject {
     }
 
     private func refreshRunningState() async {
-        runningAppIds = await watch.runningKeys(byExecutables: executableNamesByAppId)
-        isClientRunning = await runningImageNames().contains("steam.exe")
+        let running = await trackedImageNames()
+        runningAppIds = Set(executableNamesByAppId.filter { !$0.value.isDisjoint(with: running) }.keys)
+        isClientRunning = running.contains("steam.exe")
+        clientSeenRunningAt = isClientRunning ? Date() : nil
+    }
+
+    /// The bottle's running image names for tracking, which re-reads the
+    /// bottle's process list only when the host's has changed.
+    ///
+    /// Tracking polls the whole time Whisky is open, through a game too, and
+    /// each `tasklist.exe` is a Wine process of its own. The host listing
+    /// shows each Windows program by name, so while it holds the same ones
+    /// the bottle's answer has not moved either.
+    private func trackedImageNames() async -> Set<String> {
+        let host = await driver.hostWineImageNames()
+        if let tracked = lastTracked, tracked.host == host {
+            return tracked.names
+        }
+        let names = await runningImageNames()
+        lastTracked = (host, names)
+        return names
     }
 }
 

@@ -76,9 +76,9 @@ extension ContentView {
                         .id(bottle.url)
                     }
                 } header: {
-                    HStack {
+                    // The + sits beside the title it adds to, not out at the edge.
+                    HStack(spacing: 6) {
                         Text("sidebar.bottles")
-                        Spacer()
                         Button {
                             showBottleCreation.toggle()
                         } label: {
@@ -87,6 +87,7 @@ extension ContentView {
                         .buttonStyle(.borderless)
                         .help("button.createBottle")
                         .accessibilityIdentifier("toolbar.createBottle")
+                        Spacer()
                     }
                 }
             }

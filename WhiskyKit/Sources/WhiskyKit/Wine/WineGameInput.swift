@@ -26,6 +26,15 @@ import Foundation
 /// scrolling that lags behind. The engine's `ScrollMomentum` option (from
 /// 4.6.6) drops those events.
 ///
+/// `UsePreciseScrolling` off has a trackpad scroll reach the game as whole
+/// wheel notches, the first one on the first event of a swipe. Left on, the
+/// game gets the trackpad's own deltas, a few twentieths of a notch each, and
+/// a game that adds them up only acts once enough have arrived: the scroll
+/// lands near the end of the swipe rather than at its start. Off, the driver
+/// sends a notch at once and holds back the next until the swipe has covered
+/// it, so the speed is the same and the delay is gone. A clicky wheel sends
+/// whole notches either way.
+///
 /// `MetalFXUpscale` (from 4.6.7) has a game that renders below its window's
 /// pixel size, as one set to Faster does, upscaled with MetalFX instead of
 /// stretched, so Faster keeps its frame rate with a much sharper image. It
@@ -38,7 +47,9 @@ import Foundation
 /// All are set under each game's own `AppDefaults` key, so Steam and other
 /// programs in the bottle keep the defaults.
 enum WineGameInput {
-    private static let values = [("ScrollMomentum", "n"), ("MetalFXUpscale", "y"), ("UpscaleSharpness", "50")]
+    private static let values = [
+        ("ScrollMomentum", "n"), ("UsePreciseScrolling", "n"), ("MetalFXUpscale", "y"), ("UpscaleSharpness", "50")
+    ]
 
     /// The registry changes the bottle's games still need, or an empty string.
     @MainActor

@@ -34,8 +34,22 @@ extension FileManager {
             // uninstalled.
             guard fileURL.pathExtension == "dll" else { continue }
             let originalURL = destinationDirectory.appending(path: fileURL.lastPathComponent)
+            // Every launch on DXVK lands here. A copy keeps its source's size
+            // and date, so a match is the same file, already in place.
+            if !makeOriginalCopy, isSameFile(originalURL, as: fileURL) { continue }
             try FileManager.default.replaceFile(at: originalURL, with: fileURL, makeOriginalCopy: makeOriginalCopy)
         }
+    }
+
+    /// Whether `url` has the same size and modification date as `sourceURL`.
+    private func isSameFile(_ url: URL, as sourceURL: URL) -> Bool {
+        let keys: Set<URLResourceKey> = [.fileSizeKey, .contentModificationDateKey]
+        guard let installed = try? url.resourceValues(forKeys: keys),
+              let source = try? sourceURL.resourceValues(forKeys: keys),
+              installed.fileSize != nil, installed.contentModificationDate != nil
+        else { return false }
+        return installed.fileSize == source.fileSize
+            && installed.contentModificationDate == source.contentModificationDate
     }
 
     /// Installs `sourceURL` at `destinationURL`, replacing any existing file —

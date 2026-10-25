@@ -119,25 +119,44 @@ extension Wine {
             """
         }
 
-        let system = (try? String(contentsOf: bottle.url.appending(path: "system.reg"), encoding: .utf8))?
-            .lowercased() ?? ""
+        let current = executionOptionsDPIAwareness(bottleURL: bottle.url)
         for (exe, awareness) in dpiAwareness(bottle: bottle, gameExecutables: gameExecutables) {
             let value = String(format: "dword:%08x", awareness)
-            for key in executionOptionsKeys {
-                // Wine's own files double each backslash in a key's name.
-                let section = ("[" + key.replacingOccurrences(of: "\\", with: "\\\\") + "\\\\" + exe + "]")
-                    .lowercased()
-                guard let range = system.range(of: section) else {
-                    document += executionOptionsEntry(key: key, exe: exe, value: value)
-                    continue
-                }
-                let body = system[range.upperBound...].prefix { $0 != "[" }
-                if !body.contains("\"dpiawareness\"=\(value)") {
-                    document += executionOptionsEntry(key: key, exe: exe, value: value)
-                }
+            for key in executionOptionsKeys where current[(key + "\\" + exe).lowercased()] != value {
+                document += executionOptionsEntry(key: key, exe: exe, value: value)
             }
         }
         return document
+    }
+
+    /// Each executable's `dpiAwareness` under the execution options keys, as
+    /// `system.reg` holds it, keyed by the lower-cased key path and executable.
+    ///
+    /// One pass over the file, looking only at section headers until one of
+    /// those keys comes up: `system.reg` runs to megabytes, and lower-casing
+    /// all of it and searching it once per game executable cost every launch
+    /// more than a tenth of a second.
+    static func executionOptionsDPIAwareness(bottleURL: URL) -> [String: String] {
+        guard let text = try? String(contentsOf: bottleURL.appending(path: "system.reg"), encoding: .utf8)
+        else { return [:] }
+        // Wine's own files double each backslash in a key's name.
+        let prefixes = executionOptionsKeys.map {
+            "[" + $0.replacingOccurrences(of: "\\", with: "\\\\").lowercased() + "\\\\"
+        }
+        var values: [String: String] = [:]
+        var section: String?
+        for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
+            if line.first == "[" {
+                let header = line.lowercased()
+                section = prefixes.contains(where: header.hasPrefix)
+                    ? header.dropFirst().prefix { $0 != "]" }.replacingOccurrences(of: "\\\\", with: "\\")
+                    : nil
+            } else if let section, line.lowercased().hasPrefix("\"dpiawareness\"=") {
+                values[section] = String(line.dropFirst(#""dpiAwareness"="#.count))
+                    .trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            }
+        }
+        return values
     }
 
     private static func executionOptionsEntry(key: String, exe: String, value: String) -> String {
