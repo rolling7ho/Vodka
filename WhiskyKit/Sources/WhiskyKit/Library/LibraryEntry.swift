@@ -174,6 +174,22 @@ public enum SteamLibrarySource: LibrarySource {
         return nil
     }
 
+    /// The art that crops best to a square, for an app icon: the portrait
+    /// capsule loses only its top and bottom, where a header would lose most of
+    /// its width and be upscaled from 215 pixels tall.
+    public static func iconArtworkURL(appID: Int, steamRoot: URL) -> URL? {
+        let portrait = ["library_600x900.jpg", "library_capsule.jpg", "\(appID)_library_600x900.jpg"]
+        let landscape = ["library_header.jpg", "header.jpg", "\(appID)_header.jpg"]
+        let cached = cachedFiles(appID: appID, steamRoot: steamRoot)
+
+        for name in portrait + landscape {
+            if let match = cached.first(where: { $0.lastPathComponent == name }) {
+                return match
+            }
+        }
+        return nil
+    }
+
     /// The small square icon Steam caches beside the art, if it left one.
     ///
     /// It sits directly in the app's folder rather than in one of the hashed

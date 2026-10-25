@@ -281,6 +281,9 @@ struct LibraryView: View {
         } else {
             Button("Play", systemImage: "play.fill") { model.launch(row, bottles: bottles) }
         }
+        if let bottle = bottles.first(where: { $0.url == row.item.bottleURL }) {
+            Button("Add to Dock", systemImage: "dock.rectangle") { addToDock(row, bottle: bottle) }
+        }
         Divider()
         if case let .steam(appID) = row.item.launch,
            let bottle = bottles.first(where: { $0.url == row.item.bottleURL }),
@@ -340,6 +343,22 @@ struct LibraryView: View {
         )) {
             Text("Sharp: Full Resolution").tag(false)
             Text("Faster: Upscaled, Higher Frame Rate").tag(true)
+        }
+    }
+
+    /// Puts a shortcut in the Dock that starts the game without opening
+    /// Whisky.
+    private func addToDock(_ row: LibraryRow, bottle: Bottle) {
+        Task {
+            do {
+                try await ProgramShortcut.addToDock(row.item, bottle: bottle)
+                model.toast = ToastData(message: "\(row.item.name) is in your Dock", style: .success)
+            } catch {
+                model.toast = ToastData(
+                    message: "Couldn't add \(row.item.name) to the Dock: \(error.localizedDescription)",
+                    style: .error
+                )
+            }
         }
     }
 
