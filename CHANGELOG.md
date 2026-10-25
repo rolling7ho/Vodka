@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-10-26
+
 ### Changed (interface)
 - Quitting Vodka now stops Steam, games and everything else running in your PCs. Vodka asks first and
   names what's running; "Don't ask again" turns the question off.
