@@ -31,10 +31,14 @@ import Foundation
 /// stretched, so Faster keeps its frame rate with a much sharper image. It
 /// does nothing for a game already rendering every pixel.
 ///
-/// Both are set under each game's own `AppDefaults` key, so Steam and other
+/// `UpscaleSharpness` (from 4.6.8) sharpens that upscale, 0 to 100, with
+/// FSR 1's RCAS pass: MetalFX's spatial scaler softens edges and has no
+/// sharpening of its own.
+///
+/// All are set under each game's own `AppDefaults` key, so Steam and other
 /// programs in the bottle keep the defaults.
 enum WineGameInput {
-    private static let values = [("ScrollMomentum", "n"), ("MetalFXUpscale", "y")]
+    private static let values = [("ScrollMomentum", "n"), ("MetalFXUpscale", "y"), ("UpscaleSharpness", "50")]
 
     /// The registry changes the bottle's games still need, or an empty string.
     @MainActor
