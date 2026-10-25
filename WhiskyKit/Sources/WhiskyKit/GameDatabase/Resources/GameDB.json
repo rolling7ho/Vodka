@@ -6104,6 +6104,79 @@
         "lastUpdated": "2026-10-24T00:00:00Z",
         "referenceURL": "https://store.steampowered.com/app/1167630/Teardown/"
       }
+    },
+    {
+      "id": "beamng-drive",
+      "title": "BeamNG.drive",
+      "aliases": [
+        "BeamNG"
+      ],
+      "subtitle": "BeamNG GmbH",
+      "store": "steam",
+      "steamAppId": 284160,
+      "rating": "playable",
+      "exeNames": [
+        "BeamNG.drive.x64.exe"
+      ],
+      "pathPatterns": [
+        "BeamNG.drive"
+      ],
+      "antiCheat": null,
+      "constraints": {
+        "cpuArchitectures": [
+          "arm64"
+        ],
+        "minMacOSVersion": "15.0.0",
+        "minWineVersion": "10.0"
+      },
+      "variants": [
+        {
+          "id": "d3dmetal",
+          "label": "DirectX 12 (D3DMetal)",
+          "isDefault": true,
+          "whenToUse": "Recommended: BeamNG.drive picks DirectX 12 on its own, which runs on Apple's D3DMetal",
+          "rationale": [
+            "With its GPU-driven drawing, GPU upload heaps, bindless resources and indirect constants on, BeamNG crashes on D3DMetal: on the render thread while loading, or right after the main menu appears",
+            "The -nogfx switches turn those DirectX 12 features off; with them it reaches the menu and loads levels",
+            "msync lowers synchronisation overhead for its physics threads"
+          ],
+          "settings": {
+            "graphicsBackend": "d3dMetal",
+            "dxvk": false,
+            "dxvkAsync": false,
+            "enhancedSync": "msync",
+            "shaderCacheEnabled": true,
+            "avxEnabled": false,
+            "sequoiaCompatMode": false
+          },
+          "environmentVariables": {},
+          "dllOverrides": [],
+          "winetricksVerbs": [],
+          "launchArguments": [
+            "-nogfxgpudriven",
+            "-nogfxgpuupload",
+            "-nogfxbindless",
+            "-nogfxbindlesscbv",
+            "-nogfxindirectconstants"
+          ],
+          "testedWith": {
+            "lastTestedAt": "2026-10-25T00:00:00Z",
+            "macOSVersion": "27.0.1",
+            "wineVersion": "11.0",
+            "cpuArchitecture": "arm64"
+          }
+        }
+      ],
+      "notes": [
+        "Whisky's Play adds the switches BeamNG needs on D3DMetal. To start it from Steam's own Play button instead, set its Launch Options to: -nogfxgpudriven -nogfxgpuupload -nogfxbindless -nogfxbindlesscbv -nogfxindirectconstants"
+      ],
+      "knownIssues": [],
+      "provenance": {
+        "source": "community-reference",
+        "author": "Whisky Steam fork",
+        "lastUpdated": "2026-10-25T00:00:00Z",
+        "referenceURL": "https://store.steampowered.com/app/284160/BeamNGdrive/"
+      }
     }
   ]
 }
