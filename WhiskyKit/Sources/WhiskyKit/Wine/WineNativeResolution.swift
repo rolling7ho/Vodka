@@ -69,6 +69,7 @@ extension Wine {
         let document = nativeResolutionDocument(bottle: bottle, gameExecutables: gameExecutables)
             + steamAutostartRemoval(bottle: bottle)
             + steamGPURecovery(bottle: bottle)
+            + steamSmoothScrollDefault(bottle: bottle)
             + WineGameInput.document(bottle: bottle, gameExecutables: gameExecutables)
         guard !document.isEmpty else { return }
         do {
@@ -212,6 +213,20 @@ extension Wine {
         guard value?.lowercased() == "dword:00000000" else { return "" }
         nativeResolutionLogger.info("Steam had switched to software rendering; turning GPU web views back on")
         return "[HKEY_CURRENT_USER\\Software\\Valve\\Steam]\n\"GPUAccelWebViewsV3\"=dword:00000001\n\n"
+    }
+
+    /// Turns off Steam's smooth scrolling in web views, unless someone chose.
+    ///
+    /// With it on, Chromium animates every wheel step for a moment before the
+    /// page settles, which on top of macOS's own scrolling reads as lag; games
+    /// see the wheel directly. Only an unset value is written, so turning it
+    /// back on in Steam's Interface settings sticks. Steam reads it at start.
+    static func steamSmoothScrollDefault(bottle: Bottle) -> String {
+        let value = WineRegistryFile.readValue(
+            bottleURL: bottle.url, key: #"HKCU\Software\Valve\Steam"#, valueName: "SmoothScrollWebViews"
+        )
+        guard value == nil else { return "" }
+        return "[HKEY_CURRENT_USER\\Software\\Valve\\Steam]\n\"SmoothScrollWebViews\"=dword:00000000\n\n"
     }
 
     /// Takes Steam out of the bottle's startup programs.
