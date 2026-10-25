@@ -11,7 +11,8 @@
 # 5. Adds the update to appcast.xml on the gh-pages branch, which GitHub Pages serves at
 #    https://rolling7ho.github.io/Vodka/appcast.xml (Info.plist's SUFeedURL).
 #
-# Needs: a clean working tree, gh signed in with push access, and the Sparkle key.
+# Needs: a clean working tree, gh signed in with push access, and the Sparkle key
+# (~/.vodka-sparkle-private-key, or the login keychain's "vodka" account).
 # Back the key up (generate_keys --account vodka -x <file>): without it, installed
 # copies can never accept another update.
 
@@ -44,7 +45,14 @@ OUT="$(mktemp -d -t vodka-release)"
 ZIP="$OUT/Vodka-$VERSION.zip"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
 SIGN_UPDATE="$DERIVED/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
-SIGNATURE="$("$SIGN_UPDATE" --account vodka -p "$ZIP")"
+# The key file, when there is one: reading the keychain from a sign_update other
+# than the one that made the key waits on an access prompt that is easy to miss.
+KEY_FILE="${SPARKLE_KEY_FILE:-$HOME/.vodka-sparkle-private-key}"
+if [ -f "$KEY_FILE" ]; then
+    SIGNATURE="$("$SIGN_UPDATE" -f "$KEY_FILE" -p "$ZIP")"
+else
+    SIGNATURE="$("$SIGN_UPDATE" --account vodka -p "$ZIP")"
+fi
 LENGTH="$(stat -f %z "$ZIP")"
 
 git tag "$TAG"
