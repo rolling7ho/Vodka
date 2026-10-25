@@ -127,7 +127,7 @@ extension GPTKImporter {
 
     /// The runtime version under `folder`, or `nil` if none is readable.
     static func runtimeVersionStamp(inLibraryFolder folder: URL) -> String? {
-        let plist = folder.appending(path: "VodkaWineVersion").appendingPathExtension("plist")
+        let plist = folder.appending(path: "WhiskyWineVersion").appendingPathExtension("plist")
         guard let info = VodkaWineInstaller.vodkaWineInfo(at: plist) else { return nil }
         return "\(info.version.major).\(info.version.minor).\(info.version.patch)"
     }

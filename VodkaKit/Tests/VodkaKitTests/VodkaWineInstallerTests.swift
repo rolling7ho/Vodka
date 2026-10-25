@@ -78,7 +78,7 @@ final class VodkaWineInstallerTests: XCTestCase {
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let plistURL = tempDir.appendingPathComponent("VodkaWineVersion").appendingPathExtension("plist")
+        let plistURL = tempDir.appendingPathComponent("WhiskyWineVersion").appendingPathExtension("plist")
         let plist: [String: Any] = [
             "version": ["major": 3, "minor": 0, "patch": 0],
             "dxvkVersion": "1.10.3"
@@ -95,7 +95,7 @@ final class VodkaWineInstallerTests: XCTestCase {
     func testVodkaWineInfoAtMissingFileReturnsNil() {
         let missing = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
-            .appendingPathComponent("VodkaWineVersion.plist")
+            .appendingPathComponent("WhiskyWineVersion.plist")
 
         XCTAssertNil(VodkaWineInstaller.vodkaWineInfo(at: missing))
     }
@@ -106,7 +106,7 @@ final class VodkaWineInstallerTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         // A present-but-corrupt plist must be swallowed to nil, not crash.
-        let garbageURL = tempDir.appendingPathComponent("VodkaWineVersion").appendingPathExtension("plist")
+        let garbageURL = tempDir.appendingPathComponent("WhiskyWineVersion").appendingPathExtension("plist")
         try Data("this is not a plist".utf8).write(to: garbageURL)
 
         XCTAssertNil(VodkaWineInstaller.vodkaWineInfo(at: garbageURL))
@@ -118,7 +118,7 @@ final class VodkaWineInstallerTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         // Valid plist but missing a required version field — decode throws, swallowed to nil.
-        let partialURL = tempDir.appendingPathComponent("VodkaWineVersion").appendingPathExtension("plist")
+        let partialURL = tempDir.appendingPathComponent("WhiskyWineVersion").appendingPathExtension("plist")
         let plist: [String: Any] = ["version": ["major": 3, "minor": 0]]
         let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
         try data.write(to: partialURL)
@@ -133,7 +133,7 @@ final class VodkaWineInstallerTests: XCTestCase {
     private func makeRuntime(in folder: URL, plist: Bool, wine64: Bool) throws {
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         if plist {
-            let plistURL = folder.appending(path: "VodkaWineVersion").appendingPathExtension("plist")
+            let plistURL = folder.appending(path: "WhiskyWineVersion").appendingPathExtension("plist")
             let contents: [String: Any] = ["version": ["major": 3, "minor": 0, "patch": 0]]
             let data = try PropertyListSerialization.data(fromPropertyList: contents, format: .xml, options: 0)
             try data.write(to: plistURL)

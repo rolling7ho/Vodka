@@ -186,7 +186,7 @@ func writeRuntimeVersion(at libraryFolder: URL, _ major: Int, _ minor: Int, _ pa
     let plist: [String: Any] = ["version": ["major": major, "minor": minor, "patch": patch]]
     let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
     try data.write(
-        to: libraryFolder.appending(path: "VodkaWineVersion").appendingPathExtension("plist")
+        to: libraryFolder.appending(path: "WhiskyWineVersion").appendingPathExtension("plist")
     )
 }
 

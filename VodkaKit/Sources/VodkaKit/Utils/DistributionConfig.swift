@@ -24,7 +24,7 @@ public enum DistributionConfig {
     public static let baseURL = "https://frankea.github.io/Whisky"
 
     /// URL for the VodkaWine version plist file
-    public static let versionPlistURL = "\(baseURL)/VodkaWineVersion.plist"
+    public static let versionPlistURL = "\(baseURL)/WhiskyWineVersion.plist"
 
     /// Base URL for GitHub Releases downloads
     public static let releasesBaseURL = "https://github.com/frankea/Whisky/releases/download"

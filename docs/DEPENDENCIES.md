@@ -32,7 +32,7 @@ flags when a bundled component falls behind upstream.
 | `Libraries.tar.gz` (`v3.0.0`) | `9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8` |
 
 The same digest is published in
-[`dist/pages/VodkaWineVersion.plist`](../dist/pages/VodkaWineVersion.plist) under the `sha256` key.
+[`dist/pages/WhiskyWineVersion.plist`](../dist/pages/WhiskyWineVersion.plist) under the `sha256` key.
 The app verifies the downloaded archive against it before installing and **fails closed** on a
 mismatch (a corrupted or truncated download is the common cause). This is an integrity check, not a
 substitute for HTTPS transport trust. When cutting a runtime release, compute the digest of the exact

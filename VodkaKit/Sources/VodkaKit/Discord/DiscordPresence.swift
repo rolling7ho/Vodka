@@ -309,7 +309,8 @@ struct DiscordActivity: Encodable {
 
     let details: String
     let timestamps: Timestamps
-    let assets = Assets(largeImage: "vodka", largeText: "Vodka")
+    // The art key on the Discord application, which still has its old name.
+    let assets = Assets(largeImage: "whisky", largeText: "Vodka")
 }
 
 struct DiscordActivityArguments: Encodable {

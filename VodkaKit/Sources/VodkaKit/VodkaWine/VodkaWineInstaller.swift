@@ -121,7 +121,7 @@ public class VodkaWineInstaller {
     /// and the `wine64` binary the app actually executes. Factored out of
     /// ``isVodkaWineInstalled()`` so it can be tested against a temp directory.
     static func isRuntimePresent(inLibraryFolder folder: URL) -> Bool {
-        let versionPlist = folder.appending(path: "VodkaWineVersion").appendingPathExtension("plist")
+        let versionPlist = folder.appending(path: "WhiskyWineVersion").appendingPathExtension("plist")
         guard vodkaWineInfo(at: versionPlist) != nil else { return false }
 
         // Mirrors `Wine.wineBinary` (binFolder/wine64), the executable used to
@@ -447,7 +447,7 @@ public class VodkaWineInstaller {
     ///   not installed or the version file cannot be read.
     public static func vodkaWineInfo() -> VodkaWineVersion? {
         let versionPlist = libraryFolder
-            .appending(path: "VodkaWineVersion")
+            .appending(path: "WhiskyWineVersion")
             .appendingPathExtension("plist")
         return vodkaWineInfo(at: versionPlist)
     }
@@ -457,7 +457,7 @@ public class VodkaWineInstaller {
     /// ``vodkaWineInfo()`` resolves the installed location; this overload reads
     /// any plist URL (also convenient for tests).
     ///
-    /// - Parameter url: The location of a `VodkaWineVersion.plist` file.
+    /// - Parameter url: The location of a `WhiskyWineVersion.plist` file.
     /// - Returns: The decoded record, or `nil` if it is missing or malformed.
     public static func vodkaWineInfo(at url: URL) -> VodkaWineVersion? {
         do {

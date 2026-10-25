@@ -19,7 +19,7 @@
 import Foundation
 import SemanticVersion
 
-/// Represents the version information structure from VodkaWineVersion.plist
+/// Represents the version information structure from WhiskyWineVersion.plist
 /// The plist format uses a nested dictionary structure:
 /// ```
 /// <key>version</key>

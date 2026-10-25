@@ -112,7 +112,7 @@ xattr -rc "$LIB/DXMT" "$UNIXLIB/winemetal.so" \
 
 # 5. Rewrite the inner version plist. No sha256 key inside the archive —
 #    only the published Pages plist advertises the digest.
-PLIST="$LIB/VodkaWineVersion.plist"
+PLIST="$LIB/WhiskyWineVersion.plist"
 PB=/usr/libexec/PlistBuddy
 "$PB" -c "Set :version:major $MAJOR" -c "Set :version:minor $MINOR" -c "Set :version:patch $PATCH" "$PLIST"
 "$PB" -c "Delete :dxvkVersion" "$PLIST" 2>/dev/null || true
@@ -146,6 +146,6 @@ Follow-ups (see docs/ReleaseWorkflow.md "Wine Libraries release"):
      # The asset FILENAME must be exactly Libraries.tar.gz — the app downloads
      # releases/download/vX.Y.Z/Libraries.tar.gz by name. gh's "path#label"
      # syntax only sets a display label and keeps the wrong filename.
-  3. Update dist/pages/VodkaWineVersion.plist: version $NEW_VERSION, sha256 $DIGEST, dxmtVersion $DXMT_VERSION.
+  3. Update dist/pages/WhiskyWineVersion.plist: version $NEW_VERSION, sha256 $DIGEST, dxmtVersion $DXMT_VERSION.
   4. Update docs/DEPENDENCIES.md (bundled table + integrity row) and RuntimeTrack DXMT_PINNED.
 SUMMARY

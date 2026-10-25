@@ -141,24 +141,31 @@ public enum WhiskyBuildMigration {
 
     // MARK: - Folders
 
-    /// Renames `old` to `new`. If `new` exists already, which happens when
-    /// Vodka ran before it had anything to move, the old folder's contents go
-    /// into it, the old ones winning: they are the real data.
+    /// Moves what is in `old` into `new`, the old items winning over any of
+    /// the same name: they are the real data, and `new` can already exist when
+    /// Vodka ran before it had anything to move.
+    ///
+    /// The contents move rather than the folder, because macOS won't let an
+    /// app rename a folder in ~/Library/Containers that isn't named after it.
+    /// It lets Vodka make its own there and move items between the two. The
+    /// old folder is removed where macOS allows it, which it doesn't for a
+    /// container: that one stays behind, empty.
     static func move(_ old: URL, to new: URL) throws {
         let fileManager = FileManager.default
         guard fileManager.fileExists(atPath: old.path(percentEncoded: false)) else { return }
-        guard fileManager.fileExists(atPath: new.path(percentEncoded: false)) else {
-            try fileManager.moveItem(at: old, to: new)
-            return
-        }
-        for item in try fileManager.contentsOfDirectory(at: old, includingPropertiesForKeys: nil) {
+        try fileManager.createDirectory(at: new, withIntermediateDirectories: true)
+        // macOS keeps its own bookkeeping in each container folder and won't
+        // let it be moved; the new folder gets its own.
+        let items = try fileManager.contentsOfDirectory(at: old, includingPropertiesForKeys: nil)
+            .filter { !$0.lastPathComponent.hasPrefix(".com.apple.") }
+        for item in items {
             let target = new.appending(path: item.lastPathComponent)
             if fileManager.fileExists(atPath: target.path(percentEncoded: false)) {
                 try fileManager.removeItem(at: target)
             }
             try fileManager.moveItem(at: item, to: target)
         }
-        try fileManager.removeItem(at: old)
+        try? fileManager.removeItem(at: old)
     }
 
     // MARK: - Recorded paths

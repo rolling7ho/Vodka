@@ -227,7 +227,7 @@ their pinned versions, and where each comes from. When the runtime needs to chan
    ```sh
    shasum -a 256 Libraries.tar.gz
    ```
-5. Update `dist/pages/VodkaWineVersion.plist` with the version, bundled DXVK version, and the digest
+5. Update `dist/pages/WhiskyWineVersion.plist` with the version, bundled DXVK version, and the digest
    from the previous step. Record the same digest in [`DEPENDENCIES.md`](DEPENDENCIES.md):
    ```xml
    <dict>
