@@ -6,5 +6,23 @@
         <description>Vodka update feed</description>
         <language>en</language>
         <!-- items -->
+        <item>
+            <title>Vodka 4.0.0</title>
+            <pubDate>Sun, 25 Oct 2026 16:46:44 +0000</pubDate>
+            <sparkle:version>56</sparkle:version>
+            <sparkle:shortVersionString>4.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<p>The first release under the Vodka name.</p>
+<ul>
+<li><strong>Statistics</strong>: total and recent playtime, most played, longest session and storage used (Vodka › Statistics…).
+<li><strong>Settings in tabs</strong>, with new options: open at login, open Steam when Vodka opens, log retention and more.
+<li><strong>Quitting stops everything</strong> running in your PCs, after asking first. Updates leave games running.
+<li><strong>A new icon and accent color</strong>, and "Windows PC" is now just "PC".
+<li><strong>No telemetry</strong>: usage tracking has been removed.
+</ul>
+            ]]></description>
+            <enclosure url="https://github.com/rolling7ho/Vodka/releases/download/app-v4.0.0/Vodka-4.0.0.zip" sparkle:edSignature="PyXE4lf3E+bPtjyZqy7lE6rP1N+Pv2ynXfLPHJXlY9qteVPL6vJmmPiPeGLsZf8vt8HlhqJ7zuank2HgUXcoDg==" length="12645452" type="application/octet-stream" />
+        </item>
     </channel>
 </rss>
