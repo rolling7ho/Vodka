@@ -372,16 +372,26 @@ public class Wine {
             }
         }
 
-        // Update the run log entry with exit information
-        var updatedHistory = RunLogStore.load(for: programName, in: bottle.url)
-        updatedHistory.markCompleted(
-            id: runLogEntry.id,
-            exitCode: exitCode,
-            hasWineDebug: launch.environment.keys.contains("WINEDEBUG")
+        finishRun(
+            runLogEntry.id, programName: programName, bottle: bottle,
+            exitCode: exitCode, hasWineDebug: launch.environment.keys.contains("WINEDEBUG")
         )
-        RunLogStore.save(updatedHistory, for: programName, in: bottle.url)
 
         return ProgramRunResult(exitCode: exitCode, logFileURL: logFileURL, runLogEntryId: runLogEntry.id)
+    }
+
+    /// Closes a run's log entry with its exit information and adds the run to
+    /// the program's playtime totals.
+    @MainActor
+    private static func finishRun(
+        _ id: UUID, programName: String, bottle: Bottle, exitCode: Int32, hasWineDebug: Bool
+    ) {
+        var updatedHistory = RunLogStore.load(for: programName, in: bottle.url)
+        updatedHistory.markCompleted(id: id, exitCode: exitCode, hasWineDebug: hasWineDebug)
+        RunLogStore.save(updatedHistory, for: programName, in: bottle.url)
+        if let finished = updatedHistory.entries.first(where: { $0.id == id }) {
+            PlaytimeStore.record(finished, history: updatedHistory, for: programName, in: bottle.url)
+        }
     }
 
     /// Prepares a bottle to launch a program, without launching it.

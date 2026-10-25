@@ -29,6 +29,7 @@ extension ContentView {
             List(selection: $selected) {
                 Section {
                     libraryRow
+                    statisticsRow
                 }
                 // A bottle is a Wine prefix, so it belongs under a heading rather
                 // than being the whole sidebar. With one bottle this is the row
@@ -112,19 +113,32 @@ extension ContentView {
     /// the home screen, and a person who has not picked a bottle has not made a
     /// mistake.
     var libraryRow: some View {
+        pageRow("library.title", systemImage: "square.grid.2x2", statistics: false)
+            .accessibilityIdentifier("sidebar.library")
+    }
+
+    var statisticsRow: some View {
+        pageRow("Statistics", systemImage: "chart.bar", statistics: true)
+            .accessibilityIdentifier("sidebar.statistics")
+    }
+
+    /// A page that is not a bottle. These are buttons drawing their own
+    /// selection because the list's selection is a bottle URL.
+    private func pageRow(_ title: LocalizedStringKey, systemImage: String, statistics: Bool) -> some View {
         Button {
             selected = nil
+            showStatistics = statistics
         } label: {
-            Label("library.title", systemImage: "square.grid.2x2")
+            Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .listRowBackground(
             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(selected == nil ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
+                .fill(selected == nil && showStatistics == statistics
+                    ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
         )
-        .accessibilityIdentifier("sidebar.library")
     }
 
     @ViewBuilder
@@ -135,6 +149,8 @@ extension ContentView {
                     .disabled(bottle.inFlight)
                     .id(bottle.url)
             }
+        } else if showStatistics {
+            StatisticsView(refresh: $triggerRefresh)
         } else if bottleVM.countActive() > 0 {
             LibraryView(selectedBottle: $selected, refresh: $triggerRefresh)
         } else {

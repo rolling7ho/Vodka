@@ -33,6 +33,8 @@ struct ContentView: View {
     @State var newlyCreatedBottleURL: URL?
     @State var openedFileURL: URL?
     @State var triggerRefresh: Bool = false
+    /// The statistics page, which like the library has no bottle selected.
+    @State var showStatistics: Bool = false
 
     @State var toast: ToastData?
     @State var corruptRegistryBackupURL: URL?
@@ -133,7 +135,9 @@ struct ContentView: View {
                 toast: $toast
             )
         }
-        .onChange(of: selected) { oldValue, _ in
+        .onChange(of: selected) { oldValue, newValue in
+            if newValue != nil { showStatistics = false }
+
             // Check if previous bottle had running processes
             guard let oldURL = oldValue,
                   let oldBottle = bottleVM.bottles.first(where: { $0.url == oldURL })
@@ -182,7 +186,11 @@ struct ContentView: View {
             #if DEBUG
             // Screenshots of a screen without clicking through to it.
             if let screen = ProcessInfo.processInfo.environment["WHISKY_DEBUG_SCREEN"], screen != "library" {
-                selected = bottleVM.bottles.first?.url
+                if screen == "statistics" {
+                    showStatistics = true
+                } else {
+                    selected = bottleVM.bottles.first?.url
+                }
             }
             #endif
 
