@@ -12,7 +12,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      # The official Homebrew cask `whisky` tracks the original (archived) Whisky
+      # The official Homebrew cask `vodka` tracks the original (archived) Vodka
       # project and is not controlled by this fork, so it is not bumped here. This
       # fork's Homebrew distribution is the frankea/homebrew-whisky tap, updated by
       # the UpdateHomebrewTap workflow (see docs/ReleaseWorkflow.md for BREW_TOKEN).

@@ -2,17 +2,17 @@
 #
 # british-english.py
 #
-# This file is part of Whisky.
+# This file is part of Vodka, a fork of Whisky.
 #
-# Whisky is free software: you can redistribute it and/or modify it under the terms
+# Vodka is free software: you can redistribute it and/or modify it under the terms
 # of the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
 #
-# Whisky is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with Whisky.
+# You should have received a copy of the GNU General Public License along with Vodka.
 # If not, see https://www.gnu.org/licenses/.
 #
 # Regenerates the en-GB localization from en.
@@ -32,7 +32,7 @@ import pathlib
 import re
 import sys
 
-CATALOG = pathlib.Path(__file__).resolve().parent.parent / "Whisky" / "Localizable.xcstrings"
+CATALOG = pathlib.Path(__file__).resolve().parent.parent / "Vodka" / "Localizable.xcstrings"
 
 # Only differences that are unambiguous in software UI copy. -ise vs -ize is a
 # real split even within British usage (Oxford keeps -ize), but -ise is what the
@@ -57,7 +57,7 @@ SPELLINGS = [
 # API and product names. Rewriting these would be wrong in any English.
 PROTECTED = re.compile(
     r"\b(size|sizes|sized|sizing|resize|resizes|resized|resizing|prize|seize|"
-    r"capsize|maize|Metal|MetalFX|DXVK|DXMT|Wine|Whisky|Steam|Rosetta)\b",
+    r"capsize|maize|Metal|MetalFX|DXVK|DXMT|Wine|Vodka|Steam|Rosetta)\b",
     re.IGNORECASE,
 )
 

@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'WhiskyKit/**'
+      - 'VodkaKit/**'
       - 'dist/pages/**'
       - '.github/workflows/Documentation.yml'
   workflow_dispatch:
@@ -45,20 +45,20 @@ jobs:
           path: |
             ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
             .build
-            WhiskyKit/.build
+            VodkaKit/.build
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
       - name: Build Documentation
         run: |
-          cd WhiskyKit
+          cd VodkaKit
           swift package --allow-writing-to-directory ../docs \
             generate-documentation \
-            --target WhiskyKit \
+            --target VodkaKit \
             --disable-indexing \
             --transform-for-static-hosting \
-            --hosting-base-path Whisky \
+            --hosting-base-path Vodka \
             --output-path ../docs
 
       - name: Stage distribution files

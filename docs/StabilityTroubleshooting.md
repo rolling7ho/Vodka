@@ -12,8 +12,8 @@ This document is a contributor-facing playbook for triaging **critical stability
 Use this guide for reports like:
 - macOS kernel panic / reboot during game launch or gameplay
 - Complete system freeze requiring force reboot
-- Whisky UI freezes (e.g., opening Bottle Configuration)
-- Whisky crashes on launch or during WhiskyWine installation
+- Vodka UI freezes (e.g., opening Bottle Configuration)
+- Vodka crashes on launch or during VodkaWine installation
 
 ## Quick Mitigations (User-Facing)
 
@@ -42,7 +42,7 @@ Notes:
 
 In the app, use **Open Logs Folder** (menu item) and attach the newest `.log` file(s) if requested.
 
-Whisky also enforces log size limits (per-file cap + folder cap) to avoid runaway disk usage.
+Vodka also enforces log size limits (per-file cap + folder cap) to avoid runaway disk usage.
 
 ### 3) macOS crash/panic logs
 
@@ -55,7 +55,7 @@ For **kernel panics / reboots**:
 Please include:
 - **Mac model** (e.g., M3 Max)
 - **macOS version** (e.g., 15.2 / 15.4.1)
-- **Whisky version** and **WhiskyWine version**
+- **Vodka version** and **VodkaWine version**
 - **Game/app** and distribution (Steam/GOG/etc.)
 - **Bottle settings toggles**: Sequoia compat, DXVK, DXR, Enhanced Sync
 - **Steps to reproduce** (smallest possible)
@@ -66,5 +66,5 @@ Please include:
 
 - If the report indicates a **UI freeze** correlated with Wine commands, prioritize investigating main-thread starvation or long-running Wine command aggregation.
 - If it’s a **kernel panic**, treat it as likely **driver-level**. Focus on mitigations (DXR off, a different graphics backend) and collecting high-quality repro data.
-- If it’s a **WhiskyWine install failure**, collect the exact error message, validate tarball structure/version plist, and attach relevant logs.
+- If it’s a **VodkaWine install failure**, collect the exact error message, validate tarball structure/version plist, and attach relevant logs.
 

@@ -1,25 +1,18 @@
 <div align="center">
 
-  # Whisky 🥃
-  *Wine but a bit stronger*
+  <img src="./images/vodka-icon.png" width="128" alt="Vodka icon">
 
-  > **Active community fork.** The original [whisky-app/whisky](https://github.com/whisky-app/whisky)
-  > was archived on April 9, 2025 with a final maintenance notice. This fork, maintained by
-  > [@frankea](https://github.com/frankea), continues development — addressing the backlog of
-  > upstream issues and adding new functionality. Not affiliated with the original project or
-  > getwhisky.app.
+  # Vodka 🍸
+  *Windows games on your Mac, neat*
 
-  ![](https://img.shields.io/github/actions/workflow/status/frankea/Whisky/CI.yml?style=for-the-badge&label=CI)
-  [![](https://img.shields.io/codecov/c/github/frankea/Whisky?style=for-the-badge&logo=codecov&label=Coverage&flag=whiskykit)](https://codecov.io/gh/frankea/Whisky)
-  [![](https://img.shields.io/github/downloads/frankea/Whisky/total?style=for-the-badge&logo=github&label=Downloads)](https://github.com/frankea/Whisky/releases)
-  [![](https://img.shields.io/github/downloads/frankea/Whisky/latest/total?style=for-the-badge&label=Latest)](https://github.com/frankea/Whisky/releases/latest)
-  [![](https://img.shields.io/github/issues/frankea/Whisky?style=for-the-badge)](https://github.com/frankea/Whisky/issues)
-  [![Documentation](https://img.shields.io/badge/Documentation-DocC-blue?style=for-the-badge)](https://frankea.github.io/Whisky/documentation/whiskykit/)
+  > Vodka is a fork of [Whisky](https://github.com/whisky-app/whisky) by Isaac Marovitz, by way of
+  > [frankea's community fork](https://github.com/frankea/Whisky). It is not affiliated with either
+  > project. Like Whisky, it is free software under the GNU GPL v3.
 </div>
 
-## Steam gaming edition
+## What's different
 
-This fork of the community fork focuses on Steam games:
+Vodka is built for playing Steam games on a Mac:
 
 - **Guided Steam setup.** The library opens on a four-step guide: create the Steam bottle, choose
   graphics, install Steam (downloaded from Valve and installed silently), then sign in.
@@ -36,10 +29,9 @@ This fork of the community fork focuses on Steam games:
 - **Native resolution.** On by default: Wine's Retina mode at 192 DPI, with each installed game marked
   per-monitor DPI-aware (`dpiAwareness` in its Image File Execution Options), so games render at the
   panel's real pixels and Steam is sized and sharp like a Mac app. Needs this edition's engine, below.
-- **Engine 4.6.5.** frankea's v4.6.4 GPTK engine with one mac-driver fix
-  ([rolling7ho/winecx@191577b](https://github.com/rolling7ho/winecx/commit/191577b67055d5a95e0d793abedccda1e66edbab)):
-  Chromium's cross-process Metal layer was laid out in pixels inside a window measured in points, so in
-  Retina mode Steam showed its top-left quarter magnified. Published on this fork's releases.
+- **Its own engine.** frankea's GPTK engine plus Vodka's mac-driver fixes
+  ([rolling7ho/winecx](https://github.com/rolling7ho/winecx)): Retina sizing for Steam, Steam menus that
+  draw, app names in the menu bar, fixed fullscreen modes, and MetalFX upscaling with sharpening.
 - **Performance.** MoltenVK logs errors only and submits asynchronously. Right-click a Steam game in
   the library and choose *Resolution › Faster* to draw it at half resolution, a quarter of the pixels,
   scaled up by macOS.
@@ -50,15 +42,17 @@ This fork of the community fork focuses on Steam games:
 - **Easy reset.** *Delete Bottle…* in the sidebar menu and in a bottle's settings closes what runs in
   it and moves it to the Trash in one step.
 
+- **Statistics.** Total and recent playtime per game, most played, longest session and storage used.
+- **Add to Dock.** Any library game can become a Dock icon that starts it without opening Vodka.
+
 Games with a GameDB preset (Teardown included) get it applied when launched from Steam. Technical
-bottle settings sit behind *Show advanced settings*. To build and install locally, run
-`scripts/install-local.sh` (ad-hoc signed, for this Mac only).
+settings sit behind *Show advanced settings*.
 
 ## Overview
 
-Whisky provides a clean and easy-to-use graphical wrapper for Wine built in native SwiftUI. You can make and manage bottles, install and run Windows apps and games, and unlock the full potential of your Mac with no technical knowledge required.
+Vodka provides a clean and easy-to-use graphical wrapper for Wine built in native SwiftUI. You can make and manage bottles, install and run Windows apps and games, and unlock the full potential of your Mac with no technical knowledge required.
 
-<img width="650" alt="Whisky in action" src="./images/demo.gif">
+<img width="650" alt="Vodka in action" src="./images/demo.gif">
 
 <img width="650" alt="Config" src="./images/config-screenshot.png">
 
@@ -85,129 +79,73 @@ Whisky provides a clean and easy-to-use graphical wrapper for Wine built in nati
 - **Stability Diagnostics** - One-click diagnostic reports for troubleshooting crashes and freezes
 - **Native SwiftUI** - Beautiful, familiar macOS interface
 
-## System Requirements
+## System requirements
 
 - **CPU**: Apple Silicon (M-series chips)
 - **OS**: macOS Sequoia 15.0 or later
 
 ## Installation
 
-### Homebrew (recommended)
+Vodka isn't distributed as a signed download yet. To build and install it on your Mac:
 
 ```sh
-brew install --cask frankea/whisky/whisky
+git clone https://github.com/rolling7ho/Whisky.git Vodka
+cd Vodka
+scripts/install-local.sh   # ad-hoc signed, for this Mac only
 ```
 
-This taps [frankea/homebrew-whisky](https://github.com/frankea/homebrew-whisky) and installs the latest signed/notarized DMG. `brew upgrade --cask` picks up new releases.
+On first launch Vodka downloads its Wine engine (~330 MB) from this repo's releases.
 
-> The default `brew install --cask whisky` still installs the **archived original** (last release April 2025) and always will until that cask is updated. Use the qualified `frankea/whisky/whisky` form to get this fork.
+### Coming from Whisky
 
-### Manual
-
-1. Download the latest **[Whisky-X.Y.Z.dmg](https://github.com/frankea/Whisky/releases/latest)** (signed and notarized — Gatekeeper-approved).
-2. Open the DMG and drag **Whisky.app** to **/Applications**.
-3. Launch Whisky. On first run it downloads the Wine runtime (~330 MB) and sets up your default bottle.
-
-In-app updates are delivered through Sparkle from `https://frankea.github.io/Whisky/appcast.xml`.
-
-### Migrating from the original Whisky
-
-The original [whisky-app/whisky](https://github.com/whisky-app/whisky) was archived on **April 9, 2025** with a final maintenance notice. If you're running it today, you're on a stale build with no path forward for new fixes. This fork picks up where the upstream left off — version `3.0.1` shipped 54 requirements covering the 10 categories of upstream issue tracking (#40–#50).
-
-To switch:
-
-1. Install this fork: `brew install --cask frankea/whisky/whisky` or follow the manual steps above.
-2. Open it and choose **File → Migrate from the Original Whisky**. It finds the bottles the original app left in `~/Library/Containers/com.isaacmarovitz.Whisky/` and imports the ones you pick. Bottles are referenced **in place** — nothing is moved or copied — so the original app keeps working if you'd like to keep it around.
-3. *(Optional)* Once you're happy, remove the original app: drag **/Applications/Whisky.app** to the Trash, or `brew uninstall --cask whisky` if you installed it via Homebrew. Your bottles stay put.
-
-The original app uses a different bundle identifier (`com.franke.Whisky` here vs. `com.isaacmarovitz.Whisky`), which is why bottles aren't shared automatically. The old **Bottle → Export** / **File → Import Bottle** route still works if you'd rather move bottles by hand or onto another Mac. With no critical bottles, you can skip migration entirely — the new app creates a fresh bottle on first launch.
+- **From an earlier build of this fork** (`com.rolling7ho.Whisky`): the first launch of Vodka moves
+  your Windows PCs, engine, logs and settings over by itself.
+- **From the original Whisky:** choose **File → Migrate from the Original Whisky**. It imports the
+  bottles the original app left in `~/Library/Containers/com.isaacmarovitz.Whisky/` in place, so
+  nothing is moved or copied.
 
 ## Uninstalling
 
-Dragging **Whisky.app** to the Trash (or `brew uninstall --cask frankea/whisky/whisky`) removes the app but leaves the Wine runtime, your bottles, and app data behind — by design, so reinstalling doesn't re-download ~330 MB or lose your bottles.
-
-> ⚠️ **Back up your bottles first if you want to keep them.** Removing the container below deletes every bottle stored in its default location. Bottles you created in a custom folder live wherever you put them — check **Bottle → Reveal in Finder** before deleting anything.
-
-To remove Whisky **completely**, delete the app and then these paths (all under `~/Library`):
+Dragging **Vodka.app** to the Trash leaves the engine, your Windows PCs and settings behind, so a
+reinstall doesn't download them again. To remove everything, back up anything you want to keep and
+delete:
 
 ```sh
-# 1. The app itself
-rm -rf "/Applications/Whisky.app"          # or: brew uninstall --cask frankea/whisky/whisky
-
-# 2. Bottles + bottle list (default bottle location is inside this container)
-rm -rf ~/Library/Containers/com.franke.Whisky
-rm -rf ~/Library/Containers/com.franke.Whisky.WhiskyThumbnail
-
-# 3. The Wine runtime (~330 MB) and other app support
-rm -rf ~/Library/Application\ Support/com.franke.Whisky
-
-# 4. Caches, logs, preferences, and saved state
-rm -rf ~/Library/Caches/com.franke.Whisky
-rm -rf ~/Library/Logs/com.franke.Whisky
-rm -rf ~/Library/HTTPStorages/com.franke.Whisky
-rm -f  ~/Library/Preferences/com.franke.Whisky.plist
+rm -rf /Applications/Vodka.app
+rm -rf ~/Library/Containers/com.rolling7ho.Vodka          # Windows PCs and their list
+rm -rf ~/Library/Application\ Support/com.rolling7ho.Vodka # the Wine engine
+rm -rf ~/Library/Caches/com.rolling7ho.Vodka ~/Library/Logs/com.rolling7ho.Vodka
+rm -f  ~/Library/Preferences/com.rolling7ho.Vodka.plist
 ```
 
-If you also installed bottles in a **custom location**, delete those folders too. Migrated bottles that still belong to the original app live under `~/Library/Containers/com.isaacmarovitz.Whisky` and are left untouched by the steps above.
+Windows PCs made in a custom folder live wherever you put them.
 
 ## Privacy
 
-Whisky collects no usage data and has no analytics SDK. The only network
+Vodka collects no usage data and has no analytics SDK. The only network
 requests it makes on its own are update checks (Sparkle's appcast) and Wine
 runtime downloads from GitHub Releases.
 
 ## Documentation
 
-- **[Support](docs/SUPPORT.md)** - Where to file bugs and what to expect from a single-maintainer fork
-- **[Governance & continuity](docs/GOVERNANCE.md)** - Who maintains this and the honest bus-factor situation
 - **[Runtime dependencies](docs/DEPENDENCIES.md)** - The bundled Wine/DXVK/D3DMetal/DXMT versions and their upstream sources
-
-WhiskyKit, the core framework powering Whisky, has comprehensive API documentation:
-
-- **[WhiskyKit API Documentation](https://frankea.github.io/Whisky/documentation/whiskykit/)** - Full API reference with usage examples
-- **[Getting Started Guide](https://frankea.github.io/Whisky/documentation/whiskykit/gettingstarted)** - Learn how to integrate WhiskyKit
-- **[Architecture Overview](https://frankea.github.io/Whisky/documentation/whiskykit/architecture)** - Understand how WhiskyKit components work together
 
 ### Troubleshooting
 
 - **[Launcher Troubleshooting](docs/LauncherTroubleshooting.md)** - Fix issues with Steam, Epic, Battle.net, etc.
-- **[Steam Compatibility Guide](docs/SteamCompatibility.md)** - Detailed guide for Steam on Whisky
+- **[Steam Compatibility Guide](docs/SteamCompatibility.md)** - Detailed guide for Steam on Vodka
 - **[Stability Troubleshooting](docs/StabilityTroubleshooting.md)** - Diagnose crashes, freezes, reboots, and kernel panics
 - **Controller Issues** - Enable "Controller Compatibility Mode" in Bottle Config → Controller & Input
-- **[Game Configurations](https://github.com/frankea/Whisky/blob/main/WhiskyKit/Sources/WhiskyKit/GameDatabase/Resources/GameDB.json)** - 80+ curated per-game compatibility configs, also browsable in-app under Game Configurations
-
-### Upstream issue audit
-
-Per-issue accounting of how this fork addresses the open issues from the
-archived upstream repo. Read [docs/AUDIT.md](docs/AUDIT.md) for the
-methodology — including how to read the `addressed-direct` vs
-`addressed-categorical` distinction and what `unverified` GameDB entries
-actually mean.
-
-### Test coverage
-
-The Coverage badge above is scoped to the **`whiskykit` flag** — line
-coverage of the framework that holds the bottle, Wine, GameDB, and
-PE-parser logic, measured by `swift test --enable-code-coverage` per
-[`.github/workflows/CI.yml`](.github/workflows/CI.yml). The blended
-project-wide number on the [Codecov dashboard](https://codecov.io/gh/frankea/Whisky)
-reads much lower because it averages in the SwiftUI app target, which
-only receives best-effort UI-test coverage. Read the badge as
-"WhiskyKit unit-test coverage," not full-app coverage.
-
-WhiskyUITests gives behavioural coverage of the SwiftUI surface (toolbar,
-create-bottle sheet, fixture-dependent flows). CI now runs them with
-`-enableCodeCoverage YES` and uploads the resulting app-target coverage to
-Codecov under a separate `whiskyapp` flag (best-effort — the upload never gates
-CI). Because UI tests exercise far less of the app than the unit tests do of
-WhiskyKit, expect the app-target number to read lower than the WhiskyKit badge
-above.
+- **[Game Configurations](VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json)** - 80+ curated per-game compatibility configs, also browsable in-app under Game Configurations
 
 ---
 
 ## Credits & Acknowledgments
 
-Whisky is possible thanks to the magic of several projects:
+Vodka is possible thanks to the magic of several projects:
+
+- [Whisky](https://github.com/whisky-app/whisky) by Isaac Marovitz and contributors, which Vodka is built from
+- [frankea/Whisky](https://github.com/frankea/Whisky), the community fork Vodka continues from
 
 - [msync](https://github.com/marzent/wine-msync) by marzent
 - [DXVK-macOS](https://github.com/Gcenx/DXVK-macOS) by Gcenx and doitsujin
@@ -232,7 +170,7 @@ Special thanks to Gcenx, ohaiibuzzle, Nat Brown, and [Isaac Marovitz](https://gi
         </picture>
     </td>
     <td>
-        Whisky doesn't exist without CrossOver. If you want a fully-supported commercial Wine experience on macOS, check out <a href="https://www.codeweavers.com/crossover">CrossOver</a> from CodeWeavers. (This fork has no affiliate arrangement and receives nothing from CrossOver sales.)
+        Vodka doesn't exist without CrossOver. If you want a fully-supported commercial Wine experience on macOS, check out <a href="https://www.codeweavers.com/crossover">CrossOver</a> from CodeWeavers. (This fork has no affiliate arrangement and receives nothing from CrossOver sales.)
     </td>
   </tr>
 </table>

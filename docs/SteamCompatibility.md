@@ -9,7 +9,7 @@
 
 ## Overview
 
-Steam is the most widely used game launcher in Whisky, but also has the most compatibility issues (~50 related upstream issues). This guide provides comprehensive setup and troubleshooting specifically for Steam.
+Steam is the most widely used game launcher in Vodka, but also has the most compatibility issues (~50 related upstream issues). This guide provides comprehensive setup and troubleshooting specifically for Steam.
 
 ---
 
@@ -53,7 +53,7 @@ Steam is the most widely used game launcher in Whisky, but also has the most com
      GameOverlayUI.exe) get DXVK through per-executable overrides, so the
      client draws on DXVK while the games it starts keep the bottle's backend.
      With the D3DMetal payload that is D3DMetal, which DirectX 12 games need.
-   - A game started from Whisky's library, `whisky launch` or a whisky:// link
+   - A game started from Vodka's library, `vodka launch` or a vodka:// link
      gets its own settings (Programs tab and game database) in per-executable
      overrides for its executables, whichever process starts it.
    - On a runtime without the D3DMetal payload, Play still switches the bottle
@@ -270,7 +270,7 @@ DXVK provides better GPU acceleration for Steam's UI rendering, reducing stutter
 
 **If Still Invisible:**
 - Delete Steam, reinstall fresh
-- Check ~/Library/Logs/com.franke.Whisky/ for errors
+- Check ~/Library/Logs/com.franke.Vodka/ for errors
 
 **Related Issues:**
 - whisky-app/whisky#1183 (No UI)
@@ -501,7 +501,7 @@ Before reporting Steam issues, verify:
 **System:**
 - macOS 15.4.1
 - M2 Pro MacBook Pro
-- Whisky version 2.x
+- Vodka version 2.x
 - Steam version: Dec 2025 build
 
 **Configuration:**
@@ -530,7 +530,7 @@ Before reporting Steam issues, verify:
 ### Official Steam Support:
 - https://help.steampowered.com/
 
-### Whisky Resources:
+### Vodka Resources:
 - Issue Tracking: frankea/Whisky#41
 - Troubleshooting: [LauncherTroubleshooting.md](LauncherTroubleshooting.md)
 - Security Notes: [LAUNCHER_SECURITY_NOTES.md](../LAUNCHER_SECURITY_NOTES.md)
@@ -565,17 +565,17 @@ Before reporting Steam issues, verify:
 
 ---
 
-## Comparison: Steam on Whisky vs Other Methods
+## Comparison: Steam on Vodka vs Other Methods
 
 | Method | Setup Difficulty | Compatibility | Performance | Recommendation |
 |--------|-----------------|---------------|-------------|----------------|
-| **Whisky + Launcher Compat** | Easy | Excellent | Good | ✅ Recommended |
+| **Vodka + Launcher Compat** | Easy | Excellent | Good | ✅ Recommended |
 | Native Mac Steam | Easy | Mac games only | Native | Limited catalog |
 | CrossOver | Medium | Excellent | Good | Commercial ($$$) |
 | Parallels/VMware | Hard | Excellent | Fair | Resource heavy |
 | Boot Camp | Hard | Perfect | Perfect | Rebooting required |
 
-**Whisky Advantages:**
+**Vodka Advantages:**
 - ✅ Free and open source
 - ✅ Easy setup with compatibility mode
 - ✅ Good game compatibility
@@ -621,7 +621,7 @@ Streaming TO this Steam: Not recommended (double translation layer)
 
 ## Optimal Settings Summary
 
-For best Steam experience in Whisky:
+For best Steam experience in Vodka:
 
 **Bottle Configuration:**
 ```
@@ -671,7 +671,7 @@ Validation: OFF
 
 **Weekly:**
 - Steam updates automatically (good)
-- Check for Whisky updates
+- Check for Vodka updates
 - Review any new configuration warnings
 
 **After macOS Updates:**
@@ -719,7 +719,7 @@ Validation: OFF
 **Option 3: Restore from Backup**
 If you backed up Metadata.plist:
 1. Replace current Metadata.plist with backup
-2. Restart Whisky
+2. Restart Vodka
 3. Test Steam
 
 ### Data Recovery:
@@ -753,13 +753,13 @@ Based on upstream issue resolution:
 
 ## Conclusion
 
-Steam on Whisky with Launcher Compatibility Mode provides:
+Steam on Vodka with Launcher Compatibility Mode provides:
 - ✅ Reliable steam client operation
 - ✅ Stable downloads
 - ✅ Good game compatibility
 - ✅ Easy setup and maintenance
 
-The launcher compatibility system addresses the majority of Steam issues documented in 50+ upstream issues, making Steam on Whisky a viable gaming platform.
+The launcher compatibility system addresses the majority of Steam issues documented in 50+ upstream issues, making Steam on Vodka a viable gaming platform.
 
 ---
 
@@ -768,4 +768,4 @@ The launcher compatibility system addresses the majority of Steam issues documen
 - [LauncherSecurityNotes.md](LauncherSecurityNotes.md) - Security info
 - GitHub: frankea/Whisky#41 - Report issues
 
-**Happy gaming on Steam via Whisky!** 🎮
+**Happy gaming on Steam via Vodka!** 🎮

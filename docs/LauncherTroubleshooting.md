@@ -244,7 +244,7 @@ Battle.net's web-based authentication requires proper Chromium rendering.
 1. **Enable Launcher Compatibility:**
    - Detect as Paradox Launcher (Auto or Manual)
 
-Whisky has no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH`
+Vodka has no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH`
 workaround earlier versions set is read by no shipped runtime, so it was removed.
 
 **Related Upstream Issues:**
@@ -361,7 +361,7 @@ If launchers become misconfigured:
    - Right-click bottle → Show in Finder
    - Delete `Metadata.plist`
 3. **Recreate Bottle:**
-   - Whisky will regenerate with defaults
+   - Vodka will regenerate with defaults
 4. **Re-enable Launcher Compatibility**
 
 ### Check Wine Logs
@@ -370,7 +370,7 @@ Launcher crashes may leave clues in Wine logs:
 
 1. **Open Logs Folder:**
    ```
-   ~/Library/Logs/com.franke.Whisky/
+   ~/Library/Logs/com.franke.Vodka/
    ```
 
 2. **Find Latest Log:**
@@ -392,8 +392,8 @@ Ensure Wine is properly installed:
    - Terminal: `wine64 --version`
    - Should show version 9.0 or later
 
-2. **Verify WhiskyWine:**
-   - Check `/Users/[username]/Library/Application Support/com.franke.Whisky/Libraries/Wine/`
+2. **Verify VodkaWine:**
+   - Check `/Users/[username]/Library/Application Support/com.franke.Vodka/Libraries/Wine/`
    - Should contain `bin/`, `lib/`, `share/` directories
 
 ### Test in Clean Bottle
@@ -539,7 +539,7 @@ Include in your issue report:
 2. **System Information:**
    - macOS version (System Settings → About)
    - Mac model (Apple Silicon or Intel)
-   - Whisky version
+   - Vodka version
 
 3. **Steps to Reproduce:**
    - What you did

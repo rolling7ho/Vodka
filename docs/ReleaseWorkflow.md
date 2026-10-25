@@ -1,10 +1,10 @@
 # Release Workflow
 
-This document describes how to cut a release of the Whisky app and how to publish a new Wine Libraries archive.
+This document describes how to cut a release of the Vodka app and how to publish a new Wine Libraries archive.
 
 The fork uses two parallel artifact streams:
 
-- **App releases** (`app-vX.Y.Z`) — `Whisky-X.Y.Z.dmg`, signed and notarized for direct distribution.
+- **App releases** (`app-vX.Y.Z`) — `Vodka-X.Y.Z.dmg`, signed and notarized for direct distribution.
 - **Wine Libraries releases** (`vX.Y.Z`) — `Libraries.tar.gz` containing the Wine/DXVK runtime that the app downloads on first launch.
 
 Both live on GitHub Releases. Static metadata (version plist, Sparkle appcast) is served from GitHub Pages, which is **workflow-deployed** through `.github/workflows/Documentation.yml`. The `gh-pages` branch is unused; static files go in `dist/pages/`.
@@ -37,13 +37,13 @@ Apple's notary service needs an app-specific password.
 
 ### Sparkle EdDSA keys
 
-A keypair is needed to sign appcast entries. Sparkle's `generate_keys` tool ships with the Sparkle SPM package; after building Whisky once, find it at:
+A keypair is needed to sign appcast entries. Sparkle's `generate_keys` tool ships with the Sparkle SPM package; after building Vodka once, find it at:
 
 ```
-~/Library/Developer/Xcode/DerivedData/Whisky-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
+~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
 ```
 
-Run it once. The private key is stored automatically in your login keychain. The public key is printed to stdout — it is already committed in `Whisky/Info.plist` under `SUPublicEDKey`. If you regenerate keys you will invalidate the existing public key in the bundled app and need to re-release.
+Run it once. The private key is stored automatically in your login keychain. The public key is printed to stdout — it is already committed in `Vodka/Info.plist` under `SUPublicEDKey`. If you regenerate keys you will invalidate the existing public key in the bundled app and need to re-release.
 
 ## Credential continuity (backup & recovery)
 
@@ -60,11 +60,11 @@ Three secrets gate the release pipeline. Losing the Sparkle key is **unrecoverab
 1. Export the Sparkle private key (Keychain will prompt for access):
 
    ```sh
-   SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Whisky-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2>/dev/null | head -1)
+   SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2>/dev/null | head -1)
    "$SPARKLE_BIN/generate_keys" -x sparkle_ed25519_private.key
    ```
 
-   If several `Whisky-*` DerivedData directories exist this picks the most recently modified one.
+   If several `Vodka-*` DerivedData directories exist this picks the most recently modified one.
 
 2. Export the Developer ID identity: **Keychain Access → My Certificates** → right-click *Developer ID Application: …* → **Export** as `.p12` with a strong password.
 3. Encrypt both files before they leave the machine:
@@ -94,20 +94,20 @@ Three secrets gate the release pipeline. Losing the Sparkle key is **unrecoverab
 A backup that has never been restored from is a hope, not a backup. `sign_update` can sign directly from a key file, so the test never touches the keychain:
 
 ```sh
-"$SPARKLE_BIN/sign_update" --ed-key-file sparkle_ed25519_private.key build/release/Whisky-X.Y.Z.dmg
+"$SPARKLE_BIN/sign_update" --ed-key-file sparkle_ed25519_private.key build/release/Vodka-X.Y.Z.dmg
 ```
 
 The printed `sparkle:edSignature` **and** the printed `length` must both exactly match that release's entry in `dist/pages/appcast.xml` — Ed25519 signatures are deterministic, so a mismatch in either means a wrong key or a non-canonical DMG: the exported key is wrong **or** the DMG you signed is not the exact published artifact (rebuilt locally, partially downloaded, wrong file). If in doubt, download the release asset from the appcast enclosure URL and sign that.
 
 ### Recovery on a new machine
 
-0. Build Whisky once first so the Sparkle tools exist in DerivedData (see [Sparkle EdDSA keys](#sparkle-eddsa-keys) under One-time setup) — `generate_keys` ships inside the Sparkle SPM artifact, not on `PATH`. Re-declare `SPARKLE_BIN` in this fresh shell (it is only set earlier in the Backup section):
+0. Build Vodka once first so the Sparkle tools exist in DerivedData (see [Sparkle EdDSA keys](#sparkle-eddsa-keys) under One-time setup) — `generate_keys` ships inside the Sparkle SPM artifact, not on `PATH`. Re-declare `SPARKLE_BIN` in this fresh shell (it is only set earlier in the Backup section):
 
    ```sh
-   SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Whisky-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2>/dev/null | head -1)
+   SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2>/dev/null | head -1)
    ```
 
-   If several `Whisky-*` DerivedData directories exist this picks the most recently modified one.
+   If several `Vodka-*` DerivedData directories exist this picks the most recently modified one.
 1. Decrypt the backup (`age -d sparkle_ed25519_private.key.age > sparkle_ed25519_private.key`, entering the backup passphrase), then import the Sparkle key: `"$SPARKLE_BIN/generate_keys" -f sparkle_ed25519_private.key`. If an existing item named *Private key for signing Sparkle updates* is already in the login keychain, the import may fail until that item is removed via Keychain Access. Delete the decrypted plaintext key once the import succeeds.
 2. Open the `.p12` to install the Developer ID identity into the login keychain.
 3. Re-create the notary profile with `xcrun notarytool store-credentials AC_PASSWORD …` (see One-time setup).
@@ -116,7 +116,7 @@ The printed `sparkle:edSignature` **and** the printed `length` must both exactly
 
 ### 1. Bump versions
 
-Update both fields in `Whisky.xcodeproj/project.pbxproj` (every occurrence):
+Update both fields in `Vodka.xcodeproj/project.pbxproj` (every occurrence):
 
 - `MARKETING_VERSION = X.Y.Z;` — user-visible version.
 - `CURRENT_PROJECT_VERSION = N;` — Sparkle build number, must increment monotonically.
@@ -142,12 +142,12 @@ The script:
 7. Staples the notarization ticket.
 8. Verifies the stapled DMG passes `spctl --assess`.
 
-The artifact lands at `build/release/Whisky-X.Y.Z.dmg`.
+The artifact lands at `build/release/Vodka-X.Y.Z.dmg`.
 
 ### 4. Sign the DMG for Sparkle
 
 ```sh
-~/Library/Developer/Xcode/DerivedData/Whisky-*/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update build/release/Whisky-X.Y.Z.dmg
+~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update build/release/Vodka-X.Y.Z.dmg
 ```
 
 Capture the printed `sparkle:edSignature` and `length`.
@@ -158,7 +158,7 @@ Edit `dist/pages/appcast.xml` and add a new `<item>` near the top of `<channel>`
 
 ```xml
 <item>
-    <title>Whisky X.Y.Z</title>
+    <title>Vodka X.Y.Z</title>
     <pubDate>RFC822 date here</pubDate>
     <sparkle:version>BUILD_NUMBER</sparkle:version>
     <sparkle:shortVersionString>X.Y.Z</sparkle:shortVersionString>
@@ -175,17 +175,17 @@ Edit `dist/pages/appcast.xml` and add a new `<item>` near the top of `<channel>`
 ### 6. Commit, tag, and release
 
 ```sh
-git add Whisky.xcodeproj/project.pbxproj CHANGELOG.md dist/pages/appcast.xml
+git add Vodka.xcodeproj/project.pbxproj CHANGELOG.md dist/pages/appcast.xml
 git commit -m "release: X.Y.Z"
 git push
-git tag -a app-vX.Y.Z -m "Whisky X.Y.Z"
+git tag -a app-vX.Y.Z -m "Vodka X.Y.Z"
 git push origin app-vX.Y.Z
 
 gh release create app-vX.Y.Z \
   --repo frankea/Whisky \
-  --title "Whisky X.Y.Z" \
+  --title "Vodka X.Y.Z" \
   --notes "..." \
-  build/release/Whisky-X.Y.Z.dmg
+  build/release/Vodka-X.Y.Z.dmg
 ```
 
 The push to `main` triggers `.github/workflows/Documentation.yml`, which redeploys Pages with the updated appcast within ~1–2 minutes. Sparkle clients pick up the update on next launch.
@@ -211,7 +211,7 @@ their pinned versions, and where each comes from. When the runtime needs to chan
 
 1. **Assemble `Libraries.tar.gz`** from the pinned upstream binaries. The archive unpacks to a
    `Libraries/` tree the app expects (`Libraries/Wine/bin/…` is the Wine binary dir per
-   `WhiskyWineInstaller.binFolder`). To reproduce a build:
+   `VodkaWineInstaller.binFolder`). To reproduce a build:
    - Download the pinned **Wine** build (Gcenx `macOS_Wine_builds`) and unpack it as `Libraries/Wine/`.
    - Add the pinned **DXVK-macOS** DLLs and **DXMT** prebuilt release into the runtime per the Gcenx
      layout.
@@ -227,7 +227,7 @@ their pinned versions, and where each comes from. When the runtime needs to chan
    ```sh
    shasum -a 256 Libraries.tar.gz
    ```
-5. Update `dist/pages/WhiskyWineVersion.plist` with the version, bundled DXVK version, and the digest
+5. Update `dist/pages/VodkaWineVersion.plist` with the version, bundled DXVK version, and the digest
    from the previous step. Record the same digest in [`DEPENDENCIES.md`](DEPENDENCIES.md):
    ```xml
    <dict>
@@ -255,5 +255,5 @@ their pinned versions, and where each comes from. When the runtime needs to chan
 ## Pitfalls
 
 - **Don't override `CODE_SIGN_IDENTITY` at archive time.** The project is configured for Apple Development with automatic signing; overriding it conflicts with provisioning. The release script lets `xcodebuild archive` use the project default and re-signs on export.
-- **Don't bundle the WhiskyKit folder as Resources.** Doing so packages the package's `.build` directory (DocC plugin executables) into the app, and Apple's notary rejects the archive because those plugin executables don't have hardened runtime. The PBXResourcesBuildPhase entry for `WhiskyKit` was removed from the project for this reason; do not add it back. The PBXFileReference and PBXGroup entries must remain or Xcode's SPM workspace integration crashes on CI.
+- **Don't bundle the VodkaKit folder as Resources.** Doing so packages the package's `.build` directory (DocC plugin executables) into the app, and Apple's notary rejects the archive because those plugin executables don't have hardened runtime. The PBXResourcesBuildPhase entry for `VodkaKit` was removed from the project for this reason; do not add it back. The PBXFileReference and PBXGroup entries must remain or Xcode's SPM workspace integration crashes on CI.
 - **Pipe deadlocks in `Tar`.** `process.waitUntilExit()` must come *after* draining the pipe, not before. The verbose tar listing for a multi-hundred-megabyte archive will overflow the OS pipe buffer. See the fix in 3.0.1.

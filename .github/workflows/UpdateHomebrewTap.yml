@@ -48,23 +48,23 @@ jobs:
           url="https://github.com/frankea/Whisky/releases/download/${TAG}/Whisky-${version}.dmg"
           echo "Syncing tap to ${version} from ${url}"
 
-          curl -fSL "$url" -o whisky.dmg
-          sha="$(sha256sum whisky.dmg | awk '{print $1}')"
+          curl -fSL "$url" -o vodka.dmg
+          sha="$(sha256sum vodka.dmg | awk '{print $1}')"
           echo "sha256=${sha}"
 
           git clone --depth 1 "https://x-access-token:${BREW_TOKEN}@github.com/frankea/homebrew-whisky.git" tap
           cd tap
-          sed -i -E "s/version \"[^\"]+\"/version \"${version}\"/" Casks/whisky.rb
-          sed -i -E "s/sha256 \"[0-9a-f]{64}\"/sha256 \"${sha}\"/" Casks/whisky.rb
+          sed -i -E "s/version \"[^\"]+\"/version \"${version}\"/" Casks/vodka.rb
+          sed -i -E "s/sha256 \"[0-9a-f]{64}\"/sha256 \"${sha}\"/" Casks/vodka.rb
 
           # `sed -i` exits 0 even when it matches nothing, so assert both edits
           # actually landed. Otherwise a partial match (e.g. the existing sha256
           # line not being 64-lowercase-hex) could push a cask carrying the new
           # version with a stale hash — silently breaking `brew install` for
           # every user while the workflow stays green.
-          grep -qF "version \"${version}\"" Casks/whisky.rb \
-            || { echo "::error::version line was not updated in Casks/whisky.rb"; exit 1; }
-          grep -qF "sha256 \"${sha}\"" Casks/whisky.rb \
+          grep -qF "version \"${version}\"" Casks/vodka.rb \
+            || { echo "::error::version line was not updated in Casks/vodka.rb"; exit 1; }
+          grep -qF "sha256 \"${sha}\"" Casks/vodka.rb \
             || { echo "::error::sha256 line was not updated (existing line not 64-lowercase-hex?)"; exit 1; }
 
           if git diff --quiet; then
@@ -74,6 +74,6 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "whisky ${version}"
+          git commit -am "vodka ${version}"
           git push
-          echo "Tap updated to whisky ${version}."
+          echo "Tap updated to vodka ${version}."

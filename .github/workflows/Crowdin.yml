@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Whisky/Localizable.xcstrings'
+      - 'Vodka/Localizable.xcstrings'
       - 'crowdin.yml'
       - '.github/workflows/Crowdin.yml'
   schedule:
@@ -99,16 +99,16 @@ jobs:
       # comes back root-owned and later steps cannot rewrite it.
       - name: Fix export file ownership
         if: steps.check.outputs.configured == 'true' && github.event_name != 'push'
-        run: sudo chown "$(id -u):$(id -g)" Whisky/Localizable.xcstrings
+        run: sudo chown "$(id -u):$(id -g)" Vodka/Localizable.xcstrings
 
       - name: Refuse exports that delete keys
         if: steps.check.outputs.configured == 'true' && github.event_name != 'push'
         run: |
           python3 - <<'EOF'
           import json, subprocess, sys
-          new = json.load(open("Whisky/Localizable.xcstrings"))["strings"]
+          new = json.load(open("Vodka/Localizable.xcstrings"))["strings"]
           old = json.loads(subprocess.run(
-              ["git", "show", "HEAD:Whisky/Localizable.xcstrings"],
+              ["git", "show", "HEAD:Vodka/Localizable.xcstrings"],
               capture_output=True, text=True, check=True).stdout)["strings"]
           missing = sorted(k for k in old if k not in new)
           if missing:
@@ -151,14 +151,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git diff --quiet -- Whisky/Localizable.xcstrings; then
+          if git diff --quiet -- Vodka/Localizable.xcstrings; then
             echo "No translation changes; nothing to sync."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B l10n/crowdin
-          git add Whisky/Localizable.xcstrings
+          git add Vodka/Localizable.xcstrings
           git commit -m "l10n: new translations from Crowdin"
           git push --force origin l10n/crowdin
           if [ -z "$(gh pr list --head l10n/crowdin --state open --json number -q '.[0].number')" ]; then

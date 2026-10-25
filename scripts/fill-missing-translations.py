@@ -2,17 +2,17 @@
 #
 # fill-missing-translations.py
 #
-# This file is part of Whisky.
+# This file is part of Vodka, a fork of Whisky.
 #
-# Whisky is free software: you can redistribute it and/or modify it under the terms
+# Vodka is free software: you can redistribute it and/or modify it under the terms
 # of the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
 #
-# Whisky is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with Whisky.
+# You should have received a copy of the GNU General Public License along with Vodka.
 # If not, see https://www.gnu.org/licenses/.
 #
 # Fills the compiled string tables of every localization in a built bundle with
@@ -24,7 +24,7 @@
 # untranslated string would otherwise render as its raw identifier. Filling the
 # gap at build time keeps the committed catalog exactly as Crowdin manages it.
 #
-# Runs as a build phase of the Whisky target, after Copy Bundle Resources:
+# Runs as a build phase of the Vodka target, after Copy Bundle Resources:
 #
 #   ./scripts/fill-missing-translations.py <Resources dir>          fill in place
 #   ./scripts/fill-missing-translations.py --check <Resources dir>  exit 1 if a

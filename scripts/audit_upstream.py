@@ -233,7 +233,7 @@ def collect_citations() -> dict[int, list[dict]]:
     citations: dict[int, list[dict]] = defaultdict(list)
     grep_paths = [
         "CHANGELOG.md", "README.md", "docs", ".planning",
-        "Whisky", "WhiskyKit", "WhiskyCmd", "scripts",
+        "Vodka", "VodkaKit", "VodkaCmd", "scripts",
     ]
     existing = [p for p in grep_paths if (REPO_ROOT / p).exists()]
     if existing:
@@ -483,7 +483,7 @@ def build_llm_system_prompt(reqs: dict[str, dict]) -> str:
         f"- **{rid}** ({info['category']}, shipped={info['shipped']}): {info['description']}"
         for rid, info in sorted(reqs.items())
     )
-    return f"""You are auditing whether the Whisky fork at frankea/Whisky has addressed an upstream issue from the archived whisky-app/whisky.
+    return f"""You are auditing whether the Vodka fork at frankea/Whisky has addressed an upstream issue from the archived whisky-app/whisky.
 
 The fork shipped these v1.0 requirements (all marked shipped=True are live in current main):
 

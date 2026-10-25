@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Renamed to **Vodka**: new name, icon and bundle identifier
+  (`com.rolling7ho.Vodka`), with `VodkaKit`, `VodkaCmd` and `vodka://`
+  links. Vodka is a fork of Whisky and credits it in the About window, the
+  README and every file's license header.
+- The first launch moves a pre-rename build's data over: Windows PCs and
+  their list, the Wine engine, logs and settings, with the paths recorded
+  in bottle settings, run history, the Wine registry and Dock launchers
+  updated to match. It waits for Whisky, Steam and games to be closed.
+
 ### Added
 - A Statistics page in the sidebar: total and recent playtime, most played
   games, longest session and storage used. Steam games use Steam's own

@@ -2,18 +2,18 @@
 
 ## Supported Versions
 
-The following versions of Whisky are currently supported with security updates:
+The following versions of Vodka are currently supported with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
 | Latest  | :white_check_mark: |
 | < Latest | :x:               |
 
-We recommend always using the latest version of Whisky for the best security and feature support.
+We recommend always using the latest version of Vodka for the best security and feature support.
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Whisky, please report it responsibly:
+If you discover a security vulnerability in Vodka, please report it responsibly:
 
 1. **Do not** open a public GitHub issue for security vulnerabilities
 2. **Use** GitHub's private vulnerability reporting feature via the **Security** tab of this repository:
@@ -35,9 +35,9 @@ If you discover a security vulnerability in Whisky, please report it responsibly
 ### Scope
 
 This security policy applies to:
-- The Whisky application
-- WhiskyKit library
-- Related command-line tools (WhiskyCmd)
+- The Vodka application
+- VodkaKit library
+- Related command-line tools (VodkaCmd)
 - Build and release infrastructure
 
 ### Out of Scope
@@ -49,33 +49,33 @@ The following are generally out of scope:
 
 ### Wine / DXVK Vulnerability Response
 
-Whisky bundles a Wine runtime (Wine, DXVK, D3DMetal, and related components) that it does not develop.
-A vulnerability in those components is fixed upstream, not here — but it still reaches Whisky users, so
+Vodka bundles a Wine runtime (Wine, DXVK, D3DMetal, and related components) that it does not develop.
+A vulnerability in those components is fixed upstream, not here — but it still reaches Vodka users, so
 we track it as a runtime-currency concern rather than a closed door:
 
 - Bundled component versions are pinned and checked against their upstream sources, so a new upstream
   build carrying a security fix is surfaced rather than missed.
-- A **critical** vulnerability in a bundled component (one exploitable through normal Whisky use) is a
+- A **critical** vulnerability in a bundled component (one exploitable through normal Vodka use) is a
   trigger to rebuild the runtime archive on the patched upstream version and cut a new app release out
   of band, rather than waiting for the next scheduled runtime update.
 - Non-critical upstream fixes are picked up as part of the normal runtime-update cadence.
 
-If you believe a bundled-runtime vulnerability is being mishandled or under-prioritized in Whisky's
+If you believe a bundled-runtime vulnerability is being mishandled or under-prioritized in Vodka's
 packaging, report it through the private channel above and say so explicitly.
 
 ## Telemetry & Data Collection
 
-Whisky collects no usage data and has no analytics SDK. The only network
+Vodka collects no usage data and has no analytics SDK. The only network
 requests it makes on its own are update checks (Sparkle's appcast) and Wine
 runtime downloads from GitHub Releases.
 
 ## Security Best Practices for Users
 
-- Only run trusted Windows applications within Whisky
-- Keep Whisky and macOS updated to the latest versions
+- Only run trusted Windows applications within Vodka
+- Keep Vodka and macOS updated to the latest versions
 - Be cautious when downloading Windows executables from untrusted sources
 - Review application permissions before running unknown software
 
 ## Acknowledgments
 
-We thank the security research community for helping keep Whisky secure.
+We thank the security research community for helping keep Vodka secure.

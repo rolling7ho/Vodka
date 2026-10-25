@@ -13,11 +13,11 @@ updates:
       - "dependencies"
     open-pull-requests-limit: 5
     
-  # Maintain dependencies for WhiskyKit's standalone Swift package (WhiskyKit/Package.swift only)
-  # Note: Main Whisky project dependencies (Sparkle, etc.) are in Xcode project-based SPM
+  # Maintain dependencies for VodkaKit's standalone Swift package (VodkaKit/Package.swift only)
+  # Note: Main Vodka project dependencies (Sparkle, etc.) are in Xcode project-based SPM
   # which Dependabot doesn't support - only standalone Package.swift files are tracked
   - package-ecosystem: "swift"
-    directory: "/WhiskyKit"
+    directory: "/VodkaKit"
     schedule:
       interval: "weekly"
       day: "monday"

@@ -1,0 +1,309 @@
+//
+//  BottleView.swift
+//  Vodka
+//
+//  This file is part of Vodka, a fork of Whisky.
+//
+//  Vodka is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Vodka.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import SwiftUI
+import UniformTypeIdentifiers
+import VodkaKit
+
+enum BottleStage {
+    case config
+    case programs
+    case processes
+    case gameConfigs
+}
+
+struct BottleView: View {
+    @ObservedObject var bottle: Bottle
+    @State private var path = NavigationPath()
+    @State private var programLoading: Bool = false
+    @State private var showWinetricksSheet: Bool = false
+    @State private var showDuplicate: Bool = false
+    @State private var toast: ToastData?
+    /// The page's under-the-hood links and tools, closed until asked for.
+    @AppStorage("bottleAdvancedExpanded") private var showAdvanced = false
+
+    private let gridLayout = [GridItem(.adaptive(minimum: 96, maximum: 120), alignment: .top)]
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            Form {
+                Section("Apps") {
+                    LazyVGrid(columns: gridLayout, alignment: .leading, spacing: 4) {
+                        ForEach(bottle.pinnedPrograms, id: \.id) { pinnedProgram in
+                            PinView(
+                                bottle: bottle,
+                                program: pinnedProgram.program,
+                                pin: pinnedProgram.pin,
+                                path: $path,
+                                toast: $toast
+                            )
+                        }
+                        PinAddView(bottle: bottle)
+                    }
+                }
+                Section {
+                    NavigationLink(value: BottleStage.config) {
+                        Label("tab.config", systemImage: "gearshape")
+                    }
+                    .accessibilityIdentifier("nav.bottleConfiguration")
+                }
+                // What a person needs here is the settings; the rest is for
+                // looking under the hood.
+                Section {
+                    if showAdvanced {
+                        advancedLinks
+                        windowsTools
+                    }
+                } header: {
+                    AdvancedSectionHeader(isExpanded: $showAdvanced)
+                } footer: {
+                    if !showAdvanced {
+                        Text("Game presets, installed and running apps, and Windows tools.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .formStyle(.grouped)
+            .labelStyle(FormRowLabelStyle())
+            .bottomBar {
+                BottleActionBar(
+                    bottle: bottle,
+                    showWinetricksSheet: $showWinetricksSheet,
+                    programLoading: $programLoading,
+                    toast: $toast,
+                    onLaunch: updateStartMenu
+                )
+            }
+            .task {
+                #if DEBUG
+                switch ProcessInfo.processInfo.environment["VODKA_DEBUG_SCREEN"] {
+                case "settings": path.append(BottleStage.config)
+                case "programs": path.append(BottleStage.programs)
+                case "processes": path.append(BottleStage.processes)
+                case "presets": path.append(BottleStage.gameConfigs)
+                default: break
+                }
+                #endif
+                await updateStartMenu()
+            }
+            .disabled(!bottle.isAvailable)
+            .navigationTitle(bottle.settings.name)
+            .navigationSubtitle(
+                bottle.settings.graphicsBackend == .recommended
+                    ? String(
+                        localized: "bottle.subtitle.autoBackend \(GraphicsBackendResolver.resolve().displayName)"
+                    )
+                    : ""
+            )
+            .accessibilityIdentifier("bottleDetail")
+            .toast($toast)
+            .sheet(isPresented: $showWinetricksSheet) {
+                WinetricksView(bottle: bottle)
+            }
+            .sheet(isPresented: $showDuplicate) {
+                RenameView(
+                    "duplicate.bottle.title",
+                    name: BottleOperations.nextDuplicateName(
+                        baseName: bottle.settings.name,
+                        existingNames: BottleVM.shared.bottles.map(\.settings.name)
+                    ),
+                    confirmTitle: "duplicate.bottle.confirm"
+                ) { newName in
+                    Task {
+                        do {
+                            _ = try await bottle.duplicate(newName: newName)
+                            await MainActor.run {
+                                withAnimation {
+                                    toast = ToastData(
+                                        message: String(
+                                            format: String(localized: "status.duplicateSuccess %@"),
+                                            newName
+                                        ),
+                                        style: .success
+                                    )
+                                }
+                            }
+                        } catch {
+                            await MainActor.run {
+                                withAnimation {
+                                    toast = ToastData(
+                                        message: String(
+                                            format: String(localized: "status.duplicateFailed %@"),
+                                            error.localizedDescription
+                                        ),
+                                        style: .error
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .onChange(of: bottle.settings) { oldValue, newValue in
+                guard oldValue != newValue else { return }
+                // Trigger a reload
+                BottleVM.shared.bottles = BottleVM.shared.bottles
+            }
+            .navigationDestination(for: BottleStage.self) { stage in
+                switch stage {
+                case .config:
+                    ConfigView(bottle: bottle)
+                case .programs:
+                    ProgramsView(
+                        bottle: bottle, path: $path
+                    )
+                case .processes:
+                    RunningProcessesView(bottle: bottle)
+                case .gameConfigs:
+                    GameConfigurationView(bottle: bottle)
+                }
+            }
+            .navigationDestination(for: Program.self) { program in
+                ProgramView(program: program)
+            }
+        }
+    }
+}
+
+extension BottleView {
+    @ViewBuilder
+    private var advancedLinks: some View {
+        NavigationLink(value: BottleStage.gameConfigs) {
+            Label("tab.gameConfigs", systemImage: "gamecontroller")
+        }
+        .accessibilityIdentifier("nav.gameConfigurations")
+        NavigationLink(value: BottleStage.programs) {
+            Label("tab.programs", systemImage: "list.bullet")
+        }
+        .accessibilityIdentifier("nav.installedPrograms")
+        NavigationLink(value: BottleStage.processes) {
+            HStack {
+                Label("tab.processes", systemImage: "hockey.puck.circle")
+                let count = ProcessRegistry.shared.getProcessCount(for: bottle)
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.blue.opacity(0.15))
+                        .clipShape(Capsule())
+                        .foregroundStyle(.blue)
+                }
+            }
+        }
+        .accessibilityIdentifier("nav.runningProcesses")
+    }
+
+    /// For fixing things by hand: the Windows drive in Finder, a shell set up
+    /// for this Windows PC, and Winetricks.
+    private var windowsTools: some View {
+        HStack(spacing: 8) {
+            Button("button.cDrive", systemImage: "internaldrive") { bottle.openCDrive() }
+                .accessibilityIdentifier("bottle.openCDrive")
+            Button("button.terminal", systemImage: "terminal") { bottle.openTerminal() }
+                .accessibilityIdentifier("bottle.openTerminal")
+            Button("button.winetricks", systemImage: "wrench.and.screwdriver") { showWinetricksSheet.toggle() }
+                .accessibilityIdentifier("bottle.openWinetricks")
+            Spacer(minLength: 0)
+        }
+        .labelStyle(.titleAndIcon)
+    }
+
+    private func updateStartMenu() async {
+        await bottle.updateInstalledPrograms()
+
+        let startMenuPrograms = bottle.getStartMenuPrograms()
+        for startMenuProgram in startMenuPrograms {
+            for program in bottle.programs where
+                // For some godforsaken reason "foo/bar" != "foo/Bar" so...
+                program.url.path().caseInsensitiveCompare(startMenuProgram.url.path()) == .orderedSame {
+                // Skip programs that are already pinned, but keep processing the
+                // rest. Using `return` here would stop pinning every remaining
+                // start-menu program after the first already-pinned one.
+                guard !bottle.settings.pins.contains(where: { $0.url == program.url }) else { continue }
+                // Setting `pinned` appends the pin to the bottle's settings.
+                program.pinned = true
+            }
+        }
+    }
+}
+
+/// The heading of an Advanced section, with the button that opens it.
+///
+/// A heading rather than a disclosure row, so a page says up front that it
+/// has more, and what is under it stays out of the way until asked for.
+struct AdvancedSectionHeader: View {
+    @Binding var isExpanded: Bool
+
+    var body: some View {
+        HStack {
+            Text("Advanced")
+            Spacer()
+            Button(isExpanded ? "Hide" : "Show") {
+                withAnimation(.vodkaDefault) { isExpanded.toggle() }
+            }
+            .buttonStyle(.link)
+            .font(.callout)
+        }
+    }
+}
+
+/// A button that reads as a row of the form: icon, title, and the whole row
+/// clickable, rather than a bordered push button floating in it.
+struct FormActionRow: View {
+    let title: String
+    let systemImage: String
+    var working = false
+    var destructive = false
+
+    init(_ title: String, systemImage: String, working: Bool = false, destructive: Bool = false) {
+        self.title = title
+        self.systemImage = systemImage
+        self.working = working
+        self.destructive = destructive
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .foregroundStyle(destructive ? Color.red : Color.accentColor)
+                .frame(width: 20)
+            Text(title)
+                .foregroundStyle(destructive ? Color.red : Color.primary)
+            Spacer()
+            if working {
+                ProgressView().controlSize(.small)
+            }
+        }
+        .contentShape(Rectangle())
+    }
+}
+
+/// A form row's icon in a column of its own width, so titles line up
+/// whatever the symbol's width.
+struct FormRowLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            configuration.icon
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 20)
+            configuration.title
+        }
+    }
+}

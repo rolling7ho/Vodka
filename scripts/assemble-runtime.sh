@@ -16,7 +16,7 @@ NEW_VERSION="${1:?usage: assemble-runtime.sh <new-version>, e.g. 3.1.0}"
 BASE_TAG="v3.0.0"
 BASE_SHA256="9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8"
 DXMT_VERSION="0.80"
-DXMT_ARCHIVE_DIR="${DXMT_ARCHIVE_DIR:-$HOME/Projects/Whisky-runtime-archive/dxmt-v$DXMT_VERSION}"
+DXMT_ARCHIVE_DIR="${DXMT_ARCHIVE_DIR:-$HOME/Projects/Vodka-runtime-archive/dxmt-v$DXMT_VERSION}"
 DXVK_VERSION="1.10.3"   # carried over unchanged from the base runtime
 REPO="frankea/Whisky"
 # -----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ strip_builtin_marker() {
 IFS='.' read -r MAJOR MINOR PATCH <<< "$NEW_VERSION"
 [[ "${MAJOR}${MINOR}${PATCH}" =~ ^[0-9]+$ ]] || { echo "error: version must be X.Y.Z" >&2; exit 1; }
 
-WORKDIR="$(mktemp -d /tmp/whisky-runtime-XXXXXX)"
+WORKDIR="$(mktemp -d /tmp/vodka-runtime-XXXXXX)"
 echo "Workdir: $WORKDIR"
 
 # 1. Verify and unpack the DXMT payload first — it's the cheap local check,
@@ -112,7 +112,7 @@ xattr -rc "$LIB/DXMT" "$UNIXLIB/winemetal.so" \
 
 # 5. Rewrite the inner version plist. No sha256 key inside the archive —
 #    only the published Pages plist advertises the digest.
-PLIST="$LIB/WhiskyWineVersion.plist"
+PLIST="$LIB/VodkaWineVersion.plist"
 PB=/usr/libexec/PlistBuddy
 "$PB" -c "Set :version:major $MAJOR" -c "Set :version:minor $MINOR" -c "Set :version:patch $PATCH" "$PLIST"
 "$PB" -c "Delete :dxvkVersion" "$PLIST" 2>/dev/null || true
@@ -146,6 +146,6 @@ Follow-ups (see docs/ReleaseWorkflow.md "Wine Libraries release"):
      # The asset FILENAME must be exactly Libraries.tar.gz — the app downloads
      # releases/download/vX.Y.Z/Libraries.tar.gz by name. gh's "path#label"
      # syntax only sets a display label and keeps the wrong filename.
-  3. Update dist/pages/WhiskyWineVersion.plist: version $NEW_VERSION, sha256 $DIGEST, dxmtVersion $DXMT_VERSION.
+  3. Update dist/pages/VodkaWineVersion.plist: version $NEW_VERSION, sha256 $DIGEST, dxmtVersion $DXMT_VERSION.
   4. Update docs/DEPENDENCIES.md (bundled table + integrity row) and RuntimeTrack DXMT_PINNED.
 SUMMARY

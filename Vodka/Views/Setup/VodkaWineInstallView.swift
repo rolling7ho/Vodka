@@ -1,0 +1,239 @@
+//
+//  VodkaWineInstallView.swift
+//  Vodka
+//
+//  This file is part of Vodka, a fork of Whisky.
+//
+//  Vodka is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Vodka.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import AppKit
+import SwiftUI
+import VodkaKit
+
+struct VodkaWineInstallView: View {
+    @State var installing: Bool = true
+    @State private var installError: String?
+    @State private var hasStartedInstallation: Bool = false
+    @Binding var tarLocation: URL
+    @Binding var path: [SetupStage]
+    @Binding var showSetup: Bool
+    /// Shared diagnostics recorder for the setup flow, capturing events across download and install stages.
+    @Binding var diagnostics: VodkaWineSetupDiagnostics
+    /// Delay to show the success checkmark before dismissing setup.
+    private static let installSuccessDelay: Duration = .seconds(2)
+
+    var body: some View {
+        VStack {
+            VStack {
+                Text("setup.vodkawine.install")
+                    .font(.title)
+                    .fontWeight(.bold)
+                Text("setup.vodkawine.install.subtitle")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if let error = installError {
+                    errorView(error: error)
+                } else if installing {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .frame(width: 80)
+                } else {
+                    Image(systemName: "checkmark.circle")
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .foregroundStyle(.green)
+                }
+                Spacer()
+            }
+            Spacer()
+        }
+        .frame(width: 400, height: 200)
+        .onAppear {
+            // Guard against multiple onAppear calls from NavigationStack
+            guard !hasStartedInstallation else { return }
+            hasStartedInstallation = true
+            startInstallation(
+                startLogMessage: "Entered install stage",
+                finishLogMessage: "Install finished (installer returned)"
+            )
+        }
+    }
+
+    @MainActor
+    private func proceed() {
+        showSetup = false
+    }
+
+    private func errorView(error: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "xmark.circle")
+                .resizable()
+                .foregroundStyle(.red)
+                .frame(width: 80, height: 80)
+                .padding(.bottom, 8)
+            Text(error)
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            diagnosticsButtons(error: error)
+            retryButtons()
+        }
+        .padding()
+    }
+
+    private func diagnosticsButtons(error: String) -> some View {
+        HStack(spacing: 12) {
+            Button("setup.vodkawine.copyDiagnostics") {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(
+                    diagnostics.reportString(stage: "install", error: error),
+                    forType: .string
+                )
+            }
+            .buttonStyle(.bordered)
+
+            Button("open.logs") {
+                VodkaApp.openLogsFolder()
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+
+    private func retryButtons() -> some View {
+        HStack(spacing: 12) {
+            Button("setup.retry") {
+                guard !installing else { return }
+                installError = nil
+                installing = true
+                startInstallation(
+                    startLogMessage: "Install started (retry)",
+                    finishLogMessage: "Install finished (retry)"
+                )
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(installing)
+
+            Button("setup.quit") {
+                showSetup = false
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+
+    private func startInstallation(startLogMessage: String, finishLogMessage: String) {
+        Task {
+            let attemptStartedAt = Date()
+            let attemptNumber = diagnostics.installAttempts.count + 1
+            diagnostics.installFinishedAt = nil
+            diagnostics.installStartedAt = attemptStartedAt
+            diagnostics.record("Install attempt \(attemptNumber) started")
+            diagnostics.record(startLogMessage)
+
+            let capturedTarURL = tarLocation
+            diagnostics.record("Invoking VodkaWineInstaller.install(from:) in detached task")
+            let outcome = await Self.performInstall(tarball: capturedTarURL)
+            let isInstalled = outcome.installed
+            if case let .failure(message?) = outcome {
+                diagnostics.record("Install failed: \(message)")
+            }
+            let installStatus = isInstalled ? "installed" : "not installed"
+            diagnostics.record(
+                "Detached VodkaWineInstaller.install(from:) task completed: \(installStatus)"
+            )
+            let attemptFinishedAt = Date()
+            diagnostics.installFinishedAt = attemptFinishedAt
+            diagnostics.recordInstallAttempt(
+                startedAt: attemptStartedAt,
+                finishedAt: attemptFinishedAt,
+                succeeded: isInstalled
+            )
+            let attemptResult = isInstalled ? "success" : "failed"
+            diagnostics.record("Install attempt \(attemptNumber) finished (\(attemptResult))")
+            diagnostics.record(finishLogMessage)
+            installing = false
+            applyInstallOutcome(outcome)
+            guard isInstalled else { return }
+            // Only cleanup tarball after verified successful installation
+            // This preserves it for retry attempts if installation fails
+            VodkaWineInstaller.cleanupTarball(at: capturedTarURL)
+            // The install may have brought D3DMetal with it (a stored GPTK
+            // payload redeploys), which lets Steam bottles off bottle-wide DXVK.
+            BottleVM.shared.migrateLauncherBackends()
+            try? await Task.sleep(for: Self.installSuccessDelay)
+            proceed()
+        }
+    }
+
+    /// Sets the user-facing error state.
+    @MainActor
+    private func applyInstallOutcome(_ outcome: InstallOutcome) {
+        switch outcome {
+        case .success:
+            installError = nil
+        case let .failure(message):
+            if let message {
+                installError = String(
+                    format: String(localized: "setup.vodkawine.error.installFailed.detail"),
+                    Self.shortened(message)
+                )
+            } else {
+                installError = String(localized: "setup.vodkawine.error.installFailed")
+            }
+        }
+    }
+
+    /// Outcome of an install attempt. The failure case carries an optional
+    /// user-facing message.
+    private enum InstallOutcome {
+        case success
+        case failure(message: String?)
+
+        var installed: Bool {
+            if case .success = self {
+                return true
+            }
+            return false
+        }
+    }
+
+    /// Runs the install and post-install verification off the main actor,
+    /// keeping the plist read off the main thread.
+    private static func performInstall(tarball: URL) async -> InstallOutcome {
+        await Task.detached {
+            do {
+                try VodkaWineInstaller.install(from: tarball)
+                guard VodkaWineInstaller.isVodkaWineInstalled() else {
+                    // Extraction reported success but the runtime isn't usable.
+                    return .failure(message: nil)
+                }
+                // The install replaced Libraries, so any deployed GPTK payload
+                // went with it; the store outlives it and redeploys here.
+                GPTKImporter.deployStoredPayloadIfCapable()
+                return .success
+            } catch {
+                return .failure(message: error.localizedDescription)
+            }
+        }.value
+    }
+
+    /// Trims a possibly long, multi-line underlying error (e.g. raw `tar` output)
+    /// down to a single short line for the install error message. The full text
+    /// is preserved in the diagnostics report.
+    private static func shortened(_ message: String, limit: Int = 200) -> String {
+        let firstLine = message.split(whereSeparator: \.isNewline).first.map(String.init) ?? message
+        let trimmed = firstLine.trimmingCharacters(in: .whitespaces)
+        return trimmed.count <= limit ? trimmed : String(trimmed.prefix(limit)) + "…"
+    }
+}

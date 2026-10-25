@@ -1,6 +1,6 @@
 # Runtime dependencies
 
-Whisky's app code is built from this repo, but the **Wine runtime** it downloads on first launch
+Vodka's app code is built from this repo, but the **Wine runtime** it downloads on first launch
 (`Libraries.tar.gz`) is assembled from third-party binaries. This file is the single source of truth
 for *what versions are bundled* and *where they come from*, so the runtime can't silently go stale and
 any future maintainer can reproduce a build. Update it whenever a runtime release is cut.
@@ -32,7 +32,7 @@ flags when a bundled component falls behind upstream.
 | `Libraries.tar.gz` (`v3.0.0`) | `9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8` |
 
 The same digest is published in
-[`dist/pages/WhiskyWineVersion.plist`](../dist/pages/WhiskyWineVersion.plist) under the `sha256` key.
+[`dist/pages/VodkaWineVersion.plist`](../dist/pages/VodkaWineVersion.plist) under the `sha256` key.
 The app verifies the downloaded archive against it before installing and **fails closed** on a
 mismatch (a corrupted or truncated download is the common cause). This is an integrity check, not a
 substitute for HTTPS transport trust. When cutting a runtime release, compute the digest of the exact
@@ -41,8 +41,8 @@ incorrect value will block every fresh install.
 
 ## Bundled in the app
 
-These ship **inside the app bundle** (`Whisky.app/Contents/Resources/`), committed to this repo under
-[`Libraries/`](../Libraries) and copied in by the app target's "Embed WhiskyCmd" build phase. They are
+These ship **inside the app bundle** (`Vodka.app/Contents/Resources/`), committed to this repo under
+[`Libraries/`](../Libraries) and copied in by the app target's "Embed VodkaCmd" build phase. They are
 **not** part of the downloaded `Libraries.tar.gz` runtime — bundling them in the app means a fix reaches
 every install through a normal app update, with no runtime re-download.
 

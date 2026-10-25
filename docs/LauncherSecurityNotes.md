@@ -110,7 +110,7 @@ The CEF sandbox **cannot function under Wine** because:
 
 ## Why Not Make It Opt-In?
 
-### Option Considered: `WHISKY_UNSAFE_CEF_COMPAT=1` Flag
+### Option Considered: `VODKA_UNSAFE_CEF_COMPAT=1` Flag
 
 **Pros:**
 - ✅ Security-conscious design
@@ -213,7 +213,7 @@ Logger.wineKit.debug("""
 **Rejected:** Still breaks Steam by default, complexity
 
 ### 2. Environment Variable Gate
-**Idea:** `WHISKY_UNSAFE_CEF_COMPAT=1` required  
+**Idea:** `VODKA_UNSAFE_CEF_COMPAT=1` required  
 **Rejected:** Too technical, breaks user experience
 
 ### 3. First-Time Warning Dialog
@@ -253,7 +253,7 @@ Logger.wineKit.debug("""
 
 1. **macOS App Sandbox**
    - Leverage macOS containment features
-   - Limit Whisky.app's own permissions
+   - Limit Vodka.app's own permissions
    - Additional defense layer
 
 2. **Network Monitoring**

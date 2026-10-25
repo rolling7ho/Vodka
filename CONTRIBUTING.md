@@ -1,16 +1,16 @@
 # How to Contribute
 
-Thanks for your interest! First, make a fork of Whisky, create a new branch for your changes, and get coding!
+Thanks for your interest! First, make a fork of Vodka, create a new branch for your changes, and get coding!
 
 ## Build Environment
 
-Whisky is built using **Xcode 16** on **macOS Sequoia 15.0** or later. All external dependencies are handled through the Swift Package Manager.
+Vodka is built using **Xcode 16** on **macOS Sequoia 15.0** or later. All external dependencies are handled through the Swift Package Manager.
 
 ## Code Style
 
 ### Linting with SwiftLint
 
-Every Whisky commit is automatically linted using SwiftLint. You can run these checks locally by building in Xcode; violations will appear as errors or warnings. For your pull request to be merged, you must meet all requirements outlined by SwiftLint and have no violations.
+Every Vodka commit is automatically linted using SwiftLint. You can run these checks locally by building in Xcode; violations will appear as errors or warnings. For your pull request to be merged, you must meet all requirements outlined by SwiftLint and have no violations.
 
 ### Formatting with SwiftFormat
 
@@ -67,7 +67,7 @@ chmod +x .git/hooks/pre-commit
 ## Localization
 
 All user-facing strings must be localized. Add every new string to the
-English (source) entries in `Whisky/Localizable.xcstrings`. **Do not add
+English (source) entries in `Vodka/Localizable.xcstrings`. **Do not add
 other-language translations, and do not edit another language's entries, in a
 PR** — hand-editing the string catalog tends to re-serialize the whole file
 (producing huge, unreviewable diffs) and can silently drop existing
@@ -102,7 +102,7 @@ fork's own issue numbers.
 
 For per-game compatibility fixes that are config-only, add or update the
 matching entry in
-`WhiskyKit/Sources/WhiskyKit/GameDatabase/Resources/GameDB.json` and
+`VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json` and
 include the upstream issue URL in the entry's `provenance.referenceURL`
 field — the audit picks up that URL form too.
 
@@ -133,30 +133,30 @@ through a coordinated rewrite.
 
 ### Running Tests
 
-Whisky has two test layers:
+Vodka has two test layers:
 
-**WhiskyKit unit tests** — the framework's pure-Swift logic, runnable
+**VodkaKit unit tests** — the framework's pure-Swift logic, runnable
 without launching the app:
 
 ```bash
-swift test --package-path WhiskyKit
+swift test --package-path VodkaKit
 ```
 
-**WhiskyUITests** — XCUITest end-to-end coverage of the SwiftUI surface,
+**VodkaUITests** — XCUITest end-to-end coverage of the SwiftUI surface,
 runnable from Xcode or via `xcodebuild`:
 
 ```bash
-xcodebuild -project Whisky.xcodeproj \
-  -scheme Whisky \
+xcodebuild -project Vodka.xcodeproj \
+  -scheme Vodka \
   -destination 'platform=macOS' \
-  -only-testing:WhiskyUITests test
+  -only-testing:VodkaUITests test
 ```
 
 Tests that need bottle fixtures call `requireBottleFixture()`, which
 `XCTSkip`s them when the user container has no bottles (always true on a
 fresh CI runner). The fixture-free tests — the create-bottle sheet flow
 and toolbar checks — run for real on every CI run. To exercise the
-fixture-dependent tests locally, create at least one bottle in Whisky
+fixture-dependent tests locally, create at least one bottle in Vodka
 before running the suite.
 
 All tests must pass before your PR can be merged.
@@ -178,15 +178,15 @@ Before submitting a PR, verify no regressions:
 
 ```bash
 # Run full test suite
-swift test --package-path WhiskyKit
+swift test --package-path VodkaKit
 
-# Build Whisky app
-xcodebuild -scheme Whisky -configuration Debug build
+# Build Vodka app
+xcodebuild -scheme Vodka -configuration Debug build
 
 # Run UI tests (skip-aware on fresh containers)
-xcodebuild -project Whisky.xcodeproj -scheme Whisky \
+xcodebuild -project Vodka.xcodeproj -scheme Vodka \
   -destination 'platform=macOS' \
-  -only-testing:WhiskyUITests test
+  -only-testing:VodkaUITests test
 
 # Check formatting
 swiftformat --lint .
@@ -198,11 +198,11 @@ Once your pull request passes CI checks (SwiftLint, SwiftFormat, and builds), it
 
 ### Review Checklist
 
-- [ ] All tests pass (`swift test --package-path WhiskyKit`)
-- [ ] Build succeeds (`xcodebuild -scheme Whisky build`)
+- [ ] All tests pass (`swift test --package-path VodkaKit`)
+- [ ] Build succeeds (`xcodebuild -scheme Vodka build`)
 - [ ] SwiftFormat clean (`swiftformat --lint .`)
 - [ ] SwiftLint clean (build shows no violations)
 - [ ] Documentation updated (if adding features)
 - [ ] Changelog updated (if user-facing changes)
 
-Thank you for contributing to Whisky!
+Thank you for contributing to Vodka!

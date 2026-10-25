@@ -34,12 +34,12 @@ The implementation follows a layered architecture with clear separation of conce
 
 ```
 ┌─────────────────────────────────────────────┐
-│           Whisky Application                │
+│           Vodka Application                │
 │  (UI, Detection Heuristics, Diagnostics)   │
 └──────────────────┬──────────────────────────┘
                    │
 ┌──────────────────▼──────────────────────────┐
-│            WhiskyKit Framework              │
+│            VodkaKit Framework              │
 │  (Core Logic, Configuration, Wine Setup)    │
 └─────────────────────────────────────────────┘
 ```
@@ -54,7 +54,7 @@ The implementation follows a layered architecture with clear separation of conce
 
 ## Component Breakdown
 
-### 1. Core System (WhiskyKit)
+### 1. Core System (VodkaKit)
 
 #### LauncherPresets.swift (210 lines)
 **Purpose:** Defines launcher-specific environment configurations
@@ -181,7 +181,7 @@ let shouldEnableDXVK =
      bottle.settings.detectedLauncher?.requiresDXVK == true)
 ```
 
-### 2. Application Layer (Whisky)
+### 2. Application Layer (Vodka)
 
 #### LauncherDetection.swift (280 lines)
 **Purpose:** Heuristic launcher detection and configuration application
@@ -566,7 +566,7 @@ Total time: 0.523 seconds
 ### Qualitative Goals
 - Improved user experience for game launcher setup
 - Reduced support burden for common issues
-- Increased confidence in Whisky reliability
+- Increased confidence in Vodka reliability
 - Positive community feedback
 
 ## Lessons Learned
@@ -589,7 +589,7 @@ Total time: 0.523 seconds
 
 ## Conclusion
 
-The launcher compatibility system represents a significant improvement to Whisky's capability to run game launchers reliably. The implementation is production-ready, well-tested, and architected for future expansion. The dual-mode system balances automation with user control, while comprehensive diagnostics enable effective troubleshooting.
+The launcher compatibility system represents a significant improvement to Vodka's capability to run game launchers reliably. The implementation is production-ready, well-tested, and architected for future expansion. The dual-mode system balances automation with user control, while comprehensive diagnostics enable effective troubleshooting.
 
 **Status:** ✅ Ready for review and integration testing
 
