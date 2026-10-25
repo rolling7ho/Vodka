@@ -6094,8 +6094,8 @@
       ],
       "notes": [
         "Needs Apple's Game Porting Toolkit for DirectX 12; Whisky offers to set it up",
-        "Choose Fullscreen and the highest resolution in Options > Display; with native resolution on, that is the panel's pixel size",
-        "Teardown's voxel renderer is GPU-heavy at native resolution; lower Render scale in Options if the frame rate is low"
+        "Choose Borderless window in Options > Display: it fills the screen, and with Faster it is upscaled to the panel's full resolution with MetalFX. Teardown's exclusive Fullscreen takes the panel's pixel size as its window size, which Faster then doubles, so only part of the image shows",
+        "Teardown's voxel renderer is GPU-heavy at native resolution; set it to Faster in the library for about 100 to 120 fps"
       ],
       "knownIssues": [],
       "provenance": {
