@@ -72,7 +72,9 @@ struct ConfigView: View {
             GameEssentialsSection(bottle: bottle)
             troubleshootingSection
             Section {
-                Toggle("Show advanced settings", isOn: $showAdvanced.animation(.whiskyDefault))
+                Toggle("Show Advanced Settings", isOn: $showAdvanced.animation(.whiskyDefault))
+            } header: {
+                Text("Advanced")
             } footer: {
                 Text("Graphics tuning, display, controllers, audio, Steam and Wine options, and "
                     + "diagnostic reports. The defaults work for most games, so you rarely need these.")
@@ -86,11 +88,12 @@ struct ConfigView: View {
                 Button(role: .destructive) {
                     Task { await bottle.confirmAndDelete() }
                 } label: {
-                    Label("Delete Bottle…", systemImage: "trash")
+                    Label("Delete Windows PC…", systemImage: "trash")
                 }
                 .disabled(bottle.inFlight)
             } footer: {
-                Text("Moves this bottle and everything in it to the Trash, to start over from scratch.")
+                Text("Moves this Windows PC, with Steam and every game in it, to the Trash, "
+                    + "to start over from scratch.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

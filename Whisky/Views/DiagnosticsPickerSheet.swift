@@ -49,7 +49,7 @@ struct DiagnosticsPickerSheet: View {
             Text("Run Diagnostics")
                 .font(.headline)
 
-            Picker("Bottle", selection: $selectedBottle) {
+            Picker("Windows PC", selection: $selectedBottle) {
                 Text("Select a bottle").tag(nil as Bottle?)
                 ForEach(bottleVM.bottles) { bottle in
                     Text(bottle.settings.name).tag(bottle as Bottle?)

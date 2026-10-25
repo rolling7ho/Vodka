@@ -148,7 +148,7 @@ struct SteamSetupGuideView: View {
                 Text("Choose your graphics").font(.title3.bold())
                 Text("Windows games are drawn with DirectX, OpenGL or Vulkan, and each needs its own "
                     + "translation to Apple's Metal. Automatic is best for most people. If you mostly play "
-                    + "one kind of game, pick it — you can change this any time in the bottle's settings.")
+                    + "one kind of game, pick it — you can change this any time in the Windows PC's settings.")
                     .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 if let bottle = steamBottle {
                     GraphicsChoiceView(bottle: bottle) { pollTick += 1 }

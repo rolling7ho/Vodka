@@ -42,14 +42,18 @@ enum LibraryEntryState: Equatable {
 /// executable. Stretching an icon into a poster looks broken; a wide card is the
 /// shape an icon and a name actually want, and it leaves the icon at its native
 /// size where it stays crisp.
-struct LibraryCard: View {
+struct LibraryCard<Actions: View>: View {
     let item: LibraryEntry
     /// Only shown when there is more than one bottle, since with a single bottle
     /// the prefix is plumbing and naming it on every card is noise.
     let bottleName: String?
     let lastPlayed: Date?
+    var sizeOnDisk: Int64?
     let state: LibraryEntryState
     let launch: () -> Void
+    /// The entry's actions, behind a button on the card as well as in its
+    /// context menu, since a right-click is not something everyone tries.
+    @ViewBuilder let actions: () -> Actions
 
     @State private var icon: Image?
     @State private var artwork: Image?
@@ -78,6 +82,28 @@ struct LibraryCard: View {
             card
         }
         .buttonStyle(.plain)
+        // Outside the card's button: a menu inside a button's label loses
+        // its clicks to the button.
+        .overlay(alignment: .bottomTrailing) {
+            if isActive {
+                Menu {
+                    actions()
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(width: 30, height: 30)
+                        .contentShape(Circle())
+                }
+                .menuStyle(.button)
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                .foregroundStyle(artwork == nil ? foreground : .white)
+                .cardGlass(.circle, interactive: true)
+                .padding(14)
+                .help("More")
+                .transition(.opacity)
+            }
+        }
         .focusable()
         .focused($isFocused)
         // The system ring is a rectangle around the button's frame, so on a
@@ -238,20 +264,20 @@ struct LibraryCard: View {
         }
     }
 
-    /// Source first when it is not a pin, because "Steam" tells you why an entry
-    /// is here at all, and a pin needs no explanation.
+    /// When it was last played and what it takes on disk. The section a card
+    /// sits in already says where it came from.
     private var subtitle: String {
         var parts: [String] = []
         if item.isLauncher {
             parts.append(String(localized: "library.card.launcher"))
         }
-        if item.source == .steam {
-            parts.append(String(localized: "library.source.steam"))
-        }
         if let lastPlayed {
-            parts.append(lastPlayed.formatted(.relative(presentation: .named)))
+            parts.append("Played " + lastPlayed.formatted(.relative(presentation: .named)))
         } else {
-            parts.append(String(localized: "library.card.neverRun"))
+            parts.append("Not played yet")
+        }
+        if let sizeOnDisk, sizeOnDisk > 0 {
+            parts.append(ByteCountFormatter.string(fromByteCount: sizeOnDisk, countStyle: .file))
         }
         if let bottleName {
             parts.append(bottleName)

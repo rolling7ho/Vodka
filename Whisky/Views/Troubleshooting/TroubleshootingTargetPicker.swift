@@ -40,7 +40,7 @@ struct TroubleshootingTargetPicker: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Picker("Bottle", selection: $selectedBottle) {
+            Picker("Windows PC", selection: $selectedBottle) {
                 Text("troubleshooting.target.selectBottle").tag(nil as Bottle?)
                 ForEach(bottles) { bottle in
                     Text(bottle.settings.name).tag(bottle as Bottle?)

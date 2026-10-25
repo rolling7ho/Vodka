@@ -117,15 +117,6 @@ struct ContentView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    showBottleCreation.toggle()
-                } label: {
-                    Image(systemName: "plus")
-                        .help("button.createBottle")
-                }
-                .accessibilityIdentifier("toolbar.createBottle")
-            }
-            ToolbarItem(placement: .primaryAction) {
-                Button {
                     bottleVM.loadBottles()
                     if let bottle = bottleVM.bottles.first(where: { $0.url == selected }) {
                         Task { await bottle.updateInstalledPrograms() }

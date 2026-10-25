@@ -305,7 +305,7 @@ struct GameEssentialsSection: View {
         } footer: {
             Text("Games with a preset, like Teardown, get their best settings automatically when you press Play. "
                 + "If Steam is open, quit and reopen it after changing these. macOS Game Mode, for every "
-                + "bottle, is in Whisky Settings \u{203A} Gaming.")
+                + "Windows PC, is in Whisky Settings \u{203A} Gaming.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

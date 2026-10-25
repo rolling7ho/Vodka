@@ -1458,6 +1458,12 @@
             "state" : "translated",
             "value" : "Bottle"
           }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Windows PC"
+          }
         }
       }
     },
@@ -7573,13 +7579,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manually select the launcher type for this bottle"
+            "value" : "Manually select the launcher type for this Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manually select the launcher type for this bottle"
+            "value" : "Manually select the launcher type for this Windows PC"
           }
         },
         "es" : {
@@ -8975,13 +8981,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rockstar Games Launcher shows no window without DXVK. When it is this bottle's launcher, the bottle switches to DXVK on detection and every program in it runs with DXVK, whatever Graphics Backend is set to. Other launchers already run on DXVK under the Recommended backend."
+            "value" : "Rockstar Games Launcher shows no window without DXVK. When it is this Windows PC's launcher, the Windows PC switches to DXVK on detection and every program in it runs with DXVK, whatever Graphics Backend is set to. Other launchers already run on DXVK under the Recommended backend."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rockstar Games Launcher shows no window without DXVK. When it is this bottle's launcher, the bottle switches to DXVK on detection and every program in it runs with DXVK, whatever Graphics Backend is set to. Other launchers already run on DXVK under the Recommended backend."
+            "value" : "Rockstar Games Launcher shows no window without DXVK. When it is this Windows PC's launcher, the Windows PC switches to DXVK on detection and every program in it runs with DXVK, whatever Graphics Backend is set to. Other launchers already run on DXVK under the Recommended backend."
           }
         }
       }
@@ -9674,6 +9680,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "選擇 Bottle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a Windows PC"
           }
         }
       }
@@ -19595,13 +19607,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle has running processes. What would you like to do?"
+            "value" : "Apps are still running in this Windows PC. What would you like to do?"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle has running processes. What would you like to do?"
+            "value" : "Apps are still running in this Windows PC. What would you like to do?"
           }
         },
         "es" : {
@@ -20039,13 +20051,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remember for this bottle"
+            "value" : "Remember for this Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remember for this bottle"
+            "value" : "Remember for this Windows PC"
           }
         },
         "es" : {
@@ -20187,13 +20199,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "es" : {
@@ -20335,13 +20347,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create the bottle directory."
+            "value" : "Failed to create the Windows PC directory."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create the bottle directory."
+            "value" : "Failed to create the Windows PC directory."
           }
         },
         "es" : {
@@ -20483,13 +20495,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create the bottle metadata."
+            "value" : "Failed to create the Windows PC metadata."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create the bottle metadata."
+            "value" : "Failed to create the Windows PC metadata."
           }
         },
         "es" : {
@@ -20631,13 +20643,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save the bottle."
+            "value" : "Failed to save the Windows PC."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save the bottle."
+            "value" : "Failed to save the Windows PC."
           }
         },
         "es" : {
@@ -20779,13 +20791,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The Wine runtime (WhiskyWine) isn't installed, so the bottle can't be initialized. Run Setup to download it, then try again."
+            "value" : "The Wine runtime (WhiskyWine) isn't installed, so the Windows PC can't be initialized. Run Setup to download it, then try again."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The Wine runtime (WhiskyWine) isn't installed, so the bottle can't be initialised. Run Setup to download it, then try again."
+            "value" : "The Wine runtime (WhiskyWine) isn't installed, so the Windows PC can't be initialized. Run Setup to download it, then try again."
           }
         },
         "es" : {
@@ -21371,13 +21383,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle Creation Failed"
+            "value" : "Windows PC Creation Failed"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle Creation Failed"
+            "value" : "Windows PC Creation Failed"
           }
         },
         "es" : {
@@ -21541,13 +21553,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "There isn't enough free space to create a bottle: %1$@ available, but about %2$@ is needed. Free up space or choose another disk."
+            "value" : "There isn't enough free space to create a Windows PC: %1$@ available, but about %2$@ is needed. Free up space or choose another disk."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "There isn't enough free space to create a bottle: %1$@ available, but about %2$@ is needed. Free up space or choose another disk."
+            "value" : "There isn't enough free space to create a Windows PC: %1$@ available, but about %2$@ is needed. Free up space or choose another disk."
           }
         },
         "es" : {
@@ -21813,13 +21825,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "it" : {
@@ -22013,13 +22025,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "These bottles exist on disk but aren't in your library: %@. Re-importing adds them back to the sidebar; nothing on disk is changed."
+            "value" : "These Windows PCs exist on disk but aren't in your library: %@. Re-importing adds them back to the sidebar; nothing on disk is changed."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "These bottles exist on disk but aren't in your library: %@. Re-importing adds them back to the sidebar; nothing on disk is changed."
+            "value" : "These Windows PCs exist on disk but aren't in your library: %@. Re-importing adds them back to the sidebar; nothing on disk is changed."
           }
         },
         "es" : {
@@ -22309,13 +22321,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottles Found on Disk"
+            "value" : "Windows PCs Found on Disk"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottles Found on Disk"
+            "value" : "Windows PCs Found on Disk"
           }
         },
         "es" : {
@@ -22457,13 +22469,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Whisky couldn't read its saved bottle list, so a fresh empty list was created. The unreadable file was moved to “%@”. Your bottle folders on disk were not deleted."
+            "value" : "Whisky couldn't read its saved Windows PC list, so a fresh empty list was created. The unreadable file was moved to “%@”. Your Windows PC folders on disk were not deleted."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Whisky couldn't read its saved bottle list, so a fresh empty list was created. The unreadable file was moved to “%@”. Your bottle folders on disk were not deleted."
+            "value" : "Whisky couldn't read its saved Windows PC list, so a fresh empty list was created. The unreadable file was moved to “%@”. Your Windows PC folders on disk were not deleted."
           }
         },
         "es" : {
@@ -22605,13 +22617,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle List Couldn't Be Read"
+            "value" : "Windows PC List Couldn't Be Read"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle List Couldn't Be Read"
+            "value" : "Windows PC List Couldn't Be Read"
           }
         },
         "es" : {
@@ -22901,13 +22913,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "There are Wine processes running in this bottle. They will be stopped before the bottle is removed."
+            "value" : "Apps are running in this Windows PC. They will be quit before it is removed."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "There are Wine processes running in this bottle. They will be stopped before the bottle is removed."
+            "value" : "Apps are running in this Windows PC. They will be quit before it is removed."
           }
         },
         "es" : {
@@ -23197,13 +23209,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle Has Running Processes"
+            "value" : "Apps Are Still Running"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle Has Running Processes"
+            "value" : "Apps Are Still Running"
           }
         },
         "es" : {
@@ -23641,13 +23653,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create Bottle"
+            "value" : "New Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create Bottle"
+            "value" : "New Windows PC"
           }
         },
         "es" : {
@@ -23937,13 +23949,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Duplicate Bottle..."
+            "value" : "Duplicate…"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Duplicate Bottle..."
+            "value" : "Duplicate…"
           }
         },
         "es" : {
@@ -25417,13 +25429,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to remove this bottle? This action is permanent."
+            "value" : "Are you sure you want to remove this Windows PC? This action is permanent."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to remove this bottle? This action is permanent."
+            "value" : "Are you sure you want to remove this Windows PC? This action is permanent."
           }
         },
         "es" : {
@@ -25713,13 +25725,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove this unavailable bottle from the list"
+            "value" : "Remove this unavailable Windows PC from the list"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove this unavailable bottle from the list"
+            "value" : "Remove this unavailable Windows PC from the list"
           }
         },
         "es" : {
@@ -26009,7 +26021,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Run..."
+            "value" : "Run a Windows App…"
           }
         },
         "en-GB" : {
@@ -30161,13 +30173,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset this bottle's saved audio state?"
+            "value" : "Reset this Windows PC's saved audio state?"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset this bottle's saved audio state?"
+            "value" : "Reset this Windows PC's saved audio state?"
           }
         },
         "es" : {
@@ -33561,13 +33573,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Set the bottle's screen DPI to scale Windows text and interface elements."
+            "value" : "Set the Windows PC's screen DPI to scale Windows text and interface elements."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Set the bottle's screen DPI to scale Windows text and interface elements."
+            "value" : "Set the Windows PC's screen DPI to scale Windows text and interface elements."
           }
         },
         "es" : {
@@ -43103,13 +43115,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle name:"
+            "value" : "Name:"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle name:"
+            "value" : "Name:"
           }
         },
         "es" : {
@@ -43251,13 +43263,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle path:"
+            "value" : "Location:"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle path:"
+            "value" : "Location:"
           }
         },
         "es" : {
@@ -43399,13 +43411,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a new bottle"
+            "value" : "New Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a new bottle"
+            "value" : "New Windows PC"
           }
         },
         "es" : {
@@ -46387,13 +46399,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Duplicate Bottle"
+            "value" : "Duplicate Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Duplicate Bottle"
+            "value" : "Duplicate Windows PC"
           }
         },
         "es" : {
@@ -57100,13 +57112,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kill All Bottles"
+            "value" : "Quit Everything Running"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kill All Bottles"
+            "value" : "Quit Everything Running"
           }
         },
         "es" : {
@@ -58833,13 +58845,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Configure Bottle"
+            "value" : "Settings…"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Configure Bottle"
+            "value" : "Settings…"
           }
         },
         "it" : {
@@ -58861,7 +58873,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Runs this program"
+            "value" : "Opens it"
           }
         },
         "en-GB" : {
@@ -58889,7 +58901,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Never run"
+            "value" : "Not played yet"
           }
         },
         "en-GB" : {
@@ -58989,7 +59001,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop"
+            "value" : "Quit"
           }
         },
         "en-GB" : {
@@ -59039,13 +59051,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a bottle to install Windows programs into."
+            "value" : "Create a Windows PC to install Windows programs into."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a bottle to install Windows programs into."
+            "value" : "Create a Windows PC to install Windows programs into."
           }
         },
         "it" : {
@@ -59067,13 +59079,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Programs you install into a bottle show up here."
+            "value" : "Programs you install into a Windows PC show up here."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Programs you install into a bottle show up here."
+            "value" : "Programs you install into a Windows PC show up here."
           }
         },
         "pl" : {
@@ -59089,13 +59101,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open a bottle and pin a program to see it here."
+            "value" : "Open a Windows PC and pin a program to see it here."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open a bottle and pin a program to see it here."
+            "value" : "Open a Windows PC and pin a program to see it here."
           }
         },
         "pl" : {
@@ -59205,7 +59217,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search programs"
+            "value" : "Search games and apps"
           }
         },
         "en-GB" : {
@@ -59283,13 +59295,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle"
+            "value" : "Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle"
+            "value" : "Windows PC"
           }
         },
         "it" : {
@@ -59401,13 +59413,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottles"
+            "value" : "Windows PCs"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottles"
+            "value" : "Windows PCs"
           }
         },
         "it" : {
@@ -59551,13 +59563,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle is back on Recommended. Steam now uses DXVK on its own, so its games keep D3DMetal."
+            "value" : "This Windows PC is back on Recommended. Steam now uses DXVK on its own, so its games keep D3DMetal."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle is back on Recommended. Steam now uses DXVK on its own, so its games keep D3DMetal."
+            "value" : "This Windows PC is back on Recommended. Steam now uses DXVK on its own, so its games keep D3DMetal."
           }
         }
       }
@@ -60043,13 +60055,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This program overrides the bottle's graphics backend."
+            "value" : "This program overrides the Windows PC's graphics backend."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This program overrides the bottle's graphics backend."
+            "value" : "This program overrides the Windows PC's graphics backend."
           }
         },
         "pl" : {
@@ -60143,13 +60155,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inherited from the bottle"
+            "value" : "Inherited from the Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inherited from the bottle"
+            "value" : "Inherited from the Windows PC"
           }
         },
         "pl" : {
@@ -60237,13 +60249,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset this program's overrides so it follows the bottle again?"
+            "value" : "Reset this program's overrides so it follows the Windows PC again?"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset this program's overrides so it follows the bottle again?"
+            "value" : "Reset this program's overrides so it follows the Windows PC again?"
           }
         },
         "pl" : {
@@ -60303,13 +60315,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Winetricks verbs installed in this bottle."
+            "value" : "No Winetricks verbs installed in this Windows PC."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Winetricks verbs installed in this bottle."
+            "value" : "No Winetricks verbs installed in this Windows PC."
           }
         },
         "pl" : {
@@ -60325,13 +60337,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbs installed in the bottle this program runs in."
+            "value" : "Verbs installed in the Windows PC this program runs in."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbs installed in the bottle this program runs in."
+            "value" : "Verbs installed in the Windows PC this program runs in."
           }
         },
         "pl" : {
@@ -60391,13 +60403,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Overrides the bottle's display settings for this program only."
+            "value" : "Overrides the Windows PC's display settings for this program only."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Overrides the bottle's display settings for this program only."
+            "value" : "Overrides the Windows PC's display settings for this program only."
           }
         },
         "pl" : {
@@ -60437,13 +60449,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create your first bottle to get started"
+            "value" : "Set up a Windows PC to get started"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create your first bottle to get started"
+            "value" : "Set up a Windows PC to get started"
           }
         },
         "es" : {
@@ -60733,13 +60745,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No bottles yet"
+            "value" : "No Windows PCs yet"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No bottles yet"
+            "value" : "No Windows PCs yet"
           }
         },
         "es" : {
@@ -61326,13 +61338,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Import Bottle"
+            "value" : "Add Existing Windows PC…"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Import Bottle"
+            "value" : "Add Existing Windows PC…"
           }
         },
         "es" : {
@@ -63695,13 +63707,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "es" : {
@@ -65175,13 +65187,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Force Stop Bottle?"
+            "value" : "Force quit everything?"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Force Stop Bottle?"
+            "value" : "Force quit everything?"
           }
         },
         "es" : {
@@ -65619,13 +65631,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle?"
+            "value" : "Quit everything running?"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle?"
+            "value" : "Quit everything running?"
           }
         },
         "es" : {
@@ -70630,13 +70642,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rename bottle"
+            "value" : "Rename Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rename bottle"
+            "value" : "Rename Windows PC"
           }
         },
         "es" : {
@@ -71222,13 +71234,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle:"
+            "value" : "Windows PC:"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle:"
+            "value" : "Windows PC:"
           }
         },
         "es" : {
@@ -72866,13 +72878,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Default bottle path:"
+            "value" : "Default location for Windows PCs:"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Default bottle path:"
+            "value" : "Default location for Windows PCs:"
           }
         },
         "es" : {
@@ -76122,13 +76134,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optional and off by default. When enabled, Whisky sends five anonymous events covering the first-run funnel: runtime install started, succeeded, or failed (with a coarse reason), first bottle created, and first program launch attempt. No personal data, file names, or identifiers tied to you are ever sent. You can change this anytime in Settings."
+            "value" : "Optional and off by default. When enabled, Whisky sends five anonymous events covering the first-run funnel: runtime install started, succeeded, or failed (with a coarse reason), first Windows PC created, and first program launch attempt. No personal data, file names, or identifiers tied to you are ever sent. You can change this anytime in Settings."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Optional and off by default. When enabled, Whisky sends five anonymous events covering the first-run funnel: runtime install started, succeeded, or failed (with a coarse reason), first bottle created, and first program launch attempt. No personal data, file names, or identifiers tied to you are ever sent. You can change this anytime in Settings."
+            "value" : "Optional and off by default. When enabled, Whisky sends five anonymous events covering the first-run funnel: runtime install started, succeeded, or failed (with a coarse reason), first Windows PC created, and first program launch attempt. No personal data, file names, or identifiers tied to you are ever sent. You can change this anytime in Settings."
           }
         },
         "es" : {
@@ -82045,13 +82057,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle no longer contains a Steam installation."
+            "value" : "This Windows PC no longer contains a Steam installation."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle no longer contains a Steam installation."
+            "value" : "This Windows PC no longer contains a Steam installation."
           }
         },
         "es" : {
@@ -82343,13 +82355,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No bottle has App ID %lld installed."
+            "value" : "No Windows PC has App ID %lld installed."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No bottle has App ID %lld installed."
+            "value" : "No Windows PC has App ID %lld installed."
           }
         },
         "es" : {
@@ -82492,13 +82504,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle doesn't have Steam installed."
+            "value" : "This Windows PC doesn't have Steam installed."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle doesn't have Steam installed."
+            "value" : "This Windows PC doesn't have Steam installed."
           }
         },
         "es" : {
@@ -82937,13 +82949,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No installed Steam games found in this bottle."
+            "value" : "No installed Steam games found in this Windows PC."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No installed Steam games found in this bottle."
+            "value" : "No installed Steam games found in this Windows PC."
           }
         },
         "es" : {
@@ -84121,13 +84133,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle Configuration"
+            "value" : "Settings"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bottle Configuration"
+            "value" : "Settings"
           }
         },
         "es" : {
@@ -84269,7 +84281,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Game Configurations"
+            "value" : "Game Presets"
           }
         },
         "en-GB" : {
@@ -84418,7 +84430,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Running Processes"
+            "value" : "Running Apps"
           }
         },
         "en-GB" : {
@@ -84566,7 +84578,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Installed Programs"
+            "value" : "Installed Apps"
           }
         },
         "en-GB" : {
@@ -93424,13 +93436,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a bottle and optionally a program to troubleshoot."
+            "value" : "Select a Windows PC and optionally a program to troubleshoot."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a bottle and optionally a program to troubleshoot."
+            "value" : "Select a Windows PC and optionally a program to troubleshoot."
           }
         },
         "pl" : {
@@ -93446,13 +93458,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No specific program (bottle-level)"
+            "value" : "No specific program (Windows PC-level)"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No specific program (bottle-level)"
+            "value" : "No specific program (Windows PC-level)"
           }
         },
         "pl" : {
@@ -93468,13 +93480,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a bottle"
+            "value" : "Select a Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a bottle"
+            "value" : "Select a Windows PC"
           }
         },
         "pl" : {
@@ -95042,13 +95054,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No bottle named %@."
+            "value" : "No Windows PC named %@."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No bottle named %@."
+            "value" : "No Windows PC named %@."
           }
         },
         "pl" : {
@@ -95235,13 +95247,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle's Wine prefix couldn't be set up, so nothing can run in it yet. The latest Wine log has the details."
+            "value" : "This Windows PC's Wine prefix couldn't be set up, so nothing can run in it yet. The latest Wine log has the details."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle's Wine prefix couldn't be set up, so nothing can run in it yet. The latest Wine log has the details."
+            "value" : "This Windows PC's Wine prefix couldn't be set up, so nothing can run in it yet. The latest Wine log has the details."
           }
         }
       }
@@ -95252,13 +95264,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle's Wine prefix can't be set up because the Wine runtime isn't installed. Open Whisky to install it, then try again."
+            "value" : "This Windows PC's Wine prefix can't be set up because the Wine runtime isn't installed. Open Whisky to install it, then try again."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle's Wine prefix can't be set up because the Wine runtime isn't installed. Open Whisky to install it, then try again."
+            "value" : "This Windows PC's Wine prefix can't be set up because the Wine runtime isn't installed. Open Whisky to install it, then try again."
           }
         }
       }
@@ -97370,13 +97382,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to repair the Wine prefix. Please try recreating the bottle."
+            "value" : "Failed to repair the Wine prefix. Please try recreating the Windows PC."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to repair the Wine prefix. Please try recreating the bottle."
+            "value" : "Failed to repair the Wine prefix. Please try recreating the Windows PC."
           }
         },
         "es" : {
@@ -99148,13 +99160,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove the Wine runtime only, or remove everything Whisky has stored — including all bottles?\n\nRemoving everything is permanent and cannot be undone."
+            "value" : "Remove the Wine runtime only, or remove everything Whisky has stored — including all Windows PCs?\n\nRemoving everything is permanent and cannot be undone."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove the Wine runtime only, or remove everything Whisky has stored — including all bottles?\n\nRemoving everything is permanent and cannot be undone."
+            "value" : "Remove the Wine runtime only, or remove everything Whisky has stored — including all Windows PCs?\n\nRemoving everything is permanent and cannot be undone."
           }
         },
         "es" : {
@@ -101531,13 +101543,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle is set to D3DMetal, which the installed engine doesn't include. Games will fall back to WineD3D, which can't run DirectX 11 titles — switch to DXMT or DXVK."
+            "value" : "This Windows PC is set to D3DMetal, which the installed engine doesn't include. Games will fall back to WineD3D, which can't run DirectX 11 titles — switch to DXMT or DXVK."
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This bottle is set to D3DMetal, which the installed engine doesn't include. Games will fall back to WineD3D, which can't run DirectX 11 titles — switch to DXMT or DXVK."
+            "value" : "This Windows PC is set to D3DMetal, which the installed engine doesn't include. Games will fall back to WineD3D, which can't run DirectX 11 titles — switch to DXMT or DXVK."
           }
         },
         "es" : {
@@ -102573,13 +102585,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inherited from bottle"
+            "value" : "Inherited from Windows PC"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inherited from bottle"
+            "value" : "Inherited from Windows PC"
           }
         },
         "es" : {
@@ -109598,13 +109610,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop Bottle"
+            "value" : "Quit Everything"
           }
         },
         "es" : {

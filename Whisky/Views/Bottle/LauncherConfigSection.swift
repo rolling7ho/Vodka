@@ -185,7 +185,7 @@ extension LauncherConfigSection {
                     Text(launcher.rawValue).tag(launcher as LauncherType?)
                 }
             }
-            .help("Manually select the launcher type for this bottle")
+            .help("Manually select the launcher type for this Windows PC")
 
             if let launcher = bottle.settings.detectedLauncher {
                 HStack(alignment: .top, spacing: 8) {

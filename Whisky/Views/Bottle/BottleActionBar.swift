@@ -26,6 +26,9 @@ struct BottleActionBar: View {
     @Binding var showWinetricksSheet: Bool
     @Binding var programLoading: Bool
     @Binding var toast: ToastData?
+    /// The C: drive, Terminal and Winetricks are for fixing things by hand,
+    /// so they show only with the page's Advanced section open.
+    var showAdvanced = false
     /// Called after a launch so the caller can refresh what it keeps in step
     /// with the prefix, the start menu among it.
     let onLaunch: () async -> Void
@@ -56,21 +59,23 @@ struct BottleActionBar: View {
     private var buttons: some View {
         HStack {
             Spacer()
-            Button("button.cDrive") {
-                bottle.openCDrive()
+            if showAdvanced {
+                Button("button.cDrive") {
+                    bottle.openCDrive()
+                }
+                .glassButton()
+                .accessibilityIdentifier("bottle.openCDrive")
+                Button("button.terminal") {
+                    bottle.openTerminal()
+                }
+                .glassButton()
+                .accessibilityIdentifier("bottle.openTerminal")
+                Button("button.winetricks") {
+                    showWinetricksSheet.toggle()
+                }
+                .glassButton()
+                .accessibilityIdentifier("bottle.openWinetricks")
             }
-            .glassButton()
-            .accessibilityIdentifier("bottle.openCDrive")
-            Button("button.terminal") {
-                bottle.openTerminal()
-            }
-            .glassButton()
-            .accessibilityIdentifier("bottle.openTerminal")
-            Button("button.winetricks") {
-                showWinetricksSheet.toggle()
-            }
-            .glassButton()
-            .accessibilityIdentifier("bottle.openWinetricks")
             Button("button.run") {
                 let panel = NSOpenPanel()
                 panel.allowsMultipleSelection = false

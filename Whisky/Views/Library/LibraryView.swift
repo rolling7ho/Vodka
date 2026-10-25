@@ -20,12 +20,19 @@ import AppKit
 import SwiftUI
 import WhiskyKit
 
-/// Everything worth launching, across every bottle, most recently played first.
+// swiftlint:disable type_body_length
+/// The home screen: Steam, its installed games, and any other apps pinned.
 ///
-/// This is the home screen because it is the thing people open Whisky to do. A
-/// bottle is a Wine prefix, which is an implementation detail of running a
+/// This is the thing people open Whisky to do. A bottle (a "Windows PC" on
+/// screen) is a Wine prefix, which is an implementation detail of running a
 /// Windows program on a Mac, and it only earns space on screen once there is
 /// more than one of them.
+///
+/// Steam gets a panel of its own rather than a card among the games: it is
+/// how the games are reached, so it says whether it is running and offers to
+/// open it or its store. Each game's card carries the actions a player wants
+/// (Play, how it renders, its files, its store page, Uninstall) in a menu,
+/// not only in a right-click.
 ///
 /// Entries come from ``LibraryCatalogue``, so Steam games sit beside pinned
 /// programs and a future launcher needs no change here.
@@ -42,6 +49,11 @@ struct LibraryView: View {
     @StateObject private var model = LibraryModel()
     @State private var search: String = ""
     @State private var showSteamGuide = false
+    @State private var uninstalling: LibraryRow?
+    /// Counts up while the grid shows, so a game Steam installs or removes
+    /// appears or goes without a manual refresh. Cheap: the Steam scan is
+    /// cached until a library folder changes.
+    @State private var libraryTick = 0
     /// Counts up while the guide shows, so a game finishing its download in
     /// Steam brings up the grid without a manual refresh.
     @State private var guideTick = 0
@@ -64,7 +76,8 @@ struct LibraryView: View {
     /// without a relaunch.
     private var reloadTrigger: String {
         let pins = bottles.flatMap { $0.settings.pins.map(\.name) }
-        return (bottles.map(\.url.path) + pins + ["\(refresh)", "\(guideTick)"]).joined(separator: "\u{1F}")
+        return (bottles.map(\.url.path) + pins + ["\(refresh)", "\(guideTick)", "\(libraryTick)"])
+            .joined(separator: "\u{1F}")
     }
 
     var body: some View {
@@ -80,7 +93,13 @@ struct LibraryView: View {
                         }
                     }
             } else {
-                grid
+                content
+                    .task {
+                        while !Task.isCancelled {
+                            try? await Task.sleep(for: .seconds(8))
+                            libraryTick += 1
+                        }
+                    }
             }
         }
         .navigationTitle("library.title")
@@ -99,6 +118,23 @@ struct LibraryView: View {
         }
         .onDisappear {
             model.stopTracking()
+        }
+        .alert(
+            uninstallTitle,
+            isPresented: Binding(
+                get: { uninstalling != nil },
+                set: { if !$0 { uninstalling = nil } }
+            ),
+            presenting: uninstalling
+        ) { row in
+            Button("Uninstall", role: .destructive) {
+                if case let .steam(appID) = row.item.launch {
+                    model.sendToSteam("steam://uninstall/\(appID)", in: row.item.bottleURL, bottles: bottles)
+                }
+            }
+            Button("button.cancel", role: .cancel) {}
+        } message: { row in
+            Text(uninstallMessage(row))
         }
         .alert(
             "library.launch.failed",
@@ -153,52 +189,132 @@ struct LibraryView: View {
         }
     }
 
-    private var grid: some View {
+    // MARK: - Layout
+
+    private var launcherRows: [LibraryRow] { visible.filter { $0.item.launcher == .steam } }
+    private var gameRows: [LibraryRow] { visible.filter { $0.item.source == .steam && !$0.item.isLauncher } }
+    private var otherRows: [LibraryRow] {
+        visible.filter { $0.item.source != .steam && $0.item.launcher != .steam }
+    }
+
+    /// Bottles with Steam in them, each getting a panel. A bottle whose Steam
+    /// shortcut was unpinned still has its games, so it still gets one.
+    private var steamBottles: [Bottle] {
+        let urls = Set((launcherRows + gameRows).map(\.item.bottleURL))
+        return bottles.filter { urls.contains($0.url) }.sorted()
+    }
+
+    private var content: some View {
         ScrollView {
-            LazyVGrid(
-                // 180 rather than 220 so two columns fit at the window's own
-                // minimum width, where the sidebar leaves about 330pt: one
-                // column of landscape cards is a list with wasted space.
-                columns: [GridItem(.adaptive(minimum: 180, maximum: 320), spacing: 14)],
-                spacing: 14
-            ) {
-                ForEach(visible) { row in
-                    LibraryCard(
-                        item: row.item,
-                        bottleName: row.bottleName,
-                        lastPlayed: row.lastPlayed,
-                        state: model.state(for: row.item),
-                        launch: { model.launch(row, bottles: bottles) }
+            VStack(alignment: .leading, spacing: 26) {
+                ForEach(steamBottles) { bottle in
+                    SteamPanel(
+                        bottleName: steamBottles.count > 1 ? bottle.settings.name : nil,
+                        icon: launcherRows.first { $0.item.bottleURL == bottle.url }?.item.iconURL,
+                        isRunning: model.steamClientRunning.contains(bottle.url),
+                        games: gameRows.filter { $0.item.bottleURL == bottle.url },
+                        send: { model.sendToSteam($0, in: bottle.url, bottles: bottles) }
                     )
-                    .contextMenu { menu(for: row) }
+                }
+
+                LibrarySection(title: "Installed Games", count: gameRows.count) {
+                    grid(gameRows, trailing: steamBottles.first.map { bottle in
+                        AnyView(GetMoreGamesTile {
+                            model.sendToSteam("steam://store", in: bottle.url, bottles: bottles)
+                        })
+                    })
+                }
+
+                if !otherRows.isEmpty {
+                    LibrarySection(title: "Other Apps", count: otherRows.count) {
+                        grid(otherRows, trailing: nil)
+                    }
                 }
             }
-            .padding(18)
+            .padding(20)
         }
+    }
+
+    private func grid(_ rows: [LibraryRow], trailing: AnyView?) -> some View {
+        LazyVGrid(
+            // 180 rather than 220 so two columns fit at the window's own
+            // minimum width, where the sidebar leaves about 330pt: one
+            // column of landscape cards is a list with wasted space.
+            columns: [GridItem(.adaptive(minimum: 180, maximum: 320), spacing: 14)],
+            spacing: 14
+        ) {
+            ForEach(rows) { row in
+                LibraryCard(
+                    item: row.item,
+                    bottleName: row.bottleName,
+                    lastPlayed: row.lastPlayed,
+                    sizeOnDisk: row.sizeOnDisk,
+                    state: model.state(for: row.item),
+                    launch: { model.launch(row, bottles: bottles) },
+                    actions: { menu(for: row) }
+                )
+                .contextMenu { menu(for: row) }
+            }
+            if let trailing {
+                trailing
+            }
+        }
+    }
+
+    private var uninstallTitle: String {
+        guard let uninstalling else { return "" }
+        return "Uninstall \(uninstalling.item.name)?"
+    }
+
+    private func uninstallMessage(_ row: LibraryRow) -> String {
+        let size = row.sizeOnDisk.map {
+            " and frees \(ByteCountFormatter.string(fromByteCount: $0, countStyle: .file))"
+        }
+        return "Steam asks once more, then removes the game\(size ?? ""). "
+            + "Saves kept in Steam Cloud stay, and you can install it again from your Steam library."
     }
 
     @ViewBuilder
     private func menu(for row: LibraryRow) -> some View {
-        Button("button.run") { model.launch(row, bottles: bottles) }
         if model.state(for: row.item) == .running {
-            Button("library.card.stop") { model.stop(row, bottles: bottles) }
+            Button("Quit Game", systemImage: "stop.fill") { model.stop(row, bottles: bottles) }
+        } else {
+            Button("Play", systemImage: "play.fill") { model.launch(row, bottles: bottles) }
         }
         Divider()
         if case let .steam(appID) = row.item.launch,
            let bottle = bottles.first(where: { $0.url == row.item.bottleURL }),
            bottle.settings.nativeResolution {
             resolutionMenu(appID: appID, bottle: bottle)
+            Divider()
+        }
+        if let installURL = row.installURL {
+            Button("Show Game Files", systemImage: "folder") {
+                NSWorkspace.shared.activateFileViewerSelecting([installURL])
+            }
+        }
+        if case let .steam(appID) = row.item.launch {
+            Button("Store Page", systemImage: "bag") {
+                model.sendToSteam("steam://store/\(appID)", in: row.item.bottleURL, bottles: bottles)
+            }
+            Divider()
+            Button("Uninstall…", systemImage: "trash", role: .destructive) {
+                uninstalling = row
+            }
         }
         if case let .program(url) = row.item.launch {
-            Button("button.showInFinder") {
+            Button("button.showInFinder", systemImage: "folder") {
                 NSWorkspace.shared.activateFileViewerSelecting([url])
             }
-            Button("library.card.unpin", role: .destructive) { unpin(url, in: row.item.bottleURL) }
+            Button("library.card.unpin", systemImage: "pin.slash", role: .destructive) {
+                unpin(url, in: row.item.bottleURL)
+            }
         }
+        Divider()
         // Per-program settings live inside the bottle's own navigation stack,
         // which the library cannot push onto, so this is as close as the menu
         // gets without a deep link into it.
-        Button("library.card.configure") {
+        Button("Settings…", systemImage: "gearshape") {
             selectedBottle = row.item.bottleURL
         }
     }
@@ -207,7 +323,7 @@ struct LibraryView: View {
     /// engine upscales them with MetalFX, for a game short of frames. Takes
     /// effect next launch.
     private func resolutionMenu(appID: Int, bottle: Bottle) -> some View {
-        Picker("Resolution", selection: Binding(
+        Picker("Graphics", selection: Binding(
             get: { bottle.settings.fasterSteamApps.contains(appID) },
             set: { faster in
                 if faster {
@@ -216,14 +332,14 @@ struct LibraryView: View {
                     bottle.settings.fasterSteamApps.remove(appID)
                 }
                 model.toast = ToastData(
-                    message: faster ? "Faster: MetalFX upscaling from the next launch"
-                        : "Sharp: full resolution from the next launch",
+                    message: faster ? "Faster from the next time you play"
+                        : "Sharp from the next time you play",
                     style: .success
                 )
             }
         )) {
-            Text("Sharp (Full Resolution)").tag(false)
-            Text("Faster (MetalFX Upscaled)").tag(true)
+            Text("Sharp: Full Resolution").tag(false)
+            Text("Faster: Upscaled, Higher Frame Rate").tag(true)
         }
     }
 
@@ -240,3 +356,5 @@ struct LibraryView: View {
         SteamSetupGuideView()
     }
 }
+
+// swiftlint:enable type_body_length

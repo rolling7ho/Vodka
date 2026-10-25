@@ -58,7 +58,7 @@ struct BottleListEntry: View {
                     Image(systemName: "circle.fill")
                         .font(.system(size: 7))
                         .foregroundStyle(.green)
-                        .help("Running — Steam or a game is open in this bottle.")
+                        .help("Running — Steam or a game is open in this Windows PC.")
                         .accessibilityLabel(Text("Running"))
                 }
             }
@@ -145,7 +145,7 @@ struct BottleListEntry: View {
             }
             .disabled(!hasOrphanProcesses && runningCount == 0)
             .labelStyle(.titleAndIcon)
-            Button("Delete Bottle…", systemImage: "trash") {
+            Button("Delete Windows PC…", systemImage: "trash") {
                 Task {
                     let wasSelected = selected == bottle.url
                     if await bottle.confirmAndDelete(), wasSelected { selected = nil }

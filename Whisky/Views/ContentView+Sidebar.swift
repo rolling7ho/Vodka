@@ -33,7 +33,9 @@ extension ContentView {
                 // A bottle is a Wine prefix, so it belongs under a heading rather
                 // than being the whole sidebar. With one bottle this is the row
                 // that reaches its config; with several it is also the switcher.
-                Section("sidebar.bottles") {
+                // Making another is rare, so its button lives on the heading
+                // rather than in the window's toolbar beside the library's own.
+                Section {
                     ForEach(sortedBottles) { bottle in
                         Group {
                             if bottle.inFlight {
@@ -72,6 +74,19 @@ extension ContentView {
                             }
                         }
                         .id(bottle.url)
+                    }
+                } header: {
+                    HStack {
+                        Text("sidebar.bottles")
+                        Spacer()
+                        Button {
+                            showBottleCreation.toggle()
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("button.createBottle")
+                        .accessibilityIdentifier("toolbar.createBottle")
                     }
                 }
             }

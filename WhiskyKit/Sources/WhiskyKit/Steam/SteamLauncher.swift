@@ -158,6 +158,24 @@ public enum SteamLauncher {
         }
     }
 
+    /// Hands a `steam://` link, or a command such as `-shutdown`, to the
+    /// bottle's client, as Steam's own buttons do: a running client acts on it
+    /// and brings its window forward, and one that is not running starts first.
+    ///
+    /// Runs with the client's own overrides, like ``startClient(steamExe:bottle:)``,
+    /// since this invocation may be what starts it.
+    @MainActor
+    public static func send(_ argument: String, bottle: Bottle) throws {
+        guard let steamRoot = SteamLibrary.detectInstall(bottleURL: bottle.url) else {
+            throw SteamLaunchError.steamNotInstalled
+        }
+        let steamExe = steamRoot.appending(path: "steam.exe")
+        let overrides = Program.persistedOverrides(for: steamExe, bottleURL: bottle.url)
+        Task {
+            _ = try? await Wine.runProgram(at: steamExe, args: [argument], bottle: bottle, programOverrides: overrides)
+        }
+    }
+
     /// Starts `steam.exe -silent` with the user's own overrides for it, the
     /// way the Programs tab would, so the client's entry matches the one a
     /// game launch writes for it. Runs for the whole session, so it is never

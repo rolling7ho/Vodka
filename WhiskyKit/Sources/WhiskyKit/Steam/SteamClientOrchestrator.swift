@@ -90,6 +90,8 @@ public final class SteamClientOrchestrator: ObservableObject {
     @Published public private(set) var phases: [Int: Phase] = [:]
     /// App IDs whose executables are currently in the bottle's process list.
     @Published public private(set) var runningAppIds: Set<Int> = []
+    /// Whether the bottle's Steam client is running, whoever started it.
+    @Published public private(set) var isClientRunning = false
     @Published public var launchError: String?
 
     let bottle: Bottle
@@ -228,7 +230,7 @@ public final class SteamClientOrchestrator: ObservableObject {
     }
 
     private func startClient(steamExe: URL) async throws {
-        if await isClientRunning() {
+        if await clientIsUp() {
             driver.clientDidBecomeReady()
             return
         }
@@ -245,7 +247,7 @@ public final class SteamClientOrchestrator: ObservableObject {
         throw SteamOrchestratorError.clientTimeout
     }
 
-    private func isClientRunning() async -> Bool {
+    private func clientIsUp() async -> Bool {
         await runningImageNames().contains("steam.exe")
     }
 
@@ -260,6 +262,7 @@ public final class SteamClientOrchestrator: ObservableObject {
 
     private func refreshRunningState() async {
         runningAppIds = await watch.runningKeys(byExecutables: executableNamesByAppId)
+        isClientRunning = await runningImageNames().contains("steam.exe")
     }
 }
 

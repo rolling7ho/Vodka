@@ -45,6 +45,10 @@ struct LibraryRow: Identifiable {
     let item: LibraryEntry
     let bottleName: String?
     let lastPlayed: Date?
+    /// What a Steam game takes on disk, from its manifest.
+    var sizeOnDisk: Int64?
+    /// Where a Steam game is installed.
+    var installURL: URL?
 
     var id: String { item.id }
 }
@@ -70,6 +74,8 @@ final class LibraryModel: ObservableObject {
     @Published private var steamRunning: [URL: Set<Int>] = [:]
     /// Programs whose launch call has not returned yet.
     @Published private var programLaunching: Set<URL> = []
+    /// Bottles whose Steam client is running, whoever started it.
+    @Published private(set) var steamClientRunning: Set<URL> = []
 
     var sort: LibrarySort = .recent {
         didSet {
@@ -121,14 +127,24 @@ final class LibraryModel: ObservableObject {
             // Steam is the part that walks the filesystem, so only that goes
             // off the main actor, and it needs nothing but the bottle URL.
             let pinned = PinnedLibrarySource.items(inBottleAt: url, settings: bottle.settings)
-            let steam = await Task.detached { SteamLibrarySource.entries(inBottleAt: url) }.value
+            let (steam, installed) = await Task.detached {
+                (SteamLibrarySource.entries(inBottleAt: url), SteamLibrary.enumerate(bottleURL: url))
+            }.value
+            let games = Dictionary(installed.map { ($0.appId, $0) }) { first, _ in first }
 
             for item in LibraryCatalogue.merge([pinned, steam]) {
+                var game: SteamGame?
+                if case let .steam(appID) = item.launch { game = games[appID] }
                 built.append(
                     LibraryRow(
                         item: item,
                         bottleName: showBottleName ? bottle.settings.name : nil,
-                        lastPlayed: lastPlayed(for: item, routed: routed)
+                        // Steam's own record counts too, for a game played
+                        // from Steam rather than from here.
+                        lastPlayed: [lastPlayed(for: item, routed: routed), game?.manifest.lastPlayed]
+                            .compactMap { $0 }.max(),
+                        sizeOnDisk: game?.manifest.sizeOnDisk,
+                        installURL: game?.installURL
                     )
                 )
             }
@@ -233,6 +249,18 @@ extension LibraryModel {
         Task { await orchestrator(for: bottle).stop(game) }
     }
 
+    /// Hands a `steam://` link or a command to a bottle's Steam client:
+    /// opening the client, a store page, Steam's own uninstall for a game, or
+    /// `-shutdown`.
+    func sendToSteam(_ argument: String, in bottleURL: URL, bottles: [Bottle]) {
+        guard let bottle = bottles.first(where: { $0.url == bottleURL }) else { return }
+        do {
+            try SteamLauncher.send(argument, bottle: bottle)
+        } catch {
+            launchError = error.localizedDescription
+        }
+    }
+
     private func launchProgram(at url: URL, in bottle: Bottle) {
         // Through the bottle's own program list where possible, so the launch
         // picks up that program's overrides rather than only the bottle's.
@@ -280,6 +308,15 @@ extension LibraryModel {
                 self?.steamRunning[url] = running
             }
             .store(in: &cancellables)
+        made.$isClientRunning
+            .sink { [weak self] running in
+                if running {
+                    self?.steamClientRunning.insert(url)
+                } else {
+                    self?.steamClientRunning.remove(url)
+                }
+            }
+            .store(in: &cancellables)
         made.$launchError
             .compactMap { $0 }
             .sink { [weak self] error in
@@ -291,11 +328,13 @@ extension LibraryModel {
         return made
     }
 
-    /// Starts (or restarts) running-state polling for a bottle's Steam games.
+    /// Starts (or restarts) running-state polling for a bottle's Steam client
+    /// and games. The client counts even with no game installed: it is what
+    /// the library offers to open, and it must not offer to open one already
+    /// running.
     private func trackSteam(in bottle: Bottle) {
-        let games = SteamLibrary.enumerate(bottleURL: bottle.url)
-        guard !games.isEmpty else { return }
-        orchestrator(for: bottle).startTracking(games: games)
+        guard SteamLibrary.detectInstall(bottleURL: bottle.url) != nil else { return }
+        orchestrator(for: bottle).startTracking(games: SteamLibrary.enumerate(bottleURL: bottle.url))
     }
 
     /// Stops every poller. Called when the library leaves the screen.

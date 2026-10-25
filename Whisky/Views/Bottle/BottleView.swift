@@ -34,6 +34,8 @@ struct BottleView: View {
     @State private var showWinetricksSheet: Bool = false
     @State private var showDuplicate: Bool = false
     @State private var toast: ToastData?
+    /// The page's under-the-hood links and tools, closed until asked for.
+    @AppStorage("bottleAdvancedExpanded") private var showAdvanced = false
 
     private let gridLayout = [GridItem(.adaptive(minimum: 100, maximum: .infinity))]
 
@@ -54,34 +56,19 @@ struct BottleView: View {
                 }
                 .padding()
                 Form {
-                    NavigationLink(value: BottleStage.config) {
-                        Label("tab.config", systemImage: "gearshape")
+                    Section {
+                        NavigationLink(value: BottleStage.config) {
+                            Label("tab.config", systemImage: "gearshape")
+                        }
+                        .accessibilityIdentifier("nav.bottleConfiguration")
                     }
-                    .accessibilityIdentifier("nav.bottleConfiguration")
-                    NavigationLink(value: BottleStage.gameConfigs) {
-                        Label("tab.gameConfigs", systemImage: "gamecontroller")
-                    }
-                    .accessibilityIdentifier("nav.gameConfigurations")
-                    NavigationLink(value: BottleStage.programs) {
-                        Label("tab.programs", systemImage: "list.bullet")
-                    }
-                    .accessibilityIdentifier("nav.installedPrograms")
-                    NavigationLink(value: BottleStage.processes) {
-                        HStack {
-                            Label("tab.processes", systemImage: "hockey.puck.circle")
-                            let count = ProcessRegistry.shared.getProcessCount(for: bottle)
-                            if count > 0 {
-                                Text("\(count)")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(.blue.opacity(0.15))
-                                    .clipShape(Capsule())
-                                    .foregroundStyle(.blue)
-                            }
+                    // What a person needs here is the settings; the rest is
+                    // for looking under the hood.
+                    Section {
+                        DisclosureGroup("Advanced", isExpanded: $showAdvanced.animation(.whiskyDefault)) {
+                            advancedLinks
                         }
                     }
-                    .accessibilityIdentifier("nav.runningProcesses")
                 }
                 .formStyle(.grouped)
                 .scrollDisabled(true)
@@ -92,6 +79,7 @@ struct BottleView: View {
                     showWinetricksSheet: $showWinetricksSheet,
                     programLoading: $programLoading,
                     toast: $toast,
+                    showAdvanced: showAdvanced,
                     onLaunch: updateStartMenu
                 )
             }
@@ -186,6 +174,34 @@ struct BottleView: View {
 }
 
 extension BottleView {
+    @ViewBuilder
+    private var advancedLinks: some View {
+        NavigationLink(value: BottleStage.gameConfigs) {
+            Label("tab.gameConfigs", systemImage: "gamecontroller")
+        }
+        .accessibilityIdentifier("nav.gameConfigurations")
+        NavigationLink(value: BottleStage.programs) {
+            Label("tab.programs", systemImage: "list.bullet")
+        }
+        .accessibilityIdentifier("nav.installedPrograms")
+        NavigationLink(value: BottleStage.processes) {
+            HStack {
+                Label("tab.processes", systemImage: "hockey.puck.circle")
+                let count = ProcessRegistry.shared.getProcessCount(for: bottle)
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.blue.opacity(0.15))
+                        .clipShape(Capsule())
+                        .foregroundStyle(.blue)
+                }
+            }
+        }
+        .accessibilityIdentifier("nav.runningProcesses")
+    }
+
     private func updateStartMenu() async {
         await bottle.updateInstalledPrograms()
 
