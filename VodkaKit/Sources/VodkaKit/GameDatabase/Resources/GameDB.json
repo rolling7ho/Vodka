@@ -6030,42 +6030,10 @@
       },
       "variants": [
         {
-          "id": "vodka-dxmt",
-          "label": "DirectX 12 (Vodka DXMT)",
-          "isDefault": true,
-          "whenToUse": "Recommended: Vodka's own DirectX 12 to Metal layer, built and tuned for Teardown",
-          "rationale": [
-            "Vodka's build of DXMT runs Teardown's DirectX 12 renderer straight on Metal, with its indirect draws encoded on the GPU",
-            "About 98 fps at the Lee Chemicals spawn at native resolution on an M4 Pro, and a steady 120 with Faster and MetalFX",
-            "Converted shaders are cached, so only the first start compiles them",
-            "Without Vodka's DirectX 12 files Teardown runs on D3DMetal instead"
-          ],
-          "settings": {
-            "graphicsBackend": "dxmtD3D12",
-            "dxvk": false,
-            "dxvkAsync": false,
-            "enhancedSync": "msync",
-            "shaderCacheEnabled": true,
-            "avxEnabled": false,
-            "sequoiaCompatMode": false
-          },
-          "environmentVariables": {},
-          "dllOverrides": [],
-          "winetricksVerbs": [
-            "vcrun2022"
-          ],
-          "testedWith": {
-            "lastTestedAt": "2026-10-26T00:00:00Z",
-            "macOSVersion": "27.0.1",
-            "wineVersion": "11.0",
-            "cpuArchitecture": "arm64"
-          }
-        },
-        {
           "id": "d3dmetal",
           "label": "DirectX 12 (D3DMetal)",
-          "isDefault": false,
-          "whenToUse": "Apple's D3DMetal, if a scene draws wrongly on Vodka's DirectX 12",
+          "isDefault": true,
+          "whenToUse": "Recommended: current Teardown renders with DirectX 12, which runs on Apple's D3DMetal",
           "rationale": [
             "Teardown 1.6 and later start in DirectX 12 and only fall back to OpenGL",
             "Without a DirectX 12 device it logs 'Failed to find any suitable GPU adapter', then fails to create an OpenGL 3.3 context and quits",
@@ -6088,6 +6056,38 @@
           ],
           "testedWith": {
             "lastTestedAt": "2026-10-24T00:00:00Z",
+            "macOSVersion": "27.0.1",
+            "wineVersion": "11.0",
+            "cpuArchitecture": "arm64"
+          }
+        },
+        {
+          "id": "vodka-dxmt",
+          "label": "DirectX 12 (Vodka DXMT, experimental)",
+          "isDefault": false,
+          "whenToUse": "Experimental: Vodka's own DirectX 12 to Metal layer. Borderless does not fill the screen and quitting reports a crash",
+          "rationale": [
+            "Vodka's build of DXMT runs Teardown's DirectX 12 renderer straight on Metal, with its indirect draws encoded on the GPU",
+            "About 98 fps at the Lee Chemicals spawn at native resolution on an M4 Pro, and a steady 120 with Faster and MetalFX",
+            "Converted shaders are cached, so only the first start compiles them",
+            "Without Vodka's DirectX 12 files Teardown runs on D3DMetal instead"
+          ],
+          "settings": {
+            "graphicsBackend": "dxmtD3D12",
+            "dxvk": false,
+            "dxvkAsync": false,
+            "enhancedSync": "msync",
+            "shaderCacheEnabled": true,
+            "avxEnabled": false,
+            "sequoiaCompatMode": false
+          },
+          "environmentVariables": {},
+          "dllOverrides": [],
+          "winetricksVerbs": [
+            "vcrun2022"
+          ],
+          "testedWith": {
+            "lastTestedAt": "2026-10-26T00:00:00Z",
             "macOSVersion": "27.0.1",
             "wineVersion": "11.0",
             "cpuArchitecture": "arm64"

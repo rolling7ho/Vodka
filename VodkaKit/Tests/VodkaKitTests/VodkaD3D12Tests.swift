@@ -163,9 +163,9 @@ final class VodkaD3D12Tests: XCTestCase {
         XCTAssertEqual(preset.first { $0.dllName == "vodkametal" }?.mode, .builtin)
     }
 
-    func testTeardownDefaultsToIt() {
+    func testTeardownDefaultsToD3DMetal() {
         let plan = LaunchResolver.plan(steamAppId: 1_167_630)
-        XCTAssertEqual(plan.overrides.graphicsBackend, .dxmtD3D12)
+        XCTAssertEqual(plan.overrides.graphicsBackend, .d3dMetal)
         XCTAssertTrue(plan.gameExecutables.contains("teardown.exe"))
     }
 
