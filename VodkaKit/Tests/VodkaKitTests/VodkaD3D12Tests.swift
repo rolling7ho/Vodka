@@ -89,8 +89,9 @@ final class VodkaD3D12Tests: XCTestCase {
 
         XCTAssertEqual(try Data(contentsOf: gameDir.appending(path: "d3d12.dll")), vodkaDLL("x64-d3d12.dll"))
         XCTAssertEqual(try Data(contentsOf: gameDir.appending(path: "dxgi.dll")), vodkaDLL("x64-dxgi.dll"))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: path(wineLibRoot.appending(path: "x86_64-unix/vodkametal.so"))))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: path(wineLibRoot.appending(path: "i386-windows/vodkametal.dll"))))
+        for file in ["x86_64-unix/vodkametal.so", "i386-windows/vodkametal.dll"] {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: path(wineLibRoot.appending(path: file))))
+        }
         XCTAssertEqual(
             try Data(contentsOf: prefixRoot.appending(path: "drive_c/windows/system32/vodkametal.dll")),
             vodkaDLL("x64-vodkametal.dll")
