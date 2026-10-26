@@ -22,6 +22,17 @@ fi
 APP="$DERIVED/Build/Products/Release/Vodka.app"
 [ -d "$APP" ] || { echo "build failed" >&2; exit 1; }
 
+# Vodka's DirectX 12 layer, staged by scripts/build-vodka-d3d12.sh. Without it
+# the games that would use it run on D3DMetal.
+D3D12="${VODKA_D3D12:-$ROOT/build/vodka-d3d12}"
+if [ -f "$D3D12/unix/vodkametal.so" ]; then
+    rm -rf "$APP/Contents/Resources/VodkaD3D12"
+    ditto "$D3D12" "$APP/Contents/Resources/VodkaD3D12"
+    codesign --force --sign - "$APP/Contents/Resources/VodkaD3D12/unix/vodkametal.so"
+else
+    echo "warning: no $D3D12; building without Vodka's DirectX 12 layer" >&2
+fi
+
 ENTITLEMENTS="$(mktemp -t vodka-entitlements).plist"
 codesign -d --entitlements - --xml "$APP" > "$ENTITLEMENTS"
 

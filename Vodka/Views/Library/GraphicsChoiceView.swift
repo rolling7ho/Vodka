@@ -88,7 +88,7 @@ enum GraphicsChoice: String, CaseIterable, Identifiable {
     init(backend: GraphicsBackend) {
         switch backend {
         case .recommended: self = .automatic
-        case .d3dMetal: self = .directX12
+        case .d3dMetal, .dxmtD3D12: self = .directX12
         case .dxmt: self = .directX11
         case .dxvk: self = .directX11Compatibility
         case .wined3d: self = .directX9

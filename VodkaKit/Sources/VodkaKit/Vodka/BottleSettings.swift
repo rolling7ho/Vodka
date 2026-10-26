@@ -901,7 +901,9 @@ public struct BottleSettings: Codable, Equatable {
 
         // Backend-conditional env vars and DLL overrides
         switch resolvedBackend {
-        case .d3dMetal, .recommended:
+        // Vodka's DirectX 12 layer is per game (see `VodkaD3D12`); a bottle
+        // set to it runs on D3DMetal, which its games fall back to anyway.
+        case .d3dMetal, .recommended, .dxmtD3D12:
             // Wine answers KMTQAITYPE_WDDM_2_7_CAPS, the query behind "hardware
             // accelerated GPU scheduling", only when this says d3dmetal, and
             // returns STATUS_NOT_IMPLEMENTED otherwise. NVIDIA Streamline

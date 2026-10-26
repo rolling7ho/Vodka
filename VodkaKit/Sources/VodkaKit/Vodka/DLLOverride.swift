@@ -201,6 +201,18 @@ public struct DLLOverrideResolver: Sendable {
         ] + d3d12Entries(builtinD3D12IsD3DMetal: builtinD3D12IsD3DMetal)
     }
 
+    /// Vodka's DirectX 12 build of DXMT (``VodkaD3D12``): its `d3d12` and
+    /// `dxgi` next to the game's executable, else D3DMetal's builtins, and its
+    /// own bridge. Program-level only: in the bottle scope it would send every
+    /// process, Steam's included, looking for a native `dxgi`.
+    public static func dxmtD3D12Preset() -> [DLLOverrideEntry] {
+        [
+            DLLOverrideEntry(dllName: "d3d12", mode: .nativeThenBuiltin),
+            DLLOverrideEntry(dllName: "dxgi", mode: .nativeThenBuiltin),
+            DLLOverrideEntry(dllName: VodkaD3D12.bridgeName, mode: .builtin)
+        ]
+    }
+
     /// `d3d12` for a translation layer that ships none: disabled when the
     /// builtin it would fall through to is D3DMetal's, and not mentioned at all
     /// when it is Wine's own.
@@ -226,7 +238,7 @@ public struct DLLOverrideResolver: Sendable {
             dxvkPreset(builtinD3D12IsD3DMetal: builtinD3D12IsD3DMetal)
         case .dxmt:
             dxmtPreset(builtinD3D12IsD3DMetal: builtinD3D12IsD3DMetal)
-        case .d3dMetal, .wined3d, .recommended:
+        case .d3dMetal, .dxmtD3D12, .wined3d, .recommended:
             []
         }
     }

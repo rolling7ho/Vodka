@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Vodka DirectX 12, Vodka's own DirectX 12 to Metal layer (a build of DXMT), runs Teardown by default:
+  it picks it automatically and falls back to D3DMetal if the layer is missing. About 98 fps at the
+  Lee Chemicals spawn at native resolution on an M4 Pro, and 120 with Faster. Teardown's D3DMetal
+  option stays under its GameDB configurations.
+
 ## [4.0.0] - 2026-10-26
 
 ### Changed (interface)

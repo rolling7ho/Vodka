@@ -34,6 +34,10 @@ public enum GraphicsBackend: String, Codable, CaseIterable, Equatable, Sendable 
     /// DXMT: Direct3D-11-to-Metal translation. Requires a runtime that bundles
     /// the DXMT payload (Wine Libraries ≥ 3.1.0).
     case dxmt
+    /// Vodka's own DirectX 12 to Metal build of DXMT, for single games such as
+    /// Teardown. Its files go next to the game's executable rather than into
+    /// the prefix, so the rest of the bottle keeps D3DMetal; see ``VodkaD3D12``.
+    case dxmtD3D12
     /// Wine's built-in OpenGL-based Direct3D translation.
     case wined3d
 
@@ -48,6 +52,8 @@ public enum GraphicsBackend: String, Codable, CaseIterable, Equatable, Sendable 
             "DXVK"
         case .dxmt:
             "DXMT"
+        case .dxmtD3D12:
+            "Vodka DirectX 12 (DXMT)"
         case .wined3d:
             "WineD3D"
         }
@@ -63,6 +69,8 @@ public enum GraphicsBackend: String, Codable, CaseIterable, Equatable, Sendable 
         switch self {
         case .dxmt:
             runtimeInfo?.dxmtVersion != nil
+        case .dxmtD3D12:
+            VodkaD3D12.isAvailable()
         case .recommended, .d3dMetal, .dxvk, .wined3d:
             true
         }
@@ -79,6 +87,8 @@ public enum GraphicsBackend: String, Codable, CaseIterable, Equatable, Sendable 
             String(localized: "config.graphics.backend.dxvk.summary")
         case .dxmt:
             String(localized: "config.graphics.backend.dxmt.summary")
+        case .dxmtD3D12:
+            "DirectX 12 straight to Metal with Vodka's build of DXMT, per game; D3DMetal stays for the rest"
         case .wined3d:
             String(localized: "config.graphics.backend.wined3d.summary")
         }

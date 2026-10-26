@@ -495,6 +495,7 @@ public class Wine {
         WineUserProfile.reconcile(bottleURL: bottle.url)
 
         try prepareBackendPrefix(effectiveBackend, bottle: bottle)
+        syncVodkaD3D12(bottle: bottle, launched: url, backend: effectiveBackend)
 
         // The MetalFX placeholder serves the bottle's games, and only D3DMetal
         // answers it. A launcher's own launch says nothing about them, so it is
@@ -1176,8 +1177,44 @@ public class Wine {
         switch backend {
         case .dxmt:
             try enableDXMT(bottle: bottle)
-        case .d3dMetal, .dxvk, .wined3d, .recommended:
+        case .d3dMetal, .dxmtD3D12, .dxvk, .wined3d, .recommended:
             break
+        }
+    }
+
+    /// Places Vodka's DirectX 12 layer beside every installed Steam game whose
+    /// plan picks it, and the launched program when it is one, and takes it
+    /// away from the others. Library-wide, like their `AppDefaults` entries,
+    /// since Steam can start a game without Vodka seeing it. A layer that cannot
+    /// be placed is logged: its games then run on D3DMetal.
+    @MainActor
+    private static func syncVodkaD3D12(bottle: Bottle, launched url: URL, backend: GraphicsBackend) {
+        var games: [URL] = []
+        var others: [URL] = []
+        for game in SteamLibrary.enumerate(bottleURL: bottle.url) {
+            let plan = LaunchResolver.plan(
+                steamAppId: game.appId,
+                userOverrides: SteamLauncher.userOverrides(forInstallURL: game.installURL, bottle: bottle)
+            )
+            let overrides = SteamLauncher.automaticBackend(for: plan, installURL: game.installURL, bottle: bottle)
+            let listed = Set(plan.gameExecutables.map { $0.lowercased() })
+            let all = SteamLibrary.executableURLs(under: game.installURL)
+            let executables = listed.isEmpty ? all : all.filter { listed.contains($0.lastPathComponent.lowercased()) }
+            if overrides.graphicsBackend == .dxmtD3D12 {
+                games += executables
+            } else {
+                others += all
+            }
+        }
+        // Not beside a launcher carrying a game's plan, as `steam.exe -applaunch`
+        // does: Steam's own processes would load this `dxgi`.
+        if backend == .dxmtD3D12, LauncherType.detect(from: url) == nil {
+            games.append(url)
+        }
+        do {
+            try VodkaD3D12.sync(bottle: bottle, gameExecutables: games, otherExecutables: others)
+        } catch {
+            Logger.wineKit.error("Vodka's DirectX 12 layer is not placed: \(error.localizedDescription)")
         }
     }
 

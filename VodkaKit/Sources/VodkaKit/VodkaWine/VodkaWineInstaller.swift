@@ -436,7 +436,7 @@ public class VodkaWineInstaller {
             return versionAvailable && dxmtRuntimeNative
         case .d3dMetal:
             return versionAvailable && d3dMetalInstalled
-        case .recommended, .dxvk, .wined3d:
+        case .recommended, .dxvk, .dxmtD3D12, .wined3d:
             return versionAvailable
         }
     }

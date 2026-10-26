@@ -233,7 +233,16 @@ extension Wine {
                 backend
             }
             switch resolved {
-            case .d3dMetal, .recommended:
+            case .dxmtD3D12 where VodkaD3D12.isAvailable():
+                // D3DMetal's environment, so falling back to its builtins on a
+                // missing file still works, with Vodka's d3d12 and dxgi on top.
+                dllResolver.programCustom.append(contentsOf: translationReset)
+                dllResolver.programCustom.append(contentsOf: DLLOverrideResolver.dxmtD3D12Preset())
+                builder.remove("DXVK_HUD", layer: .programUser)
+                builder.remove("DXVK_ASYNC", layer: .programUser)
+                builder.remove("WINED3DMETAL", layer: .programUser)
+
+            case .d3dMetal, .recommended, .dxmtD3D12:
                 // Undo any bottle-level DXVK/DXMT by overriding DLLs to builtin
                 dllResolver.programCustom.append(contentsOf: translationReset)
                 // Remove DXVK and wined3d env vars at program layer
