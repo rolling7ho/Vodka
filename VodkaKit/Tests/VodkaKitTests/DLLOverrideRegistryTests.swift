@@ -36,6 +36,38 @@ final class DLLOverrideRegistryTests: XCTestCase {
         )
     }
 
+    func testDirect3DScopeIsTheProgramsSiblingKey() {
+        XCTAssertEqual(
+            Wine.DLLOverrideScope.programDirect3D("Launcher.exe").registryKey,
+            #"HKCU\Software\Wine\AppDefaults\Launcher.exe\Direct3D"#
+        )
+    }
+
+    /// The skip-import check has to see the `Direct3D` key it wrote, or a
+    /// Rockstar bottle re-imports on every launch.
+    func testImportCheckReadsBackDirect3DKeys() throws {
+        let prefix = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        try FileManager.default.createDirectory(at: prefix, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: prefix) }
+        try """
+        WINE REGISTRY Version 2
+
+        [Software\\\\Wine\\\\AppDefaults\\\\Launcher.exe\\\\Direct3D] 1793338296
+        #time=1dd682fee63f186
+        "renderer"="gl"
+
+        [Software\\\\Wine\\\\Direct3D] 1793338296
+        "renderer"="vulkan"
+
+        """.write(to: prefix.appending(path: "user.reg"), atomically: true, encoding: .utf8)
+
+        let sections = Wine.dllOverrideSections(bottleURL: prefix)
+
+        XCTAssertEqual(sections[#"hkcu\software\wine\appdefaults\launcher.exe\direct3d"#], ["renderer": "gl"])
+        // The prefix-wide key is the user's, not the sync's.
+        XCTAssertNil(sections[#"hkcu\software\wine\direct3d"#])
+    }
+
     /// Two executables must land in different keys, which is the whole point:
     /// an environment variable could not separate a launcher from the games it
     /// spawns.

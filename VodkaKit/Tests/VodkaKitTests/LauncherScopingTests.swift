@@ -279,6 +279,46 @@ final class LauncherScopingTests {
         #expect(recorder.programScopes.contains("SocialClubHelper.exe"))
     }
 
+    @Test(
+        "A Steam launch puts Rockstar's launcher on wined3d's OpenGL backend for its Direct2D window",
+        arguments: [false, true]
+    )
+    func steamLaunchWritesRockstarOpenGLRenderer(_ applaunch: Bool) async throws {
+        let bottle = try makeBottle(.recommended)
+        _ = try makeExecutable("Program Files/Rockstar Games/Launcher/Launcher.exe", in: bottle)
+        let recorder = ScopeRecorder()
+
+        _ = try await prepareSteam(bottle, applaunch: applaunch, recorder: recorder)
+
+        #expect(recorder.overrides(for: .programDirect3D("Launcher.exe")) == ["renderer": "gl"])
+        // Chromium, on DXVK: no wined3d setting of its own.
+        #expect(recorder.overrides(for: .programDirect3D("SocialClubHelper.exe")) == nil)
+    }
+
+    @Test("Launching Rockstar's launcher itself writes its OpenGL renderer too")
+    func rockstarLaunchWritesOpenGLRenderer() async throws {
+        let bottle = try makeBottle(.recommended)
+        let launcher = try makeExecutable("Program Files/Rockstar Games/Launcher/Launcher.exe", in: bottle)
+        let recorder = ScopeRecorder()
+
+        _ = try await Wine.prepareProgramLaunch(
+            at: launcher, bottle: bottle, recommendedBackend: .d3dMetal, builtinD3D12IsD3DMetal: true,
+            overrideWriter: recorder.writer, importer: recorder.importer
+        )
+
+        #expect(recorder.overrides(for: .programDirect3D("Launcher.exe")) == ["renderer": "gl"])
+    }
+
+    @Test("No OpenGL renderer entry in a bottle without Rockstar's launcher")
+    func noRockstarOpenGLRendererWithoutRockstar() async throws {
+        let bottle = try makeBottle(.recommended)
+        let recorder = ScopeRecorder()
+
+        _ = try await prepareSteam(bottle, applaunch: false, recorder: recorder)
+
+        #expect(recorder.overrides(for: .programDirect3D("Launcher.exe")) == nil)
+    }
+
     // MARK: - Matrix row 9: the MetalFX placeholder
 
     @Test("Starting Steam leaves the MetalFX placeholder its games need")

@@ -26,6 +26,9 @@ public extension Wine {
         case bottle
         /// This executable only. Children do not inherit it.
         case program(String)
+        /// This executable's wined3d settings (`renderer=gl`, say) rather than
+        /// its DLL overrides. Same syntax, a sibling key.
+        case programDirect3D(String)
 
         var registryKey: String {
             switch self {
@@ -35,6 +38,8 @@ public extension Wine {
                 // \\#( is a literal backslash then the interpolation; \#( alone
                 // would swallow the path separator.
                 #"HKCU\Software\Wine\AppDefaults\\#(executable)\DllOverrides"#
+            case let .programDirect3D(executable):
+                #"HKCU\Software\Wine\AppDefaults\\#(executable)\Direct3D"#
             }
         }
     }
@@ -200,10 +205,15 @@ public extension Wine {
             }
         }
 
-        scopes.add(
-            chainExecutables(for: launcher, descendantLaunchers: descendantLaunchers, bottleURL: bottle.url),
-            disablingD3D12(in: launcherSet(nil))
-        )
+        let chain = chainExecutables(for: launcher, descendantLaunchers: descendantLaunchers, bottleURL: bottle.url)
+        scopes.add(chain, disablingD3D12(in: launcherSet(nil)))
+
+        // Rockstar's launcher also needs wined3d on OpenGL, whether it is in
+        // this launch's chain or is the launch itself (whose own entry took its
+        // name above): see ``LauncherType/openGLRendererExecutables``.
+        if launcher == .rockstar || !chain.isEmpty {
+            scopes.addDirect3D(LauncherType.rockstar.openGLRendererExecutables, "renderer=gl")
+        }
 
         try await writer(bottle, scopes.entries)
     }
@@ -221,6 +231,14 @@ public extension Wine {
         mutating func add(_ executables: [String], _ overrides: String) {
             for executable in executables where taken.insert(executable.lowercased()).inserted {
                 entries.append((scope: .program(executable), overrides: overrides))
+            }
+        }
+
+        /// Adds each executable's `Direct3D` key, apart from the DLL override
+        /// entries `add` claims names for.
+        mutating func addDirect3D(_ executables: [String], _ settings: String) {
+            for executable in executables where !entries.contains(where: { $0.scope == .programDirect3D(executable) }) {
+                entries.append((scope: .programDirect3D(executable), overrides: settings))
             }
         }
     }

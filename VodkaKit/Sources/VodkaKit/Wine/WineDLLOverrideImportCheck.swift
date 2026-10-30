@@ -49,8 +49,9 @@ extension Wine {
         }
     }
 
-    /// Every `DllOverrides` key in the prefix's `user.reg`, keyed by its
-    /// lower-cased `HKCU\…` path, with each value lower-cased.
+    /// Every `DllOverrides` key in the prefix's `user.reg`, and every per-program
+    /// `Direct3D` key the sync also writes, keyed by its lower-cased `HKCU\…`
+    /// path, with each value lower-cased.
     static func dllOverrideSections(bottleURL: URL) -> [String: [String: String]] {
         guard let text = try? String(contentsOf: bottleURL.appending(path: "user.reg"), encoding: .utf8)
         else { return [:] }
@@ -61,7 +62,9 @@ extension Wine {
                 // Wine's own files double each backslash in a key's name.
                 let path = line.dropFirst().prefix { $0 != "]" }.lowercased()
                     .replacingOccurrences(of: "\\\\", with: "\\")
-                section = path.hasSuffix("\\dlloverrides") ? #"hkcu\"# + path : nil
+                let synced = path.hasSuffix("\\dlloverrides")
+                    || (path.hasPrefix("software\\wine\\appdefaults\\") && path.hasSuffix("\\direct3d"))
+                section = synced ? #"hkcu\"# + path : nil
                 if let section { sections[section] = [:] }
             } else if let section, line.first == "\"" {
                 let parts = line.dropFirst().split(separator: "\"", omittingEmptySubsequences: false)

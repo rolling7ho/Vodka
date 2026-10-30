@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Rockstar titles on Steam (Grand Theft Auto V, Red Dead Redemption 2 and others) no longer stop at
+  "The Rockstar Games Launcher failed to initialize". The launcher now draws its window with Wine's
+  OpenGL renderer, which supports the Direct2D it needs.
+
 ### Added
 - Vodka DirectX 12, Vodka's own DirectX 12 to Metal layer (a build of DXMT), as an experimental
   Teardown configuration. Teardown stays on D3DMetal by default.

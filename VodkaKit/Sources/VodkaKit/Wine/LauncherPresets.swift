@@ -291,6 +291,27 @@ public enum LauncherType: String, Codable, CaseIterable, Sendable, Identifiable 
         }
     }
 
+    /// Executables of this launcher that need wined3d on OpenGL rather than
+    /// Vulkan, written beside their ``chainExecutables`` entries.
+    ///
+    /// Rockstar's `Launcher.exe` draws its window with Direct2D, whose device
+    /// d3d10_1 only creates after asking `dxgi` whether the adapter supports
+    /// D3D10. Under the DXVK layout that `dxgi` is Wine's own (DXVK-macOS ships
+    /// none), which answers from wined3d, and wined3d's Vulkan backend on
+    /// MoltenVK supports no D3D10 feature level: the check fails with
+    /// `DXGI_ERROR_UNSUPPORTED`, Direct2D has no device, and the launcher
+    /// stops at "The Rockstar Games Launcher failed to initialize". Its OpenGL
+    /// backend passes the check. Social Club draws with Chromium on DXVK and
+    /// needs nothing here.
+    public var openGLRendererExecutables: [String] {
+        switch self {
+        case .rockstar:
+            ["Launcher.exe"]
+        case .steam, .epicGames, .eaApp, .battleNet, .ubisoft, .paradox:
+            []
+        }
+    }
+
     /// Steam App IDs of Rockstar titles that start the Rockstar Games Launcher,
     /// so a Steam launch of one writes Rockstar's ``chainExecutables`` entries
     /// even before that launcher is installed: the first run installs it and
