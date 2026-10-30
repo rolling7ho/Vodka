@@ -7,6 +7,23 @@
         <language>en</language>
         <!-- items -->
         <item>
+            <title>Vodka 4.1.1</title>
+            <pubDate>Fri, 30 Oct 2026 13:53:53 +0000</pubDate>
+            <sparkle:version>58</sparkle:version>
+            <sparkle:shortVersionString>4.1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h3>Fixed</h3>
+<ul>
+<li>The Rockstar Games Launcher no longer crashes right after sign-in, which ended in "Unable to launch game, please try reinstalling the game". It now runs without NVIDIA's NVAPI, which it called into because Wine's OpenGL renderer reports an NVIDIA card.
+<li>Grand Theft Auto V Enhanced starts instead of stopping at ERR_GFX_D3D_NOD3D12. Vodka now installs D3DMetal's own <code>d3d12core</code> beside its <code>d3d12</code>: Wine's reported an older Agility SDK than the game requires. The game also has a database entry now, so it gets D3DMetal on its own. Engine 4.6.12 stops D3DMetal's worker threads from crashing the game while it loads.
+<li>Engine 4.6.12 runs on macOS 15 and 26 again. Since 4.6.5 its Mac display driver was built for macOS 27 only, so on older systems Windows programs could not open windows.
+<li>Vodka's window no longer freezes while macOS asks for access to Downloads. The check for a downloaded Game Porting Toolkit now runs in the background.
+</ul>
+            ]]></description>
+            <enclosure url="https://github.com/rolling7ho/Vodka/releases/download/app-v4.1.1/Vodka-4.1.1.zip" sparkle:edSignature="ZRYhUiBq3J0Lz5JyEbeBrHZx+Y6MuElZq8Ek3BW2wrMJQMubNsyI6nfLqo0vfUvChKSXJ8GJAy72QdQq4MUbCg==" length="28630232" type="application/octet-stream" />
+        </item>
+        <item>
             <title>Vodka 4.1.0</title>
             <pubDate>Fri, 30 Oct 2026 07:09:33 +0000</pubDate>
             <sparkle:version>57</sparkle:version>
