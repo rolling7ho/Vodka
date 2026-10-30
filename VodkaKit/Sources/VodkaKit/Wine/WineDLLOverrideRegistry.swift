@@ -171,7 +171,7 @@ public extension Wine {
             scopes.add(helperExecutables(for: url), disablingNVAPI(in: own))
             // The launched executable needs its own entry too: AppDefaults is per
             // executable and children do not inherit it.
-            scopes.add([url.lastPathComponent], own)
+            scopes.add([url.lastPathComponent], LauncherType.rendersOnOpenGL(url) ? disablingNVAPI(in: own) : own)
         }
 
         // Steam's own processes, whatever this launch is. Something other than
@@ -206,7 +206,10 @@ public extension Wine {
         }
 
         let chain = chainExecutables(for: launcher, descendantLaunchers: descendantLaunchers, bottleURL: bottle.url)
-        scopes.add(chain, disablingD3D12(in: launcherSet(nil)))
+        // No NVAPI either: on wined3d's OpenGL renderer the launcher sees an
+        // NVIDIA card and calls into D3DMetal's NVAPI, which lacks what it asks
+        // for, and it crashes right after sign-in.
+        scopes.add(chain, disablingNVAPI(in: disablingD3D12(in: launcherSet(nil))))
 
         // Rockstar's launcher also needs wined3d on OpenGL, whether it is in
         // this launch's chain or is the launch itself (whose own entry took its

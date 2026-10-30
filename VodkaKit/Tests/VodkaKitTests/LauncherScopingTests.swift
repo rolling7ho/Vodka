@@ -293,6 +293,10 @@ final class LauncherScopingTests {
         #expect(recorder.overrides(for: .programDirect3D("Launcher.exe")) == ["renderer": "gl"])
         // Chromium, on DXVK: no wined3d setting of its own.
         #expect(recorder.overrides(for: .programDirect3D("SocialClubHelper.exe")) == nil)
+        // That renderer reports an NVIDIA card; D3DMetal's NVAPI then crashes the launcher.
+        for exe in ["Launcher.exe", "SocialClubHelper.exe"] {
+            #expect(recorder.overrides(for: .program(exe))?["nvapi64"] == "")
+        }
     }
 
     @Test("Launching Rockstar's launcher itself writes its OpenGL renderer too")
@@ -307,6 +311,7 @@ final class LauncherScopingTests {
         )
 
         #expect(recorder.overrides(for: .programDirect3D("Launcher.exe")) == ["renderer": "gl"])
+        #expect(recorder.overrides(for: .program("Launcher.exe"))?["nvapi64"] == "")
     }
 
     @Test("No OpenGL renderer entry in a bottle without Rockstar's launcher")

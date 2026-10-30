@@ -303,12 +303,26 @@ public enum LauncherType: String, Codable, CaseIterable, Sendable, Identifiable 
     /// stops at "The Rockstar Games Launcher failed to initialize". Its OpenGL
     /// backend passes the check. Social Club draws with Chromium on DXVK and
     /// needs nothing here.
+    ///
+    /// That backend reports an NVIDIA card, so these also run without NVAPI:
+    /// the launcher otherwise loads D3DMetal's, calls a function it lacks, and
+    /// crashes as its main window opens.
     public var openGLRendererExecutables: [String] {
         switch self {
         case .rockstar:
             ["Launcher.exe"]
         case .steam, .epicGames, .eaApp, .battleNet, .ubisoft, .paradox:
             []
+        }
+    }
+
+    /// Whether `url` is an executable of any launcher's
+    /// ``openGLRendererExecutables``.
+    static func rendersOnOpenGL(_ url: URL) -> Bool {
+        allCases.contains { launcher in
+            launcher.openGLRendererExecutables.contains {
+                $0.caseInsensitiveCompare(url.lastPathComponent) == .orderedSame
+            }
         }
     }
 
