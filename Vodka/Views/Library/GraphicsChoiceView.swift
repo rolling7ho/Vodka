@@ -272,9 +272,13 @@ struct GPTKInstallCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.background.secondary, in: RoundedRectangle(cornerRadius: 10))
         .task {
-            // The download happens in the browser; keep looking for it.
+            // The download happens in the browser; keep looking for it. Off the
+            // main thread: the first read of Downloads waits on macOS's privacy
+            // prompt, which froze the whole window until it was answered.
             while !Task.isCancelled, !installed {
-                if !working { found = Self.findDownloadedToolkit() }
+                if !working {
+                    found = await Task.detached(priority: .utility) { Self.findDownloadedToolkit() }.value
+                }
                 try? await Task.sleep(for: .seconds(3))
             }
         }
@@ -301,7 +305,7 @@ struct GPTKInstallCard: View {
     }
 
     /// The newest Game Porting Toolkit disk image in Downloads, if there is one.
-    static func findDownloadedToolkit() -> URL? {
+    nonisolated static func findDownloadedToolkit() -> URL? {
         guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first,
               let items = try? FileManager.default.contentsOfDirectory(
                   at: downloads, includingPropertiesForKeys: [.contentModificationDateKey]

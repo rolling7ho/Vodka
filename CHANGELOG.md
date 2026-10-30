@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Rockstar Games Launcher no longer crashes right after sign-in, which ended in "Unable to launch
   game, please try reinstalling the game". It now runs without NVIDIA's NVAPI, which it called into
   because Wine's OpenGL renderer reports an NVIDIA card.
+- Grand Theft Auto V Enhanced starts instead of stopping at ERR_GFX_D3D_NOD3D12. Vodka now installs
+  D3DMetal's own `d3d12core` beside its `d3d12`: Wine's reported an older Agility SDK than the game
+  requires. The game also has a database entry now, so it gets D3DMetal on its own. Engine 4.6.12
+  stops D3DMetal's worker threads from crashing the game while it loads.
+- Engine 4.6.12 runs on macOS 15 and 26 again. Since 4.6.5 its Mac display driver was built for
+  macOS 27 only, so on older systems Windows programs could not open windows.
+- Vodka's window no longer freezes while macOS asks for access to Downloads. The check for a
+  downloaded Game Porting Toolkit now runs in the background.
 
 ## [4.1.0] - 2026-10-30
 

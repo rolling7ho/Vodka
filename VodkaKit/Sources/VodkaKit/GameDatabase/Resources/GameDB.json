@@ -2148,6 +2148,86 @@
       }
     },
     {
+      "id": "gta-v-enhanced",
+      "title": "Grand Theft Auto V Enhanced",
+      "aliases": [
+        "GTA V Enhanced",
+        "GTA 5 Enhanced",
+        "GTAV Enhanced"
+      ],
+      "subtitle": "Rockstar Games",
+      "store": "steam",
+      "steamAppId": 3240220,
+      "rating": "unverified",
+      "exeNames": [
+        "GTA5_Enhanced.exe"
+      ],
+      "pathPatterns": [
+        "grand theft auto v enhanced"
+      ],
+      "antiCheat": "BattlEye",
+      "constraints": {
+        "cpuArchitectures": [
+          "arm64"
+        ],
+        "minMacOSVersion": "15.0.0",
+        "minWineVersion": "10.0"
+      },
+      "variants": [
+        {
+          "id": "d3dmetal",
+          "label": "DirectX 12 (D3DMetal)",
+          "isDefault": true,
+          "whenToUse": "Recommended: the Enhanced edition renders with DirectX 12 only, which runs on Apple's D3DMetal",
+          "rationale": [
+            "The game imports no Direct3D DLL, so nothing detects it as DirectX 12 without this entry, and it would get DXVK's d3d11 and no D3DMetal",
+            "It requires the Agility SDK: D3D12Core.dll must report a D3D12SDKVersion above 610 or it stops with ERR_GFX_D3D_NOD3D12, so Vodka deploys D3DMetal's own d3d12core (619) in place of Wine's (602)",
+            "The Rockstar Games Launcher it starts from gets its own per-executable overrides (OpenGL renderer, no NVAPI)"
+          ],
+          "settings": {
+            "graphicsBackend": "d3dMetal",
+            "dxvk": false,
+            "dxvkAsync": false,
+            "enhancedSync": "msync",
+            "shaderCacheEnabled": true,
+            "avxEnabled": false,
+            "sequoiaCompatMode": false
+          },
+          "environmentVariables": {},
+          "dllOverrides": [],
+          "winetricksVerbs": [],
+          "testedWith": {
+            "lastTestedAt": "2026-10-30T00:00:00Z",
+            "macOSVersion": "27.2.0",
+            "wineVersion": "11.0",
+            "cpuArchitecture": "arm64"
+          }
+        }
+      ],
+      "notes": [
+        "Story mode starts without BattlEye; GTA Online needs it and is not expected to work",
+        "D3DMetal presents an AMD adapter with no AMD driver, so the game warns that the graphics driver is older than it wants; choose OK to continue"
+      ],
+      "knownIssues": [
+        {
+          "description": "Needs an engine that keeps D3DMetal's worker threads from faulting on errno, or it crashes during Game Init",
+          "severity": "critical",
+          "workaround": "Update the Vodka engine"
+        },
+        {
+          "description": "Minimum Recommended Hardware Check warns about the AMD driver version on every start",
+          "severity": "minor",
+          "workaround": "Choose OK"
+        }
+      ],
+      "provenance": {
+        "source": "vodka-knowledge",
+        "author": "Vodka Team",
+        "lastUpdated": "2026-10-30T00:00:00Z",
+        "referenceURL": null
+      }
+    },
+    {
       "id": "hades",
       "title": "Hades",
       "aliases": [

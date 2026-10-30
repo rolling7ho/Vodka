@@ -102,6 +102,57 @@ struct GPTKDeploymentTests {
         #expect(!FileManager.default.fileExists(atPath: external.path(percentEncoded: false)))
     }
 
+    @Test("A payload's d3d12core replaces Wine's, and remove puts Wine's back")
+    func optionalForwarderRoundTrip() throws {
+        let store = try makeImportedStore(in: tempDir)
+        let runtime = tempDir.appending(path: "Libraries")
+        try makeRuntime(at: runtime)
+        let wineLib = runtime.appending(path: "Wine").appending(path: "lib")
+        let peDir = wineLib.appending(path: "wine").appending(path: "x86_64-windows")
+        let core = peDir.appending(path: "d3d12core.dll")
+        var wineCore = fakePE(builtin: true)
+        wineCore.append(Data("wine original".utf8))
+        try wineCore.write(to: core)
+        var appleCore = fakePE(builtin: true)
+        appleCore.append(Data("apple core".utf8))
+        try appleCore.write(
+            to: store.appending(path: "lib").appending(path: "wine").appending(path: "x86_64-windows")
+                .appending(path: "d3d12core.dll")
+        )
+
+        try GPTKImporter.deploy(fromStore: store, intoLibraryFolder: runtime)
+
+        #expect(try Data(contentsOf: core) == appleCore)
+        let link = wineLib.appending(path: "wine").appending(path: "x86_64-unix").appending(path: "d3d12core.so")
+        #expect(
+            try FileManager.default.destinationOfSymbolicLink(atPath: link.path(percentEncoded: false))
+                == GPTKImporter.unixLinkDestination
+        )
+
+        try GPTKImporter.remove(fromLibraryFolder: runtime, usingStore: store)
+
+        #expect(try Data(contentsOf: core) == wineCore)
+        #expect((try? FileManager.default.destinationOfSymbolicLink(atPath: link.path(percentEncoded: false))) == nil)
+    }
+
+    @Test("A payload without d3d12core leaves Wine's in place")
+    func missingOptionalForwarderIsSkipped() throws {
+        let store = try makeImportedStore(in: tempDir)
+        let runtime = tempDir.appending(path: "Libraries")
+        try makeRuntime(at: runtime)
+        let wineLib = runtime.appending(path: "Wine").appending(path: "lib")
+        let core = wineLib.appending(path: "wine").appending(path: "x86_64-windows").appending(path: "d3d12core.dll")
+        var wineCore = fakePE(builtin: true)
+        wineCore.append(Data("wine original".utf8))
+        try wineCore.write(to: core)
+
+        try GPTKImporter.deploy(fromStore: store, intoLibraryFolder: runtime)
+
+        #expect(try Data(contentsOf: core) == wineCore)
+        let link = wineLib.appending(path: "wine").appending(path: "x86_64-unix").appending(path: "d3d12core.so")
+        #expect((try? FileManager.default.destinationOfSymbolicLink(atPath: link.path(percentEncoded: false))) == nil)
+    }
+
     // MARK: - Surviving a runtime install
 
     @Test("The store and its backups survive a runtime reinstall")

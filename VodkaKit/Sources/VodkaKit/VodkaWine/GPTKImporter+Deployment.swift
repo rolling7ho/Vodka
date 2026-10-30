@@ -42,6 +42,26 @@ extension GPTKImporter {
 
     // MARK: - Deployment
 
+    /// Forwarders deployed when the payload has them, but not required of it.
+    /// GPTK 4's `d3d12core` has to replace Wine's: games built on the Agility
+    /// SDK check `D3D12SDKVersion` on the loaded `D3D12Core.dll`, Wine's vkd3d
+    /// build says 602 where GTA V Enhanced wants more than 610, and Apple's
+    /// says 619.
+    static let optionalForwarderDLLNames = ["d3d12core.dll"]
+
+    /// The optional forwarders the payload at `libRoot` ships.
+    static func optionalForwarders(inPayload libRoot: URL) -> [String] {
+        let peDir = libRoot.appending(path: "wine").appending(path: "x86_64-windows")
+        return optionalForwarderDLLNames.filter {
+            FileManager.default.fileExists(atPath: peDir.appending(path: $0).path(percentEncoded: false))
+        }
+    }
+
+    /// The unix bridge name a forwarder DLL needs.
+    static func unixBridgeName(forForwarder dll: String) -> String {
+        (dll as NSString).deletingPathExtension + ".so"
+    }
+
     /// Whether the payload is deployed into the runtime tree.
     public static func isDeployed() -> Bool {
         isDeployed(inLibraryFolder: VodkaWineInstaller.libraryFolder)
@@ -182,7 +202,8 @@ extension GPTKImporter {
         // interposer away as if it were Wine's own builtin.
         removeVideoProcessor(fromLibraryFolder: folder, usingStore: store)
 
-        for name in forwarderDLLNames {
+        let optional = optionalForwarders(inPayload: storeLib)
+        for name in forwarderDLLNames + optional {
             let target = peDir.appending(path: name)
             let backup = originals.appending(path: name)
             // Back up whatever Wine shipped, once; a redeploy over an existing
@@ -202,7 +223,7 @@ extension GPTKImporter {
         }
 
         try fileManager.createDirectory(at: unixDir, withIntermediateDirectories: true)
-        for name in unixLibraryNames {
+        for name in unixLibraryNames + optional.map(unixBridgeName(forForwarder:)) {
             let link = unixDir.appending(path: name)
             try? fileManager.removeItem(at: link)
             try fileManager.createSymbolicLink(
@@ -269,7 +290,7 @@ extension GPTKImporter {
         removeVideoProcessor(fromLibraryFolder: folder, usingStore: store)
         removeNVAPIBridge(fromLibraryFolder: folder, usingStore: store)
 
-        for name in forwarderDLLNames {
+        for name in forwarderDLLNames + optionalForwarderDLLNames {
             let backup = originals.appending(path: name)
             let hasBackup = fileManager.fileExists(atPath: backup.path(percentEncoded: false))
 
@@ -297,7 +318,7 @@ extension GPTKImporter {
 
         // removeItem operates on the link itself, so this also clears a
         // dangling symlink that fileExists (which follows links) would miss.
-        for name in unixLibraryNames {
+        for name in unixLibraryNames + optionalForwarderDLLNames.map(unixBridgeName(forForwarder:)) {
             try? fileManager.removeItem(at: unixDir.appending(path: name))
         }
 

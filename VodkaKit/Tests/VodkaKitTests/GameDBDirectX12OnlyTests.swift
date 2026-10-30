@@ -32,6 +32,7 @@ struct GameDBDirectX12OnlyTests {
     static let directX12OnlyEntryIds: Set<String> = [
         "animal-well",
         "cyberpunk-2077",
+        "gta-v-enhanced",
         "horizon-forbidden-west",
         "horizon-zero-dawn",
         "jusant",
@@ -62,5 +63,12 @@ struct GameDBDirectX12OnlyTests {
                 #expect(variant.settings.dxvk != true, "\(entry.id) / \(variant.id) turns DXVK on")
             }
         }
+    }
+
+    @Test("GTA V Enhanced's game executable is planned onto D3DMetal")
+    func gtaVEnhancedGetsD3DMetal() throws {
+        let plan = try LaunchResolver.plan(steamAppId: 3_240_220, entries: GameDBLoader.loadDefaults())
+        #expect(plan.overrides.graphicsBackend == .d3dMetal)
+        #expect(plan.gameExecutables == ["GTA5_Enhanced.exe"])
     }
 }
