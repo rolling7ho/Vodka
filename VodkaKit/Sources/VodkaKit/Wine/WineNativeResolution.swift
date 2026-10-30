@@ -70,6 +70,7 @@ extension Wine {
             + steamAutostartRemoval(bottle: bottle)
             + steamGPURecovery(bottle: bottle)
             + steamSmoothScrollDefault(bottle: bottle)
+            + commandKeyDocument(bottle: bottle)
             + WineGameInput.document(bottle: bottle, gameExecutables: gameExecutables)
         guard !document.isEmpty else { return }
         do {
@@ -227,6 +228,27 @@ extension Wine {
         )
         guard value == nil else { return "" }
         return "[HKEY_CURRENT_USER\\Software\\Valve\\Steam]\n\"SmoothScrollWebViews\"=dword:00000000\n\n"
+    }
+
+    /// Command as Ctrl, as the bottle's setting says, or an empty string.
+    ///
+    /// Wine sends Command as Alt unless told otherwise, so Cmd+C and Cmd+V
+    /// copy and paste nothing. The toggle writes the keys when flipped; this
+    /// catches a bottle made before it, or whose keys were changed by hand.
+    @MainActor
+    static func commandKeyDocument(bottle: Bottle) -> String {
+        let value = bottle.settings.commandActsAsControl ? "Y" : "N"
+        let names = ["LeftCommandIsCtrl", "RightCommandIsCtrl"]
+        let stale = names.filter { name in
+            let current = WineRegistryFile.readValue(
+                bottleURL: bottle.url, key: #"HKCU\Software\Wine\Mac Driver"#, valueName: name
+            )
+            // Unset reads as off, so an unset key only needs writing to turn it on.
+            return (current?.uppercased().first.map(String.init) ?? "N") != value
+        }
+        guard !stale.isEmpty else { return "" }
+        return "[HKEY_CURRENT_USER\\Software\\Wine\\Mac Driver]\n"
+            + stale.map { "\"\($0)\"=\"\(value)\"\n" }.joined() + "\n"
     }
 
     /// Takes Steam out of the bottle's startup programs.

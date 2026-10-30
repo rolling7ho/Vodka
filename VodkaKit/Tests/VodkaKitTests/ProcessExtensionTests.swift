@@ -235,6 +235,17 @@ final class ProcessRunStreamTests: XCTestCase {
         return outputs
     }
 
+    /// A child left running with the pipes, as the Wine server is after the
+    /// first process in a bottle, does not hold the stream open past the exit.
+    func testFinishesWhenTheProcessExitsDespiteAnInheritingChild() async throws {
+        let start = Date()
+        let outputs = try await collectOutput(script: "sleep 5 & printf 'done\\n'")
+
+        XCTAssertLessThan(Date().timeIntervalSince(start), 3)
+        XCTAssertEqual(outputs.last, .terminated(0))
+        XCTAssertTrue(outputs.contains { if case let .message(text) = $0 { text.contains("done") } else { false } })
+    }
+
     func testHappyPathYieldsOutputAndTermination() async throws {
         let outputs = try await collectOutput(script: "printf 'hello\\n'")
 

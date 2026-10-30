@@ -123,8 +123,8 @@ public extension Process {
                 // The pipe's write end closed while this handler is still installed
                 // (the process can stop writing well before it exits). `readabilityHandler`
                 // keeps firing on the permanently-readable EOF condition, pegging a CPU
-                // core, so remove it here. Any final bytes are drained by the termination
-                // handler's `readToEnd` (whisky-app/whisky#917).
+                // core, so remove it here. Any final bytes are drained when the process
+                // exits (whisky-app/whisky#917).
                 pipeHandle.readabilityHandler = nil
             case .pending:
                 // A non-empty chunk that isn't valid UTF-8 on its own (e.g. a multi-byte
@@ -180,7 +180,11 @@ public extension Process {
         fileHandle: FileHandle?
     ) throws {
         // `readabilityHandler` may stop firing before the last bytes are consumed.
-        guard let remaining = try handle.readToEnd(),
+        // Only what is already buffered: the process has exited, so it wrote
+        // nothing more, but the Wine server and services the first process in
+        // a bottle boots inherit its pipes. Reading to the end waited for them
+        // to close theirs, about three seconds on every cold launch.
+        guard let remaining = handle.readBuffered(),
               let text = String(data: remaining, encoding: .utf8),
               !text.isEmpty
         else { return }
@@ -260,5 +264,26 @@ extension FileHandle {
         guard !data.isEmpty else { return .endOfFile }
         guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return .pending }
         return .text(text)
+    }
+
+    /// Everything the pipe holds right now, without waiting for its other
+    /// writers to close it, or `nil` when it holds nothing.
+    func readBuffered() -> Data? {
+        let descriptor = fileDescriptor
+        let flags = fcntl(descriptor, F_GETFL)
+        guard flags >= 0, fcntl(descriptor, F_SETFL, flags | O_NONBLOCK) >= 0 else { return nil }
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 65_536)
+        while true {
+            let count = Darwin.read(descriptor, &buffer, buffer.count)
+            if count > 0 {
+                data.append(buffer, count: count)
+            } else if count < 0, errno == EINTR {
+                continue
+            } else {
+                break  // 0: every writer closed; -1 with EAGAIN: nothing more buffered.
+            }
+        }
+        return data.isEmpty ? nil : data
     }
 }

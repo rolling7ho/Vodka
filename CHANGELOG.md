@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Copy and paste between macOS and Windows programs works with ⌘C and ⌘V. The Command key now acts as
+  Windows Ctrl by default (Wine sent it as Alt), and the bottle's setting is checked again before each launch.
+- Steam no longer shows two icons in the Dock. Its background process stays out of the Dock and only
+  the Steam window's own process shows (needs the engine's updated Mac driver).
+- Opening Steam, or anything else, in a bottle that is not yet running starts about three seconds sooner.
+  Vodka no longer waits for Wine's background services to let go of the first process's output.
 - Rockstar titles on Steam (Grand Theft Auto V, Red Dead Redemption 2 and others) no longer stop at
   "The Rockstar Games Launcher failed to initialize". The launcher now draws its window with Wine's
   OpenGL renderer, which supports the Direct2D it needs.

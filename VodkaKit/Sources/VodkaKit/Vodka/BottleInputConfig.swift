@@ -84,8 +84,9 @@ public struct BottleInputConfig: Codable, Equatable {
     /// When `true`, sets `LeftCommandIsCtrl` and `RightCommandIsCtrl` under
     /// `HKCU\Software\Wine\Mac Driver` so common Cmd+A/Cmd+C/Cmd+V/Cmd+S
     /// keystrokes register inside Wine apps as their Windows equivalents.
-    /// Applied at bottle init / on toggle via `winetricks` registry writes.
-    var commandActsAsControl: Bool = false
+    /// On by default: Wine otherwise sends Command as Alt, so Cmd+V pastes
+    /// nothing. Written on toggle and checked again before every launch.
+    var commandActsAsControl: Bool = true
 
     public init() {}
 
@@ -111,6 +112,6 @@ public struct BottleInputConfig: Codable, Equatable {
         self.commandActsAsControl = try container.decodeIfPresent(
             Bool.self,
             forKey: .commandActsAsControl
-        ) ?? false
+        ) ?? true
     }
 }
