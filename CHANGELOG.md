@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-10-30
+
 ### Fixed
 - Copy and paste between macOS and Windows programs works with ⌘C and ⌘V. The Command key now acts as
   Windows Ctrl by default (Wine sent it as Alt), and the bottle's setting is checked again before each launch.
