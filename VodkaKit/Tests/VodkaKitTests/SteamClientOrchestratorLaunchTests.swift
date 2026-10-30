@@ -113,6 +113,21 @@ struct SteamClientOrchestratorLaunchTests {
         #expect(driver.readyCalls == 0)
     }
 
+    @Test("Waiting for Steam does not start tasklist while only Wine services are running")
+    func coldStartLeavesBootServicesAlone() async throws {
+        let (bottle, games) = try Fixture.makeBottle()
+        let driver = FakeSteamClientDriver(script: [["services.exe", "winedevice.exe"]])
+        let orchestrator = SteamClientOrchestrator(bottle: bottle, driver: driver, timing: Fixture.fast)
+
+        orchestrator.launch(games[0])
+        await Fixture.awaitIdle(orchestrator)
+
+        #expect(driver.startClientCalls == 1)
+        #expect(driver.listCalls == 0)
+        #expect(driver.launched.isEmpty)
+        #expect(orchestrator.launchError == SteamOrchestratorError.clientTimeout.errorDescription)
+    }
+
     @Test("The game never appearing is reported as a launch timeout")
     func launchGraceTimeout() async throws {
         let (bottle, games) = try Fixture.makeBottle()

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the Steam window's own process shows (needs the engine's updated Mac driver).
 - Opening Steam, or anything else, in a bottle that is not yet running starts about three seconds sooner.
   Vodka no longer waits for Wine's background services to let go of the first process's output.
+- Waiting for Steam to start no longer repeatedly launches Wine process checks before the client appears.
 - Rockstar titles on Steam (Grand Theft Auto V, Red Dead Redemption 2 and others) no longer stop at
   "The Rockstar Games Launcher failed to initialize". The launcher now draws its window with Wine's
   OpenGL renderer, which supports the Direct2D it needs.

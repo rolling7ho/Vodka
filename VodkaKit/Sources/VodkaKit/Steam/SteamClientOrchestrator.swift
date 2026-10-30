@@ -114,6 +114,10 @@ public final class SteamClientOrchestrator: ObservableObject {
         await self?.runningImageNames() ?? []
     }
 
+    private lazy var clientWatch = SteamProcessWatch(pollInterval: timing.pollInterval) { [weak self] in
+        await self?.clientIsUp() == true ? ["steam.exe"] : []
+    }
+
     /// - Parameters:
     ///   - bottle: The bottle whose Steam client this drives.
     ///   - driver: The side-effect boundary; defaults to Wine.
@@ -245,7 +249,7 @@ public final class SteamClientOrchestrator: ObservableObject {
         }
         driver.startClient(steamExe: steamExe)
 
-        if await watch.waitForAny(of: ["steam.exe"], timeout: timing.clientReadyTimeout) {
+        if await clientWatch.waitForAny(of: ["steam.exe"], timeout: timing.clientReadyTimeout) {
             driver.clientDidBecomeReady()
             return
         }
@@ -256,12 +260,16 @@ public final class SteamClientOrchestrator: ObservableObject {
     /// recent and a `steam.exe` is still on the host: Play skips a whole
     /// `tasklist.exe` run that way. Otherwise from the bottle's process list.
     private func clientIsUp() async -> Bool {
+        // Boot services can appear long before Steam. Starting tasklist during
+        // that gap keeps the prefix busy and delays the launch's registry imports.
+        // Only enter Wine once the host actually sees a Steam process; still
+        // confirm its bottle, since another PC may have a client of its own.
+        guard await driver.hostWineImageNames().contains("steam.exe") else { return false }
         if let seen = clientSeenRunningAt,
-           Date().timeIntervalSince(seen) < Double(timing.trackingInterval.components.seconds) + 5,
-           await driver.hostWineImageNames().contains("steam.exe") {
+           Date().timeIntervalSince(seen) < Double(timing.trackingInterval.components.seconds) + 5 {
             return true
         }
-        return await runningImageNames().contains("steam.exe")
+        return await runningProcesses().contains { $0.imageName.lowercased() == "steam.exe" }
     }
 
     /// Waits for any of the game's executables to appear in the process list.
