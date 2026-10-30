@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.1] - 2026-10-30
+
 ### Fixed
 - The Rockstar Games Launcher no longer crashes right after sign-in, which ended in "Unable to launch
   game, please try reinstalling the game". It now runs without NVIDIA's NVAPI, which it called into
