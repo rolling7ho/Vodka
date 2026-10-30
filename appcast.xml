@@ -7,6 +7,28 @@
         <language>en</language>
         <!-- items -->
         <item>
+            <title>Vodka 4.1.0</title>
+            <pubDate>Fri, 30 Oct 2026 07:09:33 +0000</pubDate>
+            <sparkle:version>57</sparkle:version>
+            <sparkle:shortVersionString>4.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h3>Fixed</h3>
+<ul>
+<li>Copy and paste between macOS and Windows programs works with ⌘C and ⌘V. The Command key now acts as Windows Ctrl by default (Wine sent it as Alt), and the bottle's setting is checked again before each launch.
+<li>Steam no longer shows two icons in the Dock. Its background process stays out of the Dock and only the Steam window's own process shows (engine 4.6.11, which Vodka now installs).
+<li>Opening Steam, or anything else, in a bottle that is not yet running starts about three seconds sooner. Vodka no longer waits for Wine's background services to let go of the first process's output.
+<li>Waiting for Steam to start no longer repeatedly launches Wine process checks before the client appears.
+<li>Rockstar titles on Steam (Grand Theft Auto V, Red Dead Redemption 2 and others) no longer stop at "The Rockstar Games Launcher failed to initialize". The launcher now draws its window with Wine's OpenGL renderer, which supports the Direct2D it needs.
+</ul>
+<h3>Added</h3>
+<ul>
+<li>Vodka DirectX 12, Vodka's own DirectX 12 to Metal layer (a build of DXMT), as an experimental Teardown configuration. Teardown stays on D3DMetal by default.
+</ul>
+            ]]></description>
+            <enclosure url="https://github.com/rolling7ho/Vodka/releases/download/app-v4.1.0/Vodka-4.1.0.zip" sparkle:edSignature="+rV4W45dmJHd+gGq8uG5z2Dt0GjwxKNM24u1IsKHJ7If8+reACs1NY9T0voDv7Hq31c51JECjNxKkkZADrCtBg==" length="28624262" type="application/octet-stream" />
+        </item>
+        <item>
             <title>Vodka 4.0.0</title>
             <pubDate>Sun, 25 Oct 2026 16:46:44 +0000</pubDate>
             <sparkle:version>56</sparkle:version>
