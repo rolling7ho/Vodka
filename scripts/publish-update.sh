@@ -20,7 +20,7 @@ set -euo pipefail
 
 VERSION="${1:?usage: scripts/publish-update.sh <version>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DERIVED="${DERIVED:-$ROOT/../build}"
+DERIVED="${DERIVED:-$ROOT/../../.build}"
 REPO="rolling7ho/Vodka"
 TAG="app-v$VERSION"
 PBXPROJ="$ROOT/Vodka.xcodeproj/project.pbxproj"

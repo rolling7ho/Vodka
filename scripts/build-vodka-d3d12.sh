@@ -3,7 +3,7 @@
 # teardown) and stages it where scripts/install-local.sh embeds it in the app.
 #
 # Usage: scripts/build-vodka-d3d12.sh [dxmt checkout]
-#        (default: ../engine/dxmt-work/dxmt, next to this repository)
+#        (default: ../../engine/dxmt-work/dxmt, at the monorepo root)
 #
 # The checkout needs DXMT's toolchains/ (llvm-darwin and wine), as for any DXMT
 # build, and both mingw-w64 cross compilers. The bridge is built as vodkametal,
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DXMT="$(cd "${1:-$ROOT/../engine/dxmt-work/dxmt}" && pwd)"
+DXMT="$(cd "${1:-$ROOT/../../engine/dxmt-work/dxmt}" && pwd)"
 OUT="$ROOT/build/vodka-d3d12"
 
 for bits in 64 32; do
