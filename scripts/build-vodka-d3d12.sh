@@ -33,5 +33,16 @@ mkdir -p "$OUT/x64" "$OUT/x32" "$OUT/unix"
 cp "$DXMT"/install-vodka64/system32/{d3d12,dxgi}.dll "$DXMT/install-vodka64/x86_64-windows/vodkametal.dll" "$OUT/x64/"
 cp "$DXMT"/install-vodka32/syswow64/{d3d12,dxgi}.dll "$DXMT/install-vodka32/i386-windows/vodkametal.dll" "$OUT/x32/"
 cp "$DXMT/install-vodka64/x86_64-unix/vodkametal.so" "$OUT/unix/"
-git -C "$DXMT" log -1 --format='rolling7ho/dxmt %H %s' > "$OUT/SOURCE"
-echo "Staged $OUT ($(git -C "$DXMT" rev-parse --short HEAD))"
+# Record the DXMT source. In the monorepo DXMT is a subtree without its own
+# .git; a separate checkout passed as an argument still has one.
+MONO="$(cd "$ROOT/../.." && pwd)"
+if git -C "$DXMT" rev-parse --git-dir >/dev/null 2>&1; then
+    DXMT_REF="$(git -C "$DXMT" rev-parse --short HEAD)"
+    DXMT_LOG="$(git -C "$DXMT" log -1 --format='rolling7ho/dxmt %H %s')"
+else
+    DXMT_REL="${DXMT#"$MONO"/}"
+    DXMT_REF="$(git -C "$MONO" rev-parse --short HEAD)"
+    DXMT_LOG="$(git -C "$MONO" log -1 --format='vodka monorepo %H %s' -- ":(top)$DXMT_REL")"
+fi
+printf '%s\n' "$DXMT_LOG" > "$OUT/SOURCE"
+echo "Staged $OUT ($DXMT_REF)"
