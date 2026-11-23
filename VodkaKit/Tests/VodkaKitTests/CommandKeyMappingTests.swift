@@ -79,4 +79,39 @@ struct CommandKeyMappingTests {
         #expect(document.contains(#""LeftCommandIsCtrl"="N""#))
         #expect(!document.contains("RightCommandIsCtrl"))
     }
+
+    @Test("GTA V gets Option as Alt, under its own key and whatever the name's case")
+    func gtaGetsOptionAsAlt() throws {
+        let bottle = try makeBottle(userReg: nil)
+        for exe in ["GTA5_Enhanced.exe", "gta5.exe"] {
+            let document = WineGameInput.document(bottle: bottle, gameExecutables: [exe])
+            #expect(document.contains(#"AppDefaults\\#(exe)\Mac Driver]"#))
+            #expect(document.contains(#""LeftOptionIsAlt"="y""#))
+            #expect(document.contains(#""RightOptionIsAlt"="y""#))
+        }
+    }
+
+    @Test("Other games keep Option as it is")
+    func otherGamesKeepOption() throws {
+        let bottle = try makeBottle(userReg: nil)
+        let document = WineGameInput.document(bottle: bottle, gameExecutables: ["teardown.exe"])
+        #expect(document.contains("ScrollMomentum"))
+        #expect(!document.contains("OptionIsAlt"))
+    }
+
+    @Test("GTA V already set costs nothing")
+    func gtaAlreadySetIsLeftAlone() throws {
+        let bottle = try makeBottle(userReg: #"""
+        WINE REGISTRY Version 2
+
+        [Software\\Wine\\AppDefaults\\GTA5_Enhanced.exe\\Mac Driver] 1788028146
+        "LeftOptionIsAlt"="Y"
+        "MetalFXUpscale"="y"
+        "RightOptionIsAlt"="y"
+        "ScrollMomentum"="n"
+        "UpscaleSharpness"="50"
+        "UsePreciseScrolling"="n"
+        """#)
+        #expect(WineGameInput.document(bottle: bottle, gameExecutables: ["GTA5_Enhanced.exe"]).isEmpty)
+    }
 }

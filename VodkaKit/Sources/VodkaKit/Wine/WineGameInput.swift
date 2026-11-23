@@ -44,6 +44,12 @@ import Foundation
 /// FSR 1's RCAS pass: MetalFX's spatial scaler softens edges and has no
 /// sharpening of its own.
 ///
+/// `LeftOptionIsAlt` and `RightOptionIsAlt` give the games in `optionAsAlt`
+/// an Alt key. Wine sends nothing for Option by default, and Command goes to
+/// Ctrl, so a Mac keyboard otherwise has no Alt at all, and GTA V's default
+/// bindings need it. Only those games get it, because Option keeps its usual
+/// job of typing accented characters everywhere else.
+///
 /// All are set under each game's own `AppDefaults` key, so Steam and other
 /// programs in the bottle keep the defaults.
 enum WineGameInput {
@@ -51,12 +57,20 @@ enum WineGameInput {
         ("ScrollMomentum", "n"), ("UsePreciseScrolling", "n"), ("MetalFXUpscale", "y"), ("UpscaleSharpness", "50")
     ]
 
+    /// Lowercased, as Windows executable names are compared without case.
+    private static let optionAsAlt: Set = ["gta5.exe", "gta5_enhanced.exe"]
+
+    private static func values(for exe: String) -> [(String, String)] {
+        guard optionAsAlt.contains(exe.lowercased()) else { return values }
+        return values + [("LeftOptionIsAlt", "y"), ("RightOptionIsAlt", "y")]
+    }
+
     /// The registry changes the bottle's games still need, or an empty string.
     @MainActor
     static func document(bottle: Bottle, gameExecutables: [String]) -> String {
         Wine.dpiAwareExecutables(bottle: bottle, gameExecutables: gameExecutables).map { exe in
             let key = #"HKCU\Software\Wine\AppDefaults\"# + exe + #"\Mac Driver"#
-            let missing = values.filter { name, value in
+            let missing = values(for: exe).filter { name, value in
                 WineRegistryFile.readValue(bottleURL: bottle.url, key: key, valueName: name)?.lowercased() != value
             }
             guard !missing.isEmpty else { return "" }
