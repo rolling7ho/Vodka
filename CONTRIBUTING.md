@@ -4,7 +4,7 @@ Contributions are welcome: bug reports, fixes and game compatibility notes.
 
 ## Reporting a bug
 
-[Open an issue](https://github.com/rolling7ho/Vodka/issues/new/choose) and select the
+[Open an issue](https://github.com/rolling7ho/vodka-stack/issues/new/choose) and select the
 appropriate template. In the application, **Help › Run Diagnostics…** writes a report
 covering settings and recent logs; attaching it usually avoids an exchange of questions.
 Remove anything you do not want to share before attaching it.
@@ -14,10 +14,11 @@ Remove anything you do not want to share before attaching it.
 An Apple Silicon Mac running macOS 15 or later with Xcode 16 or later is required.
 Dependencies are resolved by the Swift Package Manager.
 
-Vodka is part of a monorepo. The application project resides in `apps/vodka`:
+Vodka is part of the Vodka Stack monorepo. The application project resides in
+`apps/vodka`:
 
 ```sh
-git clone https://github.com/rolling7ho/Vodka.git
+git clone https://github.com/rolling7ho/vodka-stack.git
 cd Vodka/apps/vodka
 open Vodka.xcodeproj           # or build from the command line:
 scripts/install-local.sh       # Release build, ad-hoc signed, installed to /Applications
@@ -63,7 +64,7 @@ Vodka, a fork of Whisky."; copy it from an existing file.
 
 ## Releasing an update
 
-Installed copies check `https://rolling7ho.github.io/Vodka/appcast.xml`, served from the
+Installed copies check `https://rolling7ho.github.io/vodka-stack/appcast.xml`, served from the
 `gh-pages` branch, through Sparkle. To publish an update, describe it under `[Unreleased]`
 in the changelog, commit the working tree, and run:
 

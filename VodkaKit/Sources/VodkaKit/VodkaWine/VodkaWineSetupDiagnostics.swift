@@ -34,7 +34,7 @@ public struct VodkaWineSetupDiagnostics: Codable, Sendable {
     private static let reportSectionOverhead = 20
 
     private static let eventTimestampFormatter = Date.ISO8601FormatStyle()
-    private static let issueURL = "https://github.com/rolling7ho/Vodka/issues"
+    private static let issueURL = "https://github.com/rolling7ho/vodka-stack/issues"
 
     public struct InstallAttempt: Codable, Sendable {
         public let startedAt: Date

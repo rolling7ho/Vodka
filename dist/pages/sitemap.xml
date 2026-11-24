@@ -1,13 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://frankea.github.io/Whisky/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <loc>https://rolling7ho.github.io/vodka-stack/</loc>
   </url>
   <url>
-    <loc>https://frankea.github.io/Whisky/documentation/whiskykit/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/readme.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/contributing.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/security.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/notice.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/agent-manual.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/app-readme.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/app-contributing.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/app-security.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/dependencies.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/release-workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/steam.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/launcher-troubleshooting.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/stability.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/discord-bridge.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/openv-plan.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/openv-native-table.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/openv-crossmap.html</loc>
+  </url>
+  <url>
+    <loc>https://rolling7ho.github.io/vodka-stack/docs/engine.html</loc>
   </url>
 </urlset>

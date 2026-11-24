@@ -8,7 +8,7 @@
 
 A free, native macOS application for running Steam and Windows games.
 
-[Install](#install) · [Features](#features) · [Troubleshooting](#troubleshooting) · [Report a bug](https://github.com/rolling7ho/Vodka/issues)
+[Install](#install) · [Features](#features) · [Troubleshooting](#troubleshooting) · [Report a bug](https://github.com/rolling7ho/vodka-stack/issues)
 
 </div>
 
@@ -70,7 +70,7 @@ Vodka is not yet distributed as a signed download, so it is built locally. Xcode
 later is required.
 
 ```sh
-git clone https://github.com/rolling7ho/Vodka.git
+git clone https://github.com/rolling7ho/vodka-stack.git
 cd Vodka
 apps/vodka/scripts/install-local.sh
 ```

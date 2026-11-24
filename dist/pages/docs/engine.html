@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engine workbench — Vodka Stack</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/engine.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka Stack</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Engine</p>
+  <h1>Engine workbench</h1>
+<p>This directory is largely local and untracked: runtime lanes, packaged runtimes and build
+caches, approximately 11 GB in total. Two source trees are tracked in the workspace
+monorepo with their full histories, imported by <code>git subtree</code>:</p>
+<ul>
+<li><code>winecx/</code>: patched Wine/CrossOver tree from <code>rolling7ho/winecx</code>, branch <code>d3dmetal-errno</code>.</li>
+<li><code>dxmt-work/dxmt/</code>: DXMT source from <code>rolling7ho/dxmt</code>, branch <code>teardown</code>, including its
+vendored <code>external/nvapi</code> and <code>include/native/directx</code> headers. <code>dxmt/toolchains/</code>
+(approximately 2.9 GB) is local, untracked and required for a build.</li>
+</ul>
+<p>All remaining content is local and ignored by the workspace repository.</p>
+<p>The directory location is significant: Vodka&#39;s scripts expect it at the workspace root
+(<code>apps/vodka/scripts/../../engine</code>). Local build logs and generated CMake files under
+<code>dxmt-work/dxmt/toolchains/</code> contain absolute <code>/Users/ivan/Desktop/vodka/...</code> paths, so
+commands copied from them are not portable.</p>
+<h2>Contents</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+<th>Tracked</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>winecx/</code></td>
+<td>Wine/CrossOver working subtree (branch <code>d3dmetal-errno</code>).</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>dxmt-work/dxmt/</code></td>
+<td>DXMT checkout; Vodka&#39;s Direct3D 12 layer builds from here.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>dxmt-work/</code> (remainder)</td>
+<td>Test scripts, game DLLs, dumps and logs.</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>runtime-47/</code></td>
+<td>Runtime 4.7 lane; see <code>release-notes-474.md</code>.</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>runtime-ci/</code></td>
+<td>Hosted CI lane (remote: <code>frankea/winecx-gptk</code>).</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>runtime-up/</code></td>
+<td>Upstream tracking lane used by <code>local-build.rb</code> (default recipe).</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>pkg-4.6.12/</code></td>
+<td>Packaged runtime (<code>x/Libraries</code>) and release tarball under <code>up/</code>.</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>deps/</code></td>
+<td>Build dependencies.</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>local-build.rb</code></td>
+<td>Local engine build driver.</td>
+<td>yes</td>
+</tr>
+</tbody></table>
+<p>The rebuildable output of the lanes (<code>build/</code>, <code>staging/</code>, <code>smoke-prefix*</code>) has been
+removed. Re-create it by rerunning the lane&#39;s build.</p>
+<h2>Rules</h2>
+<ul>
+<li>Delete <code>build/</code>, <code>staging/</code> and <code>smoke-prefix*</code> after an experiment. They occupy several
+gigabytes and rebuild from the pinned sources.</li>
+<li>Changes to <code>engine/winecx</code> or <code>engine/dxmt-work/dxmt</code> are changes to the monorepo. Commit
+them at the workspace root. Pull upstream with <code>git subtree pull --prefix ...</code> as
+described in <code>README.md</code>.</li>
+<li>The runtime lanes (<code>runtime-47</code>, <code>runtime-up</code>, <code>runtime-ci</code> and their own <code>winecx</code>
+checkouts) maintain separate git repositories. Commit engine work within the relevant
+lane and do not rewrite their histories from the workspace repository.</li>
+<li>Run <code>local-build.rb</code> or the lane workflow from the lane directory so that relative paths
+resolve.</li>
+</ul>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/engine/README.md">engine/README.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

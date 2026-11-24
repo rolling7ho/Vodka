@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview — Vodka Stack</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/readme.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka Stack</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Project</p>
+  <h1>Overview</h1>
+<h2>Contents</h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Description</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Vodka</strong></td>
+<td>Native macOS application that runs Steam and Windows games on Apple Silicon.</td>
+<td><code>apps/vodka/</code></td>
+</tr>
+<tr>
+<td><strong>OpenV</strong></td>
+<td>Open-source ScriptHookV replacement for GTA V Enhanced, single-player only.</td>
+<td><code>apps/openv/</code></td>
+</tr>
+<tr>
+<td><strong>winecx</strong></td>
+<td>Patched Wine/CrossOver tree from which Vodka&#39;s runtimes are built.</td>
+<td><code>engine/winecx/</code></td>
+</tr>
+<tr>
+<td><strong>dxmt</strong></td>
+<td>Metal-based Direct3D 11/10 implementation and Vodka&#39;s Direct3D 12 bridge.</td>
+<td><code>engine/dxmt-work/dxmt/</code></td>
+</tr>
+</tbody></table>
+<p>Supporting material:</p>
+<ul>
+<li><code>engine/</code>: local build lanes, packaged runtimes and caches, mostly untracked.</li>
+<li><code>tools/</code>: a registry repair file for the Rockstar Games Launcher.</li>
+</ul>
+<h2>Components</h2>
+<h3><img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" alt=""> Vodka</h3>
+<p>Vodka provisions a Windows environment (a Wine prefix) on the Mac, installs Steam into
+it, and presents the resulting games in a library. It is a fork of
+<a href="https://github.com/whisky-app/whisky">Whisky</a>, via
+<a href="https://github.com/frankea/Whisky">frankea&#39;s community fork</a>, focused on Steam gaming:
+per-game settings, launcher fixes, controller support and Retina-correct rendering.</p>
+<p>The application comprises four targets and one Swift package:</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apps/vodka/Vodka/</code></td>
+<td>SwiftUI application: bottles, library, settings, onboarding.</td>
+</tr>
+<tr>
+<td><code>apps/vodka/VodkaKit/</code></td>
+<td>Logic: Wine, Steam, game database, playtime, downloads, diagnostics.</td>
+</tr>
+<tr>
+<td><code>apps/vodka/VodkaCmd/</code></td>
+<td>Command-line helper used by Dock shortcuts to launch games.</td>
+</tr>
+<tr>
+<td><code>apps/vodka/VodkaThumbnail/</code></td>
+<td>Quick Look thumbnails for <code>.exe</code> files.</td>
+</tr>
+<tr>
+<td><code>apps/vodka/VodkaUITests/</code></td>
+<td>UI tests for the application shell and bottle flow.</td>
+</tr>
+</tbody></table>
+<p>Where changes belong:</p>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Window and application UI</td>
+<td><code>apps/vodka/Vodka/</code></td>
+</tr>
+<tr>
+<td>Wine, bottle or Steam behaviour</td>
+<td><code>apps/vodka/VodkaKit/Sources/VodkaKit/</code></td>
+</tr>
+<tr>
+<td>A game&#39;s settings or launch flags</td>
+<td><code>apps/vodka/VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json</code></td>
+</tr>
+<tr>
+<td>User-facing text</td>
+<td><code>apps/vodka/Vodka/Localizable.xcstrings</code> (English only; regenerate en-GB)</td>
+</tr>
+<tr>
+<td>The Wine runtime the app downloads</td>
+<td><code>apps/vodka/VodkaKit/Sources/VodkaKit/Utils/DistributionConfig.swift</code></td>
+</tr>
+<tr>
+<td>Build, release, signing</td>
+<td><code>apps/vodka/scripts/</code> and <code>apps/vodka/docs/ReleaseWorkflow.md</code></td>
+</tr>
+<tr>
+<td>Contribution rules</td>
+<td><code>apps/vodka/CONTRIBUTING.md</code></td>
+</tr>
+</tbody></table>
+<p>The Windows runtime (<code>Libraries.tar.gz</code>) is <strong>not bundled</strong>. The application downloads it
+during setup, and the exact component versions and hashes are recorded in
+<a href="dependencies.html"><code>apps/vodka/docs/DEPENDENCIES.md</code></a>.</p>
+<h3>OpenV</h3>
+<p>OpenV replaces ScriptHookV for GTA V Enhanced when a game patch breaks it. Signatures
+and native tables are data files, so supporting a new game build does not require
+recompilation. Existing <code>.asi</code> plugins (Menyoo, NativeTrainer and others) load unmodified
+against the provided <code>ScriptHookV.dll</code>.</p>
+<p>OpenV is <strong>single-player only</strong>: it refuses GTA Online and BattlEye, contains no
+anti-cheat bypass and ships no game assets. <code>apps/openv/PLAN.md</code> documents the ABI
+contract and the design.</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apps/openv/src/</code></td>
+<td>C implementation and export definitions.</td>
+</tr>
+<tr>
+<td><code>apps/openv/data/</code></td>
+<td>Shipped per-build data: native map and game-internals map (<code>1158.16</code>).</td>
+</tr>
+<tr>
+<td><code>apps/openv/tools/dump/</code></td>
+<td>Helpers that dump the running game and its native table.</td>
+</tr>
+<tr>
+<td><code>apps/openv/tools/probe/</code></td>
+<td>In-game probe DLL and injector.</td>
+</tr>
+<tr>
+<td><code>apps/openv/research/</code></td>
+<td>Reverse-engineering scripts, crossmaps and solver experiments.</td>
+</tr>
+<tr>
+<td><code>apps/openv/docs/re/</code></td>
+<td>Derivation of the native table and crossmap.</td>
+</tr>
+<tr>
+<td><code>apps/openv/Rebuild OpenV Map.command</code></td>
+<td>One-click rebuild after a GTA V update (approximately 20 minutes).</td>
+</tr>
+<tr>
+<td><code>apps/openv/HOW TO FIX MODS AFTER A GTA UPDATE.txt</code></td>
+<td>User-facing guide.</td>
+</tr>
+</tbody></table>
+<h3>winecx</h3>
+<p>A patched Wine/CrossOver source tree, imported from <code>rolling7ho/winecx</code> (branch
+<code>d3dmetal-errno</code>), which itself mirrors the public CrossOver source. Vodka&#39;s runtimes are
+built from this tree and the other engine lanes. The tree carries the Mac driver, Retina
+and D3DMetal fixes that the application ships. Source is tracked here with its full
+history; the original repository is archived and redirects here.</p>
+<p><code>engine/winecx/</code> is a committed subtree: edit it and commit at the workspace root. The
+runtime lanes under <code>engine/runtime-*</code> are separate local checkouts and are untracked.</p>
+<h3>dxmt</h3>
+<p>A Metal-based implementation of Direct3D 11 and 10 for macOS and Wine, imported from
+<code>rolling7ho/dxmt</code> (branch <code>teardown</code>). Vodka builds its Direct3D 12 bridge from this tree
+as <code>vodkametal</code>, so the bridge sits beside the runtime&#39;s own <code>winemetal</code> instead of
+replacing it. The two submodules (<code>external/nvapi</code>, <code>include/native/directx</code>) are
+vendored, so the monorepo is self-contained.</p>
+<p>Build it with <code>apps/vodka/scripts/build-vodka-d3d12.sh</code>. Output is written to
+<code>apps/vodka/build/vodka-d3d12/</code> and embedded by <code>apps/vodka/scripts/install-local.sh</code>. The
+DXMT toolchain (<code>engine/dxmt-work/dxmt/toolchains/</code>) remains local and untracked.</p>
+<h2>Repository structure</h2>
+<pre><code class="language-text">.
+├── apps/
+│   ├── vodka/                 # macOS application (SwiftUI, Swift 6)
+│   │   ├── Vodka/             # Application target
+│   │   ├── VodkaKit/          # Logic package and tests
+│   │   ├── VodkaCmd/          # Launch helper CLI
+│   │   ├── VodkaThumbnail/    # Quick Look extension
+│   │   ├── VodkaUITests/      # XCUITests
+│   │   ├── images/            # Application icon, screenshots
+│   │   ├── Libraries/         # Bundled winetricks, verbs.txt, cabextract
+│   │   ├── scripts/           # Build, release, localization, secret scan
+│   │   ├── docs/              # Dependencies, release, Steam/stability guides
+│   │   └── dist/pages/        # Published Pages output (appcast, site)
+│   └── openv/                 # GTA V Enhanced mod tooling
+│       ├── src/               # C implementation
+│       ├── data/              # Per-build native/game maps
+│       ├── tools/             # Dump/probe helpers
+│       ├── research/          # Reverse-engineering scripts and experiments
+│       └── docs/re/           # Native-table and crossmap notes
+├── engine/                    # Wine workbench (mostly untracked)
+│   ├── winecx/                # Tracked patched Wine source
+│   ├── dxmt-work/dxmt/        # Tracked DXMT source + local toolchain
+│   ├── runtime-47/            # Runtime 4.7 lane (local)
+│   ├── runtime-up/            # Upstream lane, used by local-build.rb (local)
+│   ├── runtime-ci/            # Hosted CI lane (local)
+│   ├── pkg-4.6.12/            # Packaged runtime (local)
+│   ├── deps/                  # Build dependencies (local)
+│   ├── local-build.rb         # Replays the CI build locally
+│   └── README.md              # Lane inventory and rules
+├── tools/                     # Rockstar Games Launcher registry repair
+├── AGENTS.md                  # Agent operating manual
+└── README.md                  # This file
+</code></pre>
+<p>Xcode build products are written to <code>.build/</code> at the repository root. <code>swift test</code> writes
+to <code>apps/vodka/VodkaKit/.build</code>, which is ignored separately. The untracked lanes under
+<code>engine/</code> and the <code>apps/openv/.venv</code> environment are local caches that can be regenerated.</p>
+<h2>Quick reference</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command or document</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Build and install the application</td>
+<td><code>apps/vodka/scripts/install-local.sh</code></td>
+</tr>
+<tr>
+<td>Run the unit tests</td>
+<td><code>swift test --package-path apps/vodka/VodkaKit</code></td>
+</tr>
+<tr>
+<td>Rebuild the Direct3D 12 layer</td>
+<td><code>apps/vodka/scripts/build-vodka-d3d12.sh</code></td>
+</tr>
+<tr>
+<td>Rebuild OpenV&#39;s map after a GTA update</td>
+<td><code>apps/openv/Rebuild OpenV Map.command</code></td>
+</tr>
+<tr>
+<td>Understand OpenV&#39;s map format</td>
+<td><code>apps/openv/docs/re/01-native-table.md</code> and <code>apps/openv/docs/re/02-crossmap.md</code></td>
+</tr>
+<tr>
+<td>Bump the bundled runtime</td>
+<td><code>apps/vodka/docs/DEPENDENCIES.md</code> and <code>apps/vodka/.github/workflows/RuntimeTrack.yml</code></td>
+</tr>
+<tr>
+<td>Cut a release</td>
+<td><code>apps/vodka/docs/ReleaseWorkflow.md</code> and <code>apps/vodka/scripts/publish-update.sh</code></td>
+</tr>
+<tr>
+<td>Rebuild a Wine runtime locally</td>
+<td><code>engine/local-build.rb</code> and <code>engine/README.md</code></td>
+</tr>
+<tr>
+<td>Check formatting, lint and secrets</td>
+<td><code>cd apps/vodka &amp;&amp; swiftformat --lint . &amp;&amp; swiftlint --strict &amp;&amp; ./scripts/scan-secrets.sh</code></td>
+</tr>
+<tr>
+<td>Read the agent operating manual</td>
+<td><code>AGENTS.md</code></td>
+</tr>
+</tbody></table>
+<h2>Getting started</h2>
+<p>An Apple Silicon Mac running macOS 15 or later with Xcode 16 or later is required.</p>
+<pre><code class="language-sh">apps/vodka/scripts/install-local.sh
+
+# Unit tests
+swift test --package-path apps/vodka/VodkaKit
+
+# Formatting (CI pins SwiftFormat 0.58.7) and lint
+cd apps/vodka &amp;&amp; swiftformat --lint . &amp;&amp; swiftlint --strict
+</code></pre>
+<p>OpenV&#39;s rebuild command expects GTA V Enhanced to be installed in a Vodka bottle. The
+command launches the game, dumps the required data and writes a new map. The engine
+lanes have their own build recipe in <code>engine/local-build.rb</code>.</p>
+<h2>Git and releases</h2>
+<ul>
+<li><code>origin</code> is <code>https://github.com/rolling7ho/vodka-stack.git</code>, branch <code>main</code>, which is this
+monorepo.</li>
+<li>Vodka, OpenV, winecx and dxmt were imported with <code>git subtree</code>, so their full commit
+graphs are present. <code>git log --follow &lt;file&gt;</code> reads pre-move history.</li>
+<li><code>rolling7ho/winecx</code> and <code>rolling7ho/dxmt</code> are archived read-only and redirect here;
+their branches are retained for history.</li>
+<li>Every change lands through a pull request. Direct pushes to <code>main</code> are not accepted.</li>
+<li>The Sparkle update feed is served from the <code>gh-pages</code> branch at
+<code>https://rolling7ho.github.io/vodka-stack/appcast.xml</code>. Releases are produced with
+<code>apps/vodka/scripts/publish-update.sh</code>, which also updates the appcast.</li>
+<li>CI workflows remain under <code>apps/vodka/.github</code>, inherited from the application
+repository, so GitHub does not run them from the monorepo root. Run the checks locally.</li>
+</ul>
+<h2>Contributing</h2>
+<p>Contributions are welcome: bug reports, game compatibility notes, fixes, documentation and
+translations. Read <a href="contributing.html"><code>CONTRIBUTING.md</code></a> first; it identifies which project
+guide applies, the checks to run and the commit style. Use the issue forms for bugs and
+feature requests, and <a href="security.html"><code>SECURITY.md</code></a> for security reports.</p>
+<p>Participation is covered by the <a href="https://github.com/rolling7ho/vodka-stack/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>. By contributing you
+agree to license your work under the terms of the area you change (see
+<a href="notice.html"><code>NOTICE.md</code></a>). There is no CLA.</p>
+<h2>Documentation index</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apps/vodka/CONTRIBUTING.md</code></td>
+<td>Build, pull request rules, release steps</td>
+</tr>
+<tr>
+<td><code>apps/vodka/docs/DEPENDENCIES.md</code></td>
+<td>Bundled runtime versions and hashes</td>
+</tr>
+<tr>
+<td><code>apps/vodka/docs/ReleaseWorkflow.md</code></td>
+<td>Runtime assembly and application release</td>
+</tr>
+<tr>
+<td><code>apps/vodka/docs/SteamCompatibility.md</code></td>
+<td>Steam setup and launcher fixes</td>
+</tr>
+<tr>
+<td><code>apps/vodka/docs/StabilityTroubleshooting.md</code></td>
+<td>Crash and freeze triage procedure</td>
+</tr>
+<tr>
+<td><code>apps/vodka/docs/LauncherTroubleshooting.md</code></td>
+<td>Third-party launcher issues</td>
+</tr>
+<tr>
+<td><code>apps/openv/PLAN.md</code></td>
+<td>OpenV ABI, safety contract, design</td>
+</tr>
+<tr>
+<td><code>apps/openv/docs/re/</code></td>
+<td>Native-table and crossmap reverse engineering</td>
+</tr>
+<tr>
+<td><code>engine/README.md</code></td>
+<td>Lane inventory and build rules</td>
+</tr>
+<tr>
+<td><code>engine/release-notes-474.md</code></td>
+<td>Runtime 4.7.3 composition and hashes</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>Agent and contributor operating manual</td>
+</tr>
+</tbody></table>
+<h2>License</h2>
+<p>The Vodka application and this workspace are licensed under <strong>GPL-3.0</strong> (<code>LICENSE</code>).
+Imported projects retain their own terms: OpenV is MIT, and the engine sources are
+LGPL-2.1-or-later. <a href="notice.html"><code>NOTICE.md</code></a> maps every path to its license and explains
+how the compatible licenses combine. The root license does not relicense any subtree.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/README.md">README.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

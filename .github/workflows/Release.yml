@@ -17,4 +17,4 @@ jobs:
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           echo "Release $TAG_NAME published"
-          echo "Download: https://github.com/rolling7ho/Vodka/releases"
+          echo "Download: https://github.com/rolling7ho/vodka-stack/releases"

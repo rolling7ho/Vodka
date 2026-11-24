@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steam compatibility — Vodka Stack</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/steam.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka Stack</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Vodka</p>
+  <h1>Steam compatibility</h1>
+<p><strong>Feature:</strong> Launcher compatibility system (frankea/Whisky#41)
+<strong>Last updated:</strong> 12 January 2026</p>
+<blockquote>
+<p><strong>Note:</strong> This document references issue numbers from this fork (frankea/Whisky) and from
+the original upstream project (whisky-app/whisky). Upstream references are retained for
+historical context. Report new issues to
+<a href="https://github.com/rolling7ho/vodka-stack/issues">rolling7ho/vodka-stack</a>.</p>
+</blockquote>
+<h2>Overview</h2>
+<p>Steam is the most commonly used launcher with Vodka and accounts for the largest share of
+launcher compatibility reports. This guide describes the recommended configuration and the
+known failure modes.</p>
+<h2>Recommended configuration</h2>
+<h3>Step 1: Create a dedicated Steam bottle</h3>
+<ol>
+<li>Create a new bottle with the name &quot;Steam&quot; and Windows version <strong>Windows 10</strong>
+(recommended), at the default location.</li>
+<li>Open <strong>Config → Launcher Compatibility</strong> and enable <strong>Launcher Compatibility Mode</strong>.</li>
+<li>Set <strong>Detection Mode</strong> to <strong>Automatic</strong>. Launching Steam should then report
+&quot;Detected Launcher: Steam&quot;.</li>
+</ol>
+<h3>Step 2: Install Steam</h3>
+<ol>
+<li>Download <code>SteamSetup.exe</code>, the Windows installer, from
+<a href="https://store.steampowered.com/about/">https://store.steampowered.com/about/</a>.</li>
+<li>Select <strong>Bottle → Run</strong>, choose <code>SteamSetup.exe</code> and accept the default installation
+path (<code>C:\Program Files (x86)\Steam\</code>).</li>
+<li>Steam starts automatically after installation. If <code>steamwebhelper.exe</code> fails, see the
+first issue below.</li>
+</ol>
+<h3>Step 3: Configure graphics and network settings</h3>
+<ol>
+<li>Leave the graphics backend on <strong>Recommended</strong>. Steam&#39;s own processes (<code>steam.exe</code>,
+<code>steamwebhelper.exe</code>, <code>steamservice.exe</code>, <code>gameoverlayui64.exe</code>) receive DXVK through
+per-executable overrides, so the client renders through DXVK while games retain the
+bottle&#39;s backend. When the D3DMetal payload is installed, the recommended backend is
+D3DMetal, which DirectX 12 games require.
+A game started from the Vodka library, from <code>vodka launch</code> or from a <code>vodka://</code> link
+receives its own settings from the Programs tab and the game database, applied to its
+own executables regardless of which process starts it.
+On a runtime without the D3DMetal payload, <strong>Play</strong> switches the bottle to DXVK.
+Importing the Game Porting Toolkit later restores the recommended backend once, with a
+note in the bottle&#39;s graphics settings, unless DXVK was selected explicitly.
+Setting the entire bottle to DXVK disables Direct3D 12 for every game when the payload is
+deployed; do this only for a bottle whose games all require DXVK.</li>
+<li>In <strong>Config → Launcher Compatibility</strong>, set the network timeout to <strong>90 seconds</strong>.</li>
+<li>In the same section, enable <strong>GPU Spoofing</strong> with the <strong>NVIDIA</strong> vendor, which provides
+the best compatibility.</li>
+</ol>
+<h3>Step 4: Verify the configuration</h3>
+<ol>
+<li><p>In <strong>Config → Launcher Compatibility</strong>, select <strong>Generate Diagnostics Report</strong>.</p>
+</li>
+<li><p>Confirm the critical settings:</p>
+<pre><code>LC_ALL = en_US.UTF-8                      # required; prevents steamwebhelper failure
+STEAM_DISABLE_CEF_SANDBOX = 1             # required; CEF under Wine
+STEAM_RUNTIME = 0                         # required; Steam Runtime under Wine
+DXVK_ASYNC = 1                            # UI performance
+</code></pre>
+</li>
+<li><p>Review the reported warnings. &quot;Configuration is optimal&quot; indicates a complete setup;
+any warning requires the corresponding change.</p>
+</li>
+</ol>
+<h2>Common issues</h2>
+<h3>Issue 1: &quot;steamwebhelper is not responding&quot;</h3>
+<p>This is the most frequent Steam issue.</p>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The Steam window reports an error immediately after launch.</li>
+<li>A dialog states that <code>steamwebhelper.exe</code> is not responding, and the restart and wait
+options do not help.</li>
+<li>The Steam interface is unusable.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<p>Steam&#39;s Chromium Embedded Framework (CEF) fails when the locale does not specify UTF-8
+encoding, when ICU fails to initialise, or when date and time parsing encounters an
+unexpected format.</p>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Open <strong>Config → Launcher Compatibility</strong> and enable compatibility mode.</li>
+<li>Set <strong>Locale Override</strong> to <strong>English</strong>.</li>
+<li>Generate diagnostics and confirm <code>LC_ALL=en_US.UTF-8</code>.</li>
+</ol>
+<p>The <code>.UTF-8</code> suffix is required. <code>en_US</code> alone does not resolve the failure.</p>
+<pre><code>LC_ALL=en_US.UTF-8   # correct
+LC_ALL=en_US         # incorrect; steamwebhelper still fails
+</code></pre>
+<p>If the failure persists, delete the Steam installation, create a new bottle with
+compatibility mode enabled before installation, install Steam again and verify the locale
+before the first launch.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#946, #1224, #1241.</p>
+<h3>Issue 2: Downloads stall at 99 percent</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Progress reaches 99 percent and does not complete.</li>
+<li>The &quot;Download starting…&quot; message repeats.</li>
+<li>Steam must be restarted to continue.</li>
+<li>The behaviour occurs with several games.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<p>Wine&#39;s HTTP implementation misbehaves with persistent connections under some conditions,
+so downloads time out before completion.</p>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Open <strong>Config → Launcher Compatibility</strong> and set <strong>Network Timeout</strong> to <strong>90 seconds</strong> or
+higher, then restart Steam. The timeout configures <code>WINHTTP_CONNECT_TIMEOUT</code>, and
+<code>WINHTTP_RECEIVE_TIMEOUT</code> is set to twice that value.</li>
+<li>Alternatively, in Steam open <strong>Settings → Downloads</strong>, select a different download
+region, pause and resume the download, and clear the download cache.</li>
+</ol>
+<p>Longer timeouts prevent premature connection closure. Vodka does not set
+<code>WINE_FORCE_HTTP11</code> or <code>WINE_MAX_CONNECTIONS_PER_SERVER</code>; earlier versions of this guide
+listed variables that no shipped runtime reads.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#1148, #1072, #991, #1222.</p>
+<h3>Issue 3: Steam disconnects repeatedly</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>&quot;No connection&quot; errors occur every few minutes.</li>
+<li>Reconnection is required repeatedly, and download progress is lost.</li>
+<li>The friends list disconnects.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<p>Network keepalive timeouts and TLS handshake behaviour under Wine.</p>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Raise the network timeout to <strong>120 seconds</strong> or more.</li>
+<li>Generate diagnostics and confirm that the locale and sandbox variables listed under
+Step 4 are present. Vodka does not set <code>WINE_ENABLE_SSL</code> or <code>WINE_SSL_VERSION_MIN</code>.</li>
+<li>In <strong>System Settings → Network</strong>, confirm a stable connection and temporarily disable
+any VPN for testing.</li>
+</ol>
+<p><strong>Related issues:</strong> whisky-app/whisky#1176, #954.</p>
+<h3>Issue 4: Steam interface is blurry or stutters</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Text appears blurry or pixelated.</li>
+<li>Interface animations stutter and scrolling is uneven.</li>
+<li>Window dragging lags.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Enable <strong>DXVK Async</strong> in <strong>Config → DXVK</strong> and restart Steam. DXVK provides better GPU
+acceleration for the Steam interface.</li>
+<li>If text remains blurry, adjust the DPI under <strong>Config → Wine → DPI Configuration</strong>,
+selecting 96 DPI (standard) or 192 DPI (Retina).</li>
+</ol>
+<p><strong>Related issues:</strong> whisky-app/whisky#1256, #1233.</p>
+<h3>Issue 5: Steam starts without a visible interface</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The Steam process runs but no window appears, or the window is blank.</li>
+<li>Notification sounds are audible.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Select <strong>Bottle → Kill All Processes</strong>.</li>
+<li>Enable compatibility mode if it is not already enabled.</li>
+<li>Enable DXVK, disable Metal validation if enabled, and enable Sequoia compatibility mode
+on macOS 15 or later.</li>
+<li>Generate diagnostics and confirm <code>CEF_DISABLE_SANDBOX=1</code>.</li>
+</ol>
+<p>If the interface remains invisible, delete Steam, reinstall it, and inspect
+<code>~/Library/Logs/com.rolling7ho.Vodka/</code> for errors.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#1183, #1009.</p>
+<h2>macOS 15.4 and later</h2>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Steam worked on macOS 15.3 and fails to start after updating to 15.4 or 15.4.1.</li>
+<li>Wine preloader threads remain blocked.</li>
+<li>Mach port timeouts occur.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<p>Apple changed Mach port and threading behaviour in macOS 15.4, which breaks Wine&#39;s process
+creation.</p>
+<p><strong>Solution</strong></p>
+<ol>
+<li><p>Enable <strong>Config → Metal → Sequoia Compatibility Mode</strong>.</p>
+</li>
+<li><p>Generate diagnostics and confirm the macOS version and the following variables:</p>
+<pre><code>WINEFSYNC = 0
+STEAM_RUNTIME = 0
+CEF_DISABLE_SANDBOX = 1
+</code></pre>
+</li>
+<li><p>Terminate all Wine processes and relaunch Steam.</p>
+</li>
+</ol>
+<p><strong>Related issues:</strong> whisky-app/whisky#1372, #1310, #1307.</p>
+<h2>Advanced configuration</h2>
+<h3>Launch options</h3>
+<p>For individual games started through Steam, open the game&#39;s <strong>Properties</strong> and set launch
+options. Common values:</p>
+<pre><code>-windowed    force windowed mode
+-dx11        force Direct3D 11
+-nojoy       disable joystick support
+-novid       skip introductory videos
+</code></pre>
+<h3>Big Picture mode</h3>
+<p>Big Picture generally works with compatibility mode enabled. Enable DXVK for performance,
+connect the controller before launching, and exit through the Steam menu rather than forcing
+the process to quit.</p>
+<h3>Steam Workshop</h3>
+<p>Workshop content generally works with compatibility mode enabled. If it fails, raise the
+network timeout to 180 seconds, confirm that no firewall blocks the download, and install
+the content manually as a fallback.</p>
+<h3>Steam Cloud</h3>
+<p>Cloud saves are generally functional. Confirm that the game has Cloud enabled under
+<strong>Properties → Updates</strong>, and test synchronisation by launching the same game from a second
+bottle.</p>
+<h2>Performance tuning</h2>
+<p><strong>Frame rate</strong></p>
+<ul>
+<li>Enable DXVK and DXVK Async.</li>
+<li>Leave the DXVK HUD off unless diagnosing a problem.</li>
+<li>Enable the shader cache after the first run to reduce stuttering.</li>
+</ul>
+<p><strong>Stability</strong></p>
+<ul>
+<li>Set Enhanced Sync to ESync under <strong>Config → Wine</strong>.</li>
+<li>Use Windows 10, which is the most tested Windows version.</li>
+<li>Enable AVX only for games that require it.</li>
+</ul>
+<p><strong>Download throughput</strong></p>
+<ul>
+<li>Set the network timeout to 120 to 180 seconds.</li>
+<li>Select a geographically close download region.</li>
+<li>Clear the Steam download cache.</li>
+<li>Prefer a wired connection where possible.</li>
+</ul>
+<h2>Pre-report checklist</h2>
+<p>Before reporting a Steam issue, confirm the following:</p>
+<ul>
+<li>Launcher Compatibility Mode is enabled.</li>
+<li>The locale is <code>en_US.UTF-8</code>.</li>
+<li>DXVK is enabled.</li>
+<li>The network timeout is at least 90 seconds.</li>
+<li>Sequoia Compatibility Mode is enabled on macOS 15 or later.</li>
+<li>A diagnostics report has been generated and its warnings reviewed.</li>
+<li>The issue reproduces in a clean bottle.</li>
+<li>Wine logs have been checked for errors.</li>
+</ul>
+<h2>Known limitations</h2>
+<p><strong>Supported:</strong> Steam client features (store, library, friends), game downloads, most
+Direct3D 9, 10 and 11 games, Workshop content, Cloud saves in most cases, achievements and
+screenshots.</p>
+<p><strong>Limited:</strong> Steam Input controller configuration, the Steam overlay (game dependent).</p>
+<p><strong>Unsupported:</strong> broadcasting, Remote Play and VR.</p>
+<p><strong>Game compatibility:</strong> Direct3D 9 and 11 games generally work well, older titles work
+well, and Direct3D 12 titles vary. Multiplayer with kernel-level anti-cheat varies by
+title, and VR titles are unsupported.</p>
+<h2>Reporting issues</h2>
+<p>Include the following:</p>
+<ol>
+<li>The diagnostics report, attached to the issue.</li>
+<li>The Steam version and build date (<strong>Help → About Steam</strong>).</li>
+<li>The exact error message and the point at which it occurs (sign-in, download, launch).</li>
+<li>Reproduction steps.</li>
+<li>System details: macOS version, Mac model and available disk space.</li>
+</ol>
+<p>Example report:</p>
+<pre><code class="language-markdown">**Issue:** Steam downloads stall at 99 percent
+
+**System:**
+- macOS 15.4.1
+- M2 Pro MacBook Pro
+- Vodka version 4.x
+- Steam version: December 2025 build
+
+**Configuration:**
+- Launcher Compatibility: enabled
+- Network Timeout: 60 seconds
+- DXVK: enabled
+
+**Steps to reproduce:**
+1. Queue a large game download.
+2. Progress reaches 99 percent.
+3. The download stalls indefinitely.
+4. Restarting Steam resumes the download, which stalls again at 99 percent.
+
+**Diagnostics report:** attached
+
+**Attempted fixes:**
+- Changed the download region; no change.
+- Raised the timeout to 90 seconds; the download still stalls.
+- Cleared the download cache; no change.
+</code></pre>
+<h2>Further resources</h2>
+<ul>
+<li>Steam support: <a href="https://help.steampowered.com/">https://help.steampowered.com/</a></li>
+<li>Launcher troubleshooting: <a href="launcher-troubleshooting.html">LauncherTroubleshooting.md</a></li>
+<li>Issue tracker: <a href="https://github.com/rolling7ho/vodka-stack/issues">https://github.com/rolling7ho/vodka-stack/issues</a></li>
+<li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
+</ul>
+<h2>Comparison of execution methods</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Setup effort</th>
+<th>Compatibility</th>
+<th>Performance</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vodka with launcher compatibility</td>
+<td>Low</td>
+<td>High</td>
+<td>Good</td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td>Native macOS Steam</td>
+<td>Low</td>
+<td>macOS titles only</td>
+<td>Native</td>
+<td>Limited catalog</td>
+</tr>
+<tr>
+<td>CrossOver</td>
+<td>Medium</td>
+<td>High</td>
+<td>Good</td>
+<td>Commercial</td>
+</tr>
+<tr>
+<td>Virtual machine</td>
+<td>High</td>
+<td>High</td>
+<td>Fair</td>
+<td>Resource intensive</td>
+</tr>
+<tr>
+<td>Boot Camp</td>
+<td>High</td>
+<td>Complete</td>
+<td>Complete</td>
+<td>Requires reboot</td>
+</tr>
+</tbody></table>
+<p>Vodka is free and open source, requires no reboot, integrates with macOS, and applies the
+compatibility configuration described above automatically once launcher compatibility is
+enabled.</p>
+<h2>FAQ</h2>
+<p><strong>Can an existing Steam library be reused?</strong>
+Games must be downloaded again, or restored from a Steam backup. Save files may not transfer
+automatically, and individual games may require configuration.</p>
+<p><strong>Does Steam report that the machine runs macOS?</strong>
+No. Steam reports the Windows version presented by Wine.</p>
+<p><strong>Does the Workshop work?</strong>
+Generally yes. Raise the network timeout for large Workshop items.</p>
+<p><strong>Does the Steam overlay work?</strong>
+This depends on the game; some titles do not render it correctly.</p>
+<p><strong>Is game streaming supported?</strong>
+Streaming from this Steam installation to other devices is limited. Streaming to this
+installation is not recommended, because it adds a second translation layer.</p>
+<p><strong>Do achievements work?</strong>
+Yes.</p>
+<p><strong>Is the Steam Controller supported?</strong>
+Partially. Basic controller input works; advanced Steam Input features may not.</p>
+<p><strong>Does anti-cheat work?</strong>
+This depends on the game. VAC is reported to work generally, while EAC and BattlEye are
+frequently blocked. Consult ProtonDB for a specific title.</p>
+<h2>Recommended settings summary</h2>
+<pre><code>Bottle
+  Name: Steam
+  Windows version: Windows 10
+
+Launcher compatibility
+  Mode: enabled
+  Detection: automatic
+  Locale: English (en_US.UTF-8)
+  GPU spoofing: enabled (NVIDIA)
+  Network timeout: 90 seconds
+
+Graphics
+  Backend: Recommended
+  DXVK HUD: off, or FPS while monitoring
+
+Performance
+  Shader cache: enabled
+
+Wine
+  Enhanced Sync: ESync
+  AVX: enabled only when required
+
+Metal
+  Sequoia compatibility mode: on (macOS 15 or later)
+  Metal HUD: off
+  Validation: off
+</code></pre>
+<h2>Monitoring and maintenance</h2>
+<p><strong>Weekly:</strong> Steam updates automatically. Check for Vodka updates and review new
+configuration warnings.</p>
+<p><strong>After a macOS update:</strong> confirm that Steam launches, that <code>steamwebhelper.exe</code> starts,
+that downloads complete, and regenerate diagnostics if problems appear.</p>
+<p><strong>After a Wine update:</strong> test compatibility, recreate the bottle if failures are severe,
+and review the issue tracker for known problems with the runtime version.</p>
+<p><strong>Healthy indicators:</strong> Steam launches within 10 seconds, store pages load promptly,
+downloads sustain their throughput, and games launch without delay.</p>
+<p><strong>Warning signs:</strong> launches taking longer than 30 seconds, frequent disconnects, downloads
+that consistently stall, and high CPU usage while idle.</p>
+<h2>Recovery</h2>
+<p><strong>Reset Steam within the bottle</strong></p>
+<ol>
+<li>Select <strong>Bottle → Open in Finder</strong>.</li>
+<li>Navigate to <code>drive_c/Program Files (x86)/Steam/</code>.</li>
+<li>Delete <code>steam.exe</code> and <code>steamwebhelper.exe</code>.</li>
+<li>Run <code>SteamSetup.exe</code> again.</li>
+</ol>
+<p><strong>Create a fresh bottle</strong></p>
+<ol>
+<li>Create a new bottle with compatibility mode enabled before installation.</li>
+<li>Install Steam.</li>
+<li>Sign in and verify the client before downloading games.</li>
+</ol>
+<p><strong>Restore from backup</strong></p>
+<p>If <code>Metadata.plist</code> was backed up, replace the current file with the backup, restart Vodka
+and test Steam.</p>
+<p><strong>Save file location</strong></p>
+<pre><code>~/Library/Application Support/&lt;Bottle&gt;/drive_c/users/&lt;username&gt;/My Documents/
+</code></pre>
+<p>Most games store saves in the Documents directory. Back it up before recreating a bottle.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/apps/vodka/docs/SteamCompatibility.md">apps/vodka/docs/SteamCompatibility.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

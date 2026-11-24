@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contributing — Vodka Stack</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/contributing.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka Stack</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Project</p>
+  <h1>Contributing</h1>
+<p>Contributions are welcome: bug reports, game compatibility notes, fixes, documentation and
+translations. This repository, Vodka Stack, is a monorepo, so use the guide that covers the
+area you are modifying.</p>
+<h2>Choose the correct area</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Path</th>
+<th>Guide</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>macOS application (SwiftUI, Wine, Steam)</td>
+<td><code>apps/vodka/</code></td>
+<td><a href="app-contributing.html"><code>apps/vodka/CONTRIBUTING.md</code></a></td>
+</tr>
+<tr>
+<td>GTA V Enhanced mod tooling</td>
+<td><code>apps/openv/</code></td>
+<td><a href="openv-plan.html"><code>apps/openv/PLAN.md</code></a></td>
+</tr>
+<tr>
+<td>Patched Wine source</td>
+<td><code>engine/winecx/</code></td>
+<td><a href="engine.html"><code>engine/README.md</code></a></td>
+</tr>
+<tr>
+<td>DXMT and the DirectX layer</td>
+<td><code>engine/dxmt-work/dxmt/</code></td>
+<td><a href="engine.html"><code>engine/README.md</code></a></td>
+</tr>
+</tbody></table>
+<p>If you are an AI agent, read <a href="agent-manual.html"><code>AGENTS.md</code></a> first.</p>
+<h2>Before you begin</h2>
+<ul>
+<li><strong>Bugs and game issues:</strong> search the existing issues, then open one with the bug report
+template. In the application, <strong>Help › Run Diagnostics…</strong> produces a report containing
+settings and recent logs. Remove anything private before attaching it.</li>
+<li><strong>Features:</strong> open a feature request before implementing a large change.</li>
+<li><strong>Security:</strong> do not open a public issue. Follow <a href="security.html"><code>SECURITY.md</code></a>.</li>
+</ul>
+<h2>Development setup</h2>
+<p>An Apple Silicon Mac running macOS 15 or later with Xcode 16 or later is required.</p>
+<pre><code class="language-sh"># Build, ad-hoc sign and install /Applications/Vodka.app
+apps/vodka/scripts/install-local.sh
+
+# Unit tests
+swift test --package-path apps/vodka/VodkaKit
+</code></pre>
+<p>Install the style-checking tools:</p>
+<pre><code class="language-sh">brew install swiftlint swiftformat
+</code></pre>
+<p>CI pins SwiftFormat 0.58.7. Homebrew installs the current release, which is usually newer,
+so verify <code>swiftformat --version</code> and install the 0.58.7 release if <code>--lint</code> reports
+differences that CI does not.</p>
+<p>OpenV&#39;s map rebuild requires GTA V Enhanced to be installed in a Vodka bottle; see
+<code>apps/openv/Rebuild OpenV Map.command</code>. The engine lanes build with
+<code>engine/local-build.rb</code>.</p>
+<h2>Checks before a pull request</h2>
+<p>Run the checks for the area you changed:</p>
+<table>
+<thead>
+<tr>
+<th>Changed</th>
+<th>Run</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VodkaKit logic</td>
+<td><code>swift test --package-path apps/vodka/VodkaKit</code></td>
+</tr>
+<tr>
+<td>Application or UI</td>
+<td><code>xcodebuild -project apps/vodka/Vodka.xcodeproj -scheme Vodka -configuration Debug build CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO</code></td>
+</tr>
+<tr>
+<td>User-facing strings</td>
+<td><code>cd apps/vodka &amp;&amp; ./scripts/british-english.py --check</code></td>
+</tr>
+<tr>
+<td>Swift style</td>
+<td><code>cd apps/vodka &amp;&amp; swiftformat --lint . &amp;&amp; swiftlint --strict</code></td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td><code>cd apps/vodka &amp;&amp; ./scripts/scan-secrets.sh</code></td>
+</tr>
+<tr>
+<td>OpenV</td>
+<td>run the affected script against a real dump; the map rebuild is manual</td>
+</tr>
+<tr>
+<td>Engine</td>
+<td><code>cd engine &amp;&amp; ruby local-build.rb</code></td>
+</tr>
+</tbody></table>
+<p>The workflows were inherited from the application repository and reside in
+<code>apps/vodka/.github</code>, so GitHub does not run them from the monorepo root. Run the checks
+locally; a reviewer will confirm them.</p>
+<h2>Pull requests</h2>
+<ul>
+<li><strong>Every change lands through a pull request.</strong> Direct pushes to <code>main</code> are not accepted.
+Do not wait to be asked for a pull request; branch, push and open one.</li>
+<li><strong>One change per pull request.</strong> Keep diffs focused and reviewable.</li>
+<li><strong>Commit messages</strong> are imperative and scoped: <code>vodka: fix Steam launch resolver</code>,
+<code>openv: verify entity list bounds</code>, <code>engine: bump DXMT</code>, <code>docs: update the README</code>.</li>
+<li><strong>Sign off every commit</strong> with <code>git commit -s</code> to certify the
+<a href="https://developercertificate.org/">Developer Certificate of Origin</a>.</li>
+<li><strong>Changelog:</strong> describe user-facing changes under <code>[Unreleased]</code> in
+<code>apps/vodka/CHANGELOG.md</code>.</li>
+<li><strong>Swift files</strong> require the GPL header used throughout <code>apps/vodka</code>, which SwiftLint
+enforces.</li>
+<li><strong>New application-target files</strong> must be added to <code>Vodka.xcodeproj</code>; <code>VodkaKit</code>
+discovers files automatically.</li>
+<li><strong>Strings</strong> belong in <code>Vodka/Localizable.xcstrings</code> in English only, edited as text.</li>
+<li><strong>Game fixes</strong> belong in <code>GameDatabase/Resources/GameDB.json</code>, with a source link.</li>
+<li><strong>No secrets, signing keys, certificates or provisioning profiles</strong> may be committed.</li>
+<li><strong>OpenV</strong> contributions must keep it single-player only, without anti-cheat bypass or
+game-asset redistribution, and must preserve its ABI.</li>
+</ul>
+<h2>Licensing of contributions</h2>
+<p>By submitting a contribution you agree that it is licensed under the license of the area
+you changed: GPL-3.0 for <code>apps/vodka</code> and the workspace, MIT for <code>apps/openv</code>, and
+LGPL-2.1-or-later for the engine sources. See <a href="notice.html"><code>NOTICE.md</code></a>. There is no CLA.</p>
+<h2>Community</h2>
+<p>Participation is governed by the <a href="https://github.com/rolling7ho/vodka-stack/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>. Report sensitive
+matters through <a href="security.html"><code>SECURITY.md</code></a> rather than a public issue.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

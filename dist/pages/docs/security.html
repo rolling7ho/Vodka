@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security policy — Vodka Stack</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/security.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka Stack</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Project</p>
+  <h1>Security policy</h1>
+<h2>Supported versions</h2>
+<p>Only the most recent released build of Vodka and the current <code>main</code> branch receive fixes.
+Fixes land on <code>main</code> and are included in the next release.</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Supported</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Most recent release</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>main</code> (unreleased)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Older releases</td>
+<td>no</td>
+</tr>
+</tbody></table>
+<h2>Reporting a vulnerability</h2>
+<p><strong>Do not open a public issue.</strong> Report the vulnerability privately through GitHub:
+<a href="https://github.com/rolling7ho/vodka-stack/security/advisories/new">https://github.com/rolling7ho/vodka-stack/security/advisories/new</a></p>
+<p>Include the following information:</p>
+<ul>
+<li>the affected component (Vodka application, OpenV, winecx, dxmt or build scripts);</li>
+<li>the affected version, the macOS version and the Mac model;</li>
+<li>reproduction steps or a proof of concept;</li>
+<li>the impact, meaning what an attacker gains and what access is required;</li>
+<li>any suggested fix.</li>
+</ul>
+<p>You will receive an initial response within one week. Allow time for a fix to be released
+before publishing; credit will be given in the advisory unless you prefer otherwise.</p>
+<h2>Scope</h2>
+<p>In scope:</p>
+<ul>
+<li>the Vodka application and its helper targets (<code>apps/vodka/</code>);</li>
+<li>OpenV and its exported ABI (<code>apps/openv/</code>);</li>
+<li>patches in <code>engine/winecx/</code> and <code>engine/dxmt-work/dxmt/</code>;</li>
+<li>build, release and update infrastructure in this repository;</li>
+<li>the Sparkle update path and appcast handling.</li>
+</ul>
+<p>Out of scope:</p>
+<ul>
+<li>GTA Online, anti-cheat bypasses and cheating in multiplayer games, which are explicitly
+unsupported;</li>
+<li>vulnerabilities in third-party games, mods or launchers;</li>
+<li>reports that require an already-compromised Mac;</li>
+<li>dependency issues already fixed upstream. Report those upstream and inform the
+maintainers afterwards.</li>
+</ul>
+<h2>Safe harbour</h2>
+<p>The maintainers will not pursue legal action for good-faith security research that
+respects this policy, avoids privacy violations and data destruction, and allows
+reasonable time to respond before disclosure.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/SECURITY.md">SECURITY.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Native registration table — Vodka Stack</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/openv-native-table.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka Stack</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / OpenV</p>
+  <h1>Native registration table</h1>
+<p>Research date: 30 October 2026. Dump: <code>research/dumps/1158.16-a.bin</code>, image base
+<code>0x140000000</code>, SizeOfImage <code>0x5b45200</code>. Dumps must never be committed (see <code>.gitignore</code>).</p>
+<h2>Image layout</h2>
+<p>Two executable sections:</p>
+<ul>
+<li><code>.text</code> at <code>0x1000</code>, size <code>0x2479400</code>. Ordinary code, including every native handler.</li>
+<li>A second <code>.text</code> at <code>0x5123000</code>, size <code>0xa22200</code>. Arxan-obfuscated code. Most native
+<em>registration</em> sites reside here.</li>
+</ul>
+<p>The <code>.retplne</code> and <code>.voltbl</code> sections are present, which identifies the build as
+clang/LLVM-compiled. The image was not relocated under Wine and loaded at its preferred
+base.</p>
+<h2>Registration function</h2>
+<p><code>register(table, hash, handler)</code> is at RVA <code>0x920d70</code>, with <code>rcx</code> holding the table, <code>rdx</code>
+the hash and <code>r8</code> the handler. It has 25 direct callers, all of them BUILTIN natives, for
+example the block at <code>0x922f20</code>. The remaining registration is inlined or obfuscated in the
+second <code>.text</code>.</p>
+<p>The table is at RVA <code>0x3ED4C20</code>, established from <code>lea rsi, [rip+0x35b1cf4]</code> at <code>0x922f25</code>.
+It consists of 256 plain bucket pointers indexed by <code>hash &amp; 0xff</code>.</p>
+<p>Node layout (0x100 bytes, maximum 7 entries):</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>+0x00/+0x04</code></td>
+<td>Next pointer low and high, each XORed with <code>((u32)node ^ dword[+0x08])</code></td>
+</tr>
+<tr>
+<td><code>+0x10 + i*8</code></td>
+<td>Handler i (plain pointer)</td>
+</tr>
+<tr>
+<td><code>+0x48</code></td>
+<td>Count, XORed with <code>dword[+0x4c]</code> and <code>(u32)(node+0x48)</code></td>
+</tr>
+<tr>
+<td><code>+0x54 + i*16</code></td>
+<td>Hash low and high, each XORed with <code>((u32)(node+0x54+i*16) ^ dword[+0x5c+i*16])</code></td>
+</tr>
+<tr>
+<td><code>+0xc8 + i*8</code></td>
+<td>Zero at registration (cache slot)</td>
+</tr>
+</tbody></table>
+<p>The keys originate from an LCG (<code>x*0x343fd + 0x269ec3</code>) stored at RVA <code>0x286a96c</code>. The
+design matches Legacy.</p>
+<p><code>tools/dump/openv-natives.exe</code> walks the table in a live process:</p>
+<ul>
+<li>6748 natives in 1076 nodes, with a maximum chain length of 6.</li>
+<li>6524 unique handlers, because some natives share a stub.</li>
+</ul>
+<h2>Hash randomisation</h2>
+<p>Only <strong>270 of 6748</strong> table hashes match the alloc8or nativedb &quot;universal&quot; hashes:</p>
+<ul>
+<li>mostly BUILTIN;</li>
+<li>plus natives first added in builds approximately 2944 to 3889.</li>
+</ul>
+<p>The remaining 96 percent are randomised for this build, so a crossmap is required.</p>
+<h2>Context ABI (identical to Legacy)</h2>
+<p><code>handler(ctx)</code>:</p>
+<ul>
+<li><code>[ctx+0x00]</code> is the return-value pointer.</li>
+<li><code>[ctx+0x10]</code> is the argument array, 8 bytes per argument.</li>
+</ul>
+<p>Floats are read with <code>movss [args + i*8]</code>.</p>
+<h2>Crossmap feasibility: signals found</h2>
+<ol>
+<li><strong>Handler address order approximates nativedb order.</strong><ul>
+<li>Sorted by handler address, 264 of 269 anchor steps increase in nativedb order.</li>
+<li>Of the longest increasing anchor chain (233 anchors, 232 gaps), 185 gaps have exactly
+equal sizes on both sides, which fixes approximately 2026 natives plus the anchors by
+position alone.</li>
+<li>A few large mismatches (plus or minus 1290) appear to be whole namespaces ordered
+differently. The next step is per-namespace block alignment.</li>
+</ul>
+</li>
+<li><strong>Handler signatures.</strong> 6496 of 6524 handlers begin with an Arxan <code>jmp</code> chain.<ul>
+<li><code>research/trace.py</code> follows the jumps and tracks the context and argument registers.</li>
+<li>It recovers the exact parameter count for 224 of 270 anchors (83 percent).</li>
+<li>The misses are zero-argument readings caused by deeper obfuscation (spilled argument
+pointers, indirect jumps).</li>
+</ul>
+</li>
+<li>Not yet used: return-type writes (<code>[ctx]</code> usage, xmm versus integer), the Vector3 return
+pattern, and call targets shared with known handlers.</li>
+</ol>
+<h2>Next steps</h2>
+<ul>
+<li>Align namespace blocks (dynamic programming or Needleman-Wunsch), scored by parameter
+count and return kind, then measure how many natives are uniquely resolved.</li>
+<li>Improve the tracer for stack spills, <code>push</code>/<code>ret</code> and <code>lea</code>-based jumps.</li>
+<li>Validate the result in game: call approximately 20 resolved natives from a test ASI and
+check the behaviour.</li>
+<li>Legal: nativedb-data has <strong>no LICENSE file</strong>. Use only names, hashes and signatures
+(facts), never comments. Ask the maintainer before publishing generated headers.</li>
+</ul>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/apps/openv/docs/re/01-native-table.md">apps/openv/docs/re/01-native-table.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

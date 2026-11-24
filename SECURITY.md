@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Do not open a public issue. Report the vulnerability privately through
-[GitHub's vulnerability reporting](https://github.com/rolling7ho/Vodka/security/advisories/new)
+[GitHub's vulnerability reporting](https://github.com/rolling7ho/vodka-stack/security/advisories/new)
 (the repository's **Security** tab, then **Report a vulnerability**), and include:
 
 - the problem and what an attacker could achieve with it;
