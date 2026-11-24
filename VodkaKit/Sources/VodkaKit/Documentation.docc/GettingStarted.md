@@ -4,7 +4,7 @@ Learn how to integrate VodkaKit into your macOS application to manage Wine bottl
 
 ## Overview
 
-VodkaKit provides a high-level API for managing Wine bottles—isolated Windows environments that contain their own registry, installed programs, and configuration. This guide walks you through the basic setup and common operations.
+VodkaKit provides a high-level API for managing Wine bottles, which are isolated Windows environments containing their own registry, installed programs and configuration. This guide describes the basic setup and common operations.
 
 ## Prerequisites
 
