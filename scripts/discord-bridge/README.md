@@ -1,46 +1,46 @@
 # Discord bridge
 
-Relays the Discord RPC named pipe inside a bottle to the Discord client running
-on the host, so a Windows game's own rich presence reaches Discord on macOS.
+Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
+that a Windows game's rich presence reaches Discord on macOS.
 
-`make install` builds `VodkaDiscordBridge.exe` and drops it into
-`VodkaKit/Sources/VodkaKit/Discord/Resources/`, where it ships as a bundle
-resource. The built binary is committed: Xcode builds do not run `make`, and CI
-has no MinGW. Rebuild and commit both together whenever `bridge.c` changes.
+`make install` builds `VodkaDiscordBridge.exe` and places it in
+`VodkaKit/Sources/VodkaKit/Discord/Resources/`, from which it ships as a bundle resource.
+The built binary is committed, because Xcode builds do not run `make` and CI has no MinGW
+toolchain. Rebuild and commit the binary whenever `bridge.c` changes.
 
 ```
 brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
 make install
 ```
 
-## How it works
+## Design
 
-Both ends of the Discord RPC transport use the same framing, a little-endian
-opcode and length then JSON, so the relay never parses a message. It serves
-`\\.\pipe\discord-ipc-0` inside the prefix and pumps bytes to whichever of
-`discord-ipc-0` … `discord-ipc-9` exists in the socket directory it is given.
+Both ends of the Discord RPC transport use the same framing, a little-endian opcode and
+length followed by JSON, so the relay forwards bytes without parsing messages. It serves
+`\\.\pipe\discord-ipc-0` inside the prefix and relays bytes to whichever of
+`discord-ipc-0` to `discord-ipc-9` exists in the socket directory it is given.
 
-Three things are worth knowing before changing it:
+Three constraints apply to any change:
 
-- **It reaches the socket through raw xnu syscalls.** PE code shares an address
-  space with the unix side of Wine, so a `syscall` instruction lands in the
-  kernel directly. A PE module cannot link libSystem, and the supported
-  alternative, a PE plus a unixlib half, would have to be built against a
-  specific Wine rather than plain MinGW. `sockaddr_un` here is xnu's layout (a
-  length byte, then a family byte), not Linux's 16-bit family.
-- **The socket directory is passed in with `--dir`.** A PE process sees Wine's
-  Windows environment, where the host's `TMPDIR` may not have survived, and the
-  sockets are named relative to it.
-- **It becomes a Wine system process after a grace window.** System processes do
-  not keep a prefix alive, so the relay stops holding a bottle open once the
-  game exits, and exits with the prefix rather than outliving it. The window
-  exists because Vodka starts the relay just before the game, and a prefix with
-  no ordinary process in it starts shutting down.
+- **The socket is reached through raw xnu system calls.** PE code shares an address space
+  with the Unix side of Wine, so a `syscall` instruction enters the kernel directly. A PE
+  module cannot link libSystem, and the supported alternative, a PE plus a unixlib half,
+  would have to be built against a specific Wine build rather than plain MinGW. `sockaddr_un`
+  here follows xnu's layout (a length byte followed by a family byte), not Linux's 16-bit
+  family field.
+- **The socket directory is passed with `--dir`.** A PE process sees Wine's Windows
+  environment, in which the host's `TMPDIR` may not have survived, and the sockets are named
+  relative to that directory.
+- **The relay becomes a Wine system process after a grace period.** System processes do not
+  keep a prefix alive, so the relay stops holding a bottle open once the game exits and
+  terminates with the prefix rather than outliving it. The grace period exists because Vodka
+  starts the relay immediately before the game, and a prefix containing no ordinary process
+  begins shutting down.
 
-## Testing it by hand
+## Manual test
 
-Serve a socket somewhere short enough to fit `sun_path`, point the relay at it,
-and connect from inside the prefix:
+Serve a socket at a path short enough to fit `sun_path`, point the relay at it, and connect
+from inside the prefix:
 
 ```
 mkdir -p /tmp/vodkaipc
@@ -56,5 +56,5 @@ EOF
 WINEPREFIX=... wine64 VodkaDiscordBridge.exe --dir /tmp/vodkaipc --grace 600000
 ```
 
-`--grace` is milliseconds; a long one keeps the relay from standing down while
-you poke at it.
+`--grace` is specified in milliseconds. A large value prevents the relay from standing down
+while it is being tested.

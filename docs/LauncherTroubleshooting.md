@@ -1,671 +1,408 @@
-# Launcher Troubleshooting Guide
+# Launcher troubleshooting guide
 
-**Feature:** Launcher Compatibility System (frankea/Whisky#41)
-**Last Updated:** January 12, 2026
+**Feature:** Launcher compatibility system (frankea/Whisky#41)
+**Last updated:** 12 January 2026
 
-> **Note:** This documentation references issue numbers from both this fork (frankea/Whisky) and the original upstream project (whisky-app/whisky). Upstream references are kept for historical context. Please report new issues to [frankea/Whisky](https://github.com/frankea/Whisky/issues).
+> **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
+> the original upstream project (whisky-app/whisky). Upstream references are retained for
+> historical context. Report new issues to
+> [rolling7ho/Vodka](https://github.com/rolling7ho/Vodka/issues).
 
----
+## Initial procedure
 
-## Quick Start
+For any launcher problem:
 
-If you're experiencing launcher issues:
+1. Open the bottle and select the **Config** tab.
+2. Expand **Launcher Compatibility**.
+3. Enable **Launcher Compatibility Mode**.
+4. Set **Detection Mode** to **Automatic**.
+5. Launch the launcher and review any warnings displayed in the interface.
 
-1. Open your bottle → **Config** tab
-2. Expand **Launcher Compatibility** section
-3. Enable **Launcher Compatibility Mode**
-4. Set **Detection Mode** to **Automatic**
-5. Launch your game launcher
-6. Check for any warnings shown in the UI
+If the problem persists, consult the section for that launcher below.
 
-If problems persist, see launcher-specific sections below.
+## Common issues
 
----
+### "steamwebhelper is not responding"
 
-## Common Issues & Solutions
+**Symptoms**
 
-### Issue: "steamwebhelper is not responding"
+- The Steam window appears and immediately reports an error.
+- The interface is unusable, and the restart options do not help.
 
-**Symptoms:**
-- Steam window appears but immediately shows error
-- "steamwebhelper is not responding" dialog
-- Steam UI is unusable
-- Restart options don't work
+**Solution**
 
-**Solution:**
+1. Open **Config → Launcher Compatibility** and enable compatibility mode.
+2. Confirm that **Locale Override** is **English (en_US.UTF-8)**. This resolves ICU parsing
+   failures in `steamwebhelper.exe`.
+3. Select **Generate Diagnostics Report** and confirm `LC_ALL=en_US.UTF-8` and
+   `STEAM_DISABLE_CEF_SANDBOX=1`.
 
-1. **Enable Launcher Compatibility Mode:**
-   - Open bottle → Config → Launcher Compatibility
-   - Toggle "Launcher Compatibility Mode" ON
+**Cause**
 
-2. **Verify Locale Setting:**
-   - Check "Locale Override" is set to **English (en_US.UTF-8)**
-   - This fixes ICU parsing errors in steamwebhelper
+Steam's Chromium-based helper fails when parsing dates and times in certain locales. The
+`.UTF-8` suffix is required for correct Unicode handling.
 
-3. **Check Configuration:**
-   - Click "Generate Diagnostics Report"
-   - Verify `LC_ALL=en_US.UTF-8` in environment variables
-   - Verify `STEAM_DISABLE_CEF_SANDBOX=1`
+**Related issues:** whisky-app/whisky#946, #1224, #1241.
 
-**Why This Happens:**
-Steam's Chromium-based web helper crashes when parsing dates/times in certain locales. The `.UTF-8` suffix is critical for proper Unicode handling.
+### Steam downloads stall at 99 percent
 
-**Related Upstream Issues:**
-- whisky-app/whisky#946 (steamwebhelper crash)
-- whisky-app/whisky#1224 (UI unusable)
-- whisky-app/whisky#1241 (Locale fix discovery)
+**Symptoms**
 
----
+- Downloads reach 99 percent and never complete.
+- A restart of Steam is required to continue, and several games are affected.
 
-### Issue: Steam Downloads Stall at 99%
+**Solution**
 
-**Symptoms:**
-- Downloads appear to complete but never finish
-- Progress bar stuck at 99%
-- Requires Steam restart to continue
-- Affects multiple games
+1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Network
+   Timeout** to **90 seconds** or higher.
+2. Generate a diagnostics report and confirm `WINHTTP_CONNECT_TIMEOUT`. The receive timeout
+   is set to twice that value. Vodka does not set `WINE_FORCE_HTTP11`.
+3. In Steam, open **Settings → Downloads**, select a geographically close region, then pause
+   and resume the download.
 
-**Solution:**
+**Cause**
 
-1. **Increase Network Timeout:**
-   - Open bottle → Config → Launcher Compatibility
-   - Enable Launcher Compatibility Mode
-   - Adjust "Network Timeout" slider to **90 seconds** or higher
+Wine's HTTP behaviour is unstable under some persistent connection conditions. Higher
+timeouts resolve the connection failures.
 
-2. **Verify Network Settings:**
-   - Generate diagnostics report
-   - Check `WINHTTP_CONNECT_TIMEOUT=90000`
-   - Check `WINE_FORCE_HTTP11=1`
+**Related issues:** whisky-app/whisky#1148, #1072, #1176.
 
-3. **Force Download Region:**
-   - In Steam, Settings → Downloads
-   - Change download region to one geographically close
-   - Pause and resume download
+### Rockstar Games Launcher freezes on the logo
 
-**Why This Happens:**
-Wine's HTTP/2 implementation has issues. Forcing HTTP/1.1 and increasing timeouts resolves connection stability problems.
+**Symptoms**
 
-**Related Upstream Issues:**
-- whisky-app/whisky#1148 (Downloads stall)
-- whisky-app/whisky#1072 (Download freezes)
-- whisky-app/whisky#1176 (Repeated disconnects)
+- The launcher starts and freezes at the Rockstar logo without an error message.
+- CPU usage may increase while the splash screen remains visible.
 
----
+**Solution**
 
-### Issue: Rockstar Games Launcher Freezes on Logo
+1. Enable DXVK under **Config → DXVK**. It is required for the logo to render.
+2. Open **Config → Launcher Compatibility**, enable compatibility mode and set detection to
+   Automatic or select **Rockstar Games Launcher** explicitly.
+3. Generate a diagnostics report and confirm that DXVK is enabled and that
+   `WINEDLLOVERRIDES` contains the Direct3D libraries.
 
-**Symptoms:**
-- Launcher starts but freezes at Rockstar logo
-- No error message displayed
-- Launcher never progresses past splash screen
-- Fans may spin up (CPU usage)
+**Alternative:** use `LauncherPatcher.exe` instead of `Launcher.exe`.
 
-**Solution:**
+**Cause**
 
-1. **Enable DXVK (REQUIRED):**
-   - Open bottle → Config → DXVK
-   - Toggle "DXVK" ON
-   - This is **REQUIRED** for Rockstar's logo to render
+The logo screen renders with Direct3D. Without DXVK the rendering fails without an error and
+the launcher blocks.
 
-2. **Enable Launcher Compatibility:**
-   - Config → Launcher Compatibility
-   - Enable Launcher Compatibility Mode
-   - Set Detection Mode to Automatic or manually select "Rockstar Games Launcher"
+**Related issues:** whisky-app/whisky#835, #1335, #1120.
 
-3. **Verify Configuration:**
-   - Generate diagnostics report
-   - Verify `DXVK: Enabled`
-   - Verify `WINEDLLOVERRIDES=dxgi,d3d9,d3d10core,d3d11=n,b`
+### EA App displays a black screen
 
-**Alternative Workaround:**
-Use `LauncherPatcher.exe` instead of `Launcher.exe` (community workaround)
+**Symptoms**
 
-**Why This Happens:**
-Rockstar's logo screen uses DirectX rendering that requires DXVK translation. Without DXVK, the rendering fails silently and hangs.
+- The window is entirely black, although background sound is audible.
+- The cursor changes over invisible controls, and a "GPU not supported" error may appear.
 
-**Related Upstream Issues:**
-- whisky-app/whisky#835 (Logo freeze - 47 comments!)
-- whisky-app/whisky#1335 (Init failure)
-- whisky-app/whisky#1120 (Won't start)
+**Solution**
 
----
+1. Open **Config → Launcher Compatibility**, enable compatibility mode and enable **GPU
+   Spoofing** with the **NVIDIA** vendor.
+2. Generate a diagnostics report and confirm GPU spoofing is active. The spoof sets
+   `MESA_GL_VERSION_OVERRIDE=4.6`.
+3. Set **Locale Override** to **English**.
 
-### Issue: EA App Shows Black Screen
+**Cause**
 
-**Symptoms:**
-- EA App launches but window is completely black
-- Can hear background sounds but no UI
-- Cursor changes when hovering over invisible elements
-- May show "GPU not supported" error
+The EA App queries GPU capabilities through Direct3D. Wine's incomplete driver reporting
+causes the launcher to conclude that the GPU is unsupported.
 
-**Solution:**
+**Related issues:** whisky-app/whisky#1195, #1322.
 
-1. **Enable GPU Spoofing:**
-   - Open bottle → Config → Launcher Compatibility
-   - Enable Launcher Compatibility Mode
-   - Toggle "GPU Spoofing" ON
-   - Select "NVIDIA" vendor (recommended)
+### Epic Games Store does not render its interface
 
-2. **Verify GPU Spoofing:**
-   - Generate diagnostics report
-   - Check that GPU Spoofing shows as enabled
+**Symptoms**
 
-3. **Check Locale:**
-   - Set Locale Override to **English**
-   - EA App's Chromium UI needs proper locale
+- The window appears blank or grey and the web view does not load.
+- Sign-in is impossible and connection errors may be reported.
 
-**Why This Happens:**
-EA App performs GPU capability checks via DirectX. Wine's incomplete driver reporting causes the launcher to think your GPU is unsupported.
+**Solution**
 
-**Related Upstream Issues:**
-- whisky-app/whisky#1195 (Black screen)
-- whisky-app/whisky#1322 (Never loads)
+1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Locale
+   Override** to **English**.
+2. Generate a diagnostics report and confirm `CEF_DISABLE_SANDBOX=1`.
 
----
+**Cause**
 
-### Issue: Epic Games Store Won't Render UI
+Epic's Chromium Embedded Framework conflicts with Wine's threading model. Disabling the CEF
+sandbox resolves the conflict.
 
-**Symptoms:**
-- Epic launcher window appears but is blank/gray
-- Web view doesn't load
-- Can't log in or see game library
-- May show connection errors
+### Ubisoft Connect cannot update or launch games
 
-**Solution:**
+**Symptoms**
 
-1. **Enable Launcher Compatibility:**
-   - Config → Launcher Compatibility → Enable
-   - Locale Override → **English**
+- Ubisoft Connect starts, but games do not launch.
+- Update progress does not advance and "Failed to initialize" errors appear.
 
-2. **Verify CEF Sandbox:**
-   - Generate diagnostics
-   - Check `CEF_DISABLE_SANDBOX=1`
+**Solution**
 
-**Why This Happens:**
-Epic's Chromium Embedded Framework conflicts with Wine's threading model. Disabling the CEF sandbox resolves the conflicts.
+1. Under **Config → DXVK**, enable DXVK and **DXVK Async**.
+2. Under **Config → Launcher Compatibility**, set the network timeout to **90 seconds**.
 
----
+**Related issues:** whisky-app/whisky#1004, #879.
 
-### Issue: Ubisoft Connect Can't Update or Launch Games
+### Battle.net authentication fails
 
-**Symptoms:**
-- Ubisoft Connect launches but games won't start
-- Update progress bar doesn't move
-- "Failed to initialize" errors
-- Anno 1800 or other games crash immediately
+**Symptoms**
 
-**Solution:**
+- The launcher opens, but the sign-in page does not load and redirects fail.
 
-1. **Enable DXVK Async:**
-   - Config → DXVK
-   - Enable DXVK
-   - Toggle "DXVK Async" ON
+**Solution**
 
-2. **Increase Network Timeout:**
-   - Config → Launcher Compatibility
-   - Adjust timeout to **90 seconds**
+Enable compatibility mode with the English locale. Battle.net's web-based authentication
+requires working Chromium rendering.
 
-**Why This Happens:**
-Ubisoft's servers can be slow, requiring higher timeouts.
+### Paradox Launcher reports "recursive resource lookup"
 
-**Related Upstream Issues:**
-- whisky-app/whisky#1004 (Beta update issues)
-- whisky-app/whisky#879 (Anno 1800 won't launch)
+**Symptoms**
 
----
+- Installation fails with a resource lookup error and initialisation does not complete.
 
-### Issue: Battle.net Authentication Fails
+**Solution**
 
-**Symptoms:**
-- Battle.net launcher opens
-- Login page doesn't load
-- Authentication redirects fail
-- "Connection error" messages
+Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.
 
-**Solution:**
+Vodka applies no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH` workaround
+that earlier versions set is read by no shipped runtime and has been removed.
 
-1. **Enable Launcher Compatibility:**
-   - Full compatibility mode with English locale
+**Related issues:** whisky-app/whisky#1091.
 
-**Why This Happens:**
-Battle.net's web-based authentication requires proper Chromium rendering.
+## macOS 15.4 and later
 
----
+**Symptoms**
 
-### Issue: Paradox Launcher Shows "Recursive Resource Lookup" Error
+- Launchers that worked on macOS 15.3 crash on 15.4 or later.
+- Wine preloader threads remain blocked and Mach port timeouts occur.
 
-**Symptoms:**
-- Installation fails with cryptic error
-- "Recursive resource lookup" message
-- Launcher doesn't complete initialization
+**Solution**
 
-**Solution:**
+1. Enable **Config → Metal → Sequoia Compatibility Mode**.
+2. Generate a diagnostics report and confirm the macOS version and `WINEFSYNC=0`.
 
-1. **Enable Launcher Compatibility:**
-   - Detect as Paradox Launcher (Auto or Manual)
+**Cause**
 
-Vodka has no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH`
-workaround earlier versions set is read by no shipped runtime, so it was removed.
+Apple changed threading and Mach port behaviour in macOS 15.4. The compatibility mode applies
+the required Wine environment changes.
 
-**Related Upstream Issues:**
-- whisky-app/whisky#1091 (Resource lookup bug)
+**Related issues:** whisky-app/whisky#1372, #1310, #1307.
 
----
+## Diagnostics report
 
-## macOS Version-Specific Issues
+### Generating a report
 
-### macOS 15.4+ Issues
+1. Open **Bottle → Config → Launcher Compatibility**.
+2. Select **Generate Diagnostics Report** and review the configuration in the window.
+3. Copy the report to the clipboard for a GitHub issue, or export it to a file.
 
-**Symptoms:**
-- Launchers that worked on 15.3 now crash on 15.4+
-- wine-preloader threads stuck
-- Mach port timeouts
-- Launcher freezes at startup
+### Reading a report
 
-**Solution:**
+**System information**
 
-1. **Enable Sequoia Compatibility Mode:**
-   - Config → Metal → "Sequoia Compat Mode" ON
-
-2. **Verify macOS Fixes Applied:**
-   - Generate diagnostics report
-   - Check macOS version detection
-   - Check `WINEFSYNC=0`
-
-**Why This Happens:**
-Apple changed threading and mach port behavior in macOS 15.4. The compatibility mode applies Wine environment fixes for these changes.
-
-**Related Upstream Issues:**
-- whisky-app/whisky#1372 (macOS 15.4.1 breaks Steam)
-- whisky-app/whisky#1310 (Graphics corruption)
-- whisky-app/whisky#1307 (Sequoia compatibility)
-
----
-
-## Diagnostic Report Usage
-
-### Generating Reports
-
-1. **Open Config:**
-   - Bottle → Config → Launcher Compatibility
-
-2. **Generate Report:**
-   - Click "Generate Diagnostics Report" button
-   - Review configuration in popup window
-
-3. **Export Options:**
-   - **Copy to Clipboard:** For pasting in GitHub issues
-   - **Export to File:** Save for later reference
-
-### Reading Reports
-
-Key sections to check:
-
-**System Information:**
 ```
-macOS Version: 15.4.1
-Wine Version: 9.0
+macOS version: 15.4.1
+Wine version: 11.0
 Architecture: Apple Silicon (arm64)
-Rosetta 2: ✅ Installed
+Rosetta 2: installed
 ```
 
-**Launcher Configuration:**
+**Launcher configuration**
+
 ```
-Compatibility Mode: ✅ Enabled
-Detected Launcher: Steam
-Launcher Locale: English (en_US.UTF-8)
-GPU Spoofing: ✅ Enabled (NVIDIA)
+Compatibility mode: enabled
+Detected launcher: Steam
+Launcher locale: English (en_US.UTF-8)
+GPU spoofing: enabled (NVIDIA)
 ```
 
-**Environment Variables:**
-Look for:
+**Environment variables**
+
 - `LC_ALL=en_US.UTF-8` (locale fix)
-- `STEAM_DISABLE_CEF_SANDBOX=1` (CEF fix)
+- `STEAM_DISABLE_CEF_SANDBOX=1` (Steam CEF fix)
+- `CEF_DISABLE_SANDBOX=1` (global CEF fix)
 - `MESA_GL_VERSION_OVERRIDE=4.6` (GPU spoofing)
 - `WINHTTP_CONNECT_TIMEOUT=90000` (network timeout)
 
-**Validation Results:**
-- ✅ Configuration is optimal
-- ⚠️  Warnings indicate potential issues
+**Validation results**
 
----
+The report states either that the configuration is optimal or that warnings require
+attention.
 
-## Configuration Warnings Explained
+## Configuration warnings
 
-### ⚠️ "DXVK should be enabled for Steam"
-**Impact:** Steam UI may stutter  
-**Solution:** Enable DXVK in Config → DXVK
+| Warning | Impact | Action |
+|---|---|---|
+| DXVK should be enabled for Steam | Steam interface may stutter | Enable DXVK under **Config → DXVK** |
+| DXVK required for the Rockstar Launcher | Logo does not render; launcher unusable | Enable DXVK |
+| Steam may fail without the en_US locale | `steamwebhelper.exe` failure likely | Set Locale Override to English |
+| GPU spoofing required for the EA App | Black screen or "GPU not supported" | Enable GPU spoofing |
 
-### ❌ "DXVK REQUIRED for Rockstar Launcher"
-**Impact:** Logo won't display, launcher unusable  
-**Solution:** Enable DXVK immediately (critical)
+## Advanced troubleshooting
 
-### ⚠️ "Steam may crash without en_US locale"
-**Impact:** steamwebhelper crashes likely  
-**Solution:** Set Locale Override to English
+### Reset launcher configuration
 
-### ❌ "GPU spoofing REQUIRED for EA App"
-**Impact:** Black screen, "GPU not supported"  
-**Solution:** Enable GPU Spoofing (critical)
+1. Disable Launcher Compatibility Mode.
+2. Right-click the bottle, select **Show in Finder** and delete `Metadata.plist`.
+3. Recreate the bottle; Vodka regenerates it with defaults.
+4. Enable Launcher Compatibility Mode again.
 
----
+### Consult Wine logs
 
-## Advanced Troubleshooting
+1. Open `~/Library/Logs/com.rolling7ho.Vodka/`.
+2. Locate the newest log by timestamp and inspect entries around launcher startup.
+3. Search for `steamwebhelper`, `CEF`, `locale`, `crash` and `segfault`.
 
-### Reset Launcher Configuration
+### Verify the Wine installation
 
-If launchers become misconfigured:
+Confirm that `~/Library/Application Support/com.rolling7ho.Vodka/Libraries/Wine/` contains
+the `bin/`, `lib/` and `share/` directories. The application reports the runtime version it
+uses in the diagnostics report.
 
-1. **Disable Launcher Compatibility Mode**
-2. **Delete Bottle Metadata:**
-   - Right-click bottle → Show in Finder
-   - Delete `Metadata.plist`
-3. **Recreate Bottle:**
-   - Vodka will regenerate with defaults
-4. **Re-enable Launcher Compatibility**
+### Test in a clean bottle
 
-### Check Wine Logs
+1. Create a new bottle named "Launcher Test" with Windows 10.
+2. Enable Launcher Compatibility Mode before installing anything.
+3. Install the launcher from the official installer.
+4. Test the launcher. If it works, the original bottle had a configuration fault; if it
+   fails, the fault lies with Wine or macOS.
 
-Launcher crashes may leave clues in Wine logs:
-
-1. **Open Logs Folder:**
-   ```
-   ~/Library/Logs/com.franke.Vodka/
-   ```
-
-2. **Find Latest Log:**
-   - Sorted by timestamp
-   - Look for errors around launcher startup
-
-3. **Search for Keywords:**
-   - "steamwebhelper"
-   - "CEF"
-   - "locale"
-   - "crash"
-   - "segfault"
-
-### Verify Wine Installation
-
-Ensure Wine is properly installed:
-
-1. **Check Wine Version:**
-   - Terminal: `wine64 --version`
-   - Should show version 9.0 or later
-
-2. **Verify VodkaWine:**
-   - Check `/Users/[username]/Library/Application Support/com.franke.Vodka/Libraries/Wine/`
-   - Should contain `bin/`, `lib/`, `share/` directories
-
-### Test in Clean Bottle
-
-Isolate launcher issues:
-
-1. **Create New Test Bottle:**
-   - Name: "Launcher Test"
-   - Windows 10 (recommended)
-
-2. **Enable Launcher Compatibility:**
-   - Before installing launcher
-
-3. **Install Launcher Fresh:**
-   - Use official installer
-
-4. **Test Functionality:**
-   - If works: Original bottle had configuration issue
-   - If fails: System-wide Wine or macOS issue
-
----
-
-## Launcher-Specific Quick Reference
+## Launcher reference
 
 ### Steam
-**Must Have:**
-- ✅ Launcher Compatibility Mode
-- ✅ Locale: English (en_US.UTF-8)
 
-**Recommended:**
-- ✅ DXVK (improves UI performance)
-- ✅ Network timeout: 90s
-
-**Critical Settings:**
-- `LC_ALL=en_US.UTF-8` (prevents steamwebhelper crash)
-- `STEAM_DISABLE_CEF_SANDBOX=1` (Wine compatibility)
-
----
+- Required: Launcher Compatibility Mode; locale `en_US.UTF-8`.
+- Recommended: DXVK; network timeout of 90 seconds.
+- Variables: `LC_ALL=en_US.UTF-8`, `STEAM_DISABLE_CEF_SANDBOX=1`.
 
 ### Rockstar Games Launcher
-**Must Have:**
-- ✅ DXVK (REQUIRED - logo won't display without it)
-- ✅ Launcher Compatibility Mode
 
-**Recommended:**
-- ✅ Locale: English
+- Required: DXVK; Launcher Compatibility Mode.
+- Recommended: locale English.
+- DXVK cannot be disabled for this launcher.
 
-**Critical Settings:**
-- DXVK cannot be disabled
+### EA App
 
-**Alternative:**
-Use `LauncherPatcher.exe` instead of `Launcher.exe`
-
----
-
-### EA App / Origin
-**Must Have:**
-- ✅ GPU Spoofing (prevents black screen)
-- ✅ Launcher Compatibility Mode
-
-**Recommended:**
-- ✅ GPU Vendor: NVIDIA
-- ✅ Locale: English
-
-**Critical Settings:**
-- GPU Spoofing enabled
-
----
+- Required: GPU spoofing; Launcher Compatibility Mode.
+- Recommended: NVIDIA vendor; locale English.
 
 ### Epic Games Store
-**Must Have:**
-- ✅ Launcher Compatibility Mode
-- ✅ Locale: English
 
-**Recommended:**
-- ✅ GPU Spoofing
-
-**Critical Settings:**
-- `CEF_DISABLE_SANDBOX=1` (UI rendering)
-
----
+- Required: Launcher Compatibility Mode; locale English.
+- Recommended: GPU spoofing.
+- Variables: `CEF_DISABLE_SANDBOX=1`.
 
 ### Ubisoft Connect
-**Must Have:**
-- ✅ Launcher Compatibility Mode
 
-**Recommended:**
-- ✅ DXVK + DXVK Async
-- ✅ Network timeout: 90s
-
-**Critical Settings:**
-- `DXVK_ASYNC=1` (game compatibility)
-
----
+- Required: Launcher Compatibility Mode.
+- Recommended: DXVK with DXVK Async; network timeout of 90 seconds.
+- Variables: `DXVK_ASYNC=1`.
 
 ### Battle.net
-**Must Have:**
-- ✅ Launcher Compatibility Mode
-- ✅ Locale: English
 
-**Recommended:**
-- ✅ DXVK
-
-**Critical Settings:**
-- `CEF_DISABLE_SANDBOX=1` (authentication)
-
----
+- Required: Launcher Compatibility Mode; locale English.
+- Recommended: DXVK.
+- Variables: `CEF_DISABLE_SANDBOX=1`.
 
 ### Paradox Launcher
-**Must Have:**
-- ✅ Launcher Compatibility Mode
 
-**Critical Settings:**
-- None beyond Launcher Compatibility Mode
+- Required: Launcher Compatibility Mode.
+- No additional environment configuration.
 
----
+## Reporting an issue
 
-## Getting Help
+Before reporting:
 
-### Before Reporting Issues
+1. Generate the diagnostics report under **Config → Launcher Compatibility** and export it.
+2. Review all warnings and apply the recommended changes.
+3. Confirm that the issue reproduces in a clean bottle.
 
-1. **Generate Diagnostic Report:**
-   - Config → Launcher Compatibility
-   - Click "Generate Diagnostics Report"
-   - Export to file
+Include in the report:
 
-2. **Check Configuration Warnings:**
-   - Review any ⚠️ or ❌ warnings shown
-   - Apply recommended fixes
+1. The diagnostics report, attached or pasted in full.
+2. System information: macOS version, Mac model and Vodka version.
+3. Reproduction steps, expected behaviour and actual behaviour.
+4. Screenshots of error messages and configuration screens.
 
-3. **Test in Clean Bottle:**
-   - Verify issue reproduces in fresh bottle
-   - Isolates configuration vs system issues
+## Security considerations
 
-### Reporting Issues on GitHub
+Launcher compatibility mode disables the Chromium sandbox, which is required under Wine.
 
-Include in your issue report:
+Implications:
 
-1. **Diagnostic Report:**
-   - Export and attach to issue
-   - Or copy/paste full content
+- Embedded browser content runs with the process's privileges.
+- A browser exploit could compromise the Wine process.
 
-2. **System Information:**
-   - macOS version (System Settings → About)
-   - Mac model (Apple Silicon or Intel)
-   - Vodka version
+Use compatibility mode with established launchers (Steam, Epic, EA, Rockstar), keep those
+launchers updated, and avoid browsing untrusted sites inside them. Do not use compatibility
+mode with unknown launcher software.
 
-3. **Steps to Reproduce:**
-   - What you did
-   - What you expected
-   - What actually happened
+## Operational guidance
 
-4. **Screenshots:**
-   - Error messages
-   - Configuration screens
-   - Launcher UI issues
+**Performance**
 
-### Community Resources
+- Enable DXVK Async to reduce shader compilation stutter.
+- Enable the shader cache under **Config → Performance**.
 
-- **GitHub Issues:** https://github.com/frankea/Whisky/issues
-- **Upstream Repository:** https://github.com/whisky-app/whisky
-- **This Fork's Tracking Issue:** frankea/Whisky#41
+**Stability**
 
----
+- Use a dedicated bottle for each launcher to avoid conflicts.
+- Reinstall launchers after significant Wine updates and keep them updated.
+- Monitor Wine processes in Activity Monitor; sustained high CPU usage may indicate a
+  hung launcher component.
 
-## Security Considerations
+**Before changing a working configuration**
 
-### CEF Sandbox Disabled
+- Export the diagnostics report.
+- Copy `Metadata.plist`:
 
-Launcher compatibility mode disables the Chromium sandbox (required for Wine).
+  ```sh
+  cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
+  ```
 
-**Implications:**
-- Embedded browser content runs with process privileges
-- Browser exploits could compromise Wine process
-- Use only with trusted launchers
-
-**Safe Usage:**
-- ✅ Use with major launchers (Steam, Epic, EA, Rockstar)
-- ✅ Keep launchers updated
-- ❌ Don't browse untrusted websites in launchers
-- ❌ Don't use with unknown launcher software
-
-See [LauncherSecurityNotes.md](LauncherSecurityNotes.md) for detailed security analysis.
-
----
-
-## Tips & Best Practices
-
-### Performance Optimization
-
-1. **Enable DXVK Async:**
-   - Reduces shader compilation stuttering
-   - Recommended for all launchers
-
-2. **Enable Shader Cache:**
-   - Config → Performance
-   - "Shader Cache" ON (reduces stuttering after first run)
-
-### Stability Tips
-
-1. **Dedicated Launcher Bottles:**
-   - Create separate bottle for each launcher
-   - Prevents conflicts between launcher installations
-
-2. **Keep Bottles Updated:**
-   - Reinstall launchers when Wine updates
-   - Check for launcher updates within apps
-
-3. **Monitor Resource Usage:**
-   - Activity Monitor → check Wine processes
-   - High CPU may indicate hanging launcher component
-
-### Backup Important Settings
-
-Before making changes:
-
-1. **Export Diagnostics:**
-   - Save current working configuration
-
-2. **Copy Metadata:**
-   ```bash
-   cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
-   ```
-
-3. **Document Working Config:**
-   - Screenshot Config tabs
-   - Note what worked
-
----
+- Record the working configuration, for example with screenshots of the Config tabs.
 
 ## FAQ
 
-### Q: Can I use launcher compatibility with games?
-**A:** Yes, but it's designed for launchers. Games typically don't need these fixes and may have launcher-specific optimizations applied unnecessarily.
+**Can launcher compatibility be used with games?**
+Yes, but it is designed for launchers. Games generally do not require these fixes and may
+receive launcher-specific optimisations that they do not need.
 
-### Q: Why does launcher detection sometimes fail?
-**A:** Detection uses heuristics based on filename/path. For edge cases, switch to Manual mode and select the launcher explicitly.
+**Why does launcher detection fail?**
+Detection uses heuristics based on filename and path. For unusual cases, switch to Manual
+detection and select the launcher explicitly.
 
-### Q: Is GPU spoofing safe for anti-cheat?
-**A:** Yes. It only affects capability queries, not game memory. Anti-cheat systems don't detect it.
+**Is GPU spoofing safe with anti-cheat?**
+GPU spoofing changes capability queries only and does not modify game memory. Whether a
+given anti-cheat system tolerates it depends on that system.
 
-### Q: Will launcher compatibility slow down my games?
-**A:** No. The overhead is negligible (<1ms per launch). Environment variable setup is very fast.
+**Does launcher compatibility reduce game performance?**
+No measurable effect is expected. The environment variable setup occurs at launch and is
+negligible.
 
-### Q: Can I customize individual launcher settings?
-**A:** Currently, settings apply to the detected launcher. Per-game overrides may be added in future versions.
+**Can individual launcher settings be customised?**
+Settings apply to the detected launcher. Per-game overrides may be added in a future
+version.
 
-### Q: Why does my launcher require English locale?
-**A:** Chromium Embedded Framework in launchers has Unicode parsing bugs with certain locales. English (en_US.UTF-8) avoids these issues.
+**Why does a launcher require the English locale?**
+The Chromium Embedded Framework used by several launchers has Unicode parsing defects with
+certain locales. `en_US.UTF-8` avoids them.
 
----
+## macOS compatibility
 
-## Version Compatibility
+| macOS version | Compatibility | Notes |
+|---|---|---|
+| 15.0 to 15.2 | Full | No known issues |
+| 15.3 | Full | Graphics validation handled |
+| 15.4 and later | Full | Synchronisation mode and Steam Runtime handled |
 
-| macOS Version | Compatibility Level | Known Issues |
-|---------------|-------------------|--------------|
-| 15.0-15.2 | ✅ Full | None known |
-| 15.3 | ✅ Full | Graphics validation (handled) |
-| 15.4+ | ✅ Full | Sync mode and Steam Runtime (handled) |
-| < 15.0 | ⚠️ Limited | Sequoia fixes not available |
+macOS 15 is the minimum supported version.
 
----
+## Further resources
 
-## Additional Resources
-
-- **Issue Tracking:** frankea/Whisky#41
-- **Pull Request:** #53
-- **Security Notes:** [LauncherSecurityNotes.md](LauncherSecurityNotes.md)
-- **Implementation Details:** [LauncherCompatibilityImplementation.md](LauncherCompatibilityImplementation.md)
-
----
-
-**Last Updated:** January 12, 2026  
-**Feature Version:** 1.0.0  
-**Covers:** Steam, Rockstar, EA App, Epic, Ubisoft, Battle.net, Paradox
+- Issue tracker: <https://github.com/rolling7ho/Vodka/issues>
+- Upstream project: <https://github.com/whisky-app/whisky>
+- Steam guide: [SteamCompatibility.md](SteamCompatibility.md)
+- Stability guide: [StabilityTroubleshooting.md](StabilityTroubleshooting.md)

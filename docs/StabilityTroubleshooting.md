@@ -1,70 +1,85 @@
-# Stability Troubleshooting Guide
+# Stability troubleshooting guide
 
-**Feature:** Stability Troubleshooting (frankea/Whisky#40)  
-**Last Updated:** January 13, 2026
+**Feature:** Stability troubleshooting (frankea/Whisky#40)
+**Last updated:** 13 January 2026
 
----
+This document is a contributor-facing procedure for triaging **critical stability issues**:
+crashes, hard freezes, reboots and kernel panics.
 
-This document is a contributor-facing playbook for triaging **critical stability issues**: crashes, hard freezes, reboots, and kernel panics.
+## Applicability
 
-## When to Use This
+Use this guide for reports of:
 
-Use this guide for reports like:
-- macOS kernel panic / reboot during game launch or gameplay
-- Complete system freeze requiring force reboot
-- Vodka UI freezes (e.g., opening Bottle Configuration)
-- Vodka crashes on launch or during VodkaWine installation
+- a macOS kernel panic or reboot during game launch or gameplay;
+- a complete system freeze requiring a forced reboot;
+- a Vodka UI freeze, for example while opening bottle configuration;
+- a Vodka crash on launch or during VodkaWine installation.
 
-## Quick Mitigations (User-Facing)
+## Immediate mitigations for users
 
-- **Enable Sequoia Compatibility Mode** (Bottle → Config → Metal → “Sequoia Compatibility Mode”): helps with macOS 15.x quirks.
-- **Disable DXR**: ray tracing can stress graphics paths on some systems.
-- **Kill All Bottles** (menu item): terminates Wine processes for all bottles; use when those processes are stuck or the UI is unresponsive.
+- **Enable Sequoia Compatibility Mode** (Bottle → Config → Metal → "Sequoia Compatibility
+  Mode"). This addresses several macOS 15.x behaviours.
+- **Disable DXR.** Ray tracing stresses graphics paths on some systems.
+- **Kill All Bottles** (menu item). Terminates Wine processes for all bottles; use it when
+  those processes are unresponsive or the UI is frozen.
 
-## Collect Diagnostics (Required for Actionable Triage)
+## Collecting diagnostics
 
-### 1) Stability Diagnostics Report (If Available)
+A complete report is required for actionable triage.
 
-If you're on a build that includes the Stability Diagnostics button (see `frankea/Whisky#56`), collect this report first:
+### Stability diagnostics report
 
-1. Open the affected bottle
-2. Go to **Config**
-3. If you see a **Stability** section, click **Generate Stability Diagnostics**
-4. Export to file and attach it to the issue
+If the build includes the stability diagnostics control (see `frankea/Whisky#56`), collect
+this report first:
 
-If you don't see this button/section, skip this step and attach Wine logs instead (below).
+1. Open the affected bottle.
+2. Open **Config**.
+3. If a **Stability** section is present, select **Generate Stability Diagnostics**.
+4. Export the report to a file and attach it to the issue.
+
+If the section is absent, skip this step and attach Wine logs instead.
 
 Notes:
-- The stability report is **bounded** (safe to share)
-- It includes **environment keys only** (no values) to reduce privacy risk
 
-### 2) Wine logs folder
+- The stability report is **bounded**, so it is safe to share.
+- It includes **environment keys only**, without values, to reduce privacy risk.
 
-In the app, use **Open Logs Folder** (menu item) and attach the newest `.log` file(s) if requested.
+### Wine log folder
 
-Vodka also enforces log size limits (per-file cap + folder cap) to avoid runaway disk usage.
+In the application, select **Open Logs Folder** (menu item) and attach the newest `.log`
+files if requested.
 
-### 3) macOS crash/panic logs
+Vodka enforces log size limits, comprising a per-file cap and a folder cap, to prevent
+excessive disk use.
 
-For **kernel panics / reboots**:
-- Collect the panic report from **Console.app** (System Reports / Panic reports)
-- Include the exact error string if visible (e.g., `IOMFB int_handler_gated: failure: axi_rd_err`)
+### macOS crash and panic logs
 
-## Minimal Repro Template (Paste Into Issues)
+For kernel panics and reboots:
 
-Please include:
-- **Mac model** (e.g., M3 Max)
-- **macOS version** (e.g., 15.2 / 15.4.1)
+- Collect the panic report from **Console.app** (System Reports, Panic reports).
+- Include the exact error string if one is visible, for example
+  `IOMFB int_handler_gated: failure: axi_rd_err`.
+
+## Minimal reproduction template
+
+Include the following in the issue:
+
+- **Mac model** (for example, M3 Max)
+- **macOS version** (for example, 15.2 or 15.4.1)
 - **Vodka version** and **VodkaWine version**
-- **Game/app** and distribution (Steam/GOG/etc.)
-- **Bottle settings toggles**: Sequoia compat, DXVK, DXR, Enhanced Sync
-- **Steps to reproduce** (smallest possible)
-- **Expected vs actual**
-- Attach **Stability Diagnostics report** (if available) and any relevant logs
+- **Game or application** and its distribution channel (Steam, GOG and so on)
+- **Bottle settings**: Sequoia compatibility, DXVK, DXR, Enhanced Sync
+- **Steps to reproduce**, reduced to the shortest reliable sequence
+- **Expected and actual behaviour**
+- The **stability diagnostics report** if available, plus any relevant logs
 
-## Triage Guidance (Maintainers)
+## Triage guidance for maintainers
 
-- If the report indicates a **UI freeze** correlated with Wine commands, prioritize investigating main-thread starvation or long-running Wine command aggregation.
-- If it’s a **kernel panic**, treat it as likely **driver-level**. Focus on mitigations (DXR off, a different graphics backend) and collecting high-quality repro data.
-- If it’s a **VodkaWine install failure**, collect the exact error message, validate tarball structure/version plist, and attach relevant logs.
-
+- If the report indicates a **UI freeze** correlated with Wine commands, investigate
+  main-thread starvation and long-running aggregation of Wine commands first.
+- If the report indicates a **kernel panic**, treat it as likely to be at driver level.
+  Focus on mitigations (DXR disabled, a different graphics backend) and on collecting
+  high-quality reproduction data.
+- If the report indicates a **VodkaWine installation failure**, collect the exact error
+  message, validate the tarball structure and the version plist, and attach the relevant
+  logs.

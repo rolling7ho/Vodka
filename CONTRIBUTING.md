@@ -1,75 +1,84 @@
 # Contributing to Vodka
 
-Thanks for helping out. Bug reports, fixes and game compatibility notes are all welcome.
+Contributions are welcome: bug reports, fixes and game compatibility notes.
 
 ## Reporting a bug
 
-[Open an issue](https://github.com/rolling7ho/Vodka/issues/new/choose) and use the template that fits.
-In the app, **Help › Run Diagnostics…** writes a report covering your PC's settings and recent logs;
-attaching it usually saves a round of questions. Before you attach it, remove anything you'd rather
-not share.
+[Open an issue](https://github.com/rolling7ho/Vodka/issues/new/choose) and select the
+appropriate template. In the application, **Help › Run Diagnostics…** writes a report
+covering settings and recent logs; attaching it usually avoids an exchange of questions.
+Remove anything you do not want to share before attaching it.
 
 ## Building
 
-You need an Apple Silicon Mac on macOS 15 or later, with Xcode 16 or later. Dependencies come from
-the Swift Package Manager.
+An Apple Silicon Mac running macOS 15 or later with Xcode 16 or later is required.
+Dependencies are resolved by the Swift Package Manager.
+
+Vodka is part of a monorepo. The application project resides in `apps/vodka`:
 
 ```sh
 git clone https://github.com/rolling7ho/Vodka.git
-cd Vodka
+cd Vodka/apps/vodka
 open Vodka.xcodeproj           # or build from the command line:
 scripts/install-local.sh       # Release build, ad-hoc signed, installed to /Applications
 ```
 
-The project has four parts:
+The project comprises four parts:
 
-| Part | What it is |
-| --- | --- |
-| `Vodka/` | The SwiftUI app |
-| `VodkaKit/` | A Swift package with the logic: Wine, PCs, Steam, the library and playtime |
-| `VodkaCmd/` | The command-line tool that Dock shortcuts use to start games |
-| `VodkaThumbnail/` | The Quick Look thumbnail extension for `.exe` files |
+| Part | Responsibility |
+|---|---|
+| `Vodka/` | The SwiftUI application |
+| `VodkaKit/` | Swift package containing the logic: Wine, PCs, Steam, the library and playtime |
+| `VodkaCmd/` | Command-line tool used by Dock shortcuts to start games |
+| `VodkaThumbnail/` | Quick Look thumbnail extension for `.exe` files |
 
 ## Before you open a pull request
 
 ```sh
 swift test --package-path VodkaKit   # unit tests
-swiftformat --lint .                 # formatting (SwiftFormat 0.58.7, the version CI uses)
+swiftformat --lint .                 # formatting (CI pins SwiftFormat 0.58.7)
 ```
 
-SwiftLint runs as part of the Xcode build, and any violation fails the build. Every Swift file starts
-with the license header, which reads "This file is part of Vodka, a fork of Whisky."; copy it from any
-existing file.
+SwiftLint runs as part of the Xcode build and any violation fails the build. It is skipped
+when `CI=true` is set, so run `swiftlint --strict` explicitly before opening a pull
+request. Every Swift file begins with the license header reading "This file is part of
+Vodka, a fork of Whisky."; copy it from an existing file.
 
 ## Guidelines
 
-- **Keep pull requests small.** One fix or feature per PR.
-- **Strings.** Add new user-facing text to `Vodka/Localizable.xcstrings` in English only. Edit the
-  file as text and only touch the lines you need. Re-saving it with a JSON tool reorders the whole
-  catalog and the diff becomes unreviewable.
-- **Xcode project.** VodkaKit picks up new files on its own. Files you add to the app target also need
-  entries in `Vodka.xcodeproj`.
-- **Changelog.** Describe user-facing changes under `[Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
+- **Every change lands through a pull request.** Direct pushes to `main` are not accepted.
+- **Keep pull requests small.** One fix or feature per pull request.
+- **Strings.** Add new user-facing text to `Vodka/Localizable.xcstrings` in English only.
+  Edit the file as text and modify only the required lines. Re-saving it with a JSON tool
+  reorders the entire catalog and makes the diff unreviewable.
+- **Xcode project.** VodkaKit discovers new files automatically. Files added to the
+  application target also require entries in `Vodka.xcodeproj`.
+- **Changelog.** Describe user-facing changes under `[Unreleased]` in
+  [CHANGELOG.md](CHANGELOG.md).
 - **Game fixes.** A fix that only changes settings belongs in
-  `VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json`, with a link to where the fix came from.
-- **Secrets.** CI scans every push with TruffleHog. To run the same check locally, use
+  `VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json`, with a link to the origin
+  of the fix.
+- **Secrets.** CI scans every push with TruffleHog. Run the same check locally with
   `scripts/scan-secrets.sh`.
 
 ## Releasing an update
 
-Installed copies check `https://rolling7ho.github.io/Vodka/appcast.xml` (served from the `gh-pages`
-branch) through Sparkle. To ship an update, describe it under `[Unreleased]` in the changelog, commit,
-and run:
+Installed copies check `https://rolling7ho.github.io/Vodka/appcast.xml`, served from the
+`gh-pages` branch, through Sparkle. To publish an update, describe it under `[Unreleased]`
+in the changelog, commit the working tree, and run:
 
 ```sh
 scripts/publish-update.sh 4.0.1
 ```
 
-The script bumps the version, builds and signs the app, creates the `app-v4.0.1` GitHub release and
-adds it to the appcast. Signing needs the Sparkle key in the maintainer's login keychain (account
-`vodka`). Keep a backup of it: copies already installed only accept updates signed with that key.
+The script moves the changelog entries into the new version, increments the marketing and
+build versions, builds and ad-hoc signs the application, signs the archive with the Sparkle
+key, creates the `app-v4.0.1` GitHub release, and adds the release to the appcast on
+`gh-pages`. Signing requires the Sparkle key in the maintainer's login keychain (account
+`vodka`) or at `~/.vodka-sparkle-private-key`. Retain a backup of the key: installed copies
+accept updates only when signed with that key.
 
 ## License
 
-By contributing, you agree that your work is released under the [GNU GPL v3](LICENSE), the same
-license as the rest of Vodka.
+By contributing, you agree that your work is released under the
+[GNU GPL v3](LICENSE), the same license as the rest of Vodka.
