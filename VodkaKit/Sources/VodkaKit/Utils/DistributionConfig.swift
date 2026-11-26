@@ -47,7 +47,7 @@ public enum DistributionConfig {
     )
 
     /// Where this edition's engine releases live.
-    public static let gamingReleasesBaseURL = "https://github.com/rolling7ho/Vodka/releases/download"
+    public static let gamingReleasesBaseURL = "https://github.com/rolling7ho/vodka/releases/download"
 
     /// The download URL for this edition's engine.
     public static var gamingRuntimeURL: String {

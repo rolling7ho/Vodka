@@ -35,8 +35,8 @@ import tempfile
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PAGES = os.path.join(ROOT, "dist", "pages")
 OUT = os.path.join(PAGES, "docs")
-SITE_BASE = "https://rolling7ho.github.io/Vodka"
-REPO = "rolling7ho/Vodka"
+SITE_BASE = "https://rolling7ho.github.io/vodka"
+REPO = "rolling7ho/vodka"
 BRANCH = "main"
 MARKED = ["npx", "--yes", "marked@18.3.0"]
 

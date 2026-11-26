@@ -2,7 +2,7 @@
 
 This directory contains the local runtime build driver and release notes for Vodka's Windows
 runtime (`Libraries.tar.gz`). Runtime builds are assembled and published as GitHub Releases on
-`rolling7ho/Vodka`.
+`rolling7ho/vodka`.
 
 The Wine and DXMT source trees live in separate repositories:
 
@@ -34,4 +34,4 @@ directory) so that relative lane paths resolve:
 cd runtime && ruby local-build.rb
 ```
 
-Changes to `winecx` or `dxmt` belong in their respective repositories, not in `rolling7ho/Vodka`.
+Changes to `winecx` or `dxmt` belong in their respective repositories, not in `rolling7ho/vodka`.
