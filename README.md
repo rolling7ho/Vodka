@@ -5,7 +5,12 @@
   <img src="./images/gmac-icon.png" width="160" alt="Gmac icon">
 </picture>
 
-# Gmac
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./images/brand/gmac-wordmark-dark.svg">
+    <img src="./images/brand/gmac-wordmark-light.svg" width="210" alt="Gmac">
+  </picture>
+</p>
 
 **Play Windows games on Macs.**
 
