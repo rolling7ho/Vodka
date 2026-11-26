@@ -52,6 +52,7 @@ final class StatisticsModel: ObservableObject {
         games.compactMap { game in game.lastPlayed.map { (game, $0) } }
             .max { $0.1 < $1.1 }?.0
     }
+
     var longestSession: (game: GameStatistics, length: TimeInterval)? {
         games.compactMap { game in game.longestSession.map { (game, $0) } }
             .filter { $0.1 > 0 }
@@ -80,7 +81,7 @@ final class StatisticsModel: ObservableObject {
 
     /// Off the main actor: this parses every Steam manifest and the account's
     /// `localconfig.vdf`, which runs to hundreds of kilobytes.
-    nonisolated private static func statistics(
+    private nonisolated static func statistics(
         inBottleAt url: URL, bottleName: String?, pinned: [LibraryEntry]
     ) -> [GameStatistics] {
         let steamGames = Dictionary(SteamLibrary.enumerate(bottleURL: url).map { ($0.appId, $0) }) { first, _ in first }
@@ -89,7 +90,7 @@ final class StatisticsModel: ObservableObject {
         // A pinned game that is also a Steam game is merged into the pin, the
         // same as the library does; Steam's record for it still counts.
         let appIDByName = Dictionary(steamGames.values.map { ($0.name.lowercased(), $0.appId) }) { first, _ in first }
-        let twoWeeksAgo = Date.now.addingTimeInterval(-14 * 24 * 3600)
+        let twoWeeksAgo = Date.now.addingTimeInterval(-14 * 24 * 3_600)
 
         let entries = LibraryCatalogue.merge([pinned, SteamLibrarySource.entries(inBottleAt: url)])
         return entries.filter { !$0.isLauncher }.map { entry in
@@ -358,7 +359,7 @@ private struct StatisticsRow: View {
             image = Image(nsImage: sampled.image)
             isArtwork = true
         } else if let iconURL = game.iconURL {
-            image = Image(nsImage: await IconCache.shared.sampledIcon(for: iconURL).image)
+            image = await Image(nsImage: IconCache.shared.sampledIcon(for: iconURL).image)
         }
     }
 }

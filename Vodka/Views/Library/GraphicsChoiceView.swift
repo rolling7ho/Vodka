@@ -350,7 +350,9 @@ struct GPTKInstallCard: View {
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
         var mounts: [URL] = []
-        defer { for mount in mounts.reversed() { GPTKDiskImage.detach(mount) } }
+        defer { for mount in mounts.reversed() {
+            GPTKDiskImage.detach(mount)
+        } }
         do {
             let resolved = try GPTKDiskImage.resolvePayload(at: url)
             mounts = resolved.mounts

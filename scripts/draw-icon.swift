@@ -5,7 +5,7 @@ import CoreImage
 // Vodka's icon: a heavy tumbler of iced vodka on the accent colour,
 // RGB 221 54 111. Drawn in layers with blur so it reads as glass, not flat shapes.
 
-let size = 1024
+let size = 1_024
 let space = CGColorSpace(name: CGColorSpace.sRGB)!
 let ci = CIContext(options: [.workingColorSpace: space])
 
@@ -50,7 +50,7 @@ func squircle(_ rect: CGRect, exponent: CGFloat = 5) -> CGPath {
     let path = CGMutablePath()
     let a = rect.width / 2, b = rect.height / 2
     let cx = rect.midX, cy = rect.midY
-    for step in 0...720 {
+    for step in 0 ... 720 {
         let t = CGFloat(step) / 720 * 2 * .pi
         let c = cos(t), s = sin(t)
         let x = cx + a * (c < 0 ? -1 : 1) * pow(abs(c), 2 / exponent)
@@ -73,14 +73,22 @@ let cx: CGFloat = 512
 func halfWidth(at y: CGFloat) -> CGFloat {
     baseRX + (rimRX - baseRX) * (y - baseY) / (rimY - baseY)
 }
+
 func radiusY(at y: CGFloat) -> CGFloat {
     baseRY + (rimRY - baseRY) * (y - baseY) / (rimY - baseY)
 }
 
 /// Lower or upper half of a horizontal ellipse, left to right.
-func addHalfEllipse(_ path: CGMutablePath, center: CGPoint, rx: CGFloat, ry: CGFloat, lower: Bool, from left: Bool = true) {
+func addHalfEllipse(
+    _ path: CGMutablePath,
+    center: CGPoint,
+    rx: CGFloat,
+    ry: CGFloat,
+    lower: Bool,
+    from left: Bool = true
+) {
     let steps = 120
-    for step in 0...steps {
+    for step in 0 ... steps {
         var t = CGFloat(step) / CGFloat(steps) * .pi
         if !left { t = .pi - t }
         let x = center.x - rx * cos(t)
@@ -171,7 +179,11 @@ func drawCube(_ ctx: CGContext, center: CGPoint, side: CGFloat, angles: (CGFloat
         let u = Vec(x: pts[1].x - pts[0].x, y: pts[1].y - pts[0].y, z: pts[1].z - pts[0].z)
         let v = Vec(x: pts[3].x - pts[0].x, y: pts[3].y - pts[0].y, z: pts[3].z - pts[0].z)
         var n = Vec(x: u.y * v.z - u.z * v.y, y: u.z * v.x - u.x * v.z, z: u.x * v.y - u.y * v.x)
-        let centroid = pts.reduce(Vec(x: 0, y: 0, z: 0)) { Vec(x: $0.x + $1.x / 4, y: $0.y + $1.y / 4, z: $0.z + $1.z / 4) }
+        let centroid = pts.reduce(Vec(x: 0, y: 0, z: 0)) { Vec(
+            x: $0.x + $1.x / 4,
+            y: $0.y + $1.y / 4,
+            z: $0.z + $1.z / 4
+        ) }
         if n.x * centroid.x + n.y * centroid.y + n.z * centroid.z < 0 { n = Vec(x: -n.x, y: -n.y, z: -n.z) }
         let len = sqrt(n.x * n.x + n.y * n.y + n.z * n.z)
         n = Vec(x: n.x / len, y: n.y / len, z: n.z / len)
@@ -184,7 +196,7 @@ func drawCube(_ ctx: CGContext, center: CGPoint, side: CGFloat, angles: (CGFloat
         let path = CGMutablePath()
         let start = CGPoint(x: (inset[3].x + inset[0].x) / 2, y: (inset[3].y + inset[0].y) / 2)
         path.move(to: start)
-        for i in 0..<4 {
+        for i in 0 ..< 4 {
             path.addArc(tangent1End: inset[i], tangent2End: inset[(i + 1) % 4], radius: side * 0.14)
         }
         path.closeSubpath()
@@ -252,12 +264,14 @@ let shadow = layer { layer in
     layer.setFillColor(color(0x3A0420, 0.55))
     layer.fillPath()
 }
+
 ctx.draw(blur(shadow, 22), in: full)
 let caustic = layer { layer in
     layer.addPath(ellipse(CGPoint(x: cx + 30, y: baseY - 18), baseRX * 0.62, baseRY * 0.55))
     layer.setFillColor(color(0xFFE3EE, 0.75))
     layer.fillPath()
 }
+
 ctx.draw(blur(caustic, 12), in: full)
 
 // Inside the glass: the background seen through it, flipped and paler.
@@ -320,6 +334,7 @@ let meniscus = layer { layer in
     layer.setLineWidth(3)
     layer.strokePath()
 }
+
 ctx.draw(blur(meniscus, 1.2), in: full)
 
 // Bubbles rising off the ice.
@@ -328,7 +343,8 @@ func random() -> CGFloat {
     seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
     return CGFloat(seed >> 33) / CGFloat(UInt32.max >> 1)
 }
-for _ in 0..<7 {
+
+for _ in 0 ..< 7 {
     let y = floorY + 20 + random() * (surfaceY - floorY - 60)
     let x = cx + (random() - 0.5) * 2 * (halfWidth(at: y) - 50)
     let r = 2.5 + random() * 4
@@ -340,6 +356,7 @@ for _ in 0..<7 {
     ctx.setFillColor(white(0.85))
     ctx.fillPath()
 }
+
 ctx.restoreGState()
 
 // The heavy base: solid glass under the floor, catching light at its edges.
@@ -373,6 +390,7 @@ let floorEdge = layer { layer in
     layer.setLineWidth(4)
     layer.strokePath()
 }
+
 ctx.draw(blur(floorEdge, 1.5), in: full)
 
 // Wall thickness: a pale band between the outside and inside of each wall.
@@ -408,6 +426,7 @@ let streaks = layer { layer in
     layer.setFillColor(white(0.5))
     layer.fillPath()
 }
+
 ctx.draw(blur(streaks, 7), in: full)
 let glint = layer { layer in
     layer.addPath(glass)
@@ -415,10 +434,11 @@ let glint = layer { layer in
     layer.setFillColor(white(0.95))
     layer.fill(CGRect(x: cx - rimRX + 44, y: rimY - 230, width: 9, height: 170))
 }
+
 ctx.draw(blur(glint, 2.5), in: full)
 
 // Condensation on the cold outside of the glass, below the vodka line.
-for _ in 0..<70 {
+for _ in 0 ..< 70 {
     let y = baseY + 40 + random() * (surfaceY - baseY - 50)
     let x = cx + (random() - 0.5) * 2 * (halfWidth(at: y) - 12)
     let r = 2 + pow(random(), 2) * 7
@@ -464,12 +484,14 @@ let rim = layer { layer in
     layer.setLineWidth(3)
     layer.strokePath()
 }
+
 ctx.draw(blur(rim, 1), in: full)
 let sparkle = layer { layer in
     layer.addPath(ellipse(CGPoint(x: cx - rimRX + 70, y: rimY - rimRY + 10), 22, 7))
     layer.setFillColor(white(1))
     layer.fillPath()
 }
+
 ctx.draw(blur(sparkle, 4), in: full)
 
 // Tile edge: a lit top bevel and a darker lower lip.
@@ -488,17 +510,18 @@ let image = ctx.makeImage()!
 let rep = NSBitmapImageRep(cgImage: image)
 if let data = rep.bitmapData {
     let bytesPerRow = rep.bytesPerRow
-    for y in 0..<size {
-        for x in 0..<size {
+    for y in 0 ..< size {
+        for x in 0 ..< size {
             let i = y * bytesPerRow + x * 4
             let alpha = Int(data[i + 3])
             guard alpha > 200 else { continue }
             let noise = Int(random() * 9) - 4
-            for c in 0..<3 {
+            for c in 0 ..< 3 {
                 data[i + c] = UInt8(max(0, min(alpha, Int(data[i + c]) + noise)))
             }
         }
     }
 }
+
 let out = CommandLine.arguments[1]
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: out))

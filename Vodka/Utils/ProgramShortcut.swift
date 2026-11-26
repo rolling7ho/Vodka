@@ -140,7 +140,7 @@ extension ProgramShortcut {
     /// cropped to a square and clipped to the system's corner radius, so the
     /// tile sits at the same size as the native apps beside it.
     private static func roundedIcon(from art: NSImage) -> NSImage {
-        let side: CGFloat = 1024
+        let side: CGFloat = 1_024
         let body = NSRect(x: 100, y: 100, width: 824, height: 824)
         return NSImage(size: NSSize(width: side, height: side), flipped: false) { _ in
             guard art.size.width > 0, art.size.height > 0 else { return false }

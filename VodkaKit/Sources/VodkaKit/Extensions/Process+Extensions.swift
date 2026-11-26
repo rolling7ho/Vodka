@@ -281,7 +281,7 @@ extension FileHandle {
             } else if count < 0, errno == EINTR {
                 continue
             } else {
-                break  // 0: every writer closed; -1 with EAGAIN: nothing more buffered.
+                break // 0: every writer closed; -1 with EAGAIN: nothing more buffered.
             }
         }
         return data.isEmpty ? nil : data
