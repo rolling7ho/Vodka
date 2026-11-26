@@ -9,10 +9,12 @@ use crate::app::GmacApp;
 use crate::components::badge::{StatusDot, pill_badge, status_pill};
 use crate::components::button::{Button, ButtonSize, ButtonVariant, icon_button};
 use crate::components::icon;
-use crate::components::toggle::{card_section, choice_chip, setting_row, toggle_switch};
+use crate::components::toggle::{
+    card_section, choice_chip, setting_row, setting_row_stacked, toggle_switch,
+};
 use crate::models::{BottleDto, pretty_backend, pretty_win_version};
 use crate::theme::{R_LG, R_MD, R_SM, S1, S2, S3, S4, S5, S6, Theme};
-use crate::views::{ActiveModal, BottleTab, ToastStyle, empty_state};
+use crate::views::{ActiveModal, BottleTab, PresetFilter, ToastStyle, empty_state};
 
 pub fn render(
     app: &GmacApp,
@@ -79,7 +81,6 @@ pub fn render(
             div()
                 .px(S6)
                 .pt(S5)
-                .pb(S3)
                 .border_b_1()
                 .border_color(theme.border)
                 .flex()
@@ -93,6 +94,7 @@ pub fn render(
                         .gap(S4)
                         .child(
                             div()
+                                .flex_1()
                                 .flex()
                                 .flex_col()
                                 .gap(px(3.0))
@@ -102,6 +104,7 @@ pub fn render(
                                         .flex()
                                         .items_center()
                                         .gap(S2)
+                                        .min_w(px(0.0))
                                         .child(
                                             div()
                                                 .text_size(px(20.0))
@@ -110,7 +113,7 @@ pub fn render(
                                                 .truncate()
                                                 .child(bottle.name.clone()),
                                         )
-                                        .child(status_pill(
+                                        .child(div().flex_shrink_0().child(status_pill(
                                             if !bottle.is_available {
                                                 "Unavailable"
                                             } else if is_running {
@@ -126,7 +129,7 @@ pub fn render(
                                                 StatusDot::Idle
                                             },
                                             theme,
-                                        )),
+                                        ))),
                                 )
                                 .child(
                                     div()
@@ -195,7 +198,7 @@ pub fn render(
                         let u_tab = url.clone();
                         div()
                             .id(("pc-tab", i))
-                            .pb(px(8.0))
+                            .pb(px(10.0))
                             .pt(px(4.0))
                             .border_b_2()
                             .border_color(if active {
@@ -219,7 +222,28 @@ pub fn render(
                     }),
                 )),
         )
-        // Popover action menu
+        // Body
+        .child(
+            div()
+                .id("bottle-scroll")
+                .flex_1()
+                .min_h(px(0.0))
+                .overflow_y_scroll()
+                .child(
+                    div()
+                        .w_full()
+                        .px(S6)
+                        .py(S5)
+                        .child(match tab {
+                            BottleTab::Overview => render_overview(app, bottle, theme, cx),
+                            BottleTab::Programs => render_programs(app, bottle, theme, cx),
+                            BottleTab::Settings => render_settings(bottle, theme, cx),
+                            BottleTab::Presets => render_presets(app, bottle, theme, cx),
+                            BottleTab::Tools => render_tools(app, bottle, theme, cx),
+                        }),
+                ),
+        )
+        // Popover action menu (rendered last to stack above scrollable body)
         .when(app.open_bottle_menu, |this| {
             this.child(
                 div()
@@ -306,23 +330,6 @@ pub fn render(
                     )),
             )
         })
-        // Body
-        .child(
-            div()
-                .id("bottle-scroll")
-                .flex_1()
-                .min_h(px(0.0))
-                .overflow_y_scroll()
-                .px(S6)
-                .py(S5)
-                .child(match tab {
-                    BottleTab::Overview => render_overview(app, bottle, theme, cx),
-                    BottleTab::Programs => render_programs(app, bottle, theme, cx),
-                    BottleTab::Settings => render_settings(bottle, theme, cx),
-                    BottleTab::Presets => render_presets(app, bottle, theme, cx),
-                    BottleTab::Tools => render_tools(app, bottle, theme, cx),
-                }),
-        )
         .into_any_element()
 }
 
@@ -859,7 +866,13 @@ fn render_programs(
                                         .text_color(theme.muted)
                                         .child("Launch arguments"),
                                 )
-                                .child(div().w(px(320.0)).child(app.program_args_input.clone())),
+                                .child(
+                                    div()
+                                        .flex_1()
+                                        .min_w(px(180.0))
+                                        .max_w(px(340.0))
+                                        .child(app.program_args_input.clone()),
+                                ),
                         )
                         .child(
                             div()
@@ -873,7 +886,7 @@ fn render_programs(
                                         .text_color(theme.muted)
                                         .child("Locale"),
                                 )
-                                .child(div().flex().items_center().gap(S1).children(
+                                .child(div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
                                     locales.iter().enumerate().map(|(li, (raw, label))| {
                                         let r = (*raw).to_string();
                                         choice_chip(
@@ -901,7 +914,7 @@ fn render_programs(
                                         .text_color(theme.muted)
                                         .child("Graphics backend override"),
                                 )
-                                .child(div().flex().items_center().gap(S1).children(
+                                .child(div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
                                     backends.iter().enumerate().map(|(bi, (raw, label))| {
                                         let active = ov.graphics_backend.as_deref() == *raw;
                                         let next = raw.map(str::to_string);
@@ -1085,6 +1098,26 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
         ("neverKill", "Never"),
     ];
 
+    let launcher_modes = [
+        ("automatic", "Auto"),
+        ("steam", "Steam"),
+        ("ea", "EA"),
+        ("ubisoft", "Ubisoft"),
+        ("epic", "Epic"),
+        ("battlenet", "Battle.net"),
+    ];
+    let gpu_vendors = [
+        ("automatic", "Auto"),
+        ("nvidia", "NVIDIA"),
+        ("amd", "AMD"),
+        ("intel", "Intel"),
+    ];
+    let close_policies = [
+        ("ask", "Ask"),
+        ("terminate", "Terminate"),
+        ("keepRunning", "Keep running"),
+    ];
+
     let dll_rows: Vec<AnyElement> = s
         .custom_dll_overrides
         .iter()
@@ -1126,10 +1159,10 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
             Some("Windows and threading".into()),
             theme,
             vec![
-                setting_row(
+                setting_row_stacked(
                     "Windows version",
                     None,
-                    div().flex().items_center().gap(S1).children(
+                    div().flex().flex_wrap().items_center().gap(S1).children(
                         win_versions.iter().enumerate().map(|(i, (raw, label))| {
                             let u = url.clone();
                             let val = (*raw).to_string();
@@ -1196,10 +1229,10 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
             Some("Graphics".into()),
             theme,
             vec![
-                setting_row(
+                setting_row_stacked(
                     "Backend",
                     None,
-                    div().flex().items_center().gap(S1).children(
+                    div().flex().flex_wrap().items_center().gap(S1).children(
                         backends.iter().enumerate().map(|(i, (raw, label))| {
                             let u = url.clone();
                             let val = (*raw).to_string();
@@ -1363,6 +1396,59 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
                             )
                         }),
                     ),
+                    false,
+                    theme,
+                ),
+                setting_row(
+                    "Metal trace / validation",
+                    Some("Enable GPU capture and Metal validation layers for debugging.".into()),
+                    div().flex().items_center().gap(S1).children([
+                        {
+                            let u = url.clone();
+                            let next = !s.metal_trace;
+                            choice_chip(
+                                "bs-mtrace",
+                                "Trace",
+                                s.metal_trace,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    this.update_bottle_settings(&u, move |bs| bs.metal_trace = next, cx);
+                                }),
+                            )
+                        },
+                        {
+                            let u = url.clone();
+                            let next = !s.metal_validation;
+                            choice_chip(
+                                "bs-mval",
+                                "Validation",
+                                s.metal_validation,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    this.update_bottle_settings(&u, move |bs| bs.metal_validation = next, cx);
+                                }),
+                            )
+                        },
+                    ]),
+                    false,
+                    theme,
+                ),
+                setting_row(
+                    "Sequoia compatibility mode",
+                    Some("Work around macOS Sequoia D3DMetal regressions on older titles.".into()),
+                    {
+                        let u = url.clone();
+                        let next = !s.sequoia_compat_mode;
+                        toggle_switch(
+                            "bs-seq",
+                            s.sequoia_compat_mode,
+                            false,
+                            theme,
+                            cx.listener(move |this, _, _, cx| {
+                                this.update_bottle_settings(&u, move |bs| bs.sequoia_compat_mode = next, cx);
+                            }),
+                        )
+                    },
                     false,
                     theme,
                 ),
@@ -1620,6 +1706,29 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
                     theme,
                 ),
                 setting_row(
+                    "Allow background controller events",
+                    None,
+                    {
+                        let u = url.clone();
+                        let next = !s.allow_background_events;
+                        toggle_switch(
+                            "bs-bg-ctrl",
+                            s.allow_background_events,
+                            false,
+                            theme,
+                            cx.listener(move |this, _, _, cx| {
+                                this.update_bottle_settings(
+                                    &u,
+                                    move |bs| bs.allow_background_events = next,
+                                    cx,
+                                );
+                            }),
+                        )
+                    },
+                    false,
+                    theme,
+                ),
+                setting_row(
                     "Treat Command key as Control",
                     None,
                     {
@@ -1672,33 +1781,120 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
                     false,
                     theme,
                 ),
+                setting_row_stacked(
+                    "Launcher profile",
+                    None,
+                    div().flex().flex_wrap().items_center().gap(S1).children(
+                        launcher_modes.iter().enumerate().map(|(i, (raw, label))| {
+                            let u = url.clone();
+                            let val = (*raw).to_string();
+                            choice_chip(
+                                ("bs-lnch-mode", i),
+                                *label,
+                                s.launcher_mode == *raw,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    let v = val.clone();
+                                    this.update_bottle_settings(&u, move |bs| bs.launcher_mode = v, cx);
+                                }),
+                            )
+                        }),
+                    ),
+                    false,
+                    theme,
+                ),
                 setting_row(
                     "GPU spoofing",
                     Some("Report a discrete desktop GPU vendor when games restrict integrated adapters.".into()),
-                    {
-                        let u = url.clone();
-                        let next = !s.gpu_spoofing;
-                        toggle_switch(
-                            "bs-gpuspoof",
-                            s.gpu_spoofing,
-                            false,
-                            theme,
-                            cx.listener(move |this, _, _, cx| {
-                                this.update_bottle_settings(
-                                    &u,
-                                    move |bs| bs.gpu_spoofing = next,
-                                    cx,
-                                );
-                            }),
-                        )
-                    },
+                    div().flex().flex_wrap().justify_end().items_center().gap(S2).children({
+                        let mut controls = vec![{
+                            let u = url.clone();
+                            let next = !s.gpu_spoofing;
+                            toggle_switch(
+                                "bs-gpuspoof",
+                                s.gpu_spoofing,
+                                false,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    this.update_bottle_settings(
+                                        &u,
+                                        move |bs| bs.gpu_spoofing = next,
+                                        cx,
+                                    );
+                                }),
+                            )
+                        }];
+                        if s.gpu_spoofing {
+                            for (i, (raw, label)) in gpu_vendors.iter().enumerate() {
+                                let u = url.clone();
+                                let val = (*raw).to_string();
+                                controls.push(choice_chip(
+                                    ("bs-gpu-vendor", i),
+                                    *label,
+                                    s.gpu_vendor == *raw,
+                                    theme,
+                                    cx.listener(move |this, _, _, cx| {
+                                        let v = val.clone();
+                                        this.update_bottle_settings(
+                                            &u,
+                                            move |bs| bs.gpu_vendor = v,
+                                            cx,
+                                        );
+                                    }),
+                                ));
+                            }
+                        }
+                        controls
+                    }),
+                    false,
+                    theme,
+                ),
+                setting_row(
+                    "Discord Rich Presence / bridge",
+                    None,
+                    div().flex().items_center().gap(S1).children([
+                        {
+                            let u = url.clone();
+                            let next = !s.discord_presence;
+                            choice_chip(
+                                "bs-disc-pres",
+                                "Presence",
+                                s.discord_presence,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    this.update_bottle_settings(
+                                        &u,
+                                        move |bs| bs.discord_presence = next,
+                                        cx,
+                                    );
+                                }),
+                            )
+                        },
+                        {
+                            let u = url.clone();
+                            let next = !s.discord_bridge;
+                            choice_chip(
+                                "bs-disc-br",
+                                "RPC Bridge",
+                                s.discord_bridge,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    this.update_bottle_settings(
+                                        &u,
+                                        move |bs| bs.discord_bridge = next,
+                                        cx,
+                                    );
+                                }),
+                            )
+                        },
+                    ]),
                     false,
                     theme,
                 ),
                 setting_row(
                     "Clipboard sharing",
                     None,
-                    div().flex().items_center().gap(S1).children(
+                    div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
                         clipboard_policies.iter().enumerate().map(|(i, (raw, label))| {
                             let u = url.clone();
                             let val = (*raw).to_string();
@@ -1724,7 +1920,7 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
                 setting_row(
                     "Kill Wine processes on quit",
                     None,
-                    div().flex().items_center().gap(S1).children(
+                    div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
                         kill_policies.iter().enumerate().map(|(i, (raw, label))| {
                             let u = url.clone();
                             let val = (*raw).to_string();
@@ -1736,6 +1932,32 @@ fn render_settings(bottle: &BottleDto, theme: Theme, cx: &mut Context<GmacApp>) 
                                 cx.listener(move |this, _, _, cx| {
                                     let v = val.clone();
                                     this.update_bottle_settings(&u, move |bs| bs.kill_on_quit = v, cx);
+                                }),
+                            )
+                        }),
+                    ),
+                    false,
+                    theme,
+                ),
+                setting_row(
+                    "When Steam closes",
+                    None,
+                    div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
+                        close_policies.iter().enumerate().map(|(i, (raw, label))| {
+                            let u = url.clone();
+                            let val = (*raw).to_string();
+                            choice_chip(
+                                ("bs-closep", i),
+                                *label,
+                                s.close_with_processes_policy == *raw,
+                                theme,
+                                cx.listener(move |this, _, _, cx| {
+                                    let v = val.clone();
+                                    this.update_bottle_settings(
+                                        &u,
+                                        move |bs| bs.close_with_processes_policy = v,
+                                        cx,
+                                    );
                                 }),
                             )
                         }),
@@ -1803,11 +2025,20 @@ fn render_presets(
     cx: &mut Context<GmacApp>,
 ) -> AnyElement {
     let url = bottle.url.clone();
-    let entries = app
+    let all_entries = app
         .gamedb_by_bottle
         .get(&url)
         .cloned()
         .unwrap_or_default();
+    let filter = app.preset_filter;
+    let entries: Vec<_> = all_entries
+        .into_iter()
+        .filter(|e| match filter {
+            PresetFilter::All => true,
+            PresetFilter::Installed => e.installed,
+            PresetFilter::Applied => e.applied_here,
+        })
+        .collect();
 
     let rows: Vec<AnyElement> = entries
         .iter()
@@ -1819,11 +2050,16 @@ fn render_presets(
             let eid = item.id.clone();
             let vid = item.default_variant_id.clone();
 
-            let (r_bg, r_fg) = match item.rating.as_str() {
-                "platinum" | "gold" | "verified" => (theme.success_soft, theme.success),
-                "silver" | "playable" => (theme.accent_soft, theme.accent_text),
-                "bronze" | "issues" => (theme.warning_soft, theme.warning),
-                _ => (theme.danger_soft, theme.danger),
+            let (r_bg, r_fg, rating_label) = match item.rating.as_str() {
+                "platinum" => (theme.success_soft, theme.success, "Platinum"),
+                "gold" => (theme.success_soft, theme.success, "Gold"),
+                "verified" => (theme.success_soft, theme.success, "Verified"),
+                "silver" => (theme.accent_soft, theme.accent_text, "Silver"),
+                "playable" => (theme.accent_soft, theme.accent_text, "Playable"),
+                "bronze" => (theme.warning_soft, theme.warning, "Bronze"),
+                "issues" => (theme.warning_soft, theme.warning, "Issues"),
+                "broken" => (theme.danger_soft, theme.danger, "Broken"),
+                other => (theme.danger_soft, theme.danger, other),
             };
 
             let mut row = div()
@@ -1844,6 +2080,7 @@ fn render_presets(
                         .child(
                             div()
                                 .flex()
+                                .flex_wrap()
                                 .items_center()
                                 .gap(S2)
                                 .child(
@@ -1853,7 +2090,10 @@ fn render_presets(
                                         .text_color(theme.ink)
                                         .child(item.name.clone()),
                                 )
-                                .child(pill_badge(item.rating.clone(), r_bg, r_fg))
+                                .child(pill_badge(rating_label.to_string(), r_bg, r_fg))
+                                .when(item.installed, |d| {
+                                    d.child(pill_badge("Installed", theme.surface_subtle, theme.muted))
+                                })
                                 .when(item.applied_here, |d| {
                                     d.child(status_pill("Applied", StatusDot::Active, theme))
                                 })
@@ -1911,11 +2151,45 @@ fn render_presets(
         .flex()
         .flex_col()
         .gap(S4)
+        .child(
+            div().flex().items_center().gap(S1).children([
+                choice_chip(
+                    "gdb-f-all",
+                    "All",
+                    filter == PresetFilter::All,
+                    theme,
+                    cx.listener(|this, _, _, cx| {
+                        this.preset_filter = PresetFilter::All;
+                        cx.notify();
+                    }),
+                ),
+                choice_chip(
+                    "gdb-f-inst",
+                    "Installed",
+                    filter == PresetFilter::Installed,
+                    theme,
+                    cx.listener(|this, _, _, cx| {
+                        this.preset_filter = PresetFilter::Installed;
+                        cx.notify();
+                    }),
+                ),
+                choice_chip(
+                    "gdb-f-app",
+                    "Applied here",
+                    filter == PresetFilter::Applied,
+                    theme,
+                    cx.listener(|this, _, _, cx| {
+                        this.preset_filter = PresetFilter::Applied;
+                        cx.notify();
+                    }),
+                ),
+            ]),
+        )
         .when(rows.is_empty(), |this| {
             this.child(empty_state(
                 "sliders",
-                "No presets loaded",
-                "Compatibility presets from GameDB will appear here once loaded.",
+                "No presets match",
+                "Adjust the filter above or load GameDB compatibility presets for this PC.",
                 None,
                 theme,
             ))
@@ -2037,7 +2311,23 @@ fn render_tools(
                     Some(
                         app.audio_status
                             .as_ref()
-                            .map(|a| a.summary.clone())
+                            .map(|a| {
+                                let dev = a.default_device_name.as_deref().unwrap_or("Default");
+                                let rate = a
+                                    .sample_rate_hz
+                                    .map(|r| format!("{:.0} Hz", r))
+                                    .unwrap_or_else(|| "—".to_string());
+                                let ch = a
+                                    .output_channels
+                                    .map(|c| format!("{c} ch"))
+                                    .unwrap_or_else(|| "—".to_string());
+                                let transport = a.transport_type.as_deref().unwrap_or("");
+                                if transport.is_empty() {
+                                    format!("{} · {dev} ({rate}, {ch})", a.summary)
+                                } else {
+                                    format!("{} · {dev} ({transport}, {rate}, {ch})", a.summary)
+                                }
+                            })
                             .unwrap_or_else(|| "Inspect active output device, sample rate, and CoreAudio findings.".to_string())
                             .into(),
                     ),
@@ -2048,10 +2338,29 @@ fn render_tools(
                         .on_click(cx.listener(|this, _, _, cx| {
                             this.refresh_audio_status(cx);
                         })),
-                    true,
+                    app.audio_status
+                        .as_ref()
+                        .map(|a| a.findings.is_empty())
+                        .unwrap_or(true),
                     theme,
                 ),
-            ],
+            ]
+            .into_iter()
+            .chain(
+                app.audio_status
+                    .as_ref()
+                    .filter(|a| !a.findings.is_empty())
+                    .map(|a| {
+                        setting_row(
+                            "Audio findings",
+                            Some(a.findings.join(" · ").into()),
+                            status_pill(a.status.clone(), StatusDot::Warning, theme),
+                            true,
+                            theme,
+                        )
+                    }),
+            )
+            .collect(),
         ))
         .child(
             div()

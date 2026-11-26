@@ -25,8 +25,8 @@ use crate::models::{
 };
 use crate::theme::{R_MD, S1, S2, S3, S4, S5, Theme, ThemeMode};
 use crate::views::{
-    ActiveModal, ActivityTab, BottleTab, NavSection, RuntimeProgress, SettingsTab, ToastState,
-    ToastStyle,
+    ActiveModal, ActivityTab, BottleTab, NavSection, PresetFilter, RuntimeProgress, SettingsTab,
+    ToastState, ToastStyle,
 };
 
 actions!(
@@ -56,6 +56,7 @@ pub struct GmacApp {
     pub runtime_status: Option<RuntimeStatus>,
     pub runtime_progress: Option<RuntimeProgress>,
     pub runtime_update_check: Option<RuntimeUpdateCheckDto>,
+    pub bootstrapping: bool,
 
     pub bottles: Vec<BottleDto>,
     pub library: LibraryPayloadDto,
@@ -84,6 +85,7 @@ pub struct GmacApp {
     pub expanded_program_path: Option<String>,
     pub editing_program_locale: String,
     pub editing_program_overrides: ProgramOverridesDto,
+    pub preset_filter: PresetFilter,
 
     pub search_input: Entity<TextInput>,
     pub program_search_input: Entity<TextInput>,
@@ -138,6 +140,7 @@ impl GmacApp {
             runtime_status: None,
             runtime_progress: None,
             runtime_update_check: None,
+            bootstrapping: true,
             bottles: Vec::new(),
             library: LibraryPayloadDto::default(),
             statistics: StatisticsPayloadDto::default(),
@@ -161,6 +164,7 @@ impl GmacApp {
             expanded_program_path: None,
             editing_program_locale: "auto".to_string(),
             editing_program_overrides: ProgramOverridesDto::default(),
+            preset_filter: PresetFilter::All,
             search_input,
             program_search_input,
             program_args_input,
@@ -172,6 +176,10 @@ impl GmacApp {
             quit_in_progress: false,
         };
 
+        cx.observe_window_appearance(window, |_, _, cx| {
+            cx.notify();
+        })
+        .detach();
         app.start_event_pump(cx);
         app.bootstrap(cx);
         app
@@ -296,19 +304,30 @@ impl GmacApp {
             },
             cx,
         );
-        self.spawn_rpc(
-            "bootstrap",
-            json!({}),
-            |app, status: RuntimeStatus, cx| {
-                app.runtime_status = Some(status);
-                app.refresh_bottles(cx);
-                app.refresh_library(cx);
-                app.refresh_steam_setup(cx);
-                app.refresh_processes(cx);
+        let bridge = Arc::clone(&self.bridge);
+        cx.spawn(async move |this: WeakEntity<Self>, cx: &mut AsyncApp| {
+            let res: anyhow::Result<RuntimeStatus> = cx
+                .background_executor()
+                .spawn(async move { bridge.call("bootstrap", json!({})) })
+                .await;
+            let _ = this.update(cx, |app, cx| {
+                app.bootstrapping = false;
+                match res {
+                    Ok(status) => {
+                        app.runtime_status = Some(status);
+                        app.refresh_bottles(cx);
+                        app.refresh_library(cx);
+                        app.refresh_steam_setup(cx);
+                        app.refresh_processes(cx);
+                    }
+                    Err(err) => {
+                        app.push_toast(ToastStyle::Error, err.to_string(), None, cx);
+                    }
+                }
                 cx.notify();
-            },
-            cx,
-        );
+            });
+        })
+        .detach();
     }
 
     pub fn navigate(&mut self, next: NavSection, _window: &mut Window, cx: &mut Context<Self>) {
@@ -1147,6 +1166,30 @@ impl GmacApp {
         );
     }
 
+    pub fn pick_create_bottle_location(&self, cx: &mut Context<Self>) {
+        let rx = cx.prompt_for_paths(PathPromptOptions {
+            files: false,
+            directories: true,
+            multiple: false,
+            prompt: Some("Choose parent folder for this PC".into()),
+        });
+        cx.spawn(async move |this: WeakEntity<Self>, cx: &mut AsyncApp| {
+            let Ok(Ok(Some(paths))) = rx.await else {
+                return;
+            };
+            let Some(dir) = paths.into_iter().next() else {
+                return;
+            };
+            let _ = this.update(cx, |app, cx| {
+                if let Some(ActiveModal::CreateBottle { location, .. }) = &mut app.active_modal {
+                    *location = Some(dir.to_string_lossy().to_string());
+                    cx.notify();
+                }
+            });
+        })
+        .detach();
+    }
+
     pub fn load_stability_report(&self, bottle_url: String, cx: &mut Context<Self>) {
         let u = bottle_url.clone();
         self.spawn_rpc(
@@ -1439,9 +1482,14 @@ impl GmacApp {
         match modal {
             ActiveModal::CreateBottle {
                 win_version,
-                location: _,
+                location,
             } => {
                 let win_choices = [("win10", "Win 10"), ("win11", "Win 11"), ("win7", "Win 7")];
+                let loc_label = location
+                    .as_deref()
+                    .unwrap_or("Default PCs folder")
+                    .to_string();
+                let has_custom_loc = location.is_some();
                 let body = div()
                     .flex()
                     .flex_col()
@@ -1492,6 +1540,67 @@ impl GmacApp {
                                     )
                                 }),
                             )),
+                    )
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .gap(S3)
+                            .child(
+                                div()
+                                    .flex()
+                                    .flex_col()
+                                    .min_w(px(0.0))
+                                    .flex_1()
+                                    .child(
+                                        div()
+                                            .text_size(px(12.5))
+                                            .text_color(theme.muted)
+                                            .child("Location"),
+                                    )
+                                    .child(
+                                        div()
+                                            .text_size(px(11.5))
+                                            .text_color(theme.faint)
+                                            .truncate()
+                                            .child(loc_label),
+                                    ),
+                            )
+                            .child(
+                                div()
+                                    .flex()
+                                    .items_center()
+                                    .gap(S1)
+                                    .flex_shrink_0()
+                                    .when(has_custom_loc, |d| {
+                                        d.child(
+                                            Button::new("mc-loc-reset", theme)
+                                                .label("Default")
+                                                .variant(ButtonVariant::Ghost)
+                                                .size(ButtonSize::Sm)
+                                                .on_click(cx.listener(|this, _, _, cx| {
+                                                    if let Some(ActiveModal::CreateBottle {
+                                                        location,
+                                                        ..
+                                                    }) = &mut this.active_modal
+                                                    {
+                                                        *location = None;
+                                                        cx.notify();
+                                                    }
+                                                })),
+                                        )
+                                    })
+                                    .child(
+                                        Button::new("mc-loc-pick", theme)
+                                            .label("Choose folder…")
+                                            .variant(ButtonVariant::Secondary)
+                                            .size(ButtonSize::Sm)
+                                            .on_click(cx.listener(|this, _, _, cx| {
+                                                this.pick_create_bottle_location(cx);
+                                            })),
+                                    ),
+                            ),
                     )
                     .into_any_element();
 
@@ -1767,6 +1876,7 @@ impl GmacApp {
                 .absolute()
                 .right(S5)
                 .bottom(S5)
+                .min_w(px(260.0))
                 .max_w(px(420.0))
                 .bg(theme.surface)
                 .border_1()
@@ -1778,6 +1888,7 @@ impl GmacApp {
                 .flex()
                 .items_center()
                 .gap(S3)
+                .on_click(|_, _, cx| cx.stop_propagation())
                 .child(div().size(px(8.0)).rounded(px(999.0)).bg(dot_color).flex_shrink_0())
                 .child(
                     div()

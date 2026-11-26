@@ -7,7 +7,7 @@ use gpui::{
 use crate::app::GmacApp;
 use crate::components::icon;
 use crate::theme::{R_SM, S1, S2, S3, S4, Theme, ThemeMode};
-use crate::views::NavSection;
+use crate::views::{NavSection, SettingsTab};
 
 pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElement {
     let process_count = app.processes.len();
@@ -119,30 +119,31 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
         .border_color(theme.border)
         .flex()
         .flex_col()
-        // Top header with macOS traffic-light clearance (76px left margin or dedicated strip)
+        // Top header with macOS traffic-light clearance
         .child(
             div()
-                .h(px(40.0))
+                .h(px(44.0))
                 .w_full()
                 .window_control_area(WindowControlArea::Drag)
                 .flex()
                 .items_center()
-                .pl(px(78.0))
+                .pl(px(80.0))
                 .pr(S3)
                 .child(
                     div()
                         .flex()
                         .items_center()
-                        .gap(px(7.0))
+                        .gap(px(8.0))
                         .child(
                             svg()
                                 .path("brand/gmac-mark.svg")
-                                .size(px(16.0))
+                                .w(px(22.0))
+                                .h(px(16.5))
                                 .text_color(theme.accent_text),
                         )
                         .child(
                             div()
-                                .text_size(px(13.5))
+                                .text_size(px(14.0))
                                 .font_weight(gpui::FontWeight::SEMIBOLD)
                                 .text_color(theme.ink)
                                 .child("Gmac"),
@@ -230,22 +231,41 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                 .flex_1()
                 .min_h(px(0.0))
                 .overflow_y_scroll()
-                .px(S3)
-                .py(S1)
-                .flex()
-                .flex_col()
-                .gap(px(2.0))
-                .children(bottle_rows)
-                .when(bottles.is_empty(), |this| {
-                    this.child(
-                        div()
-                            .px(S2)
-                            .py(S2)
-                            .text_size(px(12.0))
-                            .text_color(theme.faint)
-                            .child("No PCs yet"),
-                    )
-                }),
+                .child(
+                    div()
+                        .w_full()
+                        .px(S3)
+                        .py(S1)
+                        .flex()
+                        .flex_col()
+                        .gap(px(2.0))
+                        .children(bottle_rows)
+                        .when(bottles.is_empty(), |this| {
+                            this.child(
+                                div()
+                                    .id("sb-empty-new-pc")
+                                    .w_full()
+                                    .px(S2)
+                                    .py(px(7.0))
+                                    .rounded(R_SM)
+                                    .cursor(CursorStyle::PointingHand)
+                                    .flex()
+                                    .items_center()
+                                    .gap(S2)
+                                    .hover(|s| s.bg(theme.surface_subtle))
+                                    .on_click(cx.listener(|this, _, window, cx| {
+                                        this.open_create_bottle_modal(window, cx);
+                                    }))
+                                    .child(icon("plus", px(13.0), theme.muted))
+                                    .child(
+                                        div()
+                                            .text_size(px(12.5))
+                                            .text_color(theme.muted)
+                                            .child("New PC…"),
+                                    ),
+                            )
+                        }),
+                ),
         )
         // Footer: Engine indicator, Settings, Theme toggle
         .child(
@@ -259,8 +279,16 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                 .gap(px(4.0))
                 .child(
                     div()
+                        .id("sb-engine-status")
                         .px(S2)
-                        .py(px(4.0))
+                        .py(px(5.0))
+                        .rounded(R_SM)
+                        .cursor(CursorStyle::PointingHand)
+                        .hover(|s| s.bg(theme.surface_subtle))
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.settings_tab = SettingsTab::Engine;
+                            this.navigate(NavSection::Settings, window, cx);
+                        }))
                         .flex()
                         .items_center()
                         .gap(px(7.0))
@@ -268,7 +296,9 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                             div()
                                 .size(px(6.0))
                                 .rounded(px(999.0))
-                                .bg(if wine_installed {
+                                .bg(if app.bootstrapping {
+                                    theme.faint
+                                } else if wine_installed {
                                     theme.success
                                 } else {
                                     theme.warning
@@ -279,7 +309,9 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                                 .text_size(px(11.5))
                                 .text_color(theme.muted)
                                 .truncate()
-                                .child(if wine_installed {
+                                .child(if app.bootstrapping {
+                                    "Checking engine…".to_string()
+                                } else if wine_installed {
                                     app.runtime_status
                                         .as_ref()
                                         .and_then(|s| s.wine_version.as_deref())

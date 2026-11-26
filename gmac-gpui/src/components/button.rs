@@ -93,8 +93,8 @@ impl RenderOnce for Button {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let t = self.theme;
         let height = match self.size {
-            ButtonSize::Sm => px(28.0),
-            ButtonSize::Md => px(32.0),
+            ButtonSize::Sm => px(30.0),
+            ButtonSize::Md => px(34.0),
         };
         let horiz_pad = match (&self.label, self.size) {
             (None, ButtonSize::Sm) => px(6.0),

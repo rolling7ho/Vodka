@@ -19,7 +19,7 @@ use crate::app::{
 };
 use crate::assets::GmacAssets;
 use crate::bridge::BridgeClient;
-use crate::components::input::bind_text_input_keys;
+use crate::components::input::{Copy, Cut, Paste, SelectAll, bind_text_input_keys};
 
 fn main() {
     let bridge = BridgeClient::spawn().unwrap_or_else(|err| {
@@ -64,6 +64,16 @@ fn main() {
                     ],
                 },
                 Menu {
+                    name: "Edit".into(),
+                    items: vec![
+                        MenuItem::action("Cut", Cut),
+                        MenuItem::action("Copy", Copy),
+                        MenuItem::action("Paste", Paste),
+                        MenuItem::separator(),
+                        MenuItem::action("Select All", SelectAll),
+                    ],
+                },
+                Menu {
                     name: "View".into(),
                     items: vec![
                         MenuItem::action("Library", NavLibrary),
@@ -91,7 +101,7 @@ fn main() {
                 WindowOptions {
                     window_bounds: Some(WindowBounds::Windowed(bounds)),
                     titlebar: Some(TitlebarOptions {
-                        title: Some("Gmac".into()),
+                        title: None,
                         appears_transparent: true,
                         traffic_light_position: Some(point(px(14.0), px(14.0))),
                     }),
@@ -102,6 +112,7 @@ fn main() {
                 },
                 move |window, cx| {
                     let entity = cx.new(|cx| GmacApp::new(Arc::clone(&bridge_window), window, cx));
+                    window.focus(&entity.read(cx).focus_handle);
                     let entity_for_close = entity.downgrade();
                     window.on_window_should_close(cx, move |_window, cx| {
                         let _ = entity_for_close.update(cx, |app, cx| {

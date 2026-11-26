@@ -33,7 +33,7 @@ pub fn segmented_control<T: Copy + PartialEq + 'static>(
 
             div()
                 .id(el_id)
-                .h(px(26.0))
+                .h(px(24.0))
                 .px(px(10.0))
                 .rounded(px(5.0))
                 .flex()

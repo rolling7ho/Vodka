@@ -90,8 +90,8 @@ impl Theme {
             surface_hover: rgb(0xFAF8F7).into(),
             surface_subtle: rgb(0xECE8E7).into(),
             ink: rgb(0x171414).into(),
-            muted: rgb(0x685F5F).into(),
-            faint: rgb(0x8C8282).into(),
+            muted: rgb(0x5B5252).into(),
+            faint: rgb(0x6F6565).into(),
             border: rgb(0xE3DFDE).into(),
             border_strong: rgb(0xCFC9C8).into(),
             accent: rgb(0x713131).into(),
@@ -119,8 +119,8 @@ impl Theme {
             surface_hover: rgb(0x221D1D).into(),
             surface_subtle: rgb(0x161313).into(),
             ink: rgb(0xF3ECEC).into(),
-            muted: rgb(0x9C9090).into(),
-            faint: rgb(0x6E6464).into(),
+            muted: rgb(0xA69A9A).into(),
+            faint: rgb(0x8E8282).into(),
             border: rgb(0x282222).into(),
             border_strong: rgb(0x383030).into(),
             accent: rgb(0x8C3E3E).into(),
@@ -136,6 +136,41 @@ impl Theme {
             danger: rgb(0xDF535B).into(),
             danger_soft: rgba(0xDF535B24).into(),
             backdrop: rgba(0x00000080).into(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn relative_luminance(c: Hsla) -> f32 {
+        let rgba = c.to_rgb();
+        let lin = |ch: f32| {
+            if ch <= 0.03928 {
+                ch / 12.92
+            } else {
+                ((ch + 0.055) / 1.055).powf(2.4)
+            }
+        };
+        0.2126 * lin(rgba.r) + 0.7152 * lin(rgba.g) + 0.0722 * lin(rgba.b)
+    }
+
+    fn contrast_ratio(a: Hsla, b: Hsla) -> f32 {
+        let la = relative_luminance(a);
+        let lb = relative_luminance(b);
+        let (hi, lo) = if la >= lb { (la, lb) } else { (lb, la) };
+        (hi + 0.05) / (lo + 0.05)
+    }
+
+    #[test]
+    fn text_tokens_meet_aa_contrast() {
+        for theme in [Theme::light(), Theme::dark()] {
+            assert!(contrast_ratio(theme.ink, theme.surface) >= 4.5);
+            assert!(contrast_ratio(theme.muted, theme.surface) >= 4.5);
+            assert!(contrast_ratio(theme.faint, theme.surface) >= 4.5);
+            assert!(contrast_ratio(theme.ink, theme.sidebar_bg) >= 4.5);
+            assert!(contrast_ratio(theme.muted, theme.sidebar_bg) >= 4.5);
         }
     }
 }

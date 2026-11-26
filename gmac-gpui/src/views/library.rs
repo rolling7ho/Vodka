@@ -2,7 +2,8 @@ use std::path::PathBuf;
 
 use gpui::{
     AnyElement, Context, CursorStyle, InteractiveElement, IntoElement, ObjectFit, ParentElement,
-    SharedString, StatefulInteractiveElement, Styled, Window, div, img, prelude::*, px,
+    SharedString, StatefulInteractiveElement, Styled, Window, WindowControlArea, div, img,
+    prelude::*, px,
 };
 
 use crate::app::GmacApp;
@@ -15,10 +16,11 @@ use crate::models::{
     format_relative_epoch, pretty_backend,
 };
 use crate::theme::{R_LG, R_MD, R_SM, S1, S2, S3, S4, S5, S6, Theme};
-use crate::views::NavSection;
+use crate::views::{NavSection, empty_state};
 
 pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context<GmacApp>) -> AnyElement {
-    let query = app.search_input.read(cx).text().to_lowercase();
+    let raw_query = app.search_input.read(cx).text().trim().to_string();
+    let query = raw_query.to_lowercase();
     let wine_installed = app
         .runtime_status
         .as_ref()
@@ -28,14 +30,16 @@ pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context
     let has_games = !app.library.games.is_empty();
     let has_other = !app.library.other_apps.is_empty();
     let has_steam = !app.library.steam_panels.is_empty();
-    let show_setup = app.show_steam_setup || (!wine_installed && !has_games && !has_other && !has_steam);
+    let show_setup = !app.bootstrapping
+        && (app.show_steam_setup || (!wine_installed && !has_games && !has_other && !has_steam));
 
     let width: f32 = window.viewport_size().width.into();
-    let cols: u16 = if width >= 1340.0 {
+    let content_width = (width - 228.0 - 64.0).max(320.0);
+    let cols: u16 = if content_width >= 1120.0 {
         5
-    } else if width >= 1060.0 {
+    } else if content_width >= 860.0 {
         4
-    } else if width >= 780.0 {
+    } else if content_width >= 600.0 {
         3
     } else {
         2
@@ -43,6 +47,8 @@ pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context
 
     let filtered_games = filter_and_sort(&app.library.games, &query, app.library_sort);
     let filtered_other = filter_and_sort(&app.library.other_apps, &query, app.library_sort);
+    let search_empty =
+        !show_setup && !app.bootstrapping && !query.is_empty() && filtered_games.is_empty() && filtered_other.is_empty();
 
     div()
         .size_full()
@@ -56,12 +62,15 @@ pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context
                 .pb(S4)
                 .border_b_1()
                 .border_color(theme.border)
+                .window_control_area(WindowControlArea::Drag)
                 .flex()
                 .items_center()
                 .justify_between()
                 .gap(S4)
                 .child(
                     div()
+                        .flex_1()
+                        .min_w(px(0.0))
                         .flex()
                         .flex_col()
                         .gap(px(2.0))
@@ -70,13 +79,19 @@ pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context
                                 .text_size(px(20.0))
                                 .font_weight(gpui::FontWeight::SEMIBOLD)
                                 .text_color(theme.ink)
+                                .truncate()
                                 .child("Library"),
                         )
                         .child(
                             div()
                                 .text_size(px(13.0))
                                 .text_color(theme.muted)
-                                .child(summary_subtitle(&app.library.games, &app.library.other_apps)),
+                                .truncate()
+                                .child(if app.bootstrapping {
+                                    "Loading your PCs and Steam titles…".to_string()
+                                } else {
+                                    summary_subtitle(&app.library.games, &app.library.other_apps)
+                                }),
                         ),
                 )
                 .child(
@@ -84,46 +99,51 @@ pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context
                         .flex()
                         .items_center()
                         .gap(S2)
-                        .child(div().w(px(210.0)).child(app.search_input.clone()))
-                        .child(segmented_control(
-                            "lib-sort",
-                            vec![
-                                SegmentOption {
-                                    value: LibrarySort::Recent,
-                                    label: "Recent".into(),
-                                },
-                                SegmentOption {
-                                    value: LibrarySort::Name,
-                                    label: "Name".into(),
-                                },
-                                SegmentOption {
-                                    value: LibrarySort::Bottle,
-                                    label: "PC".into(),
-                                },
-                            ],
-                            app.library_sort,
-                            theme,
-                            cx.listener(|this, sort: &LibrarySort, _, cx| {
-                                this.library_sort = *sort;
-                                cx.notify();
-                            }),
-                        ))
-                        .child(
-                            Button::new("lib-setup-toggle", theme)
-                                .label(if show_setup { "Back to library" } else { "Steam setup" })
-                                .icon("gamepad")
-                                .variant(if show_setup {
-                                    ButtonVariant::Primary
-                                } else {
-                                    ButtonVariant::Secondary
-                                })
-                                .size(ButtonSize::Sm)
-                                .on_click(cx.listener(|this, _, _, cx| {
-                                    this.show_steam_setup = !this.show_steam_setup;
-                                    this.refresh_steam_setup(cx);
-                                    cx.notify();
-                                })),
-                        )
+                        .flex_shrink_0()
+                        .when(!show_setup && !app.bootstrapping, |d| {
+                            d.child(div().w(px(184.0)).child(app.search_input.clone()))
+                                .child(segmented_control(
+                                    "lib-sort",
+                                    vec![
+                                        SegmentOption {
+                                            value: LibrarySort::Recent,
+                                            label: "Recent".into(),
+                                        },
+                                        SegmentOption {
+                                            value: LibrarySort::Name,
+                                            label: "Name".into(),
+                                        },
+                                        SegmentOption {
+                                            value: LibrarySort::Bottle,
+                                            label: "PC".into(),
+                                        },
+                                    ],
+                                    app.library_sort,
+                                    theme,
+                                    cx.listener(|this, sort: &LibrarySort, _, cx| {
+                                        this.library_sort = *sort;
+                                        cx.notify();
+                                    }),
+                                ))
+                        })
+                        .when(!app.bootstrapping, |d| {
+                            d.child(
+                                Button::new("lib-setup-toggle", theme)
+                                    .label(if show_setup { "Back to library" } else { "Steam setup" })
+                                    .icon("gamepad")
+                                    .variant(if show_setup {
+                                        ButtonVariant::Primary
+                                    } else {
+                                        ButtonVariant::Secondary
+                                    })
+                                    .size(ButtonSize::Sm)
+                                    .on_click(cx.listener(|this, _, _, cx| {
+                                        this.show_steam_setup = !this.show_steam_setup;
+                                        this.refresh_steam_setup(cx);
+                                        cx.notify();
+                                    })),
+                            )
+                        })
                         .child(icon_button(
                             "lib-refresh",
                             "refresh",
@@ -141,30 +161,65 @@ pub fn render(app: &GmacApp, theme: Theme, window: &mut Window, cx: &mut Context
                 .flex_1()
                 .min_h(px(0.0))
                 .overflow_y_scroll()
-                .px(S6)
-                .py(S5)
-                .flex()
-                .flex_col()
-                .gap(S6)
-                .when(show_setup, |this| {
-                    this.child(render_steam_setup(app, theme, cx))
-                })
-                .when(!show_setup, |this| {
-                    this.when(!app.library.steam_panels.is_empty(), |inner| {
-                        inner.child(render_steam_panels(&app.library.steam_panels, theme, cx))
-                    })
-                    .when(
-                        filtered_games.is_empty() && filtered_other.is_empty() && app.library.steam_panels.is_empty(),
-                        |inner| inner.child(render_steam_setup(app, theme, cx)),
-                    )
-                    .when(
-                        !filtered_games.is_empty() || has_steam,
-                        |inner| inner.child(render_games_grid(app, &filtered_games, cols, theme, cx)),
-                    )
-                    .when(!filtered_other.is_empty(), |inner| {
-                        inner.child(render_other_apps(app, &filtered_other, theme, cx))
-                    })
-                }),
+                .child(
+                    div()
+                        .w_full()
+                        .px(S6)
+                        .py(S5)
+                        .flex()
+                        .flex_col()
+                        .gap(S6)
+                        .when(app.bootstrapping, |this| {
+                            this.child(empty_state(
+                                "library",
+                                "Loading library",
+                                "Scanning installed PCs, Steam games, and shortcuts.",
+                                None,
+                                theme,
+                            ))
+                        })
+                        .when(!app.bootstrapping && show_setup, |this| {
+                            this.child(render_steam_setup(app, theme, cx))
+                        })
+                        .when(!app.bootstrapping && !show_setup, |this| {
+                            this.when(!app.library.steam_panels.is_empty(), |inner| {
+                                inner.child(render_steam_panels(&app.library.steam_panels, theme, cx))
+                            })
+                            .when(search_empty, |inner| {
+                                inner.child(empty_state(
+                                    "search",
+                                    format!("No matches for “{raw_query}”"),
+                                    "Try a different game title or PC name, or clear the filter.",
+                                    Some(
+                                        Button::new("lib-clear-search", theme)
+                                            .label("Clear search")
+                                            .variant(ButtonVariant::Secondary)
+                                            .size(ButtonSize::Sm)
+                                            .on_click(cx.listener(|this, _, _, cx| {
+                                                this.search_input.update(cx, |inp, cx| inp.clear(cx));
+                                                cx.notify();
+                                            }))
+                                            .into_any_element(),
+                                    ),
+                                    theme,
+                                ))
+                            })
+                            .when(
+                                !search_empty
+                                    && filtered_games.is_empty()
+                                    && filtered_other.is_empty()
+                                    && app.library.steam_panels.is_empty(),
+                                |inner| inner.child(render_steam_setup(app, theme, cx)),
+                            )
+                            .when(
+                                !search_empty && (!filtered_games.is_empty() || has_steam),
+                                |inner| inner.child(render_games_grid(app, &filtered_games, cols, theme, cx)),
+                            )
+                            .when(!filtered_other.is_empty(), |inner| {
+                                inner.child(render_other_apps(app, &filtered_other, theme, cx))
+                            })
+                        }),
+                ),
         )
         .into_any_element()
 }
@@ -554,7 +609,6 @@ fn render_game_card(
             theme.border
         })
         .rounded(R_LG)
-        .overflow_hidden()
         .flex()
         .flex_col()
         // Artwork top section
@@ -564,6 +618,7 @@ fn render_game_card(
                 .h(px(164.0))
                 .w_full()
                 .bg(theme.surface_subtle)
+                .rounded_t(R_LG)
                 .overflow_hidden()
                 .child(artwork)
                 .when(is_running || is_launching, |d| {
@@ -671,9 +726,9 @@ fn render_game_card(
                 div()
                     .id(("game-popover", idx))
                     .absolute()
-                    .right(S3)
+                    .right(S2)
                     .bottom(px(46.0))
-                    .w(px(192.0))
+                    .w(px(176.0))
                     .bg(theme.surface)
                     .border_1()
                     .border_color(theme.border_strong)
@@ -982,6 +1037,7 @@ fn render_steam_setup(
 
     let step3_controls = div()
         .flex()
+        .flex_wrap()
         .items_center()
         .gap(S2)
         .children(backend_options.iter().enumerate().map(|(i, (raw, label))| {
@@ -1140,7 +1196,7 @@ fn render_steam_setup(
                     false,
                     theme,
                 ))
-                .child(setup_step_row(
+                .child(setup_step_row_stacked(
                     3,
                     "Choose graphics backend",
                     &format!(
@@ -1268,6 +1324,87 @@ fn setup_step_row(
                 ),
         )
         .child(div().flex_shrink_0().child(action));
+
+    if !is_last {
+        row = row.border_b_1().border_color(theme.border);
+    }
+    row.into_any_element()
+}
+
+fn setup_step_row_stacked(
+    num: usize,
+    title: &str,
+    description: &str,
+    done: bool,
+    action: AnyElement,
+    is_last: bool,
+    theme: Theme,
+) -> AnyElement {
+    let mut row = div()
+        .w_full()
+        .px(S4)
+        .py(S4)
+        .flex()
+        .flex_col()
+        .gap(S3)
+        .child(
+            div()
+                .flex()
+                .items_center()
+                .gap(S3)
+                .child(
+                    div()
+                        .size(px(26.0))
+                        .rounded(px(999.0))
+                        .bg(if done {
+                            theme.success_soft
+                        } else {
+                            theme.surface_subtle
+                        })
+                        .border_1()
+                        .border_color(if done {
+                            theme.success.opacity(0.4)
+                        } else {
+                            theme.border
+                        })
+                        .flex()
+                        .items_center()
+                        .justify_center()
+                        .flex_shrink_0()
+                        .child(if done {
+                            icon("check", px(13.0), theme.success).into_any_element()
+                        } else {
+                            div()
+                                .text_size(px(12.0))
+                                .font_weight(gpui::FontWeight::SEMIBOLD)
+                                .text_color(theme.muted)
+                                .child(num.to_string())
+                                .into_any_element()
+                        }),
+                )
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap(px(2.0))
+                        .min_w(px(0.0))
+                        .child(
+                            div()
+                                .text_size(px(13.5))
+                                .font_weight(gpui::FontWeight::SEMIBOLD)
+                                .text_color(theme.ink)
+                                .child(title.to_string()),
+                        )
+                        .child(
+                            div()
+                                .text_size(px(12.0))
+                                .line_height(px(17.0))
+                                .text_color(theme.muted)
+                                .child(description.to_string()),
+                        ),
+                ),
+        )
+        .child(div().pl(px(38.0)).child(action));
 
     if !is_last {
         row = row.border_b_1().border_color(theme.border);

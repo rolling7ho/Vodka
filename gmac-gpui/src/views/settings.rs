@@ -8,7 +8,7 @@ use crate::components::badge::{StatusDot, status_pill};
 use crate::components::button::{Button, ButtonSize, ButtonVariant};
 use crate::components::segmented::{SegmentOption, segmented_control};
 use crate::components::toggle::{card_section, choice_chip, setting_row, toggle_switch};
-use crate::models::{format_bytes, pretty_win_version};
+use crate::models::format_bytes;
 use crate::theme::{R_LG, R_SM, S1, S2, S3, S4, S5, S6, Theme, ThemeMode};
 use crate::views::{ActiveModal, SettingsTab};
 
@@ -86,20 +86,24 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                 .flex_1()
                 .min_h(px(0.0))
                 .overflow_y_scroll()
-                .px(S6)
-                .py(S5)
                 .child(
                     div()
-                        .max_w(px(760.0))
-                        .flex()
-                        .flex_col()
-                        .gap(S5)
-                        .child(match tab {
-                            SettingsTab::General => render_general(app, theme, cx),
-                            SettingsTab::Gaming => render_gaming(app, theme, cx),
-                            SettingsTab::Engine => render_engine(app, theme, cx),
-                            SettingsTab::Storage => render_storage(app, theme, cx),
-                        }),
+                        .w_full()
+                        .px(S6)
+                        .py(S5)
+                        .child(
+                            div()
+                                .max_w(px(760.0))
+                                .flex()
+                                .flex_col()
+                                .gap(S5)
+                                .child(match tab {
+                                    SettingsTab::General => render_general(app, theme, cx),
+                                    SettingsTab::Gaming => render_gaming(app, theme, cx),
+                                    SettingsTab::Engine => render_engine(app, theme, cx),
+                                    SettingsTab::Storage => render_storage(app, theme, cx),
+                                }),
+                        ),
                 ),
         )
         .into_any_element()
@@ -109,7 +113,12 @@ fn render_general(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> Any
     let prefs = &app.prefs;
     let mode = ThemeMode::from_str(&prefs.theme_mode);
 
-    let win_options = ["win10", "win11", "win81", "win7"];
+    let win_options = [
+        ("win10", "Win 10"),
+        ("win11", "Win 11"),
+        ("win81", "Win 8.1"),
+        ("win7", "Win 7"),
+    ];
     let term_options = [("terminal", "Terminal"), ("iterm", "iTerm2")];
 
     div()
@@ -171,13 +180,13 @@ fn render_general(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> Any
                 setting_row(
                     "Default Windows version",
                     Some("Version assigned when creating new PCs.".into()),
-                    div().flex().items_center().gap(S1).children(
-                        win_options.iter().enumerate().map(|(i, ver)| {
+                    div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
+                        win_options.iter().enumerate().map(|(i, (ver, label))| {
                             let val = (*ver).to_string();
                             let active = prefs.default_win_version == *ver;
                             choice_chip(
                                 ("pref-win", i),
-                                pretty_win_version(ver),
+                                *label,
                                 active,
                                 theme,
                                 cx.listener(move |this, _, _, cx| {
@@ -376,6 +385,8 @@ fn render_engine(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyE
                     ),
                     div()
                         .flex()
+                        .flex_wrap()
+                        .justify_end()
                         .items_center()
                         .gap(S2)
                         .child(status_pill(
@@ -431,6 +442,8 @@ fn render_engine(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyE
                     ),
                     div()
                         .flex()
+                        .flex_wrap()
+                        .justify_end()
                         .items_center()
                         .gap(S2)
                         .child(status_pill(
@@ -462,7 +475,7 @@ fn render_engine(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyE
                         .into(),
                     ),
                     status_pill(
-                        if gmac_d3d12 { "Available" } else { "Standard" },
+                        if gmac_d3d12 { "Bundled" } else { "Not bundled" },
                         if gmac_d3d12 { StatusDot::Active } else { StatusDot::Idle },
                         theme,
                     ),
@@ -599,9 +612,39 @@ fn render_storage(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> Any
                     theme,
                 ),
                 setting_row(
+                    "Import existing PC folder",
+                    Some("Register an existing Wine bottle directory on disk.".into()),
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap(S2)
+                        .child(
+                            Button::new("stor-scan-pcs", theme)
+                                .label("Scan for PCs")
+                                .icon("refresh")
+                                .variant(ButtonVariant::Ghost)
+                                .size(ButtonSize::Sm)
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.refresh_storage_candidates(cx);
+                                })),
+                        )
+                        .child(
+                            Button::new("stor-import-dir", theme)
+                                .label("Import PC…")
+                                .icon("folder")
+                                .variant(ButtonVariant::Secondary)
+                                .size(ButtonSize::Sm)
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    this.import_existing_bottle(window, cx);
+                                })),
+                        ),
+                    false,
+                    theme,
+                ),
+                setting_row(
                     "Log retention",
                     Some("Automatically delete Wine logs older than this window.".into()),
-                    div().flex().items_center().gap(S1).children(
+                    div().flex().flex_wrap().justify_end().items_center().gap(S1).children(
                         retention_days.iter().enumerate().map(|(i, days)| {
                             let d = *days;
                             let active = app.prefs.log_retention_days == d;

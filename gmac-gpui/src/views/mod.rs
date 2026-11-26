@@ -42,6 +42,13 @@ pub enum ActivityTab {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PresetFilter {
+    All,
+    Installed,
+    Applied,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToastStyle {
     Info,
     Success,

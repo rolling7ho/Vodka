@@ -78,3 +78,27 @@ impl AssetSource for GmacAssets {
         ])
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn all_assets_are_non_empty_valid_svgs_and_distinct() {
+        let assets = GmacAssets;
+        let list = assets.list("").unwrap();
+        assert_eq!(list.len(), 30);
+        for item in &list {
+            let bytes = assets
+                .load(item)
+                .unwrap()
+                .unwrap_or_else(|| panic!("missing asset {item}"));
+            let text = std::str::from_utf8(&bytes).unwrap();
+            assert!(text.contains("<svg"), "{item} is missing <svg root");
+            assert!(text.contains("</svg>"), "{item} is missing </svg>");
+        }
+        let settings = assets.load("icons/settings.svg").unwrap().unwrap();
+        let sun = assets.load("icons/sun.svg").unwrap().unwrap();
+        assert_ne!(settings.as_ref(), sun.as_ref());
+    }
+}

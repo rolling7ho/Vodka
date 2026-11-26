@@ -8,8 +8,8 @@ use crate::components::badge::{StatusDot, pill_badge, status_pill};
 use crate::components::button::{Button, ButtonSize, ButtonVariant, icon_button};
 use crate::components::segmented::{SegmentOption, segmented_control};
 use crate::models::{format_bytes, format_relative_epoch};
-use crate::theme::{R_LG, R_MD, R_SM, S2, S3, S4, S5, S6, Theme};
-use crate::views::{ActivityTab, empty_state};
+use crate::theme::{R_LG, R_MD, R_SM, S1, S2, S3, S4, S5, S6, Theme};
+use crate::views::{ActivityTab, NavSection, empty_state};
 
 pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElement {
     let tab = app.activity_tab;
@@ -164,13 +164,29 @@ fn render_processes(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> A
                                 )
                                 .child(
                                     div()
+                                        .flex()
+                                        .items_center()
+                                        .gap(S1)
                                         .text_size(px(12.0))
                                         .text_color(theme.muted)
+                                        .child({
+                                            let nav_url = proc_item.bottle_url.clone();
+                                            div()
+                                                .id(("proc-pc-link", idx))
+                                                .cursor(CursorStyle::PointingHand)
+                                                .hover(|s| s.text_color(theme.ink))
+                                                .on_click(cx.listener(move |this, _, window, cx| {
+                                                    this.navigate(
+                                                        NavSection::Bottle(nav_url.clone()),
+                                                        window,
+                                                        cx,
+                                                    );
+                                                }))
+                                                .child(proc_item.bottle_name.clone())
+                                        })
                                         .child(format!(
-                                            "{} · PID {} · {}",
-                                            proc_item.bottle_name,
-                                            proc_item.pid,
-                                            proc_item.memory_usage
+                                            "· PID {} · {}",
+                                            proc_item.pid, proc_item.memory_usage
                                         )),
                                 ),
                         ),
@@ -196,28 +212,32 @@ fn render_processes(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> A
         .flex_1()
         .min_h(px(0.0))
         .overflow_y_scroll()
-        .px(S6)
-        .py(S5)
-        .when(rows.is_empty(), |this| {
-            this.child(empty_state(
-                "activity",
-                "No Windows processes running",
-                "Active games, Steam, and background Wine services appear here while running.",
-                None,
-                theme,
-            ))
-        })
-        .when(!rows.is_empty(), |this| {
-            this.child(
-                div()
-                    .bg(theme.surface)
-                    .border_1()
-                    .border_color(theme.border)
-                    .rounded(R_LG)
-                    .overflow_hidden()
-                    .children(rows),
-            )
-        })
+        .child(
+            div()
+                .w_full()
+                .px(S6)
+                .py(S5)
+                .when(rows.is_empty(), |this| {
+                    this.child(empty_state(
+                        "activity",
+                        "No Windows processes running",
+                        "Active games, Steam, and background Wine services appear here while running.",
+                        None,
+                        theme,
+                    ))
+                })
+                .when(!rows.is_empty(), |this| {
+                    this.child(
+                        div()
+                            .bg(theme.surface)
+                            .border_1()
+                            .border_color(theme.border)
+                            .rounded(R_LG)
+                            .overflow_hidden()
+                            .children(rows),
+                    )
+                }),
+        )
         .into_any_element()
 }
 
@@ -306,11 +326,15 @@ fn render_logs(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyEle
                 .border_r_1()
                 .border_color(theme.border)
                 .overflow_y_scroll()
-                .p(S3)
-                .flex()
-                .flex_col()
-                .gap(px(2.0))
-                .children(log_list),
+                .child(
+                    div()
+                        .w_full()
+                        .p(S3)
+                        .flex()
+                        .flex_col()
+                        .gap(px(2.0))
+                        .children(log_list),
+                ),
         )
         // Right log viewer + crash classifier
         .child(
@@ -331,6 +355,8 @@ fn render_logs(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyEle
                             .gap(S3)
                             .child(
                                 div()
+                                    .flex_1()
+                                    .min_w(px(0.0))
                                     .text_size(px(13.0))
                                     .font_weight(gpui::FontWeight::MEDIUM)
                                     .text_color(theme.muted)
@@ -342,6 +368,7 @@ fn render_logs(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyEle
                                     .flex()
                                     .items_center()
                                     .gap(S2)
+                                    .flex_shrink_0()
                                     .child(
                                         Button::new("log-copy-path", theme)
                                             .label("Copy log")
@@ -394,20 +421,32 @@ fn render_logs(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyEle
                                             .text_size(px(14.0))
                                             .font_weight(gpui::FontWeight::SEMIBOLD)
                                             .text_color(theme.ink)
-                                            .child(
+                                            .child(if diag.match_count == 0 {
+                                                "No known crash signature matched".to_string()
+                                            } else {
                                                 diag.headline
                                                     .clone()
-                                                    .unwrap_or_else(|| "Crash analysis complete".to_string()),
-                                            ),
+                                                    .unwrap_or_else(|| "Crash analysis complete".to_string())
+                                            }),
                                     )
-                                    .when_some(diag.primary_confidence.clone(), |d, conf| {
-                                        d.child(pill_badge(
-                                            format!("{conf} confidence"),
-                                            theme.accent_soft,
-                                            theme.accent_text,
-                                        ))
+                                    .when(diag.match_count > 0, |d| {
+                                        d.when_some(diag.primary_confidence.clone(), |d2, conf| {
+                                            d2.child(pill_badge(
+                                                format!("{conf} confidence"),
+                                                theme.accent_soft,
+                                                theme.accent_text,
+                                            ))
+                                        })
                                     }),
                             )
+                            .when(diag.match_count == 0 && diag.remediations.is_empty(), |d| {
+                                d.child(
+                                    div()
+                                        .text_size(px(12.5))
+                                        .text_color(theme.muted)
+                                        .child("No known failure pattern matched this log. Inspect the tail below or open the logs folder to share it."),
+                                )
+                            })
                             .when(!diag.remediations.is_empty(), |d| {
                                 d.child(div().flex().flex_col().gap(S2).children(
                                     diag.remediations.iter().map(|rem| {
@@ -457,16 +496,20 @@ fn render_logs(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyEle
                         .border_1()
                         .border_color(theme.border)
                         .rounded(R_LG)
-                        .p(S4)
-                        .font_family("Menlo")
-                        .text_size(px(11.5))
-                        .line_height(px(17.0))
-                        .text_color(theme.ink)
-                        .child(if app.log_text.is_empty() {
-                            "Select a log file on the left to inspect its output.".to_string()
-                        } else {
-                            app.log_text.clone()
-                        }),
+                        .child(
+                            div()
+                                .w_full()
+                                .p(S4)
+                                .font_family("Menlo")
+                                .text_size(px(11.5))
+                                .line_height(px(17.0))
+                                .text_color(theme.ink)
+                                .child(if app.log_text.is_empty() {
+                                    "Select a log file on the left to inspect its output.".to_string()
+                                } else {
+                                    app.log_text.clone()
+                                }),
+                        ),
                 ),
         )
         .into_any_element()

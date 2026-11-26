@@ -68,6 +68,7 @@ pub struct TextInput {
     marked_range: Option<Range<usize>>,
     last_layout: Option<ShapedLine>,
     last_bounds: Option<Bounds<Pixels>>,
+    scroll_x: Pixels,
     is_selecting: bool,
     theme: Theme,
 }
@@ -86,6 +87,7 @@ impl TextInput {
             marked_range: None,
             last_layout: None,
             last_bounds: None,
+            scroll_x: px(0.0),
             is_selecting: false,
             theme,
         }
@@ -259,7 +261,7 @@ impl TextInput {
         if position.y > bounds.bottom() {
             return self.content.len();
         }
-        line.closest_index_for_x(position.x - bounds.left())
+        line.closest_index_for_x(position.x - bounds.left() + self.scroll_x)
     }
 
     fn select_to(&mut self, offset: usize, cx: &mut Context<Self>) {
@@ -439,11 +441,11 @@ impl EntityInputHandler for TextInput {
         let range = self.range_from_utf16(&range_utf16);
         Some(Bounds::from_corners(
             point(
-                bounds.left() + last_layout.x_for_index(range.start),
+                bounds.left() + last_layout.x_for_index(range.start) - self.scroll_x,
                 bounds.top(),
             ),
             point(
-                bounds.left() + last_layout.x_for_index(range.end),
+                bounds.left() + last_layout.x_for_index(range.end) - self.scroll_x,
                 bounds.bottom(),
             ),
         ))
@@ -457,7 +459,7 @@ impl EntityInputHandler for TextInput {
     ) -> Option<usize> {
         let line_point = self.last_bounds?.localize(&point)?;
         let last_layout = self.last_layout.as_ref()?;
-        let utf8_index = last_layout.index_for_x(point.x - line_point.x)?;
+        let utf8_index = last_layout.index_for_x(line_point.x + self.scroll_x)?;
         Some(self.offset_to_utf16(utf8_index))
     }
 }
@@ -474,6 +476,7 @@ struct PrepaintState {
     line: Option<ShapedLine>,
     cursor: Option<PaintQuad>,
     selection: Option<PaintQuad>,
+    scroll_x: Pixels,
 }
 
 impl IntoElement for TextElement {
@@ -576,12 +579,26 @@ impl Element for TextElement {
             line.x_for_index(cursor)
         };
 
+        let available_w = (bounds.size.width - px(2.0)).max(px(1.0));
+        let mut scroll_x = if input.content.is_empty() {
+            px(0.0)
+        } else {
+            input.scroll_x
+        };
+        if cursor_pos - scroll_x > available_w {
+            scroll_x = cursor_pos - available_w;
+        } else if cursor_pos < scroll_x {
+            scroll_x = cursor_pos;
+        }
+        let max_scroll = (line.width - available_w).max(px(0.0));
+        scroll_x = scroll_x.clamp(px(0.0), max_scroll);
+
         let (selection, cursor_quad) = if selected_range.is_empty() || input.content.is_empty() {
             (
                 None,
                 Some(fill(
                     Bounds::new(
-                        point(bounds.left() + cursor_pos, bounds.top() + px(1.0)),
+                        point(bounds.left() + cursor_pos - scroll_x, bounds.top() + px(1.0)),
                         size(px(1.5), (bounds.bottom() - bounds.top()) - px(2.0)),
                     ),
                     self.cursor_color,
@@ -592,11 +609,11 @@ impl Element for TextElement {
                 Some(fill(
                     Bounds::from_corners(
                         point(
-                            bounds.left() + line.x_for_index(selected_range.start),
+                            bounds.left() + line.x_for_index(selected_range.start) - scroll_x,
                             bounds.top(),
                         ),
                         point(
-                            bounds.left() + line.x_for_index(selected_range.end),
+                            bounds.left() + line.x_for_index(selected_range.end) - scroll_x,
                             bounds.bottom(),
                         ),
                     ),
@@ -610,6 +627,7 @@ impl Element for TextElement {
             line: Some(line),
             cursor: cursor_quad,
             selection,
+            scroll_x,
         }
     }
 
@@ -633,10 +651,13 @@ impl Element for TextElement {
             window.paint_quad(selection);
         }
         if let Some(line) = prepaint.line.take() {
-            let _ = line.paint(bounds.origin, px(18.0), window, cx);
+            let paint_origin = point(bounds.origin.x - prepaint.scroll_x, bounds.origin.y);
+            let _ = line.paint(paint_origin, px(18.0), window, cx);
+            let scroll_x = prepaint.scroll_x;
             self.input.update(cx, |input, _| {
                 input.last_layout = Some(line);
                 input.last_bounds = Some(bounds);
+                input.scroll_x = scroll_x;
             });
         }
         if focus_handle.is_focused(window)
@@ -658,10 +679,11 @@ impl Render for TextInput {
         let t = self.theme;
         let focused = self.focus_handle.is_focused(window);
         let has_content = !self.content.is_empty();
+        let entity_num = cx.entity_id().as_u64();
 
         div()
-            .id("gmac-text-input")
-            .h(px(32.0))
+            .id(("gmac-text-input", entity_num))
+            .h(px(30.0))
             .w_full()
             .px(px(10.0))
             .rounded(R_SM)
@@ -688,7 +710,13 @@ impl Render for TextInput {
             .on_action(cx.listener(Self::copy))
             .on_action(cx.listener(Self::submit))
             .on_action(cx.listener(Self::cancel))
-            .on_mouse_down(MouseButton::Left, cx.listener(Self::on_mouse_down))
+            .on_mouse_down(
+                MouseButton::Left,
+                cx.listener(|this, ev, window, cx| {
+                    cx.stop_propagation();
+                    this.on_mouse_down(ev, window, cx);
+                }),
+            )
             .on_mouse_up(MouseButton::Left, cx.listener(Self::on_mouse_up))
             .on_mouse_up_out(MouseButton::Left, cx.listener(Self::on_mouse_up))
             .on_mouse_move(cx.listener(Self::on_mouse_move))
@@ -711,7 +739,7 @@ impl Render for TextInput {
             .when(has_content, |this| {
                 this.child(
                     div()
-                        .id("clear-input")
+                        .id(("clear-input", entity_num))
                         .size(px(18.0))
                         .rounded(px(4.0))
                         .flex()

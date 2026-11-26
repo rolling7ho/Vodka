@@ -81,6 +81,7 @@ pub fn setting_row(
                 .gap(px(2.0))
                 .flex_1()
                 .min_w(px(0.0))
+                .overflow_hidden()
                 .child(
                     div()
                         .text_size(px(13.5))
@@ -98,7 +99,52 @@ pub fn setting_row(
                     )
                 }),
         )
-        .child(div().flex_shrink_0().child(control));
+        .child(div().flex_shrink_0().max_w(px(460.0)).child(control));
+
+    if !is_last {
+        row = row.border_b_1().border_color(theme.border);
+    }
+
+    row.into_any_element()
+}
+
+pub fn setting_row_stacked(
+    title: impl Into<SharedString>,
+    subtitle: Option<SharedString>,
+    control: impl IntoElement,
+    is_last: bool,
+    theme: Theme,
+) -> AnyElement {
+    let mut row = div()
+        .w_full()
+        .px(S4)
+        .py(S3)
+        .flex()
+        .flex_col()
+        .gap(S2)
+        .child(
+            div()
+                .flex()
+                .flex_col()
+                .gap(px(2.0))
+                .child(
+                    div()
+                        .text_size(px(13.5))
+                        .font_weight(gpui::FontWeight::MEDIUM)
+                        .text_color(theme.ink)
+                        .child(title.into()),
+                )
+                .when_some(subtitle, |this, sub| {
+                    this.child(
+                        div()
+                            .text_size(px(12.0))
+                            .text_color(theme.muted)
+                            .line_height(px(17.0))
+                            .child(sub),
+                    )
+                }),
+        )
+        .child(div().w_full().child(control));
 
     if !is_last {
         row = row.border_b_1().border_color(theme.border);
@@ -151,6 +197,8 @@ pub fn choice_chip(
         .h(px(28.0))
         .px(px(11.0))
         .rounded(R_SM)
+        .flex_shrink_0()
+        .whitespace_nowrap()
         .flex()
         .items_center()
         .justify_center()

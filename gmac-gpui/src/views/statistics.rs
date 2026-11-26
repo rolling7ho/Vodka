@@ -75,12 +75,16 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                 .flex_1()
                 .min_h(px(0.0))
                 .overflow_y_scroll()
-                .px(S6)
-                .py(S5)
-                .flex()
-                .flex_col()
-                .gap(S5)
-                .when(!has_content, |this| {
+                .child(
+                    div()
+                        .w_full()
+                        .max_w(px(1040.0))
+                        .px(S6)
+                        .py(S5)
+                        .flex()
+                        .flex_col()
+                        .gap(S5)
+                        .when(!has_content, |this| {
                     this.child(empty_state(
                         "stats",
                         "No statistics recorded yet",
@@ -354,12 +358,15 @@ pub fn render(app: &GmacApp, theme: Theme, cx: &mut Context<GmacApp>) -> AnyElem
                             )
                         })
                 }),
+            ),
         )
         .into_any_element()
 }
 
 fn metric_tile(label: &str, value: String, detail: Option<&str>, theme: Theme) -> AnyElement {
     div()
+        .min_w(px(0.0))
+        .overflow_hidden()
         .bg(theme.surface)
         .border_1()
         .border_color(theme.border)
@@ -380,16 +387,19 @@ fn metric_tile(label: &str, value: String, detail: Option<&str>, theme: Theme) -
                 .text_size(px(21.0))
                 .font_weight(gpui::FontWeight::SEMIBOLD)
                 .text_color(theme.ink)
+                .truncate()
                 .child(value),
         )
         .when_some(detail.map(str::to_string), |d, det| {
-            d.child(div().text_size(px(11.5)).text_color(theme.faint).child(det))
+            d.child(div().text_size(px(11.5)).text_color(theme.faint).truncate().child(det))
         })
         .into_any_element()
 }
 
 fn highlight_tile(label: &str, title: &str, meta: &str, theme: Theme) -> AnyElement {
     div()
+        .min_w(px(0.0))
+        .overflow_hidden()
         .bg(theme.surface)
         .border_1()
         .border_color(theme.border)
