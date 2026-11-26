@@ -72,14 +72,14 @@
     <ul class="toc-list">
       <li class="toc-item toc-l2"><a href="#asset-inventory">Asset inventory</a></li>
       <li class="toc-item toc-l2"><a href="#color-tokens">Color tokens</a></li>
-      <li class="toc-item toc-l2"><a href="#regenerating-raster-icons">Regenerating raster icons</a></li>
+      <li class="toc-item toc-l2"><a href="#regenerating-raster-assets">Regenerating raster assets</a></li>
     </ul>
   </aside>
   <article class="doc-article">
     <p class="doc-nav"><a href="./">Documentation</a> / Brand</p>
     <h1 class="doc-title">Gmac Brand Assets</h1>
     <div class="doc-body">
-<p>Canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac. Every SVG in this directory uses geometric path primitives without <code>&lt;text&gt;</code> elements, so assets render identically across browsers, macOS, and documentation without font dependencies.</p>
+<p>This directory contains the canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac. Every SVG in this directory uses geometric path primitives without <code>&lt;text&gt;</code> elements so assets render identically across browsers, macOS, and documentation without font dependencies.</p>
 <h2 id="asset-inventory">Asset inventory</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -121,7 +121,7 @@
 </tr>
 <tr>
 <td><code>gmac-wordmark.svg</code></td>
-<td>Integrated pure-vector wordmark (<code>G</code> mark + geometric <code>mac</code>)</td>
+<td>Integrated pure-vector wordmark (<code>G</code> mark and geometric <code>mac</code>)</td>
 <td>Adaptive two-tone via <code>prefers-color-scheme</code></td>
 </tr>
 <tr>
@@ -191,8 +191,13 @@
 <td>Radially faded background texture</td>
 </tr>
 </tbody></table></div>
-<h2 id="regenerating-raster-icons">Regenerating raster icons</h2>
-<p>Run <code>swiftc -O scripts/draw-icon.swift -o /tmp/draw-icon &amp;&amp; /tmp/draw-icon --all .</code> from the repository root to regenerate all PNG icons under <code>images/</code>, <code>Gmac/Assets.xcassets/</code>, <code>GmacThumbnail/Icons.xcassets/</code>, and <code>dist/pages/</code>.</p>
+<h2 id="regenerating-raster-assets">Regenerating raster assets</h2>
+<p>Run <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/draw-icon.swift"><code>scripts/draw-icon.swift</code></a> from the repository root to regenerate all PNG icons under <code>images/</code>, <code>Gmac/Assets.xcassets/</code>, <code>GmacThumbnail/Icons.xcassets/</code>, and <code>dist/pages/</code>:</p>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh">swiftc -O scripts/draw-icon.swift -o /tmp/draw-icon &amp;&amp; /tmp/draw-icon --all .
+</code></pre></div>
+<p>To regenerate the OpenGraph social preview card (<code>images/og-card.png</code>, 1200 by 630 pixels) from <code>dist/pages/_og-card-source.html</code>, run:</p>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2" class="language-sh">scripts/build-og-card.sh
+</code></pre></div>
 
     </div>
     <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/images/brand/README.md">Mirrored from <code>images/brand/README.md</code></a></p>
@@ -263,7 +268,7 @@
 </main>
 <script type="text/plain" id="doc-markdown-source"># Gmac Brand Assets
 
-Canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac. Every SVG in this directory uses geometric path primitives without `<text>` elements, so assets render identically across browsers, macOS, and documentation without font dependencies.
+This directory contains the canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac. Every SVG in this directory uses geometric path primitives without `<text>` elements so assets render identically across browsers, macOS, and documentation without font dependencies.
 
 ## Asset inventory
 
@@ -275,7 +280,7 @@ Canonical vector marks, system-adaptive application icons, and pure-vector wordm
 | `gmac-mark.svg` | Bare concentric `G` and play mark | Adaptive via `prefers-color-scheme` |
 | `gmac-mark-accent.svg` | Bare mark in primary burgundy (`#713131`) | Fixed accent |
 | `gmac-mark-mono.svg` | Bare mark in dark ink (`#141414`) | Fixed monochrome |
-| `gmac-wordmark.svg` | Integrated pure-vector wordmark (`G` mark + geometric `mac`) | Adaptive two-tone via `prefers-color-scheme` |
+| `gmac-wordmark.svg` | Integrated pure-vector wordmark (`G` mark and geometric `mac`) | Adaptive two-tone via `prefers-color-scheme` |
 | `gmac-wordmark-light.svg` | Integrated pure-vector wordmark for light surfaces (`#713131` and `#161212`) | Fixed light |
 | `gmac-wordmark-dark.svg` | Integrated pure-vector wordmark for dark surfaces (`#E09898`, `#D98282`, and `#F5ECEC`) | Fixed dark |
 | `gmac-wordmark-mono.svg` | Integrated pure-vector wordmark in single ink | Adaptive monochrome via `prefers-color-scheme` |
@@ -292,9 +297,19 @@ Canonical vector marks, system-adaptive application icons, and pure-vector wordm
 | Tile surface | `#FFFFFF` | `#281D1D` to `#191212` | Squircle application icon background |
 | Blueprint grid | `#713131` at 6.5% | `#E09898` at 9% | Radially faded background texture |
 
-## Regenerating raster icons
+## Regenerating raster assets
 
-Run `swiftc -O scripts/draw-icon.swift -o /tmp/draw-icon && /tmp/draw-icon --all .` from the repository root to regenerate all PNG icons under `images/`, `Gmac/Assets.xcassets/`, `GmacThumbnail/Icons.xcassets/`, and `dist/pages/`.
+Run [`scripts/draw-icon.swift`](../../scripts/draw-icon.swift) from the repository root to regenerate all PNG icons under `images/`, `Gmac/Assets.xcassets/`, `GmacThumbnail/Icons.xcassets/`, and `dist/pages/`:
+
+```sh
+swiftc -O scripts/draw-icon.swift -o /tmp/draw-icon && /tmp/draw-icon --all .
+```
+
+To regenerate the OpenGraph social preview card (`images/og-card.png`, 1200 by 630 pixels) from `dist/pages/_og-card-source.html`, run:
+
+```sh
+scripts/build-og-card.sh
+```
 </script>
 <footer class="site-footer">
   <div class="wrap footer-grid">

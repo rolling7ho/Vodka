@@ -70,82 +70,153 @@
   <aside class="doc-toc" aria-label="On this page">
     <p class="toc-title">On this page</p>
     <ul class="toc-list">
-      <li class="toc-item toc-l2"><a href="#bundled-in-runtime-v311">Bundled in runtime v3.1.1</a></li>
-      <li class="toc-item toc-l3"><a href="#archive-integrity">Archive integrity</a></li>
-      <li class="toc-item toc-l2"><a href="#bundled-in-the-application">Bundled in the application</a></li>
+      <li class="toc-item toc-l2"><a href="#active-gaming-runtime-v4612-gaming1">Active gaming runtime (v4.6.12-gaming.1)</a></li>
+      <li class="toc-item toc-l3"><a href="#runtime-selection-logic">Runtime selection logic</a></li>
+      <li class="toc-item toc-l3"><a href="#source-and-bundled-translation-layers">Source and bundled translation layers</a></li>
+      <li class="toc-item toc-l2"><a href="#user-supplied-apple-d3dmetal-game-porting-toolkit">User-supplied Apple D3DMetal (Game Porting Toolkit)</a></li>
+      <li class="toc-item toc-l2"><a href="#optional-gmac-directx-12-layer-gmacd3d12">Optional Gmac DirectX 12 layer (GmacD3D12)</a></li>
+      <li class="toc-item toc-l2"><a href="#bundled-inside-the-application">Bundled inside the application</a></li>
+      <li class="toc-item toc-l2"><a href="#legacy-channel-v311-and-archive-integrity">Legacy channel (v3.1.1) and archive integrity</a></li>
       <li class="toc-item toc-l2"><a href="#tracking-cadence">Tracking cadence</a></li>
-      <li class="toc-item toc-l2"><a href="#rationale-for-consuming-upstream-binaries">Rationale for consuming upstream binaries</a></li>
     </ul>
   </aside>
   <article class="doc-article">
     <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
     <h1 class="doc-title">Runtime dependencies</h1>
     <div class="doc-body">
-<p>The Gmac application is built from this repository, but the <strong>Wine runtime</strong> it downloads
-during setup (<code>Libraries.tar.gz</code>) is assembled from third-party binaries. This document is
-the authoritative record of which versions are bundled and where they originate, so that
-the runtime cannot become stale silently and any maintainer can reproduce a build. Update
-it whenever a runtime release is produced.</p>
-<p>See <a href="release-workflow.html"><code>ReleaseWorkflow.md</code></a> for the assembly and publication procedure,
-and <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/.github/workflows/RuntimeTrack.yml"><code>.github/workflows/RuntimeTrack.yml</code></a> for the
-automation that reports when a bundled component falls behind upstream.</p>
-<p>The application currently pins the <code>gamingRuntime</code> release <code>4.6.12-gaming.1</code> in
-<code>GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift</code>. The table below records the most
-recent fully documented assembly, <code>v3.1.1</code>; complete it when the pinned runtime is
-documented.</p>
-<h2 id="bundled-in-runtime-v311">Bundled in runtime <code>v3.1.1</code></h2>
+<p>Gmac builds its native macOS application from this repository, downloads a pinned Wine gaming runtime (<code>Libraries.tar.gz</code>) during setup, optionally embeds a custom DirectX 12 bridge (<code>gmacmetal</code>), and consumes user-supplied Apple D3DMetal from Game Porting Toolkit. This document records the pinned versions, source repositories, SHA-256 digests, and update cadence so builds remain reproducible.</p>
+<p>See <a href="release-workflow.html"><code>ReleaseWorkflow.md</code></a> for the release and runtime publication procedures, and <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/.github/workflows/RuntimeTrack.yml"><code>.github/workflows/RuntimeTrack.yml</code></a> for automated upstream drift tracking.</p>
+<h2 id="active-gaming-runtime-v4612-gaming1">Active gaming runtime (<code>v4.6.12-gaming.1</code>)</h2>
+<p>The application pins <code>DistributionConfig.gamingRuntime</code> in <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift"><code>GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift</code></a>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Version</strong></td>
+<td><code>4.6.12</code></td>
+</tr>
+<tr>
+<td><strong>Release tag</strong></td>
+<td><code>v4.6.12-gaming.1</code></td>
+</tr>
+<tr>
+<td><strong>Download URL</strong></td>
+<td><code>https://github.com/rolling7ho/gmac/releases/download/v4.6.12-gaming.1/Libraries.tar.gz</code></td>
+</tr>
+<tr>
+<td><strong>Asset size</strong></td>
+<td><code>458.79 MiB</code></td>
+</tr>
+<tr>
+<td><strong>SHA-256</strong></td>
+<td><code>c921be15b98fcb63cf9ef2a1b0f4c1eb5da161fcccf2b5267ec5bec6df785088</code></td>
+</tr>
+</tbody></table></div>
+<h3 id="runtime-selection-logic">Runtime selection logic</h3>
+<p>At setup and update time (<code>GmacWineDownloadView.swift</code> and <code>GmacWineInstaller.shouldUpdateGmacWine()</code>), Gmac fetches <code>DistributionConfig.versionPlistURL</code> (<code>https://frankea.github.io/Whisky/WhiskyWineVersion.plist</code>). When the legacy channel version (<code>3.1.1</code>) is older than <code>DistributionConfig.gamingRuntime.version</code> (<code>4.6.12</code>), Gmac downloads <code>DistributionConfig.gamingRuntimeURL</code> instead and verifies the archive against <code>DistributionConfig.gamingRuntime.sha256</code> before extraction. The installer fails closed on any SHA-256 mismatch.</p>
+<h3 id="source-and-bundled-translation-layers">Source and bundled translation layers</h3>
+<p><code>v4.6.12-gaming.1</code> is built from the <code>winecx-gptk</code> lane (CrossOver 26 changes on Wine 11.16) using <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/runtime/local-build.rb"><code>runtime/local-build.rb</code></a> with <code>MACOSX_DEPLOYMENT_TARGET=15.0</code> and <code>HAVE_PIPE2</code> left undefined so the Mac display driver (<code>winemac.so</code>) runs on macOS 15 and macOS 26 as well as newer releases.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Component</th>
-<th>Bundled version</th>
-<th>Upstream source</th>
+<th>Version or commit</th>
+<th>Source</th>
 <th>Notes</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>Wine</strong></td>
-<td>11.0 (Gcenx <code>11.0_1</code> repack)</td>
-<td><a href="https://github.com/Gcenx/macOS_Wine_builds/releases">Gcenx/macOS_Wine_builds</a></td>
-<td>Wine publishes a new stable release each January; 11.0 is the January 2026 release. The Gcenx tag is <code>11.0_1</code>, a repack of the same Wine 11.0 after the bare <code>11.0</code> tag was retired. <code>RuntimeTrack.yml</code> pins that exact tag.</td>
-</tr>
-<tr>
-<td><strong>DXVK (macOS)</strong></td>
-<td>1.10.3</td>
-<td><a href="https://github.com/Gcenx/DXVK-macOS/releases">Gcenx/DXVK-macOS</a></td>
-<td>Frozen at 1.10.x <strong>by design</strong>: the DXVK 2.x line requires Vulkan 1.3 features that MoltenVK and macOS do not expose. The pin is intentional; do not upgrade to upstream 2.x.</td>
+<td><strong>Wine / CrossOver (<code>winecx</code>)</strong></td>
+<td><code>cea5139d87afca768e1d77d8f263492ae45172a3</code></td>
+<td><a href="https://github.com/rolling7ho/winecx">rolling7ho/winecx</a> (<code>d3dmetal-errno</code> branch)</td>
+<td>Wine 11.16 with CrossOver 26 changes, the Retina fix for hosted Metal layers, Steam Dock/menu/fullscreen fixes, and the <code>ntdll</code> <code>errno</code> stack fix for D3DMetal 4 worker threads.</td>
 </tr>
 <tr>
 <td><strong>DXMT</strong></td>
-<td>0.80</td>
+<td><code>0.80</code></td>
 <td><a href="https://github.com/3Shain/dxmt/releases">3Shain/dxmt</a></td>
-<td>Direct3D 11 to Metal. Bundled from the project&#39;s prebuilt v0.80 release, the <strong>last MIT-licensed</strong> build (v1.0 and later are LGPL; moving past 0.80 is a deliberate relicensing decision, not routine drift). The release ships only the <code>wine_builtin_dll=true</code> asset, whose trio carries winebuild&#39;s &quot;Wine builtin DLL&quot; header marker and is intended for a global <code>lib/wine</code> installation. For per-bottle selection, <code>scripts/assemble-runtime.sh</code> strips that marker from <code>d3d11</code>, <code>dxgi</code> and <code>d3d10core</code> (x64 and x32), reproducing the project&#39;s <code>wine_builtin_dll=false</code> (native) variant, and stages them in <code>Libraries/DXMT/{x64,x32}</code>. The application then copies the native trio into each bottle&#39;s <code>system32</code> and <code>syswow64</code> with <code>dxgi,d3d11,d3d10core=n,b</code>, as it does for DXVK. <code>winemetal</code> remains a builtin: its <code>winemetal.dll</code> is synchronised into both Wine Windows trees, paired with <code>winemetal.so</code> in the Unix tree, and the application copies it into the prefix as the import redirect. Selectable per bottle or per program in app 3.4.0 and later (Experimental); requires a runtime assembled by the current script, because the older builtin-variant payload is rejected, since it would redirect to WineD3D without reporting an error.</td>
+<td>Direct3D 11 and 10 to Metal. Last MIT-licensed release (<code>v1.0</code> and later are LGPL; moving past <code>0.80</code> requires an explicit relicensing decision). Native <code>d3d11.dll</code>, <code>dxgi.dll</code>, and <code>d3d10core.dll</code> reside in <code>Libraries/DXMT/{x64,x32}</code> for per-bottle deployment, while builtin <code>winemetal.dll</code> and <code>winemetal.so</code> reside in the Wine library tree.</td>
 </tr>
 <tr>
-<td><strong>D3DMetal</strong></td>
-<td>from Apple Game Porting Toolkit</td>
-<td><a href="https://developer.apple.com/games/game-porting-toolkit/">Apple GPTK</a></td>
-<td><strong>Apple-proprietary. Extracted, never built.</strong> Redistribution is governed by Apple&#39;s GPTK license; review its terms before bumping. Not bundled in the published runtime, and used only when a GPTK payload exists on disk. Since app 3.5.2 the Recommended backend resolves to DXMT or DXVK when the payload is absent, and the picker disables D3DMetal rather than offering a silent WineD3D fallback.</td>
+<td><strong>DXVK (macOS)</strong></td>
+<td><code>1.10.3</code></td>
+<td><a href="https://github.com/Gcenx/DXVK-macOS/releases">Gcenx/DXVK-macOS</a></td>
+<td>Frozen at <code>1.10.x</code> by design. DXVK <code>2.x</code> requires Vulkan 1.3 features that MoltenVK and macOS do not expose.</td>
 </tr>
 <tr>
 <td><strong>MoltenVK</strong></td>
-<td>confirm against the published archive</td>
+<td>Bundled in the runtime lane</td>
 <td><a href="https://github.com/KhronosGroup/MoltenVK/releases">KhronosGroup/MoltenVK</a></td>
-<td>Vulkan to Metal translation; underpins the DXVK path.</td>
+<td>Vulkan to Metal translation underpinning the DXVK path.</td>
 </tr>
 <tr>
 <td><strong>msync</strong></td>
-<td>confirm against the published archive</td>
+<td>Included in <code>winecx</code></td>
 <td><a href="https://github.com/marzent/wine-msync">marzent/wine-msync</a></td>
-<td>Mach-based synchronisation patch included in the Gcenx build.</td>
+<td>Mach-based synchronization patch integrated into the Wine build.</td>
 </tr>
 </tbody></table></div>
-<blockquote>
-<p>The exact MoltenVK and msync versions are contained in the published <code>Libraries.tar.gz</code>,
-not in this repository. When producing a runtime release, read them from the build and
-record them here so that this table remains authoritative.</p>
-</blockquote>
-<h3 id="archive-integrity">Archive integrity</h3>
+<h2 id="user-supplied-apple-d3dmetal-game-porting-toolkit">User-supplied Apple D3DMetal (Game Porting Toolkit)</h2>
+<p>Apple D3DMetal is proprietary software owned by Apple and is never bundled in <code>Libraries.tar.gz</code> or committed to this repository. Users obtain the Game Porting Toolkit disk image directly from <a href="https://developer.apple.com/games/game-porting-toolkit/">Apple Developer</a> and import it through <strong>Gmac Settings › Graphics</strong> or the PC <strong>Graphics</strong> picker.</p>
+<p><code>GPTKImporter</code> verifies Apple&#39;s code signature on every binary and checks that <code>external/</code> contains no unsealed items, stores the payload outside <code>Libraries/</code> so it persists across runtime updates, and deploys it into <code>Libraries/Wine/lib/</code> only when the installed Wine runtime is GPTK-capable. When D3DMetal is not deployed, <code>GraphicsBackendResolver</code> selects <strong>DXMT</strong> (or <strong>DXVK</strong> if DXMT is unavailable) for Automatic bottles.</p>
+<h2 id="optional-gmac-directx-12-layer-gmacd3d12">Optional Gmac DirectX 12 layer (<code>GmacD3D12</code>)</h2>
+<p>Gmac includes support for a separate DirectX 12 to Metal bridge (<code>gmacmetal</code>) built from <a href="https://github.com/rolling7ho/dxmt">rolling7ho/dxmt</a> (<code>teardown</code> branch). Because its unix-call bridge uses the <code>gmacmetal</code> name instead of <code>winemetal</code>, it sits beside the runtime&#39;s DirectX 11 DXMT payload without interfering with it.</p>
+<p><a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/build-gmac-d3d12.sh"><code>scripts/build-gmac-d3d12.sh</code></a> cross-compiles the 64-bit and 32-bit DLLs and unixlib from a sibling <code>../dxmt</code> checkout (or <code>$GMAC_DXMT_DIR</code>) and stages them into <code>build/gmac-d3d12/</code>. <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/install-local.sh"><code>scripts/install-local.sh</code></a> embeds <code>build/gmac-d3d12/</code> into <code>Gmac.app/Contents/Resources/GmacD3D12/</code> when present.</p>
+<h2 id="bundled-inside-the-application">Bundled inside the application</h2>
+<p>Several tools ship directly inside <code>Gmac.app/Contents/Resources/</code> rather than inside <code>Libraries.tar.gz</code>, so updates reach users through normal application releases without a runtime download.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Pinned version</th>
+<th>Repository path</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>winetricks</strong></td>
+<td><code>20260125</code></td>
+<td><a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/Libraries/winetricks"><code>Libraries/winetricks</code></a></td>
+<td>POSIX shell script (LGPL-2.1+) from <a href="https://github.com/Winetricks/winetricks/releases/tag/20260125">Winetricks/winetricks</a>. Copied by the &quot;Embed GmacCmd&quot; build phase and asserted by CI.</td>
+</tr>
+<tr>
+<td><strong>verbs.txt</strong></td>
+<td>Generated from <code>20260125</code></td>
+<td><a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/Libraries/verbs.txt"><code>Libraries/verbs.txt</code></a></td>
+<td>Verb catalog displayed in the Winetricks sheet. Regenerate after bumping winetricks with <code>sh Libraries/winetricks list-all</code> and remove the leading platform-warning line so the file starts at the first <code>=====</code> header.</td>
+</tr>
+<tr>
+<td><strong>cabextract</strong></td>
+<td>Prebuilt arm64 Mach-O</td>
+<td><a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/Libraries/cabextract"><code>Libraries/cabextract</code></a></td>
+<td>Extracts Microsoft <code>.cab</code> archives for winetricks verbs, from <a href="https://www.cabextract.org.uk/">cabextract.org.uk</a>. Code-signed on copy.</td>
+</tr>
+<tr>
+<td><strong>GmacDiscordBridge.exe</strong></td>
+<td>Committed PE binary</td>
+<td><a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/GmacKit/Sources/GmacKit/Discord/Resources/GmacDiscordBridge.exe"><code>GmacKit/Sources/GmacKit/Discord/Resources/GmacDiscordBridge.exe</code></a></td>
+<td>Built from <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/discord-bridge/bridge.c"><code>scripts/discord-bridge/bridge.c</code></a> with <code>mingw-w64</code>. Relays the Discord RPC named pipe to the host macOS socket.</td>
+</tr>
+<tr>
+<td><strong>GmacAudioTest.exe</strong></td>
+<td>Committed PE binary</td>
+<td><a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/Gmac/Resources/GmacAudioTest.exe"><code>Gmac/Resources/GmacAudioTest.exe</code></a></td>
+<td>Built from <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/gmac_audio_test.c"><code>scripts/gmac_audio_test.c</code></a> via <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/build_audio_test.sh"><code>scripts/build_audio_test.sh</code></a>. Used by audio troubleshooting probes.</td>
+</tr>
+</tbody></table></div>
+<p>Swift Package Manager dependencies declared in <code>Gmac.xcodeproj</code> and <code>GmacKit/Package.swift</code>:</p>
+<ul>
+<li><a href="https://github.com/sparkle-project/Sparkle">Sparkle</a>: application auto-updater.</li>
+<li><a href="https://github.com/SwiftPackageIndex/SemanticVersion">SemanticVersion</a>: version parsing and comparisons.</li>
+<li><a href="https://github.com/apple/swift-argument-parser">swift-argument-parser</a>: command-line parsing for <code>GmacCmd</code>.</li>
+<li><a href="https://github.com/swiftlang/swift-docc-plugin">swift-docc-plugin</a>: DocC documentation generation for <code>GmacKit</code>.</li>
+</ul>
+<h2 id="legacy-channel-v311-and-archive-integrity">Legacy channel (<code>v3.1.1</code>) and archive integrity</h2>
+<p>Prior to the custom <code>rolling7ho/winecx</code> gaming runtime, the upstream fork channel published <code>Libraries.tar.gz</code> assemblies via <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/scripts/assemble-runtime.sh"><code>scripts/assemble-runtime.sh</code></a> and <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/dist/pages/WhiskyWineVersion.plist"><code>dist/pages/WhiskyWineVersion.plist</code></a>. <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/.github/workflows/RuntimeTrack.yml"><code>.github/workflows/RuntimeTrack.yml</code></a> continues to track upstream Wine (<code>Gcenx/macOS_Wine_builds</code> <code>11.0_1</code>), DXVK (<code>Gcenx/DXVK-macOS</code> <code>v1.10.3-20230507-repack</code>), and DXMT (<code>3Shain/dxmt</code> <code>v0.80</code>) weekly.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -154,6 +225,10 @@ record them here so that this table remains authoritative.</p>
 </tr>
 </thead>
 <tbody><tr>
+<td><code>Libraries.tar.gz</code> (<code>v4.6.12-gaming.1</code>)</td>
+<td><code>c921be15b98fcb63cf9ef2a1b0f4c1eb5da161fcccf2b5267ec5bec6df785088</code></td>
+</tr>
+<tr>
 <td><code>Libraries.tar.gz</code> (<code>v3.1.1</code>)</td>
 <td><code>01f3a1b43b98065fe20c529c1023b61dd79a6d2ad93bba6040865f646481ccf3</code></td>
 </tr>
@@ -166,71 +241,15 @@ record them here so that this table remains authoritative.</p>
 <td><code>9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8</code></td>
 </tr>
 </tbody></table></div>
-<p>The same digest is published in
-<a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/dist/pages/WhiskyWineVersion.plist"><code>dist/pages/WhiskyWineVersion.plist</code></a> under the
-<code>sha256</code> key. The application verifies the downloaded archive against it before
-installation and <strong>fails closed</strong> on a mismatch, the common cause of which is a corrupted
-or truncated download. This is an integrity check, not a substitute for transport security.
-When producing a runtime release, compute the digest of the exact published asset
-(<code>shasum -a 256 Libraries.tar.gz</code>) and update <strong>both</strong> this table and the plist; an
-incorrect value blocks every fresh installation.</p>
-<h2 id="bundled-in-the-application">Bundled in the application</h2>
-<p>These files ship <strong>inside the application bundle</strong> (<code>Gmac.app/Contents/Resources/</code>). They
-are committed to this repository under <a href="https://github.com/rolling7ho/gmac/tree/main/Libraries"><code>Libraries/</code></a> and copied in by the
-application target&#39;s &quot;Embed GmacCmd&quot; build phase. They are <strong>not</strong> part of the downloaded
-<code>Libraries.tar.gz</code> runtime: bundling them in the application means that a fix reaches every
-installation through a normal application update, with no runtime download.</p>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>Component</th>
-<th>Pinned version</th>
-<th>Upstream source</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>winetricks</strong></td>
-<td><code>20260125</code></td>
-<td><a href="https://github.com/Winetricks/winetricks/releases/tag/20260125">Winetricks/winetricks</a></td>
-<td>Self-contained POSIX shell script (LGPL-2.1+). Drives dependency installations (VC++, .NET, DirectX, fonts) and verb queries. Invoked as <code>bash winetricks &lt;verb&gt;</code> with the bundled <code>cabextract</code> and the runtime&#39;s <code>Wine/bin</code> on <code>PATH</code>. To bump, fetch <code>src/winetricks</code> at a newer release tag and regenerate <code>verbs.txt</code>.</td>
-</tr>
-<tr>
-<td><strong>verbs.txt</strong></td>
-<td>generated from winetricks <code>20260125</code></td>
-<td>produced by <code>winetricks list-all</code></td>
-<td>Verb catalog displayed in the Winetricks browser. Regenerate whenever winetricks is bumped: <code>sh Libraries/winetricks list-all</code>, then remove the leading platform-warning line so the file begins at the first <code>=====</code> category header.</td>
-</tr>
-<tr>
-<td><strong>cabextract</strong></td>
-<td>prebuilt arm64 binary</td>
-<td><a href="https://www.cabextract.org.uk/">cabextract.org.uk</a></td>
-<td>Extracts Microsoft <code>.cab</code> archives and is a hard dependency of many winetricks verbs. Committed as a Mach-O executable that is code-signed on copy.</td>
-</tr>
-</tbody></table></div>
+<p>When publishing any runtime release, compute the digest of the exact uploaded <code>Libraries.tar.gz</code> file with <code>shasum -a 256 Libraries.tar.gz</code> and update <code>DistributionConfig.gamingRuntime</code> (for gaming runtimes) or <code>dist/pages/WhiskyWineVersion.plist</code> (for legacy channel builds), together with this table.</p>
 <h2 id="tracking-cadence">Tracking cadence</h2>
 <ul>
-<li><strong>Wine:</strong> check each January for the new stable release (next expected: Wine 12,
-approximately January 2027). Test before bundling.</li>
-<li><strong>Wine, DXVK-macOS and DXMT:</strong> <code>RuntimeTrack.yml</code> polls these GitHub release feeds weekly
-and opens an issue when a bundled version falls behind. Triage is manual; bumping is a
-deliberate and tested decision.</li>
-<li><strong>D3DMetal (GPTK):</strong> Apple distributes it as a Game Porting Toolkit download without a
-GitHub release feed, so it is <strong>tracked manually</strong>. Check Apple&#39;s GPTK page when a new
-GPTK is released.</li>
-<li><strong>Security:</strong> a critical Wine or DXVK CVE should trigger an out-of-band runtime rebuild and
-application release. See <code>SECURITY.md</code>.</li>
-<li><strong>winetricks:</strong> releases approximately monthly and is tracked manually, since no feed
-exists in <code>RuntimeTrack.yml</code>. Bump it when a required verb&#39;s download URL breaks or a new
-component is required. It ships with an application release, not a runtime release.</li>
+<li><strong>Gaming runtime (<code>rolling7ho/winecx</code> and <code>rolling7ho/dxmt</code>):</strong> update manually when upstream CrossOver/Wine changes, Retina fixes, or D3DMetal compatibility fixes are needed. Rebuild via <code>runtime/local-build.rb</code> and verify with <code>scripts/build-gmac-d3d12.sh</code>.</li>
+<li><strong>Upstream Wine, DXVK-macOS, and DXMT feeds:</strong> <code>.github/workflows/RuntimeTrack.yml</code> polls these GitHub release feeds weekly and opens an issue if a pinned tag falls behind. Bumping any pin is a manual, tested decision.</li>
+<li><strong>D3DMetal (Game Porting Toolkit):</strong> Apple distributes GPTK without a GitHub release feed; monitor <a href="https://developer.apple.com/games/game-porting-toolkit/">Apple&#39;s GPTK page</a> manually for compatibility changes.</li>
+<li><strong>winetricks:</strong> releases approximately monthly and is bumped manually when a verb download URL breaks or a new dependency is required.</li>
+<li><strong>Security:</strong> critical Wine, DXVK, or DXMT vulnerabilities trigger an out-of-band runtime rebuild and application release per <a href="security.html"><code>SECURITY.md</code></a>.</li>
 </ul>
-<h2 id="rationale-for-consuming-upstream-binaries">Rationale for consuming upstream binaries</h2>
-<p>Building and maintaining the macOS Wine runtime is the most specialised and fragile task in
-this ecosystem; it is effectively the full-time role of the Gcenx project and CodeWeavers&#39;
-paid team. On a project with a single maintainer, assuming that responsibility would
-increase the bus-factor risk it is intended to reduce. The project therefore consumes
-upstream binaries and invests in discipline instead: pinned versions, automated staleness
-detection and a documented, reproducible assembly procedure.</p>
 
     </div>
     <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/docs/DEPENDENCIES.md">Mirrored from <code>docs/DEPENDENCIES.md</code></a></p>
@@ -301,91 +320,89 @@ detection and a documented, reproducible assembly procedure.</p>
 </main>
 <script type="text/plain" id="doc-markdown-source"># Runtime dependencies
 
-The Gmac application is built from this repository, but the **Wine runtime** it downloads
-during setup (`Libraries.tar.gz`) is assembled from third-party binaries. This document is
-the authoritative record of which versions are bundled and where they originate, so that
-the runtime cannot become stale silently and any maintainer can reproduce a build. Update
-it whenever a runtime release is produced.
+Gmac builds its native macOS application from this repository, downloads a pinned Wine gaming runtime (`Libraries.tar.gz`) during setup, optionally embeds a custom DirectX 12 bridge (`gmacmetal`), and consumes user-supplied Apple D3DMetal from Game Porting Toolkit. This document records the pinned versions, source repositories, SHA-256 digests, and update cadence so builds remain reproducible.
 
-See [`ReleaseWorkflow.md`](ReleaseWorkflow.md) for the assembly and publication procedure,
-and [`.github/workflows/RuntimeTrack.yml`](../.github/workflows/RuntimeTrack.yml) for the
-automation that reports when a bundled component falls behind upstream.
+See [`ReleaseWorkflow.md`](ReleaseWorkflow.md) for the release and runtime publication procedures, and [`.github/workflows/RuntimeTrack.yml`](../.github/workflows/RuntimeTrack.yml) for automated upstream drift tracking.
 
-The application currently pins the `gamingRuntime` release `4.6.12-gaming.1` in
-`GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift`. The table below records the most
-recent fully documented assembly, `v3.1.1`; complete it when the pinned runtime is
-documented.
+## Active gaming runtime (`v4.6.12-gaming.1`)
 
-## Bundled in runtime `v3.1.1`
+The application pins `DistributionConfig.gamingRuntime` in [`GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift`](../GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift):
 
-| Component | Bundled version | Upstream source | Notes |
-|-----------|-----------------|-----------------|-------|
-| **Wine** | 11.0 (Gcenx `11.0_1` repack) | [Gcenx/macOS_Wine_builds](https://github.com/Gcenx/macOS_Wine_builds/releases) | Wine publishes a new stable release each January; 11.0 is the January 2026 release. The Gcenx tag is `11.0_1`, a repack of the same Wine 11.0 after the bare `11.0` tag was retired. `RuntimeTrack.yml` pins that exact tag. |
-| **DXVK (macOS)** | 1.10.3 | [Gcenx/DXVK-macOS](https://github.com/Gcenx/DXVK-macOS/releases) | Frozen at 1.10.x **by design**: the DXVK 2.x line requires Vulkan 1.3 features that MoltenVK and macOS do not expose. The pin is intentional; do not upgrade to upstream 2.x. |
-| **DXMT** | 0.80 | [3Shain/dxmt](https://github.com/3Shain/dxmt/releases) | Direct3D 11 to Metal. Bundled from the project's prebuilt v0.80 release, the **last MIT-licensed** build (v1.0 and later are LGPL; moving past 0.80 is a deliberate relicensing decision, not routine drift). The release ships only the `wine_builtin_dll=true` asset, whose trio carries winebuild's "Wine builtin DLL" header marker and is intended for a global `lib/wine` installation. For per-bottle selection, `scripts/assemble-runtime.sh` strips that marker from `d3d11`, `dxgi` and `d3d10core` (x64 and x32), reproducing the project's `wine_builtin_dll=false` (native) variant, and stages them in `Libraries/DXMT/{x64,x32}`. The application then copies the native trio into each bottle's `system32` and `syswow64` with `dxgi,d3d11,d3d10core=n,b`, as it does for DXVK. `winemetal` remains a builtin: its `winemetal.dll` is synchronised into both Wine Windows trees, paired with `winemetal.so` in the Unix tree, and the application copies it into the prefix as the import redirect. Selectable per bottle or per program in app 3.4.0 and later (Experimental); requires a runtime assembled by the current script, because the older builtin-variant payload is rejected, since it would redirect to WineD3D without reporting an error. |
-| **D3DMetal** | from Apple Game Porting Toolkit | [Apple GPTK](https://developer.apple.com/games/game-porting-toolkit/) | **Apple-proprietary. Extracted, never built.** Redistribution is governed by Apple's GPTK license; review its terms before bumping. Not bundled in the published runtime, and used only when a GPTK payload exists on disk. Since app 3.5.2 the Recommended backend resolves to DXMT or DXVK when the payload is absent, and the picker disables D3DMetal rather than offering a silent WineD3D fallback. |
-| **MoltenVK** | confirm against the published archive | [KhronosGroup/MoltenVK](https://github.com/KhronosGroup/MoltenVK/releases) | Vulkan to Metal translation; underpins the DXVK path. |
-| **msync** | confirm against the published archive | [marzent/wine-msync](https://github.com/marzent/wine-msync) | Mach-based synchronisation patch included in the Gcenx build. |
+| Field | Value |
+|---|---|
+| **Version** | `4.6.12` |
+| **Release tag** | `v4.6.12-gaming.1` |
+| **Download URL** | `https://github.com/rolling7ho/gmac/releases/download/v4.6.12-gaming.1/Libraries.tar.gz` |
+| **Asset size** | `458.79 MiB` |
+| **SHA-256** | `c921be15b98fcb63cf9ef2a1b0f4c1eb5da161fcccf2b5267ec5bec6df785088` |
 
-> The exact MoltenVK and msync versions are contained in the published `Libraries.tar.gz`,
-> not in this repository. When producing a runtime release, read them from the build and
-> record them here so that this table remains authoritative.
+### Runtime selection logic
 
-### Archive integrity
+At setup and update time (`GmacWineDownloadView.swift` and `GmacWineInstaller.shouldUpdateGmacWine()`), Gmac fetches `DistributionConfig.versionPlistURL` (`https://frankea.github.io/Whisky/WhiskyWineVersion.plist`). When the legacy channel version (`3.1.1`) is older than `DistributionConfig.gamingRuntime.version` (`4.6.12`), Gmac downloads `DistributionConfig.gamingRuntimeURL` instead and verifies the archive against `DistributionConfig.gamingRuntime.sha256` before extraction. The installer fails closed on any SHA-256 mismatch.
+
+### Source and bundled translation layers
+
+`v4.6.12-gaming.1` is built from the `winecx-gptk` lane (CrossOver 26 changes on Wine 11.16) using [`runtime/local-build.rb`](../runtime/local-build.rb) with `MACOSX_DEPLOYMENT_TARGET=15.0` and `HAVE_PIPE2` left undefined so the Mac display driver (`winemac.so`) runs on macOS 15 and macOS 26 as well as newer releases.
+
+| Component | Version or commit | Source | Notes |
+|---|---|---|---|
+| **Wine / CrossOver (`winecx`)** | `cea5139d87afca768e1d77d8f263492ae45172a3` | [rolling7ho/winecx](https://github.com/rolling7ho/winecx) (`d3dmetal-errno` branch) | Wine 11.16 with CrossOver 26 changes, the Retina fix for hosted Metal layers, Steam Dock/menu/fullscreen fixes, and the `ntdll` `errno` stack fix for D3DMetal 4 worker threads. |
+| **DXMT** | `0.80` | [3Shain/dxmt](https://github.com/3Shain/dxmt/releases) | Direct3D 11 and 10 to Metal. Last MIT-licensed release (`v1.0` and later are LGPL; moving past `0.80` requires an explicit relicensing decision). Native `d3d11.dll`, `dxgi.dll`, and `d3d10core.dll` reside in `Libraries/DXMT/{x64,x32}` for per-bottle deployment, while builtin `winemetal.dll` and `winemetal.so` reside in the Wine library tree. |
+| **DXVK (macOS)** | `1.10.3` | [Gcenx/DXVK-macOS](https://github.com/Gcenx/DXVK-macOS/releases) | Frozen at `1.10.x` by design. DXVK `2.x` requires Vulkan 1.3 features that MoltenVK and macOS do not expose. |
+| **MoltenVK** | Bundled in the runtime lane | [KhronosGroup/MoltenVK](https://github.com/KhronosGroup/MoltenVK/releases) | Vulkan to Metal translation underpinning the DXVK path. |
+| **msync** | Included in `winecx` | [marzent/wine-msync](https://github.com/marzent/wine-msync) | Mach-based synchronization patch integrated into the Wine build. |
+
+## User-supplied Apple D3DMetal (Game Porting Toolkit)
+
+Apple D3DMetal is proprietary software owned by Apple and is never bundled in `Libraries.tar.gz` or committed to this repository. Users obtain the Game Porting Toolkit disk image directly from [Apple Developer](https://developer.apple.com/games/game-porting-toolkit/) and import it through **Gmac Settings › Graphics** or the PC **Graphics** picker.
+
+`GPTKImporter` verifies Apple's code signature on every binary and checks that `external/` contains no unsealed items, stores the payload outside `Libraries/` so it persists across runtime updates, and deploys it into `Libraries/Wine/lib/` only when the installed Wine runtime is GPTK-capable. When D3DMetal is not deployed, `GraphicsBackendResolver` selects **DXMT** (or **DXVK** if DXMT is unavailable) for Automatic bottles.
+
+## Optional Gmac DirectX 12 layer (`GmacD3D12`)
+
+Gmac includes support for a separate DirectX 12 to Metal bridge (`gmacmetal`) built from [rolling7ho/dxmt](https://github.com/rolling7ho/dxmt) (`teardown` branch). Because its unix-call bridge uses the `gmacmetal` name instead of `winemetal`, it sits beside the runtime's DirectX 11 DXMT payload without interfering with it.
+
+[`scripts/build-gmac-d3d12.sh`](../scripts/build-gmac-d3d12.sh) cross-compiles the 64-bit and 32-bit DLLs and unixlib from a sibling `../dxmt` checkout (or `$GMAC_DXMT_DIR`) and stages them into `build/gmac-d3d12/`. [`scripts/install-local.sh`](../scripts/install-local.sh) embeds `build/gmac-d3d12/` into `Gmac.app/Contents/Resources/GmacD3D12/` when present.
+
+## Bundled inside the application
+
+Several tools ship directly inside `Gmac.app/Contents/Resources/` rather than inside `Libraries.tar.gz`, so updates reach users through normal application releases without a runtime download.
+
+| Resource | Pinned version | Repository path | Notes |
+|---|---|---|---|
+| **winetricks** | `20260125` | [`Libraries/winetricks`](../Libraries/winetricks) | POSIX shell script (LGPL-2.1+) from [Winetricks/winetricks](https://github.com/Winetricks/winetricks/releases/tag/20260125). Copied by the "Embed GmacCmd" build phase and asserted by CI. |
+| **verbs.txt** | Generated from `20260125` | [`Libraries/verbs.txt`](../Libraries/verbs.txt) | Verb catalog displayed in the Winetricks sheet. Regenerate after bumping winetricks with `sh Libraries/winetricks list-all` and remove the leading platform-warning line so the file starts at the first `=====` header. |
+| **cabextract** | Prebuilt arm64 Mach-O | [`Libraries/cabextract`](../Libraries/cabextract) | Extracts Microsoft `.cab` archives for winetricks verbs, from [cabextract.org.uk](https://www.cabextract.org.uk/). Code-signed on copy. |
+| **GmacDiscordBridge.exe** | Committed PE binary | [`GmacKit/Sources/GmacKit/Discord/Resources/GmacDiscordBridge.exe`](../GmacKit/Sources/GmacKit/Discord/Resources/GmacDiscordBridge.exe) | Built from [`scripts/discord-bridge/bridge.c`](../scripts/discord-bridge/bridge.c) with `mingw-w64`. Relays the Discord RPC named pipe to the host macOS socket. |
+| **GmacAudioTest.exe** | Committed PE binary | [`Gmac/Resources/GmacAudioTest.exe`](../Gmac/Resources/GmacAudioTest.exe) | Built from [`scripts/gmac_audio_test.c`](../scripts/gmac_audio_test.c) via [`scripts/build_audio_test.sh`](../scripts/build_audio_test.sh). Used by audio troubleshooting probes. |
+
+Swift Package Manager dependencies declared in `Gmac.xcodeproj` and `GmacKit/Package.swift`:
+
+- [Sparkle](https://github.com/sparkle-project/Sparkle): application auto-updater.
+- [SemanticVersion](https://github.com/SwiftPackageIndex/SemanticVersion): version parsing and comparisons.
+- [swift-argument-parser](https://github.com/apple/swift-argument-parser): command-line parsing for `GmacCmd`.
+- [swift-docc-plugin](https://github.com/swiftlang/swift-docc-plugin): DocC documentation generation for `GmacKit`.
+
+## Legacy channel (`v3.1.1`) and archive integrity
+
+Prior to the custom `rolling7ho/winecx` gaming runtime, the upstream fork channel published `Libraries.tar.gz` assemblies via [`scripts/assemble-runtime.sh`](../scripts/assemble-runtime.sh) and [`dist/pages/WhiskyWineVersion.plist`](../dist/pages/WhiskyWineVersion.plist). [`.github/workflows/RuntimeTrack.yml`](../.github/workflows/RuntimeTrack.yml) continues to track upstream Wine (`Gcenx/macOS_Wine_builds` `11.0_1`), DXVK (`Gcenx/DXVK-macOS` `v1.10.3-20230507-repack`), and DXMT (`3Shain/dxmt` `v0.80`) weekly.
 
 | Artifact | SHA-256 |
-|----------|---------|
+|---|---|
+| `Libraries.tar.gz` (`v4.6.12-gaming.1`) | `c921be15b98fcb63cf9ef2a1b0f4c1eb5da161fcccf2b5267ec5bec6df785088` |
 | `Libraries.tar.gz` (`v3.1.1`) | `01f3a1b43b98065fe20c529c1023b61dd79a6d2ad93bba6040865f646481ccf3` |
 | `Libraries.tar.gz` (`v3.1.0`) | `86e2d54a60736f27e6ce82cacf2a91e500c20f6d32ae959a16afd912e6b03096` |
 | `Libraries.tar.gz` (`v3.0.0`) | `9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8` |
 
-The same digest is published in
-[`dist/pages/WhiskyWineVersion.plist`](../dist/pages/WhiskyWineVersion.plist) under the
-`sha256` key. The application verifies the downloaded archive against it before
-installation and **fails closed** on a mismatch, the common cause of which is a corrupted
-or truncated download. This is an integrity check, not a substitute for transport security.
-When producing a runtime release, compute the digest of the exact published asset
-(`shasum -a 256 Libraries.tar.gz`) and update **both** this table and the plist; an
-incorrect value blocks every fresh installation.
-
-## Bundled in the application
-
-These files ship **inside the application bundle** (`Gmac.app/Contents/Resources/`). They
-are committed to this repository under [`Libraries/`](../Libraries) and copied in by the
-application target's "Embed GmacCmd" build phase. They are **not** part of the downloaded
-`Libraries.tar.gz` runtime: bundling them in the application means that a fix reaches every
-installation through a normal application update, with no runtime download.
-
-| Component | Pinned version | Upstream source | Notes |
-|-----------|----------------|-----------------|-------|
-| **winetricks** | `20260125` | [Winetricks/winetricks](https://github.com/Winetricks/winetricks/releases/tag/20260125) | Self-contained POSIX shell script (LGPL-2.1+). Drives dependency installations (VC++, .NET, DirectX, fonts) and verb queries. Invoked as `bash winetricks <verb>` with the bundled `cabextract` and the runtime's `Wine/bin` on `PATH`. To bump, fetch `src/winetricks` at a newer release tag and regenerate `verbs.txt`. |
-| **verbs.txt** | generated from winetricks `20260125` | produced by `winetricks list-all` | Verb catalog displayed in the Winetricks browser. Regenerate whenever winetricks is bumped: `sh Libraries/winetricks list-all`, then remove the leading platform-warning line so the file begins at the first `=====` category header. |
-| **cabextract** | prebuilt arm64 binary | [cabextract.org.uk](https://www.cabextract.org.uk/) | Extracts Microsoft `.cab` archives and is a hard dependency of many winetricks verbs. Committed as a Mach-O executable that is code-signed on copy. |
+When publishing any runtime release, compute the digest of the exact uploaded `Libraries.tar.gz` file with `shasum -a 256 Libraries.tar.gz` and update `DistributionConfig.gamingRuntime` (for gaming runtimes) or `dist/pages/WhiskyWineVersion.plist` (for legacy channel builds), together with this table.
 
 ## Tracking cadence
 
-- **Wine:** check each January for the new stable release (next expected: Wine 12,
-  approximately January 2027). Test before bundling.
-- **Wine, DXVK-macOS and DXMT:** `RuntimeTrack.yml` polls these GitHub release feeds weekly
-  and opens an issue when a bundled version falls behind. Triage is manual; bumping is a
-  deliberate and tested decision.
-- **D3DMetal (GPTK):** Apple distributes it as a Game Porting Toolkit download without a
-  GitHub release feed, so it is **tracked manually**. Check Apple's GPTK page when a new
-  GPTK is released.
-- **Security:** a critical Wine or DXVK CVE should trigger an out-of-band runtime rebuild and
-  application release. See `SECURITY.md`.
-- **winetricks:** releases approximately monthly and is tracked manually, since no feed
-  exists in `RuntimeTrack.yml`. Bump it when a required verb's download URL breaks or a new
-  component is required. It ships with an application release, not a runtime release.
-
-## Rationale for consuming upstream binaries
-
-Building and maintaining the macOS Wine runtime is the most specialised and fragile task in
-this ecosystem; it is effectively the full-time role of the Gcenx project and CodeWeavers'
-paid team. On a project with a single maintainer, assuming that responsibility would
-increase the bus-factor risk it is intended to reduce. The project therefore consumes
-upstream binaries and invests in discipline instead: pinned versions, automated staleness
-detection and a documented, reproducible assembly procedure.
+- **Gaming runtime (`rolling7ho/winecx` and `rolling7ho/dxmt`):** update manually when upstream CrossOver/Wine changes, Retina fixes, or D3DMetal compatibility fixes are needed. Rebuild via `runtime/local-build.rb` and verify with `scripts/build-gmac-d3d12.sh`.
+- **Upstream Wine, DXVK-macOS, and DXMT feeds:** `.github/workflows/RuntimeTrack.yml` polls these GitHub release feeds weekly and opens an issue if a pinned tag falls behind. Bumping any pin is a manual, tested decision.
+- **D3DMetal (Game Porting Toolkit):** Apple distributes GPTK without a GitHub release feed; monitor [Apple's GPTK page](https://developer.apple.com/games/game-porting-toolkit/) manually for compatibility changes.
+- **winetricks:** releases approximately monthly and is bumped manually when a verb download URL breaks or a new dependency is required.
+- **Security:** critical Wine, DXVK, or DXMT vulnerabilities trigger an out-of-band runtime rebuild and application release per [`SECURITY.md`](../SECURITY.md).
 </script>
 <footer class="site-footer">
   <div class="wrap footer-grid">

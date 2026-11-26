@@ -88,72 +88,72 @@
     <div class="doc-body">
 <p align="center">
   <img src="https://raw.githubusercontent.com/rolling7ho/gmac/main/images/library.png" width="760" alt="The Gmac library showing installed Windows games">
-</p><p>Gmac provisions an isolated Windows environment (a Wine prefix) on your Mac, lets you install Steam, Epic Games, GOG, Battle.net, or standalone Windows titles into it, and presents your games in a unified library. No configuration is required to begin; per-game settings exist for titles that need them.</p>
+</p><p>Gmac provisions an isolated Windows environment (a Wine prefix, called a PC in the interface and a bottle in internal paths) on your Mac, installs Steam or other Windows game launchers into it, and presents your games in a unified library. Default settings apply automatically, and per-PC and per-program overrides exist for titles that require tuning.</p>
 <p>Gmac is a fork of <a href="https://github.com/whisky-app/whisky">Whisky</a>, via <a href="https://github.com/frankea/Whisky">frankea&#39;s community fork</a>.</p>
 <h2 id="features">Features</h2>
 <p><strong>Getting started</strong></p>
 <ul>
-<li><strong>Guided setup.</strong> Create a PC, choose graphics defaults, and install your preferred launcher or game executable.</li>
-<li><strong>Library-first interface.</strong> Installed games appear as cards with their artwork. Select a card to play.</li>
-<li><strong>Add to Dock.</strong> Any game can receive its own Dock icon that starts it without opening Gmac.</li>
+<li><strong>Guided Steam setup.</strong> The built-in four-step setup guide creates a dedicated Steam PC, configures graphics defaults (including locating Apple&#39;s Game Porting Toolkit download), downloads the official Steam installer from Valve, and opens Steam.</li>
+<li><strong>Library-first interface.</strong> Installed Steam games and pinned Windows programs appear as cards with artwork. Select a card to start the game.</li>
+<li><strong>Add to Dock.</strong> Any game or pinned program can receive a standalone Dock shortcut <code>.app</code> bundle in <code>~/Applications</code> that launches it without opening the main Gmac window.</li>
 </ul>
 <p><strong>Graphics and performance</strong></p>
 <ul>
-<li><strong>Graphics backend by DirectX version.</strong> Select Automatic, or choose per game: DirectX 12 (Apple D3DMetal or <code>gmacmetal</code>), DirectX 11 (DXMT), or DirectX 9 and OpenGL/Vulkan (WineD3D). Automatic inspects each game&#39;s imports.</li>
-<li><strong>DirectX 12.</strong> Gmac guides you to Apple&#39;s Game Porting Toolkit download, then locates and installs it.</li>
-<li><strong>Native resolution.</strong> Games render at the display&#39;s native pixel count, and launchers remain sharp on Retina displays.</li>
-<li><strong>Faster mode.</strong> Renders a game at a lower resolution and upscales it with MetalFX and sharpening.</li>
-<li><strong>macOS Game Mode.</strong> Engages automatically when a game runs full screen.</li>
+<li><strong>Graphics backend by DirectX version.</strong> Select <strong>Automatic (Recommended)</strong> or choose a backend per PC or per program: <strong>DirectX 12</strong> (Apple D3DMetal), <strong>DirectX 11</strong> (DXMT), <strong>DirectX 11 (Compatibility)</strong> (DXVK on MoltenVK), <strong>DirectX 9 and older</strong>, or <strong>OpenGL and Vulkan</strong> (WineD3D). Automatic inspects each game&#39;s executable imports and selects the matching backend. An optional per-game <strong>Gmac DirectX 12 (DXMT)</strong> (<code>gmacmetal</code>) backend is also available when built and staged locally with <code>scripts/build-gmac-d3d12.sh</code>.</li>
+<li><strong>DirectX 12.</strong> Gmac directs you to Apple&#39;s Game Porting Toolkit download, verifies Apple&#39;s code signature on the disk image, and deploys D3DMetal into the Wine runtime.</li>
+<li><strong>Native resolution.</strong> Games render at the display&#39;s full pixel resolution by default, while Steam and other launchers remain sharp on Retina displays.</li>
+<li><strong>Faster mode.</strong> Steam games can be toggled individually to <strong>Faster</strong> mode to render at half resolution and upscale with MetalFX.</li>
+<li><strong>macOS Game Mode.</strong> Wine processes are marked as games so macOS enables Game Mode automatically when a game runs full screen.</li>
 </ul>
 <p><strong>Everyday use</strong></p>
 <ul>
-<li><strong>Statistics.</strong> Total and recent playtime, most played titles, longest session, and storage used.</li>
+<li><strong>Statistics.</strong> Track total and recent playtime, most played titles, longest session, and storage used under <strong>Gmac › Statistics…</strong> (<code>⇧⌘S</code>).</li>
 <li><strong>Clean quit.</strong> Quitting Gmac stops running launchers and games after confirmation.</li>
-<li><strong>Pre-launch warnings.</strong> Games known not to run, or whose anti-cheat blocks Wine, are flagged.</li>
-<li><strong>Simple reset.</strong> Deleting a PC stops the processes running in it and moves it to the Trash.</li>
+<li><strong>Pre-launch warnings.</strong> Games known not to run, or whose anti-cheat blocks Wine, are flagged before launch.</li>
+<li><strong>Simple reset.</strong> Deleting a PC stops any processes running inside it and moves the PC directory to the Trash.</li>
 </ul>
 <p align="center">
   <img src="https://raw.githubusercontent.com/rolling7ho/gmac/main/images/statistics.png" width="560" alt="Statistics in Gmac settings">
 </p><h2 id="requirements">Requirements</h2>
 <ul>
-<li>A Mac with Apple Silicon (M1 or later)</li>
+<li>Apple Silicon Mac (M1 or later)</li>
 <li>macOS Sequoia 15 or later</li>
-<li>Approximately 1 GB of free space for the engine, in addition to space for games</li>
+<li>Approximately 1 GB of free disk space for the Wine runtime, in addition to disk space for games</li>
 </ul>
 <h2 id="install">Install</h2>
-<p>Gmac is not yet distributed as a signed download, so it is built locally. Xcode 16 or later is required.</p>
+<p>Gmac is built locally because signed notarized disk images are not yet published on GitHub Releases. Xcode 16 or later is required.</p>
 <div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh">git clone https://github.com/rolling7ho/gmac.git
 cd gmac
 scripts/install-local.sh
 </code></pre></div>
-<p>The script builds Gmac, signs it for the local Mac only, and copies it to <code>/Applications</code>. During first-run setup, Gmac downloads its Wine engine, which is approximately 330 MB compressed.</p>
+<p>The script builds Gmac in Release configuration, signs it ad hoc for the local Mac, and installs it to <code>/Applications/Gmac.app</code>. During first-run setup, Gmac downloads its Wine runtime (<code>Libraries.tar.gz</code>), which is approximately 460 MB compressed (458.79 MiB for <code>v4.6.12-gaming.1</code>).</p>
 <h3 id="migrating-from-vodka-or-whisky">Migrating from Vodka or Whisky</h3>
 <ul>
-<li><strong>Earlier builds of this fork</strong> (<code>com.rolling7ho.Vodka</code> and <code>com.rolling7ho.Whisky</code>) are carried over automatically the first time Gmac opens: PCs, engine, logs, settings, and Dock icons.</li>
-<li><strong>The original Whisky:</strong> select <strong>File › Migrate from the Original Whisky</strong>. Bottles are imported in place, so no data is copied.</li>
+<li><strong>Earlier builds of this fork</strong> (<code>com.rolling7ho.Vodka</code> and <code>com.rolling7ho.Whisky</code>) migrate automatically the first time Gmac opens: PCs, the Wine runtime, logs, settings, and Dock shortcut bundles are moved and updated to <code>com.rolling7ho.Gmac</code>.</li>
+<li><strong>The original Whisky:</strong> select <strong>File › Migrate from the Original Whisky…</strong>. Existing bottles are imported in place without copying game files.</li>
 </ul>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <ul>
-<li><a href="steam.html">Steam guide</a>: Steam windows, sign-in, downloads, and game launching</li>
-<li><a href="launcher-troubleshooting.html">Launcher troubleshooting</a>: Epic, EA App, Battle.net, Rockstar, and others</li>
-<li><a href="stability.html">Crashes and freezes</a>: what to collect and how to narrow down the cause</li>
-<li><strong>Help › Run Diagnostics…</strong> in the application produces a report suitable for attaching to an issue.</li>
+<li><a href="steam.html">Steam compatibility guide</a>: Steam setup, graphics routing, downloads, and game launching.</li>
+<li><a href="launcher-troubleshooting.html">Launcher troubleshooting guide</a>: Epic Games Store, EA App, Battle.net, Rockstar Games Launcher, Ubisoft Connect, and Paradox Launcher.</li>
+<li><a href="stability.html">Stability troubleshooting guide</a>: collecting diagnostics and isolating crashes, freezes, and kernel panics.</li>
+<li><strong>In-app diagnostics:</strong> use <strong>Help › Run Diagnostics…</strong> (<code>⇧⌘D</code>) to analyze a program&#39;s last run log, <strong>Help › Troubleshoot…</strong> (<code>⇧⌘T</code>) for guided checks, or <strong>PC › Settings › Advanced › Diagnostic Reports › Generate Stability Diagnostics</strong> for a bounded triage report.</li>
 </ul>
 <h2 id="uninstall">Uninstall</h2>
-<p>Moving <code>Gmac.app</code> to the Trash retains your PCs and the engine, so reinstalling resumes where you left off. To remove everything, back up anything required and run:</p>
+<p>Moving <code>/Applications/Gmac.app</code> to the Trash retains your PCs and Wine runtime so reinstalling resumes where you left off. To remove all Gmac files, back up any save files you want to keep and run:</p>
 <div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2" class="language-sh">rm -rf /Applications/Gmac.app
-rm -rf ~/Library/Containers/com.rolling7ho.Gmac           # PCs and their list
-rm -rf ~/Library/Application\ Support/com.rolling7ho.Gmac  # the Wine engine
+rm -rf ~/Library/Containers/com.rolling7ho.Gmac
+rm -rf ~/Library/Application\ Support/com.rolling7ho.Gmac
 rm -rf ~/Library/Caches/com.rolling7ho.Gmac ~/Library/Logs/com.rolling7ho.Gmac
 rm -f  ~/Library/Preferences/com.rolling7ho.Gmac.plist
 </code></pre></div>
-<p>PCs created in a custom folder remain in that location.</p>
+<p>Custom-location PCs outside <code>~/Library/Containers/com.rolling7ho.Gmac/Bottles</code> remain at their chosen paths. Any Dock shortcut <code>.app</code> bundles created with <strong>Add to Dock</strong> reside in <code>~/Applications</code> and can be removed from there if no longer needed.</p>
 <h2 id="privacy">Privacy</h2>
-<p>Gmac contains no analytics and collects no usage data. It accesses the network only to download its engine and launcher installers, and to check for updates. Game artwork is read from local caches.</p>
+<p>Gmac contains no analytics and collects no usage data. It accesses the network only to check runtime metadata, download the Wine runtime archive, download the official Steam installer when requested, and check for application updates. Game artwork is read from local caches.</p>
 <h2 id="contributing">Contributing</h2>
-<p>Bug reports and pull requests are welcome. See <a href="contributing.html">CONTRIBUTING.md</a> for building, testing, and code style, and <a href="security.html">SECURITY.md</a> for private vulnerability reporting. Every change lands through a pull request; direct pushes to <code>main</code> are not accepted.</p>
+<p>Bug reports and pull requests are welcome. Read <a href="contributing.html">CONTRIBUTING.md</a> for building, testing, and code style, and <a href="security.html">SECURITY.md</a> for private vulnerability reporting. Every change lands through a pull request targeting <code>main</code>; direct pushes to <code>main</code> are not accepted.</p>
 <h2 id="license-and-credits">License and credits</h2>
-<p>Gmac is free software under the <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/LICENSE">GNU GPL v3</a>. Wine is licensed under the LGPL. D3DMetal belongs to Apple and is not included; Gmac installs it from Apple&#39;s Game Porting Toolkit.</p>
+<p>Gmac is free software under the <a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/LICENSE">GNU GPL v3</a>. Wine is licensed under the LGPL. Apple D3DMetal is proprietary to Apple and is not included; Gmac installs it only from a user-supplied Game Porting Toolkit disk image.</p>
 <p>Gmac builds on the work of:</p>
 <ul>
 <li><a href="https://github.com/whisky-app/whisky">Whisky</a> by Isaac Marovitz and contributors</li>
@@ -263,29 +263,29 @@ A free, native macOS application for running Windows games and PC launchers on A
   <img src="./images/library.png" width="760" alt="The Gmac library showing installed Windows games">
 </p>
 
-Gmac provisions an isolated Windows environment (a Wine prefix) on your Mac, lets you install Steam, Epic Games, GOG, Battle.net, or standalone Windows titles into it, and presents your games in a unified library. No configuration is required to begin; per-game settings exist for titles that need them.
+Gmac provisions an isolated Windows environment (a Wine prefix, called a PC in the interface and a bottle in internal paths) on your Mac, installs Steam or other Windows game launchers into it, and presents your games in a unified library. Default settings apply automatically, and per-PC and per-program overrides exist for titles that require tuning.
 
 Gmac is a fork of [Whisky](https://github.com/whisky-app/whisky), via [frankea's community fork](https://github.com/frankea/Whisky).
 
 ## Features
 
 **Getting started**
-- **Guided setup.** Create a PC, choose graphics defaults, and install your preferred launcher or game executable.
-- **Library-first interface.** Installed games appear as cards with their artwork. Select a card to play.
-- **Add to Dock.** Any game can receive its own Dock icon that starts it without opening Gmac.
+- **Guided Steam setup.** The built-in four-step setup guide creates a dedicated Steam PC, configures graphics defaults (including locating Apple's Game Porting Toolkit download), downloads the official Steam installer from Valve, and opens Steam.
+- **Library-first interface.** Installed Steam games and pinned Windows programs appear as cards with artwork. Select a card to start the game.
+- **Add to Dock.** Any game or pinned program can receive a standalone Dock shortcut `.app` bundle in `~/Applications` that launches it without opening the main Gmac window.
 
 **Graphics and performance**
-- **Graphics backend by DirectX version.** Select Automatic, or choose per game: DirectX 12 (Apple D3DMetal or `gmacmetal`), DirectX 11 (DXMT), or DirectX 9 and OpenGL/Vulkan (WineD3D). Automatic inspects each game's imports.
-- **DirectX 12.** Gmac guides you to Apple's Game Porting Toolkit download, then locates and installs it.
-- **Native resolution.** Games render at the display's native pixel count, and launchers remain sharp on Retina displays.
-- **Faster mode.** Renders a game at a lower resolution and upscales it with MetalFX and sharpening.
-- **macOS Game Mode.** Engages automatically when a game runs full screen.
+- **Graphics backend by DirectX version.** Select **Automatic (Recommended)** or choose a backend per PC or per program: **DirectX 12** (Apple D3DMetal), **DirectX 11** (DXMT), **DirectX 11 (Compatibility)** (DXVK on MoltenVK), **DirectX 9 and older**, or **OpenGL and Vulkan** (WineD3D). Automatic inspects each game's executable imports and selects the matching backend. An optional per-game **Gmac DirectX 12 (DXMT)** (`gmacmetal`) backend is also available when built and staged locally with `scripts/build-gmac-d3d12.sh`.
+- **DirectX 12.** Gmac directs you to Apple's Game Porting Toolkit download, verifies Apple's code signature on the disk image, and deploys D3DMetal into the Wine runtime.
+- **Native resolution.** Games render at the display's full pixel resolution by default, while Steam and other launchers remain sharp on Retina displays.
+- **Faster mode.** Steam games can be toggled individually to **Faster** mode to render at half resolution and upscale with MetalFX.
+- **macOS Game Mode.** Wine processes are marked as games so macOS enables Game Mode automatically when a game runs full screen.
 
 **Everyday use**
-- **Statistics.** Total and recent playtime, most played titles, longest session, and storage used.
+- **Statistics.** Track total and recent playtime, most played titles, longest session, and storage used under **Gmac › Statistics…** (`⇧⌘S`).
 - **Clean quit.** Quitting Gmac stops running launchers and games after confirmation.
-- **Pre-launch warnings.** Games known not to run, or whose anti-cheat blocks Wine, are flagged.
-- **Simple reset.** Deleting a PC stops the processes running in it and moves it to the Trash.
+- **Pre-launch warnings.** Games known not to run, or whose anti-cheat blocks Wine, are flagged before launch.
+- **Simple reset.** Deleting a PC stops any processes running inside it and moves the PC directory to the Trash.
 
 <p align="center">
   <img src="./images/statistics.png" width="560" alt="Statistics in Gmac settings">
@@ -293,13 +293,13 @@ Gmac is a fork of [Whisky](https://github.com/whisky-app/whisky), via [frankea's
 
 ## Requirements
 
-- A Mac with Apple Silicon (M1 or later)
+- Apple Silicon Mac (M1 or later)
 - macOS Sequoia 15 or later
-- Approximately 1 GB of free space for the engine, in addition to space for games
+- Approximately 1 GB of free disk space for the Wine runtime, in addition to disk space for games
 
 ## Install
 
-Gmac is not yet distributed as a signed download, so it is built locally. Xcode 16 or later is required.
+Gmac is built locally because signed notarized disk images are not yet published on GitHub Releases. Xcode 16 or later is required.
 
 ```sh
 git clone https://github.com/rolling7ho/gmac.git
@@ -307,45 +307,45 @@ cd gmac
 scripts/install-local.sh
 ```
 
-The script builds Gmac, signs it for the local Mac only, and copies it to `/Applications`. During first-run setup, Gmac downloads its Wine engine, which is approximately 330 MB compressed.
+The script builds Gmac in Release configuration, signs it ad hoc for the local Mac, and installs it to `/Applications/Gmac.app`. During first-run setup, Gmac downloads its Wine runtime (`Libraries.tar.gz`), which is approximately 460 MB compressed (458.79 MiB for `v4.6.12-gaming.1`).
 
 ### Migrating from Vodka or Whisky
 
-- **Earlier builds of this fork** (`com.rolling7ho.Vodka` and `com.rolling7ho.Whisky`) are carried over automatically the first time Gmac opens: PCs, engine, logs, settings, and Dock icons.
-- **The original Whisky:** select **File › Migrate from the Original Whisky**. Bottles are imported in place, so no data is copied.
+- **Earlier builds of this fork** (`com.rolling7ho.Vodka` and `com.rolling7ho.Whisky`) migrate automatically the first time Gmac opens: PCs, the Wine runtime, logs, settings, and Dock shortcut bundles are moved and updated to `com.rolling7ho.Gmac`.
+- **The original Whisky:** select **File › Migrate from the Original Whisky…**. Existing bottles are imported in place without copying game files.
 
 ## Troubleshooting
 
-- [Steam guide](docs/SteamCompatibility.md): Steam windows, sign-in, downloads, and game launching
-- [Launcher troubleshooting](docs/LauncherTroubleshooting.md): Epic, EA App, Battle.net, Rockstar, and others
-- [Crashes and freezes](docs/StabilityTroubleshooting.md): what to collect and how to narrow down the cause
-- **Help › Run Diagnostics…** in the application produces a report suitable for attaching to an issue.
+- [Steam compatibility guide](docs/SteamCompatibility.md): Steam setup, graphics routing, downloads, and game launching.
+- [Launcher troubleshooting guide](docs/LauncherTroubleshooting.md): Epic Games Store, EA App, Battle.net, Rockstar Games Launcher, Ubisoft Connect, and Paradox Launcher.
+- [Stability troubleshooting guide](docs/StabilityTroubleshooting.md): collecting diagnostics and isolating crashes, freezes, and kernel panics.
+- **In-app diagnostics:** use **Help › Run Diagnostics…** (`⇧⌘D`) to analyze a program's last run log, **Help › Troubleshoot…** (`⇧⌘T`) for guided checks, or **PC › Settings › Advanced › Diagnostic Reports › Generate Stability Diagnostics** for a bounded triage report.
 
 ## Uninstall
 
-Moving `Gmac.app` to the Trash retains your PCs and the engine, so reinstalling resumes where you left off. To remove everything, back up anything required and run:
+Moving `/Applications/Gmac.app` to the Trash retains your PCs and Wine runtime so reinstalling resumes where you left off. To remove all Gmac files, back up any save files you want to keep and run:
 
 ```sh
 rm -rf /Applications/Gmac.app
-rm -rf ~/Library/Containers/com.rolling7ho.Gmac           # PCs and their list
-rm -rf ~/Library/Application\ Support/com.rolling7ho.Gmac  # the Wine engine
+rm -rf ~/Library/Containers/com.rolling7ho.Gmac
+rm -rf ~/Library/Application\ Support/com.rolling7ho.Gmac
 rm -rf ~/Library/Caches/com.rolling7ho.Gmac ~/Library/Logs/com.rolling7ho.Gmac
 rm -f  ~/Library/Preferences/com.rolling7ho.Gmac.plist
 ```
 
-PCs created in a custom folder remain in that location.
+Custom-location PCs outside `~/Library/Containers/com.rolling7ho.Gmac/Bottles` remain at their chosen paths. Any Dock shortcut `.app` bundles created with **Add to Dock** reside in `~/Applications` and can be removed from there if no longer needed.
 
 ## Privacy
 
-Gmac contains no analytics and collects no usage data. It accesses the network only to download its engine and launcher installers, and to check for updates. Game artwork is read from local caches.
+Gmac contains no analytics and collects no usage data. It accesses the network only to check runtime metadata, download the Wine runtime archive, download the official Steam installer when requested, and check for application updates. Game artwork is read from local caches.
 
 ## Contributing
 
-Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for building, testing, and code style, and [SECURITY.md](SECURITY.md) for private vulnerability reporting. Every change lands through a pull request; direct pushes to `main` are not accepted.
+Bug reports and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for building, testing, and code style, and [SECURITY.md](SECURITY.md) for private vulnerability reporting. Every change lands through a pull request targeting `main`; direct pushes to `main` are not accepted.
 
 ## License and credits
 
-Gmac is free software under the [GNU GPL v3](LICENSE). Wine is licensed under the LGPL. D3DMetal belongs to Apple and is not included; Gmac installs it from Apple's Game Porting Toolkit.
+Gmac is free software under the [GNU GPL v3](LICENSE). Wine is licensed under the LGPL. Apple D3DMetal is proprietary to Apple and is not included; Gmac installs it only from a user-supplied Game Porting Toolkit disk image.
 
 Gmac builds on the work of:
 
