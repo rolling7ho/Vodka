@@ -13,6 +13,8 @@ Canonical vector marks, system-adaptive application icons, and pure-vector wordm
 | `gmac-mark-accent.svg` | Bare mark in primary burgundy (`#713131`) | Fixed accent |
 | `gmac-mark-mono.svg` | Bare mark in dark ink (`#141414`) | Fixed monochrome |
 | `gmac-wordmark.svg` | Integrated pure-vector wordmark (`G` mark + geometric `mac`) | Adaptive two-tone via `prefers-color-scheme` |
+| `gmac-wordmark-light.svg` | Integrated pure-vector wordmark for light surfaces (`#713131` and `#161212`) | Fixed light |
+| `gmac-wordmark-dark.svg` | Integrated pure-vector wordmark for dark surfaces (`#E09898`, `#D98282`, and `#F5ECEC`) | Fixed dark |
 | `gmac-wordmark-mono.svg` | Integrated pure-vector wordmark in single ink | Adaptive monochrome via `prefers-color-scheme` |
 | `gmac-lockup-horizontal.svg` | Horizontal lockup for navigation bars and headers | Adaptive two-tone via `prefers-color-scheme` |
 | `gmac-lockup-stacked.svg` | Vertical lockup pairing the squircle icon over the wordmark | Adaptive via `prefers-color-scheme` |
