@@ -1,6 +1,6 @@
 # Gmac Brand Assets
 
-Canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac. Every SVG in this directory uses geometric path primitives without `<text>` elements, so assets render identically across browsers, macOS, and documentation without font dependencies.
+This directory contains the canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac. Every SVG in this directory uses geometric path primitives without `<text>` elements so assets render identically across browsers, macOS, and documentation without font dependencies.
 
 ## Asset inventory
 
@@ -12,7 +12,7 @@ Canonical vector marks, system-adaptive application icons, and pure-vector wordm
 | `gmac-mark.svg` | Bare concentric `G` and play mark | Adaptive via `prefers-color-scheme` |
 | `gmac-mark-accent.svg` | Bare mark in primary burgundy (`#713131`) | Fixed accent |
 | `gmac-mark-mono.svg` | Bare mark in dark ink (`#141414`) | Fixed monochrome |
-| `gmac-wordmark.svg` | Integrated pure-vector wordmark (`G` mark + geometric `mac`) | Adaptive two-tone via `prefers-color-scheme` |
+| `gmac-wordmark.svg` | Integrated pure-vector wordmark (`G` mark and geometric `mac`) | Adaptive two-tone via `prefers-color-scheme` |
 | `gmac-wordmark-light.svg` | Integrated pure-vector wordmark for light surfaces (`#713131` and `#161212`) | Fixed light |
 | `gmac-wordmark-dark.svg` | Integrated pure-vector wordmark for dark surfaces (`#E09898`, `#D98282`, and `#F5ECEC`) | Fixed dark |
 | `gmac-wordmark-mono.svg` | Integrated pure-vector wordmark in single ink | Adaptive monochrome via `prefers-color-scheme` |
@@ -29,6 +29,16 @@ Canonical vector marks, system-adaptive application icons, and pure-vector wordm
 | Tile surface | `#FFFFFF` | `#281D1D` to `#191212` | Squircle application icon background |
 | Blueprint grid | `#713131` at 6.5% | `#E09898` at 9% | Radially faded background texture |
 
-## Regenerating raster icons
+## Regenerating raster assets
 
-Run `swiftc -O scripts/draw-icon.swift -o /tmp/draw-icon && /tmp/draw-icon --all .` from the repository root to regenerate all PNG icons under `images/`, `Gmac/Assets.xcassets/`, `GmacThumbnail/Icons.xcassets/`, and `dist/pages/`.
+Run [`scripts/draw-icon.swift`](../../scripts/draw-icon.swift) from the repository root to regenerate all PNG icons under `images/`, `Gmac/Assets.xcassets/`, `GmacThumbnail/Icons.xcassets/`, and `dist/pages/`:
+
+```sh
+swiftc -O scripts/draw-icon.swift -o /tmp/draw-icon && /tmp/draw-icon --all .
+```
+
+To regenerate the OpenGraph social preview card (`images/og-card.png`, 1200 by 630 pixels) from `dist/pages/_og-card-source.html`, run:
+
+```sh
+scripts/build-og-card.sh
+```

@@ -1,29 +1,29 @@
-name: 🐛 Bug Report
-description: App crash, broken feature, or unexpected behaviour.
+name: Bug Report
+description: Application crash, broken feature, or unexpected behaviour.
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to file a bug. Before submitting, please:
-        - Search [existing issues](https://github.com/rolling7ho/gmac/issues?q=is%3Aissue) — your bug may already be reported.
-        - Check the [troubleshooting docs](https://github.com/rolling7ho/gmac/blob/main/docs/) — many common issues have known fixes.
+        Before submitting a bug report:
+        - Search [existing issues](https://github.com/rolling7ho/gmac/issues?q=is%3Aissue) to check for duplicates.
+        - Check the [troubleshooting documentation](https://github.com/rolling7ho/gmac/blob/main/docs/) for known fixes.
         - For game-specific compatibility problems, use the **Game Compatibility Report** template instead.
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: What's broken? One or two sentences.
+      description: Describe what is broken in one or two sentences.
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: Detailed step-by-step instructions to trigger the bug.
+      description: Provide step-by-step instructions to trigger the bug.
       placeholder: |
         1. Open Gmac
-        2. Click "..."
+        2. Select "..."
         3. Observe ...
     validations:
       required: true
@@ -31,16 +31,16 @@ body:
     id: expected-behaviour
     attributes:
       label: Expected behaviour
-      description: What should have happened instead?
+      description: Describe what should happen instead.
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Wine logs
+      label: Wine logs and diagnostics
       description: |
-        Press **⌘L** in Gmac to open the most recent Wine log, then paste the relevant excerpt here.
-        For crashes/freezes, attach the diagnostic export from **Bottle Configuration → View Diagnostics**.
+        Press **⌘L** in Gmac to open the Wine logs folder and paste the relevant excerpt here.
+        For crashes or freezes, attach the report from **Help › Run Diagnostics…** (`⇧⌘D`) or **PC › Settings › Advanced › Diagnostic Reports**.
       render: bash
     validations:
       required: false
@@ -48,15 +48,15 @@ body:
     id: gmac-version
     attributes:
       label: Gmac version
-      description: From **Gmac → About Gmac**.
-      placeholder: "e.g., 3.0.1"
+      description: From **Gmac › About Gmac**.
+      placeholder: "e.g., 4.1.1"
     validations:
       required: true
   - type: dropdown
     id: mac-version
     attributes:
       label: macOS version
-      description: This fork requires macOS 15 (Sequoia) or later.
+      description: Gmac requires macOS 15 (Sequoia) or later.
       options:
         - "Sequoia (macOS 15.0)"
         - "Sequoia (macOS 15.1)"
@@ -73,33 +73,34 @@ body:
     id: graphics-backend
     attributes:
       label: Graphics backend in use
-      description: From **Bottle Configuration → Graphics**. Recommended just means whatever the auto-resolver picked — note the actual backend if you know it.
+      description: From **PC › Settings › Graphics**. If using Automatic (Recommended), note the resolved backend if known.
       options:
-        - "Recommended (auto)"
-        - "D3DMetal"
-        - "DXVK"
-        - "DXVK with Async"
-        - "WineD3D"
-        - "Don't know"
+        - "Automatic (Recommended)"
+        - "DirectX 12 (D3DMetal)"
+        - "DirectX 11 (DXMT)"
+        - "DirectX 11 (Compatibility / DXVK)"
+        - "DirectX 9 / OpenGL / Vulkan (WineD3D)"
+        - "Gmac DirectX 12 (DXMT / gmacmetal)"
+        - "Unknown"
     validations:
       required: true
   - type: input
     id: wine-version
     attributes:
       label: Wine runtime version
-      description: From **Bottle Configuration → Wine** (the GmacWine runtime version).
-      placeholder: "e.g., 11.0"
+      description: GmacWine runtime version (for example, `4.6.12`).
+      placeholder: "e.g., 4.6.12"
     validations:
       required: false
   - type: checkboxes
     attributes:
       label: Pre-flight checks
       options:
-        - label: I searched existing issues and didn't find a duplicate.
+        - label: I searched existing issues and did not find a duplicate.
           required: true
-        - label: I am running **this fork** (`rolling7ho/gmac`, confirmed via **Gmac -> About**) rather than the archived Whisky original.
+        - label: I am running **this fork** (`rolling7ho/gmac`, confirmed via **Gmac › About Gmac**) rather than the archived Whisky original.
           required: true
-        - label: I confirmed this is **not** a game-specific compatibility issue (use the other template if it is).
+        - label: I confirmed this is **not** a game-specific compatibility issue (use the Game Compatibility Report template if it is).
           required: true
         - label: My issue is written in English so all maintainers can read it.
           required: true

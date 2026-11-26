@@ -1,177 +1,143 @@
 # Architecture Overview
 
-Understand how GmacKit components work together to manage Wine bottles and Windows applications.
+This document describes how `GmacKit` components work together to manage Wine bottles, build launch environments, resolve graphics backends, and execute Windows programs on macOS.
 
 ## Overview
 
-GmacKit is organized into several logical layers, each responsible for a specific aspect of Wine management on macOS.
+`GmacKit` separates Wine, bottle, Steam, graphics, diagnostics, and persistence logic from the SwiftUI application layer (`Gmac`) and CLI (`GmacCmd`).
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Application Layer                         │
-│                 (Gmac.app, GmacCmd)                      │
-├─────────────────────────────────────────────────────────────┤
-│                      GmacKit                               │
-│  ┌─────────────┐  ┌──────────────┐  ┌───────────────────┐  │
-│  │   Bottle    │  │    Wine      │  │ GmacWineInstaller│  │
-│  │  Management │  │  Execution   │  │                   │  │
-│  └─────────────┘  └──────────────┘  └───────────────────┘  │
-│  ┌─────────────┐  ┌──────────────┐                         │
-│  │   Program   │  │   PE File    │                         │
-│  │  Discovery  │  │   Parsing    │                         │
-│  └─────────────┘  └──────────────┘                         │
-├─────────────────────────────────────────────────────────────┤
-│                     Wine Runtime                             │
-│              (GmacWine / Wine64 Binary)                   │
-└─────────────────────────────────────────────────────────────┘
+```text
++-----------------------------------------------------------------------+
+|                           Application Layer                           |
+|                    (Gmac.app, GmacCmd, GmacThumbnail)                 |
++-----------------------------------------------------------------------+
+|                                GmacKit                                |
+|  +------------------+  +-------------------+  +--------------------+  |
+|  | Bottle & Library |  |  Wine & Env       |  | Runtime & GPTK     |  |
+|  | Management       |  |  Cascade          |  | (GmacWineInstaller)|  |
+|  +------------------+  +-------------------+  +--------------------+  |
+|  +------------------+  +-------------------+  +--------------------+  |
+|  | Steam, Launchers |  |  Diagnostics &    |  | PE Parsing &       |  |
+|  | & GameDB         |  |  Troubleshooting  |  | Shortcut Creation  |  |
+|  +------------------+  +-------------------+  +--------------------+  |
++-----------------------------------------------------------------------+
+|                             Wine Runtime                              |
+|        (Libraries/Wine/bin/wine64, DXMT, DXVK, D3DMetal, GmacD3D12)   |
++-----------------------------------------------------------------------+
 ```
 
 ## Core Components
 
 ### Bottle Management
 
-The bottle management layer handles the lifecycle of Wine prefixes:
+The bottle management layer manages isolated Wine prefixes:
 
 | Component | Responsibility |
-|-----------|----------------|
-| ``Bottle`` | Represents an isolated Wine environment |
-| ``BottleSettings`` | Stores configuration for a bottle |
-| ``BottleWineConfig`` | Wine-specific settings (Windows version, sync mode) |
-| ``BottleMetalConfig`` | Metal and graphics settings |
-| ``BottleDXVKConfig`` | DXVK configuration for DirectX translation |
-| ``BottlePerformanceConfig`` | Performance optimization settings |
+|---|---|
+| ``Bottle`` | Represents an isolated Wine prefix (`@MainActor` isolated) |
+| ``BottleData`` | Reads and persists the bottle registry (`BottleVM.plist`) and detects orphaned bottles |
+| ``BottleSettings`` | Stores configuration for a bottle and populates `EnvironmentBuilder` layers |
+| ``BottleWineConfig`` | Wine version, Windows version, enhanced sync, and AVX advertisement |
+| ``BottleGraphicsConfig`` | Selected ``GraphicsBackend``, DLSS-to-MetalFX, and frame generation flags |
+| ``BottleMetalConfig`` | Metal HUD, trace, validation, DXR, and Metal 4 settings |
+| ``BottleDXVKConfig`` | DXVK async compilation and HUD settings |
+| ``BottlePerformanceConfig`` | Shader cache, App Nap prevention, and VC++ tracking |
+| ``BottleLauncherConfig`` | Launcher compatibility mode, detection mode, locale, GPU spoofing, and timeout |
 
-Each bottle is stored as a directory containing:
+Each bottle is stored as a directory on disk (by default under `~/Library/Containers/com.rolling7ho.Gmac/Bottles/<UUID>/`):
 
-```
+```text
 MyBottle/
-├── Metadata.plist          # BottleSettings serialized
-├── drive_c/                # Windows C: drive
+├── Metadata.plist                 # BottleSettings serialized as XML property list
+├── drive_c/                       # Windows C: drive
 │   ├── windows/
 │   ├── Program Files/
+│   ├── Program Files (x86)/
 │   └── users/
-├── Program Settings/       # Per-program plist files
-│   ├── game.exe.plist      # Settings for game.exe
-│   └── launcher.exe.plist  # Settings for launcher.exe
-└── ...                     # Wine registry and other files
+└── Program Settings/              # Per-executable plists keyed by stem and path hash
+    └── <stem>-<shortHash>.plist   # Automatically copied from legacy <exe>.plist if present
 ```
 
-### Wine Execution
+### Wine Execution and Environment Cascade
 
-The ``Wine`` class provides the interface to the Wine runtime:
+``Wine`` prepares the bottle, resolves the graphics backend, constructs the layered environment, composes `WINEDLLOVERRIDES`, and runs `wine64`:
 
-- **Process Management**: Start and monitor Wine processes
-- **Environment Setup**: Configure environment variables for DirectX, Metal, and performance
-- **Logging**: Capture output and errors from Wine processes
-- **DXVK Integration**: Install and enable DXVK for Direct3D-to-Vulkan translation
-
-Key execution flow:
-
-```
-runProgram(url, bottle)
+```text
+Wine.runProgram(at: url, bottle: bottle, ...)
        │
        ▼
-┌──────────────────┐
-│ Enable DXVK if   │
-│ configured       │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Construct Wine   │
-│ environment vars │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Execute wine64   │
-│ start /unix      │
-└────────┬─────────┘
-         │
-         ▼
-   AsyncStream<ProcessOutput>
+┌────────────────────────────────────┐
+│ Resolve graphics backend           │
+│ (GraphicsBackendResolver + imports)│
+└──────────────────┬─────────────────┘
+                   │
+                   ▼
+┌────────────────────────────────────┐
+│ Deploy DXVK / DXMT / GmacD3D12     │
+│ and sync Windows AppDefaults       │
+└──────────────────┬─────────────────┘
+                   │
+                   ▼
+┌────────────────────────────────────┐
+│ Build 9-layer EnvironmentBuilder   │
+│ and compose WINEDLLOVERRIDES       │
+└──────────────────┬─────────────────┘
+                   │
+                   ▼
+┌────────────────────────────────────┐
+│ Execute wine64 start /unix         │
+│ and capture bounded log output     │
+└──────────────────┬─────────────────┘
+                   │
+                   ▼
+         Wine.ProgramRunResult
 ```
 
-### Program Discovery
+``EnvironmentBuilder`` resolves environment variables across nine priority-ordered ``EnvironmentLayer`` stages (higher layers override earlier layers per key):
 
-Programs are Windows executables found within a bottle:
+1. ``EnvironmentLayer/base``: `WINEPREFIX`, default `WINEDEBUG`, and `PATH` defaults.
+2. ``EnvironmentLayer/platform``: macOS compatibility overrides from ``MacOSCompatibilityFixes``.
+3. ``EnvironmentLayer/bottleManaged``: bottle graphics, Metal, sync, performance, and controller toggles.
+4. ``EnvironmentLayer/launcherManaged``: launcher presets, locale overrides, GPU spoofing, and network timeouts.
+5. ``EnvironmentLayer/gameProfile``: environment entries from a matched ``GameDBEntry`` variant.
+6. ``EnvironmentLayer/bottleUser``: user-defined bottle environment variables.
+7. ``EnvironmentLayer/programUser``: per-program environment variables and locale.
+8. ``EnvironmentLayer/featureRuntime``: launch-time diagnostic overrides.
+9. ``EnvironmentLayer/callsiteOverride``: explicit overrides passed to `Wine.runProgram(environment:)`.
 
-- ``Program`` represents an executable (.exe) file
-- ``ProgramSettings`` stores per-program configuration
-- Programs can be pinned for quick access via ``PinnedProgram``
+``DLLOverrideResolver`` composes managed overrides (DXVK, DXMT, `GmacD3D12`, launcher presets) with bottle and program custom ``DLLOverrideEntry`` lists.
 
-### PE File Parsing
+### Program Discovery and Metadata
 
-GmacKit includes a complete Windows PE (Portable Executable) file parser:
+- ``Program`` represents a Windows `.exe` discovered under `drive_c`.
+- ``ProgramSettings`` persists per-program arguments, environment variables, locale, ``ProgramOverrides``, and diagnostic metadata under `Program Settings/<stem>-<shortHash>.plist`.
+- ``PinnedProgram`` tracks user-pinned programs on the bottle detail and library views.
+- ``PEFile`` parses COFF headers, optional headers, section tables, and resource directories to determine 32-bit versus 64-bit architecture and extract icons.
 
-- ``PEFile`` - Main parser for .exe and .dll files
-- ``COFFFileHeader`` - COFF header parsing
-- ``OptionalHeader`` - PE optional header with magic number
-- ``Section`` - PE section table parsing
-- Resource parsing for icon extraction
+### Steam, Launchers, and Game Database
 
-This enables:
-- Detecting 32-bit vs 64-bit executables
-- Extracting application icons
-- Reading executable metadata
+- ``SteamInstaller``, ``SteamLibrary``, ``SteamClientOrchestrator``, and ``LaunchResolver`` manage Steam installation, VDF parsing, per-executable routing, and Steam game launches.
+- ``LauncherFixes`` detects and configures Steam, Rockstar Games Launcher, EA App, Epic Games Store, Ubisoft Connect, Battle.net, and Paradox Launcher.
+- ``GameDBLoader``, ``GameMatcher``, and ``GameConfigApplicator`` match installed titles against `GameDB.json` and apply reversible configuration snapshots.
 
 ## Thread Safety
 
-GmacKit uses Swift's actor isolation for thread safety:
+`GmacKit` enforces Swift 6 strict concurrency:
 
-- ``Bottle`` and ``Program`` are `@MainActor` isolated
-- Cross-thread access is provided via `nonisolated` properties like `id`
-- Wine execution methods require `@MainActor` context
+- ``Bottle`` and ``Program`` are `@MainActor` isolated.
+- Cross-actor identity access is exposed via `nonisolated` `id` properties.
+- ``Wine`` execution methods require `@MainActor` context, while heavy filesystem walks (such as ``Bottle/discoverInstalledExecutables(driveC:blocklist:)``) and archive hashing run off the main actor.
 
 ```swift
-// Must be called from MainActor
 @MainActor
-func runGame() async throws {
+func runGame(at gameURL: URL, in bottle: Bottle) async throws -> Wine.ProgramRunResult {
     try await Wine.runProgram(at: gameURL, bottle: bottle)
 }
 ```
 
 ## Data Flow
 
-### Settings Persistence
-
-Settings are automatically persisted when modified:
-
-```
-bottle.settings.dxvk = true
-       │
-       ▼
-┌──────────────────┐
-│ didSet observer  │
-│ triggers save    │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Encode to        │
-│ PropertyList     │
-└────────┬─────────┘
-         │
-         ▼
-  Metadata.plist
-```
-
-### Environment Construction
-
-When running a program, GmacKit builds a complete environment:
-
-1. Base Wine environment (WINEPREFIX, PATH)
-2. Bottle-level settings (DXVK, Metal, sync mode)
-3. Program-level settings (locale, custom variables)
-4. User-provided overrides
-
-## Extension Points
-
-GmacKit is extended through several mechanisms:
-
-- **Extensions**: Additional functionality on core types in `Extensions/`
-- **Configuration Types**: Modular settings in separate config structs
-- **Wine Registry**: Direct registry manipulation via methods on ``Wine`` (e.g., `retinaMode`, `changeDpiResolution`, `changeWinVersion`)
+Modifying ``Bottle/settings`` triggers a `didSet` observer on ``Bottle`` that synchronously encodes `Metadata.plist`. Before launching a program, callers such as ``LauncherFixes`` invoke ``Bottle/saveBottleSettings()`` when immediate persistence is required before Wine reads the prefix state.
 
 ## See Also
 
@@ -179,3 +145,4 @@ GmacKit is extended through several mechanisms:
 - ``Bottle``
 - ``Wine``
 - ``GmacWineInstaller``
+- ``EnvironmentBuilder``

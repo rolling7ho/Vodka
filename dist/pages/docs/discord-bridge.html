@@ -78,54 +78,36 @@
     <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
     <h1 class="doc-title">Discord bridge</h1>
     <div class="doc-body">
-<p>Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
-that a Windows game&#39;s rich presence reaches Discord on macOS.</p>
-<p><code>make install</code> builds <code>GmacDiscordBridge.exe</code> and places it in
-<code>GmacKit/Sources/GmacKit/Discord/Resources/</code>, from which it ships as a bundle resource.
-The built binary is committed, because Xcode builds do not run <code>make</code> and CI has no MinGW
-toolchain. Rebuild and commit the binary whenever <code>bridge.c</code> changes.</p>
-<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1">brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
+<p><code>GmacDiscordBridge.exe</code> relays the Discord RPC named pipe from inside a Wine bottle to the Discord client on the macOS host so a Windows game&#39;s rich presence reaches Discord.</p>
+<p><code>make install</code> builds <code>GmacDiscordBridge.exe</code> from <code>bridge.c</code> and copies it into <code>GmacKit/Sources/GmacKit/Discord/Resources/</code>, from which it ships as a SwiftPM bundle resource. The built binary is committed because Xcode builds do not invoke <code>make</code> and CI lacks a MinGW toolchain. Rebuild and commit the binary whenever <code>bridge.c</code> changes.</p>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh">brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
 make install
 </code></pre></div>
 <h2 id="design">Design</h2>
-<p>Both ends of the Discord RPC transport use the same framing, a little-endian opcode and
-length followed by JSON, so the relay forwards bytes without parsing messages. It serves
-<code>\\.\pipe\discord-ipc-0</code> inside the prefix and relays bytes to whichever of
-<code>discord-ipc-0</code> to <code>discord-ipc-9</code> exists in the socket directory it is given.</p>
-<p>Three constraints apply to any change:</p>
+<p>Both ends of the Discord RPC transport use the same framing, a little-endian opcode and length followed by JSON, so the relay forwards bytes without parsing messages. It serves <code>\\.\pipe\discord-ipc-0</code> (four concurrent pending pipe instances) inside the bottle and relays bytes to whichever of <code>discord-ipc-0</code> through <code>discord-ipc-9</code> exists in the socket directory it receives. A per-prefix named mutex (<code>Local\GmacDiscordBridge</code>) ensures only one relay runs per bottle.</p>
+<p>Four design constraints govern changes to <code>bridge.c</code>:</p>
 <ul>
-<li><strong>The socket is reached through raw xnu system calls.</strong> PE code shares an address space
-with the Unix side of Wine, so a <code>syscall</code> instruction enters the kernel directly. A PE
-module cannot link libSystem, and the supported alternative, a PE plus a unixlib half,
-would have to be built against a specific Wine build rather than plain MinGW. <code>sockaddr_un</code>
-here follows xnu&#39;s layout (a length byte followed by a family byte), not Linux&#39;s 16-bit
-family field.</li>
-<li><strong>The socket directory is passed with <code>--dir</code>.</strong> A PE process sees Wine&#39;s Windows
-environment, in which the host&#39;s <code>TMPDIR</code> may not have survived, and the sockets are named
-relative to that directory.</li>
-<li><strong>The relay becomes a Wine system process after a grace period.</strong> System processes do not
-keep a prefix alive, so the relay stops holding a bottle open once the game exits and
-terminates with the prefix rather than outliving it. The grace period exists because Gmac
-starts the relay immediately before the game, and a prefix containing no ordinary process
-begins shutting down.</li>
+<li><strong>Raw xnu system calls:</strong> PE code shares an address space with the Unix side of Wine, so a <code>syscall</code> instruction enters the kernel directly. A PE module cannot link <code>libSystem</code>, and a PE plus unixlib split would tie the binary to a specific Wine build rather than plain MinGW. <code>bsd_sockaddr_un</code> follows xnu&#39;s layout (a 1-byte length followed by a 1-byte address family), not Linux&#39;s 16-bit family field.</li>
+<li><strong><code>EINTR</code> retry on BSD I/O:</strong> Wine signal delivery can interrupt raw <code>SYS_READ</code> and <code>SYS_WRITE</code> syscalls, so <code>unix_read</code> and <code>unix_write</code> loop on <code>-BSD_EINTR</code> rather than dropping active connections.</li>
+<li><strong>Explicit socket directory via <code>--dir</code>:</strong> a PE process runs under Wine&#39;s Windows environment, where the host&#39;s <code>TMPDIR</code> may not survive. Gmac passes the host socket directory via <code>--dir</code> (falling back to <code>TMPDIR</code>, <code>XDG_RUNTIME_DIR</code>, or <code>/tmp</code>).</li>
+<li><strong>Wine system process transition after <code>--grace</code>:</strong> system processes (<code>ProcessWineMakeProcessSystem</code>) do not keep a Wine prefix alive, so the relay shuts down with the bottle once the game exits. The <code>--grace</code> window (in milliseconds, default <code>10000</code>) keeps the relay from shutting down a cold bottle between starting the relay and starting the game.</li>
 </ul>
 <h2 id="manual-test">Manual test</h2>
-<p>Serve a socket at a path short enough to fit <code>sun_path</code>, point the relay at it, and connect
-from inside the prefix:</p>
-<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2">mkdir -p /tmp/gmacipc
+<p>Serve a Unix socket at a path short enough to fit <code>sun_path</code>, point the relay at its directory, and connect from inside the bottle:</p>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2" class="language-sh">mkdir -p /tmp/gmacipc
 python3 - /tmp/gmacipc/discord-ipc-0 &lt;&lt;&#39;EOF&#39;
 import socket, struct, sys
 server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-server.bind(sys.argv[1]); server.listen(1)
+server.bind(sys.argv[1])
+server.listen(1)
 conn, _ = server.accept()
 header = conn.recv(8)
 print(struct.unpack(&quot;&lt;II&quot;, header), conn.recv(4096))
 EOF
 
-WINEPREFIX=... wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
+WINEPREFIX=/path/to/bottle wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
 </code></pre></div>
-<p><code>--grace</code> is specified in milliseconds. A large value prevents the relay from standing down
-while it is being tested.</p>
+<p>Passing a large <code>--grace</code> value prevents the relay from transitioning into a system process and exiting while testing manually.</p>
 
     </div>
     <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/scripts/discord-bridge/README.md">Mirrored from <code>scripts/discord-bridge/README.md</code></a></p>
@@ -196,64 +178,46 @@ while it is being tested.</p>
 </main>
 <script type="text/plain" id="doc-markdown-source"># Discord bridge
 
-Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
-that a Windows game's rich presence reaches Discord on macOS.
+`GmacDiscordBridge.exe` relays the Discord RPC named pipe from inside a Wine bottle to the Discord client on the macOS host so a Windows game's rich presence reaches Discord.
 
-`make install` builds `GmacDiscordBridge.exe` and places it in
-`GmacKit/Sources/GmacKit/Discord/Resources/`, from which it ships as a bundle resource.
-The built binary is committed, because Xcode builds do not run `make` and CI has no MinGW
-toolchain. Rebuild and commit the binary whenever `bridge.c` changes.
+`make install` builds `GmacDiscordBridge.exe` from `bridge.c` and copies it into `GmacKit/Sources/GmacKit/Discord/Resources/`, from which it ships as a SwiftPM bundle resource. The built binary is committed because Xcode builds do not invoke `make` and CI lacks a MinGW toolchain. Rebuild and commit the binary whenever `bridge.c` changes.
 
-```
+```sh
 brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
 make install
 ```
 
 ## Design
 
-Both ends of the Discord RPC transport use the same framing, a little-endian opcode and
-length followed by JSON, so the relay forwards bytes without parsing messages. It serves
-`\\.\pipe\discord-ipc-0` inside the prefix and relays bytes to whichever of
-`discord-ipc-0` to `discord-ipc-9` exists in the socket directory it is given.
+Both ends of the Discord RPC transport use the same framing, a little-endian opcode and length followed by JSON, so the relay forwards bytes without parsing messages. It serves `\\.\pipe\discord-ipc-0` (four concurrent pending pipe instances) inside the bottle and relays bytes to whichever of `discord-ipc-0` through `discord-ipc-9` exists in the socket directory it receives. A per-prefix named mutex (`Local\GmacDiscordBridge`) ensures only one relay runs per bottle.
 
-Three constraints apply to any change:
+Four design constraints govern changes to `bridge.c`:
 
-- **The socket is reached through raw xnu system calls.** PE code shares an address space
-  with the Unix side of Wine, so a `syscall` instruction enters the kernel directly. A PE
-  module cannot link libSystem, and the supported alternative, a PE plus a unixlib half,
-  would have to be built against a specific Wine build rather than plain MinGW. `sockaddr_un`
-  here follows xnu's layout (a length byte followed by a family byte), not Linux's 16-bit
-  family field.
-- **The socket directory is passed with `--dir`.** A PE process sees Wine's Windows
-  environment, in which the host's `TMPDIR` may not have survived, and the sockets are named
-  relative to that directory.
-- **The relay becomes a Wine system process after a grace period.** System processes do not
-  keep a prefix alive, so the relay stops holding a bottle open once the game exits and
-  terminates with the prefix rather than outliving it. The grace period exists because Gmac
-  starts the relay immediately before the game, and a prefix containing no ordinary process
-  begins shutting down.
+- **Raw xnu system calls:** PE code shares an address space with the Unix side of Wine, so a `syscall` instruction enters the kernel directly. A PE module cannot link `libSystem`, and a PE plus unixlib split would tie the binary to a specific Wine build rather than plain MinGW. `bsd_sockaddr_un` follows xnu's layout (a 1-byte length followed by a 1-byte address family), not Linux's 16-bit family field.
+- **`EINTR` retry on BSD I/O:** Wine signal delivery can interrupt raw `SYS_READ` and `SYS_WRITE` syscalls, so `unix_read` and `unix_write` loop on `-BSD_EINTR` rather than dropping active connections.
+- **Explicit socket directory via `--dir`:** a PE process runs under Wine's Windows environment, where the host's `TMPDIR` may not survive. Gmac passes the host socket directory via `--dir` (falling back to `TMPDIR`, `XDG_RUNTIME_DIR`, or `/tmp`).
+- **Wine system process transition after `--grace`:** system processes (`ProcessWineMakeProcessSystem`) do not keep a Wine prefix alive, so the relay shuts down with the bottle once the game exits. The `--grace` window (in milliseconds, default `10000`) keeps the relay from shutting down a cold bottle between starting the relay and starting the game.
 
 ## Manual test
 
-Serve a socket at a path short enough to fit `sun_path`, point the relay at it, and connect
-from inside the prefix:
+Serve a Unix socket at a path short enough to fit `sun_path`, point the relay at its directory, and connect from inside the bottle:
 
-```
+```sh
 mkdir -p /tmp/gmacipc
 python3 - /tmp/gmacipc/discord-ipc-0 <<'EOF'
 import socket, struct, sys
 server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-server.bind(sys.argv[1]); server.listen(1)
+server.bind(sys.argv[1])
+server.listen(1)
 conn, _ = server.accept()
 header = conn.recv(8)
 print(struct.unpack("<II", header), conn.recv(4096))
 EOF
 
-WINEPREFIX=... wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
+WINEPREFIX=/path/to/bottle wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
 ```
 
-`--grace` is specified in milliseconds. A large value prevents the relay from standing down
-while it is being tested.
+Passing a large `--grace` value prevents the relay from transitioning into a system process and exiting while testing manually.
 </script>
 <footer class="site-footer">
   <div class="wrap footer-grid">
