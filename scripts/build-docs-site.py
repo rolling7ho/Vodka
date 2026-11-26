@@ -136,7 +136,7 @@ def build_nav(docs_current=False):
 
 FOOTER_HTML = f"""<footer class="site-footer">
   <div class="wrap footer-grid">
-    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+    <div class="footer-logo" role="img" aria-label="Gmac">
       <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
         <g transform="translate(-9 -7) scale(0.265)">
           <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
@@ -150,7 +150,7 @@ FOOTER_HTML = f"""<footer class="site-footer">
           <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
         </g>
       </svg>
-    </a>
+    </div>
     <nav class="footer-links" aria-label="Footer">
       <a href="./">Documentation</a>
       <span class="footer-sep" aria-hidden="true">&bull;</span>
