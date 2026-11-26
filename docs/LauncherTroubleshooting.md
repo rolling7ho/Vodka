@@ -6,7 +6,7 @@
 > **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
 > the original upstream project (whisky-app/whisky). Upstream references are retained for
 > historical context. Report new issues to
-> [rolling7ho/vodka](https://github.com/rolling7ho/vodka/issues).
+> [rolling7ho/gmac](https://github.com/rolling7ho/gmac/issues).
 
 ## Initial procedure
 
@@ -56,7 +56,7 @@ Steam's Chromium-based helper fails when parsing dates and times in certain loca
 1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Network
    Timeout** to **90 seconds** or higher.
 2. Generate a diagnostics report and confirm `WINHTTP_CONNECT_TIMEOUT`. The receive timeout
-   is set to twice that value. Vodka does not set `WINE_FORCE_HTTP11`.
+   is set to twice that value. Gmac does not set `WINE_FORCE_HTTP11`.
 3. In Steam, open **Settings → Downloads**, select a geographically close region, then pause
    and resume the download.
 
@@ -166,7 +166,7 @@ requires working Chromium rendering.
 
 Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.
 
-Vodka applies no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH` workaround
+Gmac applies no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH` workaround
 that earlier versions set is read by no shipped runtime and has been removed.
 
 **Related issues:** whisky-app/whisky#1091.
@@ -246,18 +246,18 @@ attention.
 
 1. Disable Launcher Compatibility Mode.
 2. Right-click the bottle, select **Show in Finder** and delete `Metadata.plist`.
-3. Recreate the bottle; Vodka regenerates it with defaults.
+3. Recreate the bottle; Gmac regenerates it with defaults.
 4. Enable Launcher Compatibility Mode again.
 
 ### Consult Wine logs
 
-1. Open `~/Library/Logs/com.rolling7ho.Vodka/`.
+1. Open `~/Library/Logs/com.rolling7ho.Gmac/`.
 2. Locate the newest log by timestamp and inspect entries around launcher startup.
 3. Search for `steamwebhelper`, `CEF`, `locale`, `crash` and `segfault`.
 
 ### Verify the Wine installation
 
-Confirm that `~/Library/Application Support/com.rolling7ho.Vodka/Libraries/Wine/` contains
+Confirm that `~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/` contains
 the `bin/`, `lib/` and `share/` directories. The application reports the runtime version it
 uses in the diagnostics report.
 
@@ -322,7 +322,7 @@ Before reporting:
 Include in the report:
 
 1. The diagnostics report, attached or pasted in full.
-2. System information: macOS version, Mac model and Vodka version.
+2. System information: macOS version, Mac model and Gmac version.
 3. Reproduction steps, expected behaviour and actual behaviour.
 4. Screenshots of error messages and configuration screens.
 
@@ -402,7 +402,7 @@ macOS 15 is the minimum supported version.
 
 ## Further resources
 
-- Issue tracker: <https://github.com/rolling7ho/vodka/issues>
+- Issue tracker: <https://github.com/rolling7ho/gmac/issues>
 - Upstream project: <https://github.com/whisky-app/whisky>
 - Steam guide: [SteamCompatibility.md](SteamCompatibility.md)
 - Stability guide: [StabilityTroubleshooting.md](StabilityTroubleshooting.md)

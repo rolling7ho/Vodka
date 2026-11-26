@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contributing | Vodka</title>
+<title>Contributing | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/contributing.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/contributing.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -28,16 +28,16 @@
   <h1>Contributing</h1>
 <p>Contributions are welcome: bug reports, fixes and game compatibility notes.</p>
 <h2>Reporting a bug</h2>
-<p><a href="https://github.com/rolling7ho/vodka/issues/new/choose">Open an issue</a> and select the
+<p><a href="https://github.com/rolling7ho/gmac/issues/new/choose">Open an issue</a> and select the
 appropriate template. In the application, <strong>Help › Run Diagnostics…</strong> writes a report
 covering settings and recent logs; attaching it usually avoids an exchange of questions.
 Remove anything you do not want to share before attaching it.</p>
 <h2>Building</h2>
 <p>An Apple Silicon Mac running macOS 15 or later with Xcode 16 or later is required.
 Dependencies are resolved by the Swift Package Manager.</p>
-<pre><code class="language-sh">git clone https://github.com/rolling7ho/vodka.git
-cd vodka
-open Vodka.xcodeproj           # or build from the command line:
+<pre><code class="language-sh">git clone https://github.com/rolling7ho/gmac.git
+cd gmac
+open Gmac.xcodeproj           # or build from the command line:
 scripts/install-local.sh       # Release build, ad-hoc signed, installed to /Applications
 </code></pre>
 <p>The project comprises four parts:</p>
@@ -49,49 +49,49 @@ scripts/install-local.sh       # Release build, ad-hoc signed, installed to /App
 </tr>
 </thead>
 <tbody><tr>
-<td><code>Vodka/</code></td>
+<td><code>Gmac/</code></td>
 <td>The SwiftUI application</td>
 </tr>
 <tr>
-<td><code>VodkaKit/</code></td>
+<td><code>GmacKit/</code></td>
 <td>Swift package containing the logic: Wine, PCs, Steam, the library and playtime</td>
 </tr>
 <tr>
-<td><code>VodkaCmd/</code></td>
+<td><code>GmacCmd/</code></td>
 <td>Command-line tool used by Dock shortcuts to start games</td>
 </tr>
 <tr>
-<td><code>VodkaThumbnail/</code></td>
+<td><code>GmacThumbnail/</code></td>
 <td>Quick Look thumbnail extension for <code>.exe</code> files</td>
 </tr>
 </tbody></table>
 <h2>Before you open a pull request</h2>
-<pre><code class="language-sh">swift test --package-path VodkaKit   # unit tests
+<pre><code class="language-sh">swift test --package-path GmacKit   # unit tests
 swiftformat --lint .                 # formatting (CI pins SwiftFormat 0.58.7)
 </code></pre>
 <p>SwiftLint runs as part of the Xcode build and any violation fails the build. It is skipped
 when <code>CI=true</code> is set, so run <code>swiftlint --strict</code> explicitly before opening a pull
 request. Every Swift file begins with the license header reading &quot;This file is part of
-Vodka, a fork of Whisky.&quot;; copy it from an existing file.</p>
+Gmac, a fork of Whisky.&quot;; copy it from an existing file.</p>
 <h2>Guidelines</h2>
 <ul>
 <li><strong>Every change lands through a pull request.</strong> Direct pushes to <code>main</code> are not accepted.</li>
 <li><strong>Keep pull requests small.</strong> One fix or feature per pull request.</li>
-<li><strong>Strings.</strong> Add new user-facing text to <code>Vodka/Localizable.xcstrings</code> in English only.
+<li><strong>Strings.</strong> Add new user-facing text to <code>Gmac/Localizable.xcstrings</code> in English only.
 Edit the file as text and modify only the required lines. Re-saving it with a JSON tool
 reorders the entire catalog and makes the diff unreviewable.</li>
-<li><strong>Xcode project.</strong> VodkaKit discovers new files automatically. Files added to the
-application target also require entries in <code>Vodka.xcodeproj</code>.</li>
+<li><strong>Xcode project.</strong> GmacKit discovers new files automatically. Files added to the
+application target also require entries in <code>Gmac.xcodeproj</code>.</li>
 <li><strong>Changelog.</strong> Describe user-facing changes under <code>[Unreleased]</code> in
-<a href="https://github.com/rolling7ho/vodka/blob/main/CHANGELOG.md">CHANGELOG.md</a>.</li>
+<a href="https://github.com/rolling7ho/gmac/blob/main/CHANGELOG.md">CHANGELOG.md</a>.</li>
 <li><strong>Game fixes.</strong> A fix that only changes settings belongs in
-<code>VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json</code>, with a link to the origin
+<code>GmacKit/Sources/GmacKit/GameDatabase/Resources/GameDB.json</code>, with a link to the origin
 of the fix.</li>
 <li><strong>Secrets.</strong> CI scans every push with TruffleHog. Run the same check locally with
 <code>scripts/scan-secrets.sh</code>.</li>
 </ul>
 <h2>Releasing an update</h2>
-<p>Installed copies check <code>https://rolling7ho.github.io/vodka/appcast.xml</code>, served from the
+<p>Installed copies check <code>https://rolling7ho.github.io/gmac/appcast.xml</code>, served from the
 <code>gh-pages</code> branch, through Sparkle. To publish an update, describe it under <code>[Unreleased]</code>
 in the changelog, commit the working tree, and run:</p>
 <pre><code class="language-sh">scripts/publish-update.sh 4.0.1
@@ -100,17 +100,17 @@ in the changelog, commit the working tree, and run:</p>
 build versions, builds and ad-hoc signs the application, signs the archive with the Sparkle
 key, creates the <code>app-v4.0.1</code> GitHub release, and adds the release to the appcast on
 <code>gh-pages</code>. Signing requires the Sparkle key in the maintainer&#39;s login keychain (account
-<code>vodka</code>) or at <code>~/.vodka-sparkle-private-key</code>. Retain a backup of the key: installed copies
+<code>gmac</code>) or at <code>~/.gmac-sparkle-private-key</code>. Retain a backup of the key: installed copies
 accept updates only when signed with that key.</p>
 <h2>License</h2>
 <p>By contributing, you agree that your work is released under the
-<a href="https://raw.githubusercontent.com/rolling7ho/vodka/main/LICENSE">GNU GPL v3</a>, the same license as the rest of Vodka.</p>
+<a href="https://raw.githubusercontent.com/rolling7ho/gmac/main/LICENSE">GNU GPL v3</a>, the same license as the rest of Gmac.</p>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a></p>
   </div>
 </footer>
 </body>

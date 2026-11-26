@@ -1,5 +1,5 @@
 #!/bin/bash
-# SwiftFormat pre-commit hook for Vodka
+# SwiftFormat pre-commit hook for Gmac
 # Install: cp .github/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 
 set -e

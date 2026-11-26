@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stability troubleshooting | Vodka</title>
+<title>Stability troubleshooting | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/stability.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/stability.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -35,8 +35,8 @@ crashes, hard freezes, reboots and kernel panics.</p>
 <ul>
 <li>a macOS kernel panic or reboot during game launch or gameplay;</li>
 <li>a complete system freeze requiring a forced reboot;</li>
-<li>a Vodka UI freeze, for example while opening bottle configuration;</li>
-<li>a Vodka crash on launch or during VodkaWine installation.</li>
+<li>a Gmac UI freeze, for example while opening bottle configuration;</li>
+<li>a Gmac crash on launch or during GmacWine installation.</li>
 </ul>
 <h2>Immediate mitigations for users</h2>
 <ul>
@@ -66,7 +66,7 @@ this report first:</p>
 <h3>Wine log folder</h3>
 <p>In the application, select <strong>Open Logs Folder</strong> (menu item) and attach the newest <code>.log</code>
 files if requested.</p>
-<p>Vodka enforces log size limits, comprising a per-file cap and a folder cap, to prevent
+<p>Gmac enforces log size limits, comprising a per-file cap and a folder cap, to prevent
 excessive disk use.</p>
 <h3>macOS crash and panic logs</h3>
 <p>For kernel panics and reboots:</p>
@@ -80,7 +80,7 @@ excessive disk use.</p>
 <ul>
 <li><strong>Mac model</strong> (for example, M3 Max)</li>
 <li><strong>macOS version</strong> (for example, 15.2 or 15.4.1)</li>
-<li><strong>Vodka version</strong> and <strong>VodkaWine version</strong></li>
+<li><strong>Gmac version</strong> and <strong>GmacWine version</strong></li>
 <li><strong>Game or application</strong> and its distribution channel (Steam, GOG and so on)</li>
 <li><strong>Bottle settings</strong>: Sequoia compatibility, DXVK, DXR, Enhanced Sync</li>
 <li><strong>Steps to reproduce</strong>, reduced to the shortest reliable sequence</li>
@@ -94,16 +94,16 @@ main-thread starvation and long-running aggregation of Wine commands first.</li>
 <li>If the report indicates a <strong>kernel panic</strong>, treat it as likely to be at driver level.
 Focus on mitigations (DXR disabled, a different graphics backend) and on collecting
 high-quality reproduction data.</li>
-<li>If the report indicates a <strong>VodkaWine installation failure</strong>, collect the exact error
+<li>If the report indicates a <strong>GmacWine installation failure</strong>, collect the exact error
 message, validate the tarball structure and the version plist, and attach the relevant
 logs.</li>
 </ul>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/docs/StabilityTroubleshooting.md">docs/StabilityTroubleshooting.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/StabilityTroubleshooting.md">docs/StabilityTroubleshooting.md</a></p>
   </div>
 </footer>
 </body>

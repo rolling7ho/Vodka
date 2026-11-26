@@ -6,11 +6,11 @@
 > **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
 > the original upstream project (whisky-app/whisky). Upstream references are retained for
 > historical context. Report new issues to
-> [rolling7ho/vodka](https://github.com/rolling7ho/vodka/issues).
+> [rolling7ho/gmac](https://github.com/rolling7ho/gmac/issues).
 
 ## Overview
 
-Steam is the most commonly used launcher with Vodka and accounts for the largest share of
+Steam is the most commonly used launcher with Gmac and accounts for the largest share of
 launcher compatibility reports. This guide describes the recommended configuration and the
 known failure modes.
 
@@ -40,7 +40,7 @@ known failure modes.
    per-executable overrides, so the client renders through DXVK while games retain the
    bottle's backend. When the D3DMetal payload is installed, the recommended backend is
    D3DMetal, which DirectX 12 games require.
-   A game started from the Vodka library, from `vodka launch` or from a `vodka://` link
+   A game started from the Gmac library, from `gmac launch` or from a `gmac://` link
    receives its own settings from the Programs tab and the game database, applied to its
    own executables regardless of which process starts it.
    On a runtime without the D3DMetal payload, **Play** switches the bottle to DXVK.
@@ -127,7 +127,7 @@ so downloads time out before completion.
 2. Alternatively, in Steam open **Settings → Downloads**, select a different download
    region, pause and resume the download, and clear the download cache.
 
-Longer timeouts prevent premature connection closure. Vodka does not set
+Longer timeouts prevent premature connection closure. Gmac does not set
 `WINE_FORCE_HTTP11` or `WINE_MAX_CONNECTIONS_PER_SERVER`; earlier versions of this guide
 listed variables that no shipped runtime reads.
 
@@ -149,7 +149,7 @@ Network keepalive timeouts and TLS handshake behaviour under Wine.
 
 1. Raise the network timeout to **120 seconds** or more.
 2. Generate diagnostics and confirm that the locale and sandbox variables listed under
-   Step 4 are present. Vodka does not set `WINE_ENABLE_SSL` or `WINE_SSL_VERSION_MIN`.
+   Step 4 are present. Gmac does not set `WINE_ENABLE_SSL` or `WINE_SSL_VERSION_MIN`.
 3. In **System Settings → Network**, confirm a stable connection and temporarily disable
    any VPN for testing.
 
@@ -188,7 +188,7 @@ Network keepalive timeouts and TLS handshake behaviour under Wine.
 4. Generate diagnostics and confirm `CEF_DISABLE_SANDBOX=1`.
 
 If the interface remains invisible, delete Steam, reinstall it, and inspect
-`~/Library/Logs/com.rolling7ho.Vodka/` for errors.
+`~/Library/Logs/com.rolling7ho.Gmac/` for errors.
 
 **Related issues:** whisky-app/whisky#1183, #1009.
 
@@ -318,7 +318,7 @@ Example report:
 **System:**
 - macOS 15.4.1
 - M2 Pro MacBook Pro
-- Vodka version 4.x
+- Gmac version 4.x
 - Steam version: December 2025 build
 
 **Configuration:**
@@ -344,20 +344,20 @@ Example report:
 
 - Steam support: <https://help.steampowered.com/>
 - Launcher troubleshooting: [LauncherTroubleshooting.md](LauncherTroubleshooting.md)
-- Issue tracker: <https://github.com/rolling7ho/vodka/issues>
+- Issue tracker: <https://github.com/rolling7ho/gmac/issues>
 - Upstream project: <https://github.com/whisky-app/whisky>
 
 ## Comparison of execution methods
 
 | Method | Setup effort | Compatibility | Performance | Assessment |
 |---|---|---|---|---|
-| Vodka with launcher compatibility | Low | High | Good | Recommended |
+| Gmac with launcher compatibility | Low | High | Good | Recommended |
 | Native macOS Steam | Low | macOS titles only | Native | Limited catalog |
 | CrossOver | Medium | High | Good | Commercial |
 | Virtual machine | High | High | Fair | Resource intensive |
 | Boot Camp | High | Complete | Complete | Requires reboot |
 
-Vodka is free and open source, requires no reboot, integrates with macOS, and applies the
+Gmac is free and open source, requires no reboot, integrates with macOS, and applies the
 compatibility configuration described above automatically once launcher compatibility is
 enabled.
 
@@ -423,7 +423,7 @@ Metal
 
 ## Monitoring and maintenance
 
-**Weekly:** Steam updates automatically. Check for Vodka updates and review new
+**Weekly:** Steam updates automatically. Check for Gmac updates and review new
 configuration warnings.
 
 **After a macOS update:** confirm that Steam launches, that `steamwebhelper.exe` starts,
@@ -455,7 +455,7 @@ that consistently stall, and high CPU usage while idle.
 
 **Restore from backup**
 
-If `Metadata.plist` was backed up, replace the current file with the backup, restart Vodka
+If `Metadata.plist` was backed up, replace the current file with the backup, restart Gmac
 and test Steam.
 
 **Save file location**

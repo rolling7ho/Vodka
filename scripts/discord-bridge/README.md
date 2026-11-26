@@ -3,8 +3,8 @@
 Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
 that a Windows game's rich presence reaches Discord on macOS.
 
-`make install` builds `VodkaDiscordBridge.exe` and places it in
-`VodkaKit/Sources/VodkaKit/Discord/Resources/`, from which it ships as a bundle resource.
+`make install` builds `GmacDiscordBridge.exe` and places it in
+`GmacKit/Sources/GmacKit/Discord/Resources/`, from which it ships as a bundle resource.
 The built binary is committed, because Xcode builds do not run `make` and CI has no MinGW
 toolchain. Rebuild and commit the binary whenever `bridge.c` changes.
 
@@ -33,7 +33,7 @@ Three constraints apply to any change:
   relative to that directory.
 - **The relay becomes a Wine system process after a grace period.** System processes do not
   keep a prefix alive, so the relay stops holding a bottle open once the game exits and
-  terminates with the prefix rather than outliving it. The grace period exists because Vodka
+  terminates with the prefix rather than outliving it. The grace period exists because Gmac
   starts the relay immediately before the game, and a prefix containing no ordinary process
   begins shutting down.
 
@@ -43,8 +43,8 @@ Serve a socket at a path short enough to fit `sun_path`, point the relay at it, 
 from inside the prefix:
 
 ```
-mkdir -p /tmp/vodkaipc
-python3 - /tmp/vodkaipc/discord-ipc-0 <<'EOF'
+mkdir -p /tmp/gmacipc
+python3 - /tmp/gmacipc/discord-ipc-0 <<'EOF'
 import socket, struct, sys
 server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 server.bind(sys.argv[1]); server.listen(1)
@@ -53,7 +53,7 @@ header = conn.recv(8)
 print(struct.unpack("<II", header), conn.recv(4096))
 EOF
 
-WINEPREFIX=... wine64 VodkaDiscordBridge.exe --dir /tmp/vodkaipc --grace 600000
+WINEPREFIX=... wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
 ```
 
 `--grace` is specified in milliseconds. A large value prevents the relay from standing down

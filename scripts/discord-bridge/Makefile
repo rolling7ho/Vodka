@@ -1,7 +1,7 @@
 CC = x86_64-w64-mingw32-gcc
 CFLAGS = -O2 -Wall -Wextra
-TARGET := VodkaDiscordBridge.exe
-RESOURCES := ../../VodkaKit/Sources/VodkaKit/Discord/Resources
+TARGET := GmacDiscordBridge.exe
+RESOURCES := ../../GmacKit/Sources/GmacKit/Discord/Resources
 
 all: $(TARGET)
 

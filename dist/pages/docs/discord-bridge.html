@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Discord bridge | Vodka</title>
+<title>Discord bridge | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/discord-bridge.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/discord-bridge.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -28,8 +28,8 @@
   <h1>Discord bridge</h1>
 <p>Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
 that a Windows game&#39;s rich presence reaches Discord on macOS.</p>
-<p><code>make install</code> builds <code>VodkaDiscordBridge.exe</code> and places it in
-<code>VodkaKit/Sources/VodkaKit/Discord/Resources/</code>, from which it ships as a bundle resource.
+<p><code>make install</code> builds <code>GmacDiscordBridge.exe</code> and places it in
+<code>GmacKit/Sources/GmacKit/Discord/Resources/</code>, from which it ships as a bundle resource.
 The built binary is committed, because Xcode builds do not run <code>make</code> and CI has no MinGW
 toolchain. Rebuild and commit the binary whenever <code>bridge.c</code> changes.</p>
 <pre><code>brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
@@ -53,15 +53,15 @@ environment, in which the host&#39;s <code>TMPDIR</code> may not have survived, 
 relative to that directory.</li>
 <li><strong>The relay becomes a Wine system process after a grace period.</strong> System processes do not
 keep a prefix alive, so the relay stops holding a bottle open once the game exits and
-terminates with the prefix rather than outliving it. The grace period exists because Vodka
+terminates with the prefix rather than outliving it. The grace period exists because Gmac
 starts the relay immediately before the game, and a prefix containing no ordinary process
 begins shutting down.</li>
 </ul>
 <h2>Manual test</h2>
 <p>Serve a socket at a path short enough to fit <code>sun_path</code>, point the relay at it, and connect
 from inside the prefix:</p>
-<pre><code>mkdir -p /tmp/vodkaipc
-python3 - /tmp/vodkaipc/discord-ipc-0 &lt;&lt;&#39;EOF&#39;
+<pre><code>mkdir -p /tmp/gmacipc
+python3 - /tmp/gmacipc/discord-ipc-0 &lt;&lt;&#39;EOF&#39;
 import socket, struct, sys
 server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 server.bind(sys.argv[1]); server.listen(1)
@@ -70,16 +70,16 @@ header = conn.recv(8)
 print(struct.unpack(&quot;&lt;II&quot;, header), conn.recv(4096))
 EOF
 
-WINEPREFIX=... wine64 VodkaDiscordBridge.exe --dir /tmp/vodkaipc --grace 600000
+WINEPREFIX=... wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
 </code></pre>
 <p><code>--grace</code> is specified in milliseconds. A large value prevents the relay from standing down
 while it is being tested.</p>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/scripts/discord-bridge/README.md">scripts/discord-bridge/README.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/scripts/discord-bridge/README.md">scripts/discord-bridge/README.md</a></p>
   </div>
 </footer>
 </body>

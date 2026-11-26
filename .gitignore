@@ -110,12 +110,12 @@ sparkle_ed25519_private.key*
 developer_id.p12*
 *.age
 # Built by scripts/build_audio_test.sh, which also drops a copy beside itself.
-# The one under Vodka/Resources is committed; this one is not.
-scripts/VodkaAudioTest.exe
+# The one under Gmac/Resources is committed; this one is not.
+scripts/GmacAudioTest.exe
 
 # A build's Discord application id. The id belongs to whoever owns the
 # application users see, so it is supplied per build rather than committed.
-VodkaKit/Sources/VodkaKit/Discord/Local/client-id.txt
+GmacKit/Sources/GmacKit/Discord/Local/client-id.txt
 
 # Local runtime build workbench directories (kept untracked beside runtime/local-build.rb)
 runtime/runtime-*/

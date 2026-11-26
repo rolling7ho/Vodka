@@ -1,0 +1,37 @@
+//
+//  CleanupConfigSection.swift
+//  Gmac
+//
+//  This file is part of Gmac, a fork of Whisky.
+//
+//  Gmac is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Gmac.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import GmacKit
+import SwiftUI
+
+struct CleanupConfigSection: View {
+    @ObservedObject var bottle: Bottle
+    @Binding var isExpanded: Bool
+
+    var body: some View {
+        Section("config.cleanup", isExpanded: $isExpanded) {
+            Picker("config.cleanup.clipboardPolicy", selection: $bottle.settings.clipboardPolicy) {
+                Text("config.cleanup.clipboardPolicy.auto").tag(ClipboardPolicy.auto)
+                Text("config.cleanup.clipboardPolicy.warn").tag(ClipboardPolicy.alwaysWarn)
+                Text("config.cleanup.clipboardPolicy.clear").tag(ClipboardPolicy.alwaysClear)
+                Text("config.cleanup.clipboardPolicy.never").tag(ClipboardPolicy.never)
+            }
+            .help("config.cleanup.clipboardPolicy.help")
+        }
+    }
+}

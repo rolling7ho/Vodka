@@ -12,8 +12,8 @@ Use this guide for reports of:
 
 - a macOS kernel panic or reboot during game launch or gameplay;
 - a complete system freeze requiring a forced reboot;
-- a Vodka UI freeze, for example while opening bottle configuration;
-- a Vodka crash on launch or during VodkaWine installation.
+- a Gmac UI freeze, for example while opening bottle configuration;
+- a Gmac crash on launch or during GmacWine installation.
 
 ## Immediate mitigations for users
 
@@ -49,7 +49,7 @@ Notes:
 In the application, select **Open Logs Folder** (menu item) and attach the newest `.log`
 files if requested.
 
-Vodka enforces log size limits, comprising a per-file cap and a folder cap, to prevent
+Gmac enforces log size limits, comprising a per-file cap and a folder cap, to prevent
 excessive disk use.
 
 ### macOS crash and panic logs
@@ -66,7 +66,7 @@ Include the following in the issue:
 
 - **Mac model** (for example, M3 Max)
 - **macOS version** (for example, 15.2 or 15.4.1)
-- **Vodka version** and **VodkaWine version**
+- **Gmac version** and **GmacWine version**
 - **Game or application** and its distribution channel (Steam, GOG and so on)
 - **Bottle settings**: Sequoia compatibility, DXVK, DXR, Enhanced Sync
 - **Steps to reproduce**, reduced to the shortest reliable sequence
@@ -80,6 +80,6 @@ Include the following in the issue:
 - If the report indicates a **kernel panic**, treat it as likely to be at driver level.
   Focus on mitigations (DXR disabled, a different graphics backend) and on collecting
   high-quality reproduction data.
-- If the report indicates a **VodkaWine installation failure**, collect the exact error
+- If the report indicates a **GmacWine installation failure**, collect the exact error
   message, validate the tarball structure and the version plist, and attach the relevant
   logs.

@@ -4,8 +4,8 @@
 
 ## Area
 
-- [ ] Vodka application or VodkaKit
-- [ ] VodkaCmd or VodkaThumbnail
+- [ ] Gmac application or GmacKit
+- [ ] GmacCmd or GmacThumbnail
 - [ ] Runtime assembly or scripts
 - [ ] Documentation or localization
 
@@ -13,7 +13,7 @@
 
 <!-- Exact commands run and their result. State what could not be run. -->
 
-- [ ] `swift test --package-path VodkaKit` (when application logic changed)
+- [ ] `swift test --package-path GmacKit` (when application logic changed)
 - [ ] Built the affected Xcode scheme (when application or UI changed)
 - [ ] `swiftformat --lint . && swiftlint --strict`
 - [ ] `./scripts/british-english.py --check` (when strings changed)
@@ -23,7 +23,7 @@
 ## Checklist
 
 - [ ] One focused change; no unrelated reformatting or refactoring
-- [ ] Swift files retain the GPL header; new application-target files are in `Vodka.xcodeproj`
+- [ ] Swift files retain the GPL header; new application-target files are in `Gmac.xcodeproj`
 - [ ] Changelog updated under `[Unreleased]` for user-facing changes
 - [ ] Documentation updated where behaviour or paths changed
 - [ ] No secrets, keys, certificates or personal diagnostics in the diff
