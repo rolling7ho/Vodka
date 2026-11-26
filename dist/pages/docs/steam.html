@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Steam compatibility | Vodka</title>
+<title>Steam compatibility | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/steam.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/steam.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -32,10 +32,10 @@
 <p><strong>Note:</strong> This document references issue numbers from this fork (frankea/Whisky) and from
 the original upstream project (whisky-app/whisky). Upstream references are retained for
 historical context. Report new issues to
-<a href="https://github.com/rolling7ho/vodka/issues">rolling7ho/vodka</a>.</p>
+<a href="https://github.com/rolling7ho/gmac/issues">rolling7ho/gmac</a>.</p>
 </blockquote>
 <h2>Overview</h2>
-<p>Steam is the most commonly used launcher with Vodka and accounts for the largest share of
+<p>Steam is the most commonly used launcher with Gmac and accounts for the largest share of
 launcher compatibility reports. This guide describes the recommended configuration and the
 known failure modes.</p>
 <h2>Recommended configuration</h2>
@@ -63,7 +63,7 @@ first issue below.</li>
 per-executable overrides, so the client renders through DXVK while games retain the
 bottle&#39;s backend. When the D3DMetal payload is installed, the recommended backend is
 D3DMetal, which DirectX 12 games require.
-A game started from the Vodka library, from <code>vodka launch</code> or from a <code>vodka://</code> link
+A game started from the Gmac library, from <code>gmac launch</code> or from a <code>gmac://</code> link
 receives its own settings from the Programs tab and the game database, applied to its
 own executables regardless of which process starts it.
 On a runtime without the D3DMetal payload, <strong>Play</strong> switches the bottle to DXVK.
@@ -137,7 +137,7 @@ higher, then restart Steam. The timeout configures <code>WINHTTP_CONNECT_TIMEOUT
 <li>Alternatively, in Steam open <strong>Settings → Downloads</strong>, select a different download
 region, pause and resume the download, and clear the download cache.</li>
 </ol>
-<p>Longer timeouts prevent premature connection closure. Vodka does not set
+<p>Longer timeouts prevent premature connection closure. Gmac does not set
 <code>WINE_FORCE_HTTP11</code> or <code>WINE_MAX_CONNECTIONS_PER_SERVER</code>; earlier versions of this guide
 listed variables that no shipped runtime reads.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1148, #1072, #991, #1222.</p>
@@ -154,7 +154,7 @@ listed variables that no shipped runtime reads.</p>
 <ol>
 <li>Raise the network timeout to <strong>120 seconds</strong> or more.</li>
 <li>Generate diagnostics and confirm that the locale and sandbox variables listed under
-Step 4 are present. Vodka does not set <code>WINE_ENABLE_SSL</code> or <code>WINE_SSL_VERSION_MIN</code>.</li>
+Step 4 are present. Gmac does not set <code>WINE_ENABLE_SSL</code> or <code>WINE_SSL_VERSION_MIN</code>.</li>
 <li>In <strong>System Settings → Network</strong>, confirm a stable connection and temporarily disable
 any VPN for testing.</li>
 </ol>
@@ -189,7 +189,7 @@ on macOS 15 or later.</li>
 <li>Generate diagnostics and confirm <code>CEF_DISABLE_SANDBOX=1</code>.</li>
 </ol>
 <p>If the interface remains invisible, delete Steam, reinstall it, and inspect
-<code>~/Library/Logs/com.rolling7ho.Vodka/</code> for errors.</p>
+<code>~/Library/Logs/com.rolling7ho.Gmac/</code> for errors.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1183, #1009.</p>
 <h2>macOS 15.4 and later</h2>
 <p><strong>Symptoms</strong></p>
@@ -292,7 +292,7 @@ title, and VR titles are unsupported.</p>
 **System:**
 - macOS 15.4.1
 - M2 Pro MacBook Pro
-- Vodka version 4.x
+- Gmac version 4.x
 - Steam version: December 2025 build
 
 **Configuration:**
@@ -317,7 +317,7 @@ title, and VR titles are unsupported.</p>
 <ul>
 <li>Steam support: <a href="https://help.steampowered.com/">https://help.steampowered.com/</a></li>
 <li>Launcher troubleshooting: <a href="launcher-troubleshooting.html">LauncherTroubleshooting.md</a></li>
-<li>Issue tracker: <a href="https://github.com/rolling7ho/vodka/issues">https://github.com/rolling7ho/vodka/issues</a></li>
+<li>Issue tracker: <a href="https://github.com/rolling7ho/gmac/issues">https://github.com/rolling7ho/gmac/issues</a></li>
 <li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
 </ul>
 <h2>Comparison of execution methods</h2>
@@ -332,7 +332,7 @@ title, and VR titles are unsupported.</p>
 </tr>
 </thead>
 <tbody><tr>
-<td>Vodka with launcher compatibility</td>
+<td>Gmac with launcher compatibility</td>
 <td>Low</td>
 <td>High</td>
 <td>Good</td>
@@ -367,7 +367,7 @@ title, and VR titles are unsupported.</p>
 <td>Requires reboot</td>
 </tr>
 </tbody></table>
-<p>Vodka is free and open source, requires no reboot, integrates with macOS, and applies the
+<p>Gmac is free and open source, requires no reboot, integrates with macOS, and applies the
 compatibility configuration described above automatically once launcher compatibility is
 enabled.</p>
 <h2>FAQ</h2>
@@ -419,7 +419,7 @@ Metal
   Validation: off
 </code></pre>
 <h2>Monitoring and maintenance</h2>
-<p><strong>Weekly:</strong> Steam updates automatically. Check for Vodka updates and review new
+<p><strong>Weekly:</strong> Steam updates automatically. Check for Gmac updates and review new
 configuration warnings.</p>
 <p><strong>After a macOS update:</strong> confirm that Steam launches, that <code>steamwebhelper.exe</code> starts,
 that downloads complete, and regenerate diagnostics if problems appear.</p>
@@ -444,7 +444,7 @@ that consistently stall, and high CPU usage while idle.</p>
 <li>Sign in and verify the client before downloading games.</li>
 </ol>
 <p><strong>Restore from backup</strong></p>
-<p>If <code>Metadata.plist</code> was backed up, replace the current file with the backup, restart Vodka
+<p>If <code>Metadata.plist</code> was backed up, replace the current file with the backup, restart Gmac
 and test Steam.</p>
 <p><strong>Save file location</strong></p>
 <pre><code>~/Library/Application Support/&lt;Bottle&gt;/drive_c/users/&lt;username&gt;/My Documents/
@@ -453,9 +453,9 @@ and test Steam.</p>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/docs/SteamCompatibility.md">docs/SteamCompatibility.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/SteamCompatibility.md">docs/SteamCompatibility.md</a></p>
   </div>
 </footer>
 </body>

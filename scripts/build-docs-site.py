@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 #
 #  build-docs-site.py
-#  Vodka
+#  Gmac
 #
-#  This file is part of Vodka, a fork of Whisky.
+#  This file is part of Gmac, a fork of Whisky.
 #
-#  Vodka is free software: you can redistribute it and/or modify it under the terms
+#  Gmac is free software: you can redistribute it and/or modify it under the terms
 #  of the GNU General Public License as published by the Free Software Foundation,
 #  either version 3 of the License, or (at your option) any later version.
 #
-#  Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+#  Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 #  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #  See the GNU General Public License for more details.
 #
-#  You should have received a copy of the GNU General Public License along with Vodka.
+#  You should have received a copy of the GNU General Public License along with Gmac.
 #  If not, see https://www.gnu.org/licenses/.
 #
 # Renders the repository documentation into static HTML for the GitHub Pages site.
@@ -35,8 +35,8 @@ import tempfile
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PAGES = os.path.join(ROOT, "dist", "pages")
 OUT = os.path.join(PAGES, "docs")
-SITE_BASE = "https://rolling7ho.github.io/vodka"
-REPO = "rolling7ho/vodka"
+SITE_BASE = "https://rolling7ho.github.io/gmac"
+REPO = "rolling7ho/gmac"
 BRANCH = "main"
 MARKED = ["npx", "--yes", "marked@18.3.0"]
 
@@ -73,7 +73,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title} | Vodka</title>
+<title>{title} | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
@@ -83,8 +83,8 @@ TEMPLATE = """<!doctype html>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="{raw}/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
@@ -99,8 +99,8 @@ TEMPLATE = """<!doctype html>
 {body}
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
     <p class="muted">Source: <a href="https://github.com/{repo}/blob/{branch}/{source}">{source}</a></p>
   </div>
 </footer>
@@ -113,7 +113,7 @@ INDEX_TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Documentation | Vodka</title>
+<title>Documentation | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
@@ -123,8 +123,8 @@ INDEX_TEMPLATE = """<!doctype html>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="{raw}/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
@@ -138,8 +138,8 @@ INDEX_TEMPLATE = """<!doctype html>
 {groups}
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
     <p class="muted">Source: <a href="https://github.com/{repo}">github.com/{repo}</a></p>
   </div>
 </footer>

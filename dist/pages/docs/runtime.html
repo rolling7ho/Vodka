@@ -3,36 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Runtime workbench | Vodka</title>
+<title>Runtime workbench | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/runtime.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/runtime.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
 <main class="wrap doc">
   <p class="doc-nav"><a href="./">Documentation</a> / Runtime</p>
   <h1>Runtime workbench</h1>
-<p>This directory contains the local runtime build driver and release notes for Vodka&#39;s Windows
+<p>This directory contains the local runtime build driver and release notes for Gmac&#39;s Windows
 runtime (<code>Libraries.tar.gz</code>). Runtime builds are assembled and published as GitHub Releases on
-<code>rolling7ho/vodka</code>.</p>
+<code>rolling7ho/gmac</code>.</p>
 <p>The Wine and DXMT source trees live in separate repositories:</p>
 <ul>
 <li><code>rolling7ho/winecx</code> (branch <code>d3dmetal-errno</code>): patched Wine/CrossOver source tree.</li>
-<li><code>rolling7ho/dxmt</code> (branch <code>teardown</code>): DXMT source tree from which <code>vodkametal</code> builds.</li>
+<li><code>rolling7ho/dxmt</code> (branch <code>teardown</code>): DXMT source tree from which <code>gmacmetal</code> builds.</li>
 </ul>
 <p>Local build lanes (<code>runtime-47/</code>, <code>runtime-up/</code>, <code>runtime-ci/</code>), packaged runtimes
 (<code>pkg-*/</code>), build dependencies (<code>deps/</code>), and <code>.local-ci/</code> state are untracked and ignored
@@ -69,7 +69,7 @@ an experiment.</p>
 </tr>
 <tr>
 <td><code>../../dxmt/</code></td>
-<td>Sibling checkout of <code>rolling7ho/dxmt</code> used by <code>../scripts/build-vodka-d3d12.sh</code>.</td>
+<td>Sibling checkout of <code>rolling7ho/dxmt</code> used by <code>../scripts/build-gmac-d3d12.sh</code>.</td>
 <td>separate repo</td>
 </tr>
 <tr>
@@ -83,13 +83,13 @@ an experiment.</p>
 directory) so that relative lane paths resolve:</p>
 <pre><code class="language-sh">cd runtime &amp;&amp; ruby local-build.rb
 </code></pre>
-<p>Changes to <code>winecx</code> or <code>dxmt</code> belong in their respective repositories, not in <code>rolling7ho/vodka</code>.</p>
+<p>Changes to <code>winecx</code> or <code>dxmt</code> belong in their respective repositories, not in <code>rolling7ho/gmac</code>.</p>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/runtime/README.md">runtime/README.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/runtime/README.md">runtime/README.md</a></p>
   </div>
 </footer>
 </body>

@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Release workflow | Vodka</title>
+<title>Release workflow | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/release-workflow.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/release-workflow.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -41,13 +41,13 @@ Libraries archive, and which credentials the pipeline depends on.</p>
 <tbody><tr>
 <td>Application update</td>
 <td><code>app-vX.Y.Z</code></td>
-<td><code>Vodka-X.Y.Z.zip</code>, signed for Sparkle</td>
+<td><code>Gmac-X.Y.Z.zip</code>, signed for Sparkle</td>
 <td><code>scripts/publish-update.sh</code></td>
 </tr>
 <tr>
 <td>Notarized disk image</td>
 <td><code>app-vX.Y.Z</code></td>
-<td><code>Vodka-X.Y.Z.dmg</code></td>
+<td><code>Gmac-X.Y.Z.dmg</code></td>
 <td><code>scripts/release.sh</code></td>
 </tr>
 <tr>
@@ -64,7 +64,7 @@ Libraries archive, and which credentials the pipeline depends on.</p>
 </tr>
 </tbody></table>
 <p>The Sparkle update feed is <code>appcast.xml</code> on the <code>gh-pages</code> branch, served at
-<code>https://rolling7ho.github.io/vodka/appcast.xml</code> and referenced by <code>SUFeedURL</code> in the
+<code>https://rolling7ho.github.io/gmac/appcast.xml</code> and referenced by <code>SUFeedURL</code> in the
 application&#39;s <code>Info.plist</code>. The committed site content used by the publishing scripts
 resides in <code>dist/pages/</code>.</p>
 <h2>One-time setup</h2>
@@ -95,11 +95,11 @@ Passwords</strong>.</p>
 </ol>
 <h3>Sparkle EdDSA keys</h3>
 <p>A key pair signs appcast entries. Sparkle&#39;s <code>generate_keys</code> tool ships with the Sparkle
-Swift package; after building Vodka once, it is located at:</p>
-<pre><code>~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
+Swift package; after building Gmac once, it is located at:</p>
+<pre><code>~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
 </code></pre>
 <p>Run it once. The private key is stored in the login keychain. The public key is printed to
-standard output and is already committed in <code>Vodka/Info.plist</code> under <code>SUPublicEDKey</code>.
+standard output and is already committed in <code>Gmac/Info.plist</code> under <code>SUPublicEDKey</code>.
 Regenerating the keys invalidates the public key in every shipped application and requires a
 new release.</p>
 <h2>Credential continuity</h2>
@@ -134,10 +134,10 @@ current, restore-tested backups of all three.</p>
 <h3>Backup procedure</h3>
 <ol>
 <li><p>Export the Sparkle private key. Keychain will prompt for access:</p>
-<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
+<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
 &quot;$SPARKLE_BIN/generate_keys&quot; -x sparkle_ed25519_private.key
 </code></pre>
-<p>If several <code>Vodka-*</code> DerivedData directories exist, this selects the most recently
+<p>If several <code>Gmac-*</code> DerivedData directories exist, this selects the most recently
 modified one.</p>
 </li>
 <li><p>Export the Developer ID identity: <strong>Keychain Access → My Certificates</strong>, right-click
@@ -166,7 +166,7 @@ reminder tracks the new expiry date.</p>
 <h3>Restore test</h3>
 <p>A backup that has never been restored from is unverified. <code>sign_update</code> can sign directly
 from a key file, so the test does not modify the keychain:</p>
-<pre><code class="language-sh">&quot;$SPARKLE_BIN/sign_update&quot; --ed-key-file sparkle_ed25519_private.key build/release/Vodka-X.Y.Z.dmg
+<pre><code class="language-sh">&quot;$SPARKLE_BIN/sign_update&quot; --ed-key-file sparkle_ed25519_private.key build/release/Gmac-X.Y.Z.dmg
 </code></pre>
 <p>The printed <code>sparkle:edSignature</code> <strong>and</strong> the printed <code>length</code> must both match that
 release&#39;s entry in <code>appcast.xml</code>. Ed25519 signatures are deterministic, so a mismatch in
@@ -175,10 +175,10 @@ incorrect, or the file signed is not the exact published artifact. If in doubt, 
 the release asset from the appcast enclosure URL and sign that.</p>
 <h3>Recovery on a new machine</h3>
 <ol>
-<li><p>Build Vodka once so that the Sparkle tools exist in DerivedData (see
+<li><p>Build Gmac once so that the Sparkle tools exist in DerivedData (see
 <a href="#sparkle-eddsa-keys">Sparkle EdDSA keys</a>); <code>generate_keys</code> ships inside the Sparkle
 Swift package and is not on <code>PATH</code>. Declare <code>SPARKLE_BIN</code> in the fresh shell:</p>
-<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
+<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
 </code></pre>
 </li>
 <li><p>Decrypt the backup
@@ -203,7 +203,7 @@ clean working tree, <code>gh</code> authenticated with push access, and the Spar
 as the release notes.</li>
 <li>Bumps <code>MARKETING_VERSION</code> to the new version and increments <code>CURRENT_PROJECT_VERSION</code>.</li>
 <li>Builds and ad-hoc signs the application, archives it as
-<code>Vodka-X.Y.Z.zip</code>, and signs the archive with the Sparkle key.</li>
+<code>Gmac-X.Y.Z.zip</code>, and signs the archive with the Sparkle key.</li>
 <li>Tags <code>app-vX.Y.Z</code>, pushes the branch and tag, and creates the GitHub release with the
 archive.</li>
 <li>Adds the release to <code>appcast.xml</code> on <code>gh-pages</code>, which GitHub Pages serves.</li>
@@ -227,19 +227,19 @@ certificate.</li>
 minutes.</li>
 <li>Staples the notarization ticket and verifies the result with <code>spctl --assess</code>.</li>
 </ol>
-<p>The artifact is written to <code>build/release/Vodka-X.Y.Z.dmg</code>.</p>
+<p>The artifact is written to <code>build/release/Gmac-X.Y.Z.dmg</code>.</p>
 <h3>Appcast entry format</h3>
 <p>For reference, an appcast item produced by <code>scripts/update-appcast.py</code> has the following
 shape. The archive name, tag and URL match the output of <code>publish-update.sh</code>:</p>
 <pre><code class="language-xml">&lt;item&gt;
-    &lt;title&gt;Vodka X.Y.Z&lt;/title&gt;
+    &lt;title&gt;Gmac X.Y.Z&lt;/title&gt;
     &lt;pubDate&gt;RFC 822 date&lt;/pubDate&gt;
     &lt;sparkle:version&gt;BUILD_NUMBER&lt;/sparkle:version&gt;
     &lt;sparkle:shortVersionString&gt;X.Y.Z&lt;/sparkle:shortVersionString&gt;
     &lt;sparkle:minimumSystemVersion&gt;15.0&lt;/sparkle:minimumSystemVersion&gt;
     &lt;description&gt;&lt;![CDATA[&lt;p&gt;Release notes…&lt;/p&gt;]]&gt;&lt;/description&gt;
     &lt;enclosure
-        url=&quot;https://github.com/rolling7ho/vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip&quot;
+        url=&quot;https://github.com/rolling7ho/gmac/releases/download/app-vX.Y.Z/Gmac-X.Y.Z.zip&quot;
         sparkle:edSignature=&quot;…&quot;
         length=&quot;…&quot;
         type=&quot;application/octet-stream&quot; /&gt;
@@ -252,7 +252,7 @@ and their origins. When the runtime must change:</p>
 <ol>
 <li><p><strong>Assemble <code>Libraries.tar.gz</code></strong> from the pinned upstream binaries. The archive unpacks to
 the <code>Libraries/</code> tree the application expects, in which <code>Libraries/Wine/bin/</code> is the Wine
-binary directory per <code>VodkaWineInstaller.binFolder</code>. To reproduce a build:</p>
+binary directory per <code>GmacWineInstaller.binFolder</code>. To reproduce a build:</p>
 <ul>
 <li>Download the pinned <strong>Wine</strong> build (Gcenx <code>macOS_Wine_builds</code>) and unpack it as
 <code>Libraries/Wine/</code>.</li>
@@ -300,10 +300,10 @@ installations prompt for the update on their next version check.</p>
 </ol>
 <h2>URLs the application depends on</h2>
 <ul>
-<li><code>https://rolling7ho.github.io/vodka/appcast.xml</code>: Sparkle update feed (<code>SUFeedURL</code>).</li>
-<li><code>https://github.com/rolling7ho/vodka/releases/download/v&lt;tag&gt;/Libraries.tar.gz</code>: Wine
+<li><code>https://rolling7ho.github.io/gmac/appcast.xml</code>: Sparkle update feed (<code>SUFeedURL</code>).</li>
+<li><code>https://github.com/rolling7ho/gmac/releases/download/v&lt;tag&gt;/Libraries.tar.gz</code>: Wine
 runtime archive for the pinned <code>gamingRuntime</code> tag in <code>DistributionConfig.swift</code>.</li>
-<li><code>https://github.com/rolling7ho/vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip</code>:
+<li><code>https://github.com/rolling7ho/gmac/releases/download/app-vX.Y.Z/Gmac-X.Y.Z.zip</code>:
 application update archive.</li>
 </ul>
 <h2>Pitfalls</h2>
@@ -312,10 +312,10 @@ application update archive.</li>
 Apple Development with automatic signing, and overriding it conflicts with provisioning.
 The release script lets <code>xcodebuild archive</code> use the project default and re-signs on
 export.</li>
-<li><strong>Do not bundle the VodkaKit folder as a resource.</strong> Doing so packages the package&#39;s
+<li><strong>Do not bundle the GmacKit folder as a resource.</strong> Doing so packages the package&#39;s
 <code>.build</code> directory, including DocC plugin executables, into the application, and Apple&#39;s
 notary rejects the archive because those executables lack the hardened runtime. The
-<code>PBXResourcesBuildPhase</code> entry for <code>VodkaKit</code> was removed from the project for this
+<code>PBXResourcesBuildPhase</code> entry for <code>GmacKit</code> was removed from the project for this
 reason and must not be restored. The <code>PBXFileReference</code> and <code>PBXGroup</code> entries must
 remain, or Xcode&#39;s Swift package integration crashes on CI.</li>
 <li><strong>Pipe deadlocks in <code>Tar</code>.</strong> <code>process.waitUntilExit()</code> must be called after the pipe is
@@ -325,9 +325,9 @@ overflows the operating system&#39;s pipe buffer.</li>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/docs/ReleaseWorkflow.md">docs/ReleaseWorkflow.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/ReleaseWorkflow.md">docs/ReleaseWorkflow.md</a></p>
   </div>
 </footer>
 </body>

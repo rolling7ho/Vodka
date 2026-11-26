@@ -1,5 +1,5 @@
 {
-  description = "Vodka development tools (pinned swiftformat and swiftlint)";
+  description = "Gmac development tools (pinned swiftformat and swiftlint)";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";

@@ -2,27 +2,27 @@
 #
 # build_audio_test.sh
 #
-# This file is part of Vodka, a fork of Whisky.
+# This file is part of Gmac, a fork of Whisky.
 #
-# Vodka is free software: you can redistribute it and/or modify it under the terms
+# Gmac is free software: you can redistribute it and/or modify it under the terms
 # of the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
 #
-# Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with Vodka.
+# You should have received a copy of the GNU General Public License along with Gmac.
 # If not, see https://www.gnu.org/licenses/.
 #
-# Cross-compiles vodka_audio_test.c into VodkaAudioTest.exe using MinGW.
+# Cross-compiles gmac_audio_test.c into GmacAudioTest.exe using MinGW.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SOURCE="${SCRIPT_DIR}/vodka_audio_test.c"
-OUTPUT="${SCRIPT_DIR}/VodkaAudioTest.exe"
-DEST_DIR="${SCRIPT_DIR}/../Vodka/Resources"
+SOURCE="${SCRIPT_DIR}/gmac_audio_test.c"
+OUTPUT="${SCRIPT_DIR}/GmacAudioTest.exe"
+DEST_DIR="${SCRIPT_DIR}/../Gmac/Resources"
 COMPILER="x86_64-w64-mingw32-gcc"
 
 if ! command -v "${COMPILER}" &>/dev/null; then
@@ -31,14 +31,14 @@ if ! command -v "${COMPILER}" &>/dev/null; then
     exit 1
 fi
 
-echo "Compiling VodkaAudioTest.exe..."
+echo "Compiling GmacAudioTest.exe..."
 "${COMPILER}" -o "${OUTPUT}" "${SOURCE}" -lwinmm -lm
 
 echo "Build successful: ${OUTPUT}"
 
 if [ -d "${DEST_DIR}" ]; then
-    cp "${OUTPUT}" "${DEST_DIR}/VodkaAudioTest.exe"
-    echo "Copied to ${DEST_DIR}/VodkaAudioTest.exe"
+    cp "${OUTPUT}" "${DEST_DIR}/GmacAudioTest.exe"
+    echo "Copied to ${DEST_DIR}/GmacAudioTest.exe"
 else
-    echo "Warning: ${DEST_DIR} does not exist. Copy manually to Vodka/Resources/."
+    echo "Warning: ${DEST_DIR} does not exist. Copy manually to Gmac/Resources/."
 fi

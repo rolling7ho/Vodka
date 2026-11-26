@@ -1,6 +1,6 @@
 # Runtime dependencies
 
-The Vodka application is built from this repository, but the **Wine runtime** it downloads
+The Gmac application is built from this repository, but the **Wine runtime** it downloads
 during setup (`Libraries.tar.gz`) is assembled from third-party binaries. This document is
 the authoritative record of which versions are bundled and where they originate, so that
 the runtime cannot become stale silently and any maintainer can reproduce a build. Update
@@ -11,7 +11,7 @@ and [`.github/workflows/RuntimeTrack.yml`](../.github/workflows/RuntimeTrack.yml
 automation that reports when a bundled component falls behind upstream.
 
 The application currently pins the `gamingRuntime` release `4.6.12-gaming.1` in
-`VodkaKit/Sources/VodkaKit/Utils/DistributionConfig.swift`. The table below records the most
+`GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift`. The table below records the most
 recent fully documented assembly, `v3.1.1`; complete it when the pinned runtime is
 documented.
 
@@ -49,9 +49,9 @@ incorrect value blocks every fresh installation.
 
 ## Bundled in the application
 
-These files ship **inside the application bundle** (`Vodka.app/Contents/Resources/`). They
+These files ship **inside the application bundle** (`Gmac.app/Contents/Resources/`). They
 are committed to this repository under [`Libraries/`](../Libraries) and copied in by the
-application target's "Embed VodkaCmd" build phase. They are **not** part of the downloaded
+application target's "Embed GmacCmd" build phase. They are **not** part of the downloaded
 `Libraries.tar.gz` runtime: bundling them in the application means that a fix reaches every
 installation through a normal application update, with no runtime download.
 

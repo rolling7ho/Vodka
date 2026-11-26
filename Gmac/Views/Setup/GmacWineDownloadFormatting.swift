@@ -1,0 +1,83 @@
+//
+//  GmacWineDownloadFormatting.swift
+//  Gmac
+//
+//  This file is part of Gmac, a fork of Whisky.
+//
+//  Gmac is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Gmac.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import Foundation
+
+/// Maps an HTTP status code from a failed runtime download into a localized,
+/// user-facing message.
+func formatHTTPError(statusCode: Int) -> String {
+    let statusMessage = switch statusCode {
+    case 404:
+        String(localized: "setup.gmacwine.error.fileNotFound")
+    case 403:
+        String(localized: "setup.gmacwine.error.accessDenied")
+    case 429:
+        String(localized: "setup.gmacwine.error.rateLimit")
+    case 500 ... 599:
+        String(localized: "setup.gmacwine.error.serverError")
+    default:
+        String(
+            format: String(localized: "setup.gmacwine.error.httpError"),
+            statusCode
+        )
+    }
+    return String(
+        format: String(localized: "setup.gmacwine.error.downloadFailed"),
+        statusMessage
+    )
+}
+
+extension GmacWineDownloadView {
+    /// Cached formatters to avoid repeated allocations during progress updates.
+    static let byteCountFormatter: ByteCountFormatter = {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        formatter.zeroPadsFractionDigits = true
+        return formatter
+    }()
+
+    static let remainingTimeFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute, .second]
+        formatter.unitsStyle = .full
+        return formatter
+    }()
+
+    func formatBytes(bytes: Int64) -> String {
+        Self.byteCountFormatter.string(fromByteCount: bytes)
+    }
+
+    func formatRemainingTime(remainingBytes: Int64) -> String {
+        // Guard against invalid values that would produce meaningless time estimates.
+        guard remainingBytes > 0, downloadSpeed > 0 else {
+            return ""
+        }
+        let remainingTimeInSeconds = Double(remainingBytes) / downloadSpeed
+        return Self.remainingTimeFormatter.string(from: remainingTimeInSeconds) ?? ""
+    }
+
+    /// A download or verification failure, as shown to the user.
+    struct DownloadFailure: Equatable {
+        let message: String
+    }
+
+    @MainActor
+    func setDownloadFailure(_ message: String) {
+        downloadFailure = DownloadFailure(message: message)
+    }
+}

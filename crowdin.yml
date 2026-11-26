@@ -1,6 +1,6 @@
 preserve_hierarchy: true
 
 files:
-  - source: /Vodka/Localizable.xcstrings
-    translation: /Vodka/Localizable.xcstrings
+  - source: /Gmac/Localizable.xcstrings
+    translation: /Gmac/Localizable.xcstrings
     multilingual: 1

@@ -16,7 +16,7 @@ NEW_VERSION="${1:?usage: assemble-runtime.sh <new-version>, e.g. 3.1.0}"
 BASE_TAG="v3.0.0"
 BASE_SHA256="9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8"
 DXMT_VERSION="0.80"
-DXMT_ARCHIVE_DIR="${DXMT_ARCHIVE_DIR:-$HOME/Projects/Vodka-runtime-archive/dxmt-v$DXMT_VERSION}"
+DXMT_ARCHIVE_DIR="${DXMT_ARCHIVE_DIR:-$HOME/Projects/Gmac-runtime-archive/dxmt-v$DXMT_VERSION}"
 DXVK_VERSION="1.10.3"   # carried over unchanged from the base runtime
 REPO="frankea/Whisky"
 # -----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ strip_builtin_marker() {
 [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "error: version must be X.Y.Z" >&2; exit 1; }
 IFS='.' read -r MAJOR MINOR PATCH <<< "$NEW_VERSION"
 
-WORKDIR="$(mktemp -d /tmp/vodka-runtime-XXXXXX)"
+WORKDIR="$(mktemp -d /tmp/gmac-runtime-XXXXXX)"
 echo "Workdir: $WORKDIR"
 
 # 1. Verify and unpack the DXMT payload first — it's the cheap local check,

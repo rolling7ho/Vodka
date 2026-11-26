@@ -1,18 +1,18 @@
 /*
  *  bridge.c
- *  VodkaDiscordBridge
+ *  GmacDiscordBridge
  *
- *  This file is part of Vodka, a fork of Whisky.
+ *  This file is part of Gmac, a fork of Whisky.
  *
- *  Vodka is free software: you can redistribute it and/or modify it under the terms
+ *  Gmac is free software: you can redistribute it and/or modify it under the terms
  *  of the GNU General Public License as published by the Free Software Foundation,
  *  either version 3 of the License, or (at your option) any later version.
  *
- *  Vodka is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License along with Vodka.
+ *  You should have received a copy of the GNU General Public License along with Gmac.
  *  If not, see https://www.gnu.org/licenses/.
  *
  *  Relays the Discord RPC named pipe inside a bottle to the Discord client
@@ -28,7 +28,7 @@
 #include <string.h>
 
 #define PIPE_NAME "\\\\.\\pipe\\discord-ipc-0"
-#define INSTANCE_MUTEX "Local\\VodkaDiscordBridge"
+#define INSTANCE_MUTEX "Local\\GmacDiscordBridge"
 #define BUFFER_SIZE 4096
 /* Discord's client libraries walk discord-ipc-0 through discord-ipc-9. */
 #define SOCKET_CANDIDATES 10
@@ -82,7 +82,7 @@ static void log_line(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
-    fprintf(stderr, "vodka-discord-bridge: ");
+    fprintf(stderr, "gmac-discord-bridge: ");
     vfprintf(stderr, format, args);
     fprintf(stderr, "\n");
     fflush(stderr);
@@ -154,7 +154,7 @@ static void unix_shutdown(int fd)
     unix_syscall(SYS_SHUTDOWN, fd, BSD_SHUT_RDWR, 0);
 }
 
-/* Vodka passes --dir because a PE process sees Wine's Windows environment,
+/* Gmac passes --dir because a PE process sees Wine's Windows environment,
  * where the host's TMPDIR may not have survived. The fallbacks are for running
  * this by hand. */
 static BOOL resolve_socket_directory(const char *requested)
@@ -397,7 +397,7 @@ int main(int argc, char **argv)
         CloseHandle(thread);
     }
 
-    /* Stay an ordinary process for the grace window. Vodka starts the bridge
+    /* Stay an ordinary process for the grace window. Gmac starts the bridge
      * just before the game, and a prefix with no user process in it starts
      * shutting down; counting until the game arrives keeps a cold prefix from
      * tearing itself down between the two launches. */

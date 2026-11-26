@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Security policy | Vodka</title>
+<title>Security policy | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/security.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/security.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -28,42 +28,42 @@
   <h1>Security policy</h1>
 <h2>Reporting a vulnerability</h2>
 <p>Do not open a public issue. Report the vulnerability privately through
-<a href="https://github.com/rolling7ho/vodka/security/advisories/new">GitHub&#39;s vulnerability reporting</a>
+<a href="https://github.com/rolling7ho/gmac/security/advisories/new">GitHub&#39;s vulnerability reporting</a>
 (the repository&#39;s <strong>Security</strong> tab, then <strong>Report a vulnerability</strong>), and include:</p>
 <ul>
 <li>the problem and what an attacker could achieve with it;</li>
-<li>steps to reproduce it, together with the Vodka and macOS versions used;</li>
+<li>steps to reproduce it, together with the Gmac and macOS versions used;</li>
 <li>a proposed fix, if one is available.</li>
 </ul>
-<p>A reply will follow within a few days. Vodka is a small volunteer project, so the time to
+<p>A reply will follow within a few days. Gmac is a small volunteer project, so the time to
 a fix depends on available capacity, although a serious issue takes precedence over other
 work. State how you wish to be named if you would like credit in the advisory.</p>
 <h2>Scope</h2>
-<p>Only the most recent version of Vodka receives fixes. In scope:</p>
+<p>Only the most recent version of Gmac receives fixes. In scope:</p>
 <ul>
-<li>the Vodka application, VodkaKit, the VodkaCmd tool and the Quick Look extension;</li>
-<li>how Vodka downloads, verifies and installs its engine and Apple&#39;s Game Porting Toolkit;</li>
+<li>the Gmac application, GmacKit, the GmacCmd tool and the Quick Look extension;</li>
+<li>how Gmac downloads, verifies and installs its engine and Apple&#39;s Game Porting Toolkit;</li>
 <li>the build and install scripts in this repository.</li>
 </ul>
 <p>Out of scope; report these upstream:</p>
 <ul>
 <li>bugs in Wine itself (<a href="https://bugs.winehq.org">WineHQ</a>), DXVK, DXMT, MoltenVK or
 D3DMetal;</li>
-<li>Windows programs run inside Vodka. Wine is not a sandbox: a Windows program can read and
+<li>Windows programs run inside Gmac. Wine is not a sandbox: a Windows program can read and
 write anything the Mac account can, so run only trusted software.</li>
 </ul>
-<p>Vodka does not author the Wine engine. It downloads a build and installs it. When a serious
+<p>Gmac does not author the Wine engine. It downloads a build and installs it. When a serious
 vulnerability is fixed upstream, the response is to rebuild the engine on the fixed version
 and release it.</p>
 <h2>Data</h2>
-<p>Vodka collects no usage data and contains no analytics. It accesses the network only to
-download its engine and Steam&#39;s installer, and to check for updates.</p>
+<p>Gmac collects no usage data and contains no analytics. It accesses the network only to
+download its engine and launcher installers, and to check for updates.</p>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/SECURITY.md">SECURITY.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/SECURITY.md">SECURITY.md</a></p>
   </div>
 </footer>
 </body>

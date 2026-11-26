@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent operating manual | Vodka</title>
+<title>Agent operating manual | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/agent-manual.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/agent-manual.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -31,14 +31,14 @@
 procedures. Where an explicit user instruction conflicts with this file, the user
 instruction takes precedence.</p>
 <h2>Project</h2>
-<p><strong>Vodka</strong> is a native macOS application that runs Steam and Windows games on Apple Silicon
+<p><strong>Gmac</strong> is a native macOS application that runs Windows games and PC launchers on Apple Silicon
 (a fork of Whisky via frankea&#39;s community fork). Toolchain: Swift 6, SwiftUI, macOS 15 or
 later, Xcode 16 or later.</p>
 <p>Related repositories in the ecosystem live in separate Git repositories (typically cloned as
 siblings under a common parent directory):</p>
 <ul>
 <li><code>rolling7ho/winecx</code>: patched Wine/CrossOver source tree (<code>d3dmetal-errno</code> branch).</li>
-<li><code>rolling7ho/dxmt</code>: patched DXMT source tree (<code>teardown</code> branch) for <code>vodkametal</code>.</li>
+<li><code>rolling7ho/dxmt</code>: patched DXMT source tree (<code>teardown</code> branch) for <code>gmacmetal</code>.</li>
 <li><code>rolling7ho/openv</code>: open-source single-player ScriptHookV replacement for GTA V Enhanced.</li>
 </ul>
 <h2>Repository map</h2>
@@ -51,27 +51,27 @@ siblings under a common parent directory):</p>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>Vodka/</code></td>
+<td><code>Gmac/</code></td>
 <td>SwiftUI application target</td>
-<td>New files require entries in <code>Vodka.xcodeproj</code>.</td>
+<td>New files require entries in <code>Gmac.xcodeproj</code>.</td>
 </tr>
 <tr>
-<td><code>VodkaKit/</code></td>
+<td><code>GmacKit/</code></td>
 <td>Swift package containing the logic: Wine, bottles, Steam, library, playtime</td>
 <td>SwiftPM discovers new files automatically. Tests reside here.</td>
 </tr>
 <tr>
-<td><code>VodkaCmd/</code></td>
+<td><code>GmacCmd/</code></td>
 <td>Command-line interface used by Dock shortcuts to launch games</td>
 <td></td>
 </tr>
 <tr>
-<td><code>VodkaThumbnail/</code></td>
+<td><code>GmacThumbnail/</code></td>
 <td>Quick Look thumbnail extension for <code>.exe</code> files</td>
 <td></td>
 </tr>
 <tr>
-<td><code>VodkaUITests/</code></td>
+<td><code>GmacUITests/</code></td>
 <td>XCUITest suite for the application</td>
 <td>Fixture-dependent tests skip when no bottle exists.</td>
 </tr>
@@ -93,7 +93,7 @@ siblings under a common parent directory):</p>
 <tr>
 <td><code>.build/</code></td>
 <td>DerivedData and SwiftPM output</td>
-<td>Never commit. <code>VodkaKit/.build</code> is ignored separately.</td>
+<td>Never commit. <code>GmacKit/.build</code> is ignored separately.</td>
 </tr>
 </tbody></table>
 <h2>Environment</h2>
@@ -111,28 +111,28 @@ newer than that pin; verify <code>swiftformat --version</code> and install the 0
 <p>Run commands from the repository root.</p>
 <h3>Build, test, install</h3>
 <pre><code class="language-sh"># Build the application (Debug, unsigned, with the codesign flags CI uses)
-xcodebuild -project Vodka.xcodeproj -scheme Vodka -configuration Debug build \
+xcodebuild -project Gmac.xcodeproj -scheme Gmac -configuration Debug build \
   -derivedDataPath .build/debug \
   CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
 # Build every scheme, as CI does
-for scheme in Vodka VodkaCmd VodkaThumbnail; do
-  xcodebuild -project Vodka.xcodeproj -scheme &quot;$scheme&quot; -configuration Debug build \
+for scheme in Gmac GmacCmd GmacThumbnail; do
+  xcodebuild -project Gmac.xcodeproj -scheme &quot;$scheme&quot; -configuration Debug build \
     CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 done
 
 # Release build, ad-hoc signed, installed to /Applications
 scripts/install-local.sh
 
-# Unit tests (VodkaKit); fast, run for any logic change
-swift test --package-path VodkaKit
+# Unit tests (GmacKit); fast, run for any logic change
+swift test --package-path GmacKit
 
 # A single suite or test
-swift test --package-path VodkaKit --filter CommandKeyMappingTests
+swift test --package-path GmacKit --filter CommandKeyMappingTests
 
 # UI tests (slow; run only when UI behaviour changed)
-xcodebuild -project Vodka.xcodeproj -scheme Vodka -configuration Debug \
-  -destination &#39;platform=macOS&#39; -only-testing:VodkaUITests test \
+xcodebuild -project Gmac.xcodeproj -scheme Gmac -configuration Debug \
+  -destination &#39;platform=macOS&#39; -only-testing:GmacUITests test \
   CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 </code></pre>
 <h3>Style, strings, secrets</h3>
@@ -142,28 +142,28 @@ swiftlint --strict                      # configuration: .swiftlint.yml
 ./scripts/scan-secrets.sh               # same check as CI (TruffleHog)
 </code></pre>
 <h3>Direct3D 12 layer</h3>
-<pre><code class="language-sh">scripts/build-vodka-d3d12.sh [dxmt-checkout-path]
+<pre><code class="language-sh">scripts/build-gmac-d3d12.sh [dxmt-checkout-path]
 </code></pre>
-<p>Defaults to <code>VODKA_DXMT_DIR</code> or <code>../dxmt</code> with its <code>toolchains/</code> directory present. Stages
-DLLs into <code>build/vodka-d3d12/</code>.</p>
+<p>Defaults to <code>GMAC_DXMT_DIR</code> or <code>../dxmt</code> with its <code>toolchains/</code> directory present. Stages
+DLLs into <code>build/gmac-d3d12/</code>.</p>
 <h2>Architecture and boundaries</h2>
 <ul>
-<li><strong>Layering.</strong> UI and application lifecycle code belongs in <code>Vodka/</code>; Wine, bottle, Steam,
-library and playtime logic belongs in <code>VodkaKit</code>. Testable logic belongs in <code>VodkaKit</code>,
+<li><strong>Layering.</strong> UI and application lifecycle code belongs in <code>Gmac/</code>; Wine, bottle, Steam,
+library and playtime logic belongs in <code>GmacKit</code>. Testable logic belongs in <code>GmacKit</code>,
 not in views.</li>
 <li><strong>Game fixes are data.</strong> A fix that only changes Windows settings for one game belongs
-in <code>VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json</code>, with a reference to
+in <code>GmacKit/Sources/GmacKit/GameDatabase/Resources/GameDB.json</code>, with a reference to
 the origin of the fix. Games must not be special-cased in Swift.</li>
 <li><strong>Runtime is downloaded, not vendored.</strong> The application fetches <code>Libraries.tar.gz</code>
-according to <code>VodkaKit/Sources/VodkaKit/Utils/DistributionConfig.swift</code>. Runtime
+according to <code>GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift</code>. Runtime
 binaries must never be added to the repository. Runtime pins live in
 <code>.github/workflows/RuntimeTrack.yml</code> and must remain in sync with <code>docs/DEPENDENCIES.md</code>.</li>
-<li><strong>Localization.</strong> New user-facing strings are added to <code>Vodka/Localizable.xcstrings</code>
+<li><strong>Localization.</strong> New user-facing strings are added to <code>Gmac/Localizable.xcstrings</code>
 <strong>in English only</strong>, edited as text with only the required lines touched. Re-saving the
 file with a JSON tool reorders the catalog. Run <code>scripts/british-english.py</code> afterwards to
 regenerate en-GB.</li>
-<li><strong>Xcode project.</strong> Files added to the application target (<code>Vodka/</code>) require
-<code>Vodka.xcodeproj</code> entries, while <code>VodkaKit</code> discovers files automatically. Adding those
+<li><strong>Xcode project.</strong> Files added to the application target (<code>Gmac/</code>) require
+<code>Gmac.xcodeproj</code> entries, while <code>GmacKit</code> discovers files automatically. Adding those
 entries for a new source file is expected and is the only <code>project.pbxproj</code> edit
 permitted (see hard rule 2).</li>
 <li><strong>Generated site.</strong> <code>dist/pages/</code> holds the published site. The page and stylesheet are
@@ -173,7 +173,7 @@ copying the directory to the <code>gh-pages</code> branch. Do not edit <code>app
 </ul>
 <h2>Code conventions</h2>
 <ul>
-<li>Every Swift file begins with the GPL header (&quot;This file is part of Vodka, a fork of
+<li>Every Swift file begins with the GPL header (&quot;This file is part of Gmac, a fork of
 Whisky.&quot;). <code>file_header</code> is an error-level SwiftLint rule; copy the header from an
 existing file.</li>
 <li>SwiftFormat configuration: 4-space indent, maximum width 120, <code>--guardelse next-line</code>,
@@ -184,11 +184,11 @@ style manually.</li>
 <li>Prefer existing patterns (bottle abstractions, the <code>Bottle</code> and <code>Wine</code> types,
 swift-testing suites for new tests) over new abstractions or dependencies. Ask before
 adding a package.</li>
-<li>VodkaKit tests are mixed: XCTest and swift-testing (<code>@Test</code>, <code>struct ...Tests</code>)
+<li>GmacKit tests are mixed: XCTest and swift-testing (<code>@Test</code>, <code>struct ...Tests</code>)
 coexist. New tests use swift-testing, and existing XCTest files are not ported as
-incidental churn. <code>VodkaUITests</code> uses XCTest throughout.</li>
+incidental churn. <code>GmacUITests</code> uses XCTest throughout.</li>
 <li>Changelog: describe user-facing changes under <code>[Unreleased]</code> in <code>CHANGELOG.md</code>.</li>
-<li>Commit messages are imperative and scoped, for example <code>vodka: fix Steam launch resolver</code> or <code>docs: update the README</code>.</li>
+<li>Commit messages are imperative and scoped, for example <code>gmac: fix Steam launch resolver</code> or <code>docs: update the README</code>.</li>
 </ul>
 <h2>Writing and communication</h2>
 <p>One register applies to all text produced in this repository or in conversation with the
@@ -217,9 +217,9 @@ or &quot;do not&quot; for requirements.</li>
 section for that response only.</p>
 <h2>Testing guidance</h2>
 <ul>
-<li>Logic change: <code>swift test --package-path VodkaKit</code>, with <code>--filter</code> for the affected
+<li>Logic change: <code>swift test --package-path GmacKit</code>, with <code>--filter</code> for the affected
 suite.</li>
-<li>Application or UI change: build the affected scheme; run <code>VodkaUITests</code> only when the
+<li>Application or UI change: build the affected scheme; run <code>GmacUITests</code> only when the
 interaction itself changed.</li>
 <li>Strings or localization: <code>scripts/british-english.py --check</code>.</li>
 <li>Formatting and lint: <code>swiftformat --lint .</code> and <code>swiftlint --strict</code>.</li>
@@ -237,11 +237,11 @@ branch, open the pull request and report its URL as part of completing the task.
 <li><p><strong>Never push to <code>main</code> directly.</strong> Do not <code>git push</code> to <code>main</code>, do not push a branch
 that is then fast-forwarded into <code>main</code> by hand, and do not merge a pull request without
 explicit user approval. The standard procedure:</p>
-<pre><code class="language-sh">git switch -c vodka/short-description
+<pre><code class="language-sh">git switch -c gmac/short-description
 # edit, then run the checks in the verification table
 git add &lt;explicit paths&gt;
-git commit -m &quot;vodka: fix Steam launch resolver&quot;
-git push -u origin vodka/short-description
+git commit -m &quot;gmac: fix Steam launch resolver&quot;
+git push -u origin gmac/short-description
 gh pr create --fill --base main
 </code></pre>
 <p>Run the checks yourself rather than treating a green merge button as evidence.</p>
@@ -260,11 +260,11 @@ artifacts are present.</p>
 <li>Do not commit runtime build outputs (<code>runtime/runtime-*</code>, <code>runtime/pkg-*</code>,
 <code>runtime/deps</code>, <code>.build/</code>, <code>*.tar.gz</code>, logs, or machine-specific artifacts).</li>
 <li>Do not edit generated files by hand: <code>dist/pages/docs/</code>, the formatting of
-<code>Vodka/Localizable.xcstrings</code>, or <code>*.xcodeproj</code> internals. The one permitted
-<code>Vodka.xcodeproj</code> edit is adding the file references and build-phase entries that a new
+<code>Gmac/Localizable.xcstrings</code>, or <code>*.xcodeproj</code> internals. The one permitted
+<code>Gmac.xcodeproj</code> edit is adding the file references and build-phase entries that a new
 application-target source file requires.</li>
 <li>Do not introduce secrets, API keys, certificates or provisioning profiles. The Sparkle
-signing key resides in the maintainer&#39;s keychain (<code>vodka</code> account) and must never be
+signing key resides in the maintainer&#39;s keychain (<code>gmac</code> account) and must never be
 placed in the repository.</li>
 <li>Do not run destructive commands (<code>git reset --hard</code>, <code>git clean -xdf</code>) unless the user
 explicitly requests that exact action.</li>
@@ -284,12 +284,12 @@ maintainer, and requires no reminder from the user.</li>
 </tr>
 </thead>
 <tbody><tr>
-<td>VodkaKit logic</td>
-<td><code>swift test --package-path VodkaKit --filter &lt;suite&gt;</code></td>
+<td>GmacKit logic</td>
+<td><code>swift test --package-path GmacKit --filter &lt;suite&gt;</code></td>
 </tr>
 <tr>
 <td>Application or UI</td>
-<td>build the <code>Vodka</code> scheme; <code>VodkaUITests</code> if interaction changed</td>
+<td>build the <code>Gmac</code> scheme; <code>GmacUITests</code> if interaction changed</td>
 </tr>
 <tr>
 <td>User-facing strings</td>
@@ -311,7 +311,7 @@ Compiling is not equivalent to testing behaviour.</p>
 <li>SwiftLint is skipped silently in Xcode when <code>CI=true</code> is set, so a local build can pass
 while CI fails. Run <code>swiftlint --strict</code> explicitly.</li>
 <li>en-GB must be complete. A single missing string causes macOS to display the raw key to
-British users. Regenerate it after modifying <code>Vodka/Localizable.xcstrings</code>.</li>
+British users. Regenerate it after modifying <code>Gmac/Localizable.xcstrings</code>.</li>
 <li>The application bundle must ship <code>winetricks</code>, <code>verbs.txt</code> and <code>cabextract</code>. CI asserts
 on the built artifact because the copy phase can omit them without failing.</li>
 </ul>
@@ -324,9 +324,9 @@ on the built artifact because the copy phase can omit them without failing.</li>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/AGENTS.md">AGENTS.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/AGENTS.md">AGENTS.md</a></p>
   </div>
 </footer>
 </body>

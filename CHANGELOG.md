@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Rebranded the application, framework (`GmacKit`), CLI (`GmacCmd`), Quick Look extension (`GmacThumbnail`), Direct3D 12 bridge (`gmacmetal`), URL scheme (`gmac://`), accent color (`#713131`), app icon, and documentation site from Vodka to Gmac, with automatic first-launch migration from `com.rolling7ho.Vodka` and `com.rolling7ho.Whisky`.
+
 ### Added
 - Grand Theft Auto V and GTA V Enhanced now receive Alt from either Option key. Mac keyboards have no
   Alt key, and Wine otherwise sends nothing for Option while Command acts as Ctrl. Other programs keep

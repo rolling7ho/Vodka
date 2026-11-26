@@ -78,7 +78,7 @@ def appcast(path, version, build, url, signature, length, notes_path):
     esc_signature = html.escape(signature, quote=True)
     esc_length = html.escape(length, quote=True)
     item = f"""        <item>
-            <title>Vodka {esc_version}</title>
+            <title>Gmac {esc_version}</title>
             <pubDate>{date}</pubDate>
             <sparkle:version>{esc_build}</sparkle:version>
             <sparkle:shortVersionString>{esc_version}</sparkle:shortVersionString>
