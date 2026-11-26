@@ -1,14 +1,9 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/gmac-icon-dark.png">
-  <img src="./images/gmac-icon.png" width="160" alt="Gmac icon">
-</picture>
-
 <p>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./images/brand/gmac-wordmark-dark.svg">
-    <img src="./images/brand/gmac-wordmark-light.svg" width="210" alt="Gmac">
+    <img src="./images/brand/gmac-wordmark-light.svg" width="240" alt="Gmac">
   </picture>
 </p>
 

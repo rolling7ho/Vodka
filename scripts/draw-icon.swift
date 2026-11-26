@@ -96,8 +96,8 @@ func drawBlueprintGrid(in ctx: CGContext, appearance: Appearance) {
 }
 
 func map400(_ x: CGFloat, _ y: CGFloat, scale: CGFloat) -> CGPoint {
-    let px = 212.0 + x * 1.5
-    let py = CGFloat(size) - (212.0 + y * 1.5)
+    let px = 92.0 + x * 2.1
+    let py = CGFloat(size) - (92.0 + y * 2.1)
     return CGPoint(
         x: 512.0 + (px - 512.0) * scale,
         y: 512.0 + (py - 512.0) * scale
@@ -108,7 +108,7 @@ func drawMark(in ctx: CGContext, appearance: Appearance, scale: CGFloat = 1.0) {
     let arcColor = appearance == .light ? color(0x713131) : color(0xF5ECEC)
     let playColor = appearance == .light ? color(0x713131) : color(0xD98282)
     let center = CGPoint(x: 512, y: 512)
-    let lineWidth = 22.8 * 1.5 * scale
+    let lineWidth = 22.8 * 2.1 * scale
 
     // Micro Play glyph
     let play = CGMutablePath()
@@ -123,7 +123,7 @@ func drawMark(in ctx: CGContext, appearance: Appearance, scale: CGFloat = 1.0) {
     ctx.fillPath()
     ctx.addPath(play)
     ctx.setStrokeColor(playColor)
-    ctx.setLineWidth(5.0 * 1.5 * scale)
+    ctx.setLineWidth(5.0 * 2.1 * scale)
     ctx.setLineJoin(.round)
     ctx.strokePath()
     ctx.restoreGState()
@@ -133,7 +133,7 @@ func drawMark(in ctx: CGContext, appearance: Appearance, scale: CGFloat = 1.0) {
     let outerStart = atan2(83.0, 92.1)
     outerPath.addArc(
         center: center,
-        radius: 124.0 * 1.5 * scale,
+        radius: 124.0 * 2.1 * scale,
         startAngle: outerStart,
         endAngle: 0,
         clockwise: false
@@ -146,7 +146,7 @@ func drawMark(in ctx: CGContext, appearance: Appearance, scale: CGFloat = 1.0) {
     let innerEnd = atan2(-58.9, 34.0)
     innerPath.addArc(
         center: center,
-        radius: 68.0 * 1.5 * scale,
+        radius: 68.0 * 2.1 * scale,
         startAngle: innerStart,
         endAngle: innerEnd,
         clockwise: false
@@ -220,7 +220,13 @@ func renderFullBleedTouchIcon() -> CGImage {
     ctx.setFillColor(color(0xFFFFFF))
     ctx.fill(CGRect(x: 0, y: 0, width: size, height: size))
     drawBlueprintGrid(in: ctx, appearance: .light)
-    drawMark(in: ctx, appearance: .light, scale: 1.12)
+    drawMark(in: ctx, appearance: .light, scale: 1.15)
+    return ctx.makeImage()!
+}
+
+func renderTransparentFavicon() -> CGImage {
+    let ctx = makeContext()
+    drawMark(in: ctx, appearance: .light, scale: 1.55)
     return ctx.makeImage()!
 }
 
@@ -244,6 +250,7 @@ if args.count == 2 {
     let lightSquircle = renderSquircleIcon(appearance: .light)
     let darkSquircle = renderSquircleIcon(appearance: .dark)
     let touch = renderFullBleedTouchIcon()
+    let favicon = renderTransparentFavicon()
 
     writePNG(lightSquircle, to: "\(root)/images/gmac-icon.png", pixelSize: 1_024)
     writePNG(darkSquircle, to: "\(root)/images/gmac-icon-dark.png", pixelSize: 1_024)
@@ -273,8 +280,8 @@ if args.count == 2 {
     writePNG(lightSquircle, to: "\(root)/GmacThumbnail/Icons.xcassets/Icon.imageset/512R512x1.png", pixelSize: 512)
     writePNG(darkSquircle, to: "\(root)/GmacThumbnail/Icons.xcassets/Icon.imageset/512R512x1-dark.png", pixelSize: 512)
 
-    writePNG(lightSquircle, to: "\(root)/dist/pages/favicon-32.png", pixelSize: 32)
-    writePNG(lightSquircle, to: "\(root)/dist/pages/favicon-192.png", pixelSize: 192)
+    writePNG(favicon, to: "\(root)/dist/pages/favicon-32.png", pixelSize: 32)
+    writePNG(favicon, to: "\(root)/dist/pages/favicon-192.png", pixelSize: 192)
     writePNG(touch, to: "\(root)/dist/pages/apple-touch-icon.png", pixelSize: 180)
     print("Generated all Light and Dark Gmac PNG icons.")
 } else {

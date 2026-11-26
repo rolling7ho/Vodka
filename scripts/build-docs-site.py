@@ -76,6 +76,7 @@ TEMPLATE = """<!doctype html>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141010" media="(prefers-color-scheme: dark)">
 <title>{title} | Gmac</title>
+<link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
@@ -117,6 +118,7 @@ INDEX_TEMPLATE = """<!doctype html>
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141010" media="(prefers-color-scheme: dark)">
 <title>Documentation | Gmac</title>
+<link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
