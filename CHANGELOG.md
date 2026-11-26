@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Redesigned the Gmac application icon, Quick Look thumbnail badge, pure-vector wordmark, brand asset suite (`images/brand/`), OpenGraph card, and documentation site with system-adaptive light and dark appearances.
 - Rebranded the application, framework (`GmacKit`), CLI (`GmacCmd`), Quick Look extension (`GmacThumbnail`), Direct3D 12 bridge (`gmacmetal`), URL scheme (`gmac://`), accent color (`#713131`), app icon, and documentation site from Vodka to Gmac, with automatic first-launch migration from `com.rolling7ho.Vodka` and `com.rolling7ho.Whisky`.
 
 ### Added

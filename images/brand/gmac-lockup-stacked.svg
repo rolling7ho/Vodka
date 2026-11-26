@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 390" width="360" height="390" fill="none">
+  <style>
+    .theme-dark { display: none; }
+    .g-arc { stroke: #713131; }
+    .g-play { fill: #713131; stroke: #713131; }
+    .word-ink { stroke: #161212; }
+    @media (prefers-color-scheme: dark) {
+      .theme-light { display: none; }
+      .theme-dark { display: inline; }
+      .g-arc { stroke: #E09898; }
+      .g-play { fill: #D98282; stroke: #D98282; }
+      .word-ink { stroke: #F5ECEC; }
+    }
+  </style>
+  <defs>
+    <filter id="stacked-shadow-light" x="60" y="76" width="904" height="904" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <filter id="stacked-shadow-dark" x="60" y="76" width="904" height="904" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <clipPath id="stacked-clip">
+      <rect x="100" y="100" width="824" height="824" rx="185"/>
+    </clipPath>
+    <radialGradient id="stacked-maskgrad" cx="50%" cy="50%" r="50%">
+      <stop offset="25%" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.05"/>
+    </radialGradient>
+    <mask id="stacked-mask">
+      <rect x="100" y="100" width="824" height="824" fill="url(#stacked-maskgrad)"/>
+    </mask>
+    <linearGradient id="stacked-bg-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#281D1D"/>
+      <stop offset="100%" stop-color="#191212"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(70 16) scale(0.21484375)">
+    <g class="theme-light">
+      <g filter="url(#stacked-shadow-light)">
+        <rect x="100" y="100" width="824" height="824" rx="185" fill="#FFFFFF"/>
+      </g>
+      <g clip-path="url(#stacked-clip)">
+        <g mask="url(#stacked-mask)">
+          <g stroke="#713131" stroke-opacity="0.065" stroke-width="1.5">
+            <line x1="128" y1="100" x2="128" y2="924"/><line x1="100" y1="128" x2="924" y2="128"/>
+            <line x1="192" y1="100" x2="192" y2="924"/><line x1="100" y1="192" x2="924" y2="192"/>
+            <line x1="256" y1="100" x2="256" y2="924"/><line x1="100" y1="256" x2="924" y2="256"/>
+            <line x1="320" y1="100" x2="320" y2="924"/><line x1="100" y1="320" x2="924" y2="320"/>
+            <line x1="384" y1="100" x2="384" y2="924"/><line x1="100" y1="384" x2="924" y2="384"/>
+            <line x1="448" y1="100" x2="448" y2="924"/><line x1="100" y1="448" x2="924" y2="448"/>
+            <line x1="512" y1="100" x2="512" y2="924"/><line x1="100" y1="512" x2="924" y2="512"/>
+            <line x1="576" y1="100" x2="576" y2="924"/><line x1="100" y1="576" x2="924" y2="576"/>
+            <line x1="640" y1="100" x2="640" y2="924"/><line x1="100" y1="640" x2="924" y2="640"/>
+            <line x1="704" y1="100" x2="704" y2="924"/><line x1="100" y1="704" x2="924" y2="704"/>
+            <line x1="768" y1="100" x2="768" y2="924"/><line x1="100" y1="768" x2="924" y2="768"/>
+            <line x1="832" y1="100" x2="832" y2="924"/><line x1="100" y1="832" x2="924" y2="832"/>
+            <line x1="896" y1="100" x2="896" y2="924"/><line x1="100" y1="896" x2="924" y2="896"/>
+          </g>
+          <g stroke="#713131" stroke-opacity="0.04" stroke-width="1.5">
+            <line x1="100" y1="100" x2="924" y2="924"/>
+            <line x1="924" y1="100" x2="100" y2="924"/>
+          </g>
+        </g>
+      </g>
+      <rect x="101" y="101" width="822" height="822" rx="184" stroke="#000000" stroke-opacity="0.06" stroke-width="2"/>
+      <g transform="translate(212 212) scale(1.5)">
+        <path d="M 189 183 L 217 200 L 189 217 Z" fill="#713131" stroke="#713131" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke="#713131" stroke-width="22.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke="#713131" stroke-width="22.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>
+
+    <g class="theme-dark">
+      <g filter="url(#stacked-shadow-dark)">
+        <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#stacked-bg-dark)"/>
+      </g>
+      <g clip-path="url(#stacked-clip)">
+        <g mask="url(#stacked-mask)">
+          <g stroke="#E09898" stroke-opacity="0.09" stroke-width="1.5">
+            <line x1="128" y1="100" x2="128" y2="924"/><line x1="100" y1="128" x2="924" y2="128"/>
+            <line x1="192" y1="100" x2="192" y2="924"/><line x1="100" y1="192" x2="924" y2="192"/>
+            <line x1="256" y1="100" x2="256" y2="924"/><line x1="100" y1="256" x2="924" y2="256"/>
+            <line x1="320" y1="100" x2="320" y2="924"/><line x1="100" y1="320" x2="924" y2="320"/>
+            <line x1="384" y1="100" x2="384" y2="924"/><line x1="100" y1="384" x2="924" y2="384"/>
+            <line x1="448" y1="100" x2="448" y2="924"/><line x1="100" y1="448" x2="924" y2="448"/>
+            <line x1="512" y1="100" x2="512" y2="924"/><line x1="100" y1="512" x2="924" y2="512"/>
+            <line x1="576" y1="100" x2="576" y2="924"/><line x1="100" y1="576" x2="924" y2="576"/>
+            <line x1="640" y1="100" x2="640" y2="924"/><line x1="100" y1="640" x2="924" y2="640"/>
+            <line x1="704" y1="100" x2="704" y2="924"/><line x1="100" y1="704" x2="924" y2="704"/>
+            <line x1="768" y1="100" x2="768" y2="924"/><line x1="100" y1="768" x2="924" y2="768"/>
+            <line x1="832" y1="100" x2="832" y2="924"/><line x1="100" y1="832" x2="924" y2="832"/>
+            <line x1="896" y1="100" x2="896" y2="924"/><line x1="100" y1="896" x2="924" y2="896"/>
+          </g>
+          <g stroke="#E09898" stroke-opacity="0.055" stroke-width="1.5">
+            <line x1="100" y1="100" x2="924" y2="924"/>
+            <line x1="924" y1="100" x2="100" y2="924"/>
+          </g>
+        </g>
+      </g>
+      <rect x="101" y="101" width="822" height="822" rx="184" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="2"/>
+      <g transform="translate(212 212) scale(1.5)">
+        <path d="M 189 183 L 217 200 L 189 217 Z" fill="#D98282" stroke="#D98282" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke="#F5ECEC" stroke-width="22.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke="#F5ECEC" stroke-width="22.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(28 266) scale(1.034)">
+    <g transform="translate(-9 -7) scale(0.265)">
+      <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+      <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g class="word-ink" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+      <circle cx="200" cy="56" r="20"/>
+      <path d="M 220 36 L 220 76"/>
+      <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+    </g>
+  </g>
+</svg>

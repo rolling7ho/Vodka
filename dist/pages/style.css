@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --bg: #ffffff;
   --bg-alt: #faf7f7;
   --fg: #161212;
@@ -12,6 +12,38 @@
   --code-bg: #f6f1f1;
   --focus: #713131;
   --radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141010;
+    --bg-alt: #1a1414;
+    --fg: #f5ecec;
+    --muted: #b09f9f;
+    --rule: #2d2323;
+    --panel: #1f1818;
+    --accent: #d98282;
+    --accent-deep: #e8a0a0;
+    --accent-soft: #291d1d;
+    --code-bg: #1c1515;
+    --focus: #d98282;
+  }
+
+  .button {
+    background: #713131;
+    border-color: #8a3d3d;
+    color: #ffffff;
+  }
+
+  .button:hover {
+    background: #8a3d3d;
+    border-color: #a34d4d;
+    color: #ffffff;
+  }
+
+  .projects article:hover {
+    border-color: #4a3737;
+  }
 }
 
 * {
