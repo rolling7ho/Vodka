@@ -78,18 +78,13 @@
     <p class="doc-nav"><a href="./">Documentation</a> / Runtime</p>
     <h1 class="doc-title">Runtime workbench</h1>
     <div class="doc-body">
-<p>This directory contains the local runtime build driver and release notes for Gmac&#39;s Windows
-runtime (<code>Libraries.tar.gz</code>). Runtime builds are assembled and published as GitHub Releases on
-<code>rolling7ho/gmac</code>.</p>
+<p>This directory contains the local Wine and CrossOver runtime build driver and release notes for Gmac&#39;s Windows runtime (<code>Libraries.tar.gz</code>). Runtime builds are packaged locally and published as GitHub Releases on <code>rolling7ho/gmac</code>.</p>
 <p>The Wine and DXMT source trees live in separate repositories:</p>
 <ul>
-<li><code>rolling7ho/winecx</code> (branch <code>d3dmetal-errno</code>): patched Wine/CrossOver source tree.</li>
-<li><code>rolling7ho/dxmt</code> (branch <code>teardown</code>): DXMT source tree from which <code>gmacmetal</code> builds.</li>
+<li><code>rolling7ho/winecx</code> (branch <code>d3dmetal-errno</code>): patched Wine and CrossOver source tree.</li>
+<li><code>rolling7ho/dxmt</code> (branch <code>teardown</code>): DXMT source tree used to build <code>gmacmetal</code>.</li>
 </ul>
-<p>Local build lanes (<code>runtime-47/</code>, <code>runtime-up/</code>, <code>runtime-ci/</code>), packaged runtimes
-(<code>pkg-*/</code>), build dependencies (<code>deps/</code>), and <code>.local-ci/</code> state are untracked and ignored
-by <code>.gitignore</code>. Delete <code>build/</code>, <code>staging/</code>, and <code>smoke-prefix*</code> inside local lanes after
-an experiment.</p>
+<p>Local build lanes (<code>runtime-47/</code>, <code>runtime-up/</code>, <code>runtime-ci/</code>), packaged runtimes (<code>pkg-*/</code>), build dependencies (<code>deps/</code>), and <code>.local-ci/</code> state are untracked and ignored by <code>.gitignore</code>. Delete <code>build/</code>, <code>staging/</code>, and <code>smoke-prefix*</code> inside local lanes after an experiment.</p>
 <h2 id="contents">Contents</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -106,7 +101,7 @@ an experiment.</p>
 </tr>
 <tr>
 <td><code>release-notes-474.md</code></td>
-<td>Release notes and digests for runtime 4.7.3/4.7.4 experiments.</td>
+<td>Release notes and digest for the 4.7.3-based runtime experiment.</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -121,21 +116,28 @@ an experiment.</p>
 </tr>
 <tr>
 <td><code>../../dxmt/</code></td>
-<td>Sibling checkout of <code>rolling7ho/dxmt</code> used by <code>../scripts/build-gmac-d3d12.sh</code>.</td>
+<td>Sibling checkout of <code>rolling7ho/dxmt</code> (<code>../dxmt/</code> from repository root) used by <code>../scripts/build-gmac-d3d12.sh</code>.</td>
 <td>separate repo</td>
 </tr>
 <tr>
 <td><code>../../winecx/</code></td>
-<td>Sibling checkout of <code>rolling7ho/winecx</code>.</td>
+<td>Sibling checkout of <code>rolling7ho/winecx</code> (<code>../winecx/</code> from repository root).</td>
 <td>separate repo</td>
 </tr>
 </tbody></table></div>
 <h2 id="usage">Usage</h2>
-<p>Run <code>local-build.rb</code> from the <code>runtime/</code> directory (or from a dedicated external workbench
-directory) so that relative lane paths resolve:</p>
-<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh">cd runtime &amp;&amp; ruby local-build.rb
+<p>Run <code>local-build.rb</code> from the <code>runtime/</code> directory so relative lane paths resolve:</p>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh">cd runtime
+ruby local-build.rb [first-step-name]
 </code></pre></div>
-<p>Changes to <code>winecx</code> or <code>dxmt</code> belong in their respective repositories, not in <code>rolling7ho/gmac</code>.</p>
+<p>Optional environment variables control the build inputs:</p>
+<ul>
+<li><code>RECIPE</code>: lane checkout directory (defaults to <code>runtime-up</code>).</li>
+<li><code>WINECX_COMMIT</code>: <code>rolling7ho/winecx</code> commit hash to build.</li>
+<li><code>RUNTIME_VERSION_OVERRIDE</code>: runtime version string stamped into the package (defaults to <code>4.8.0</code>).</li>
+<li><code>FLOOR</code>: <code>MACOSX_DEPLOYMENT_TARGET</code> floor (defaults to <code>15.0</code>).</li>
+</ul>
+<p>Changes to <code>winecx</code> or <code>dxmt</code> belong in their respective repositories, not in <code>rolling7ho/gmac</code>. See <a href="dependencies.html"><code>docs/DEPENDENCIES.md</code></a> and <a href="release-workflow.html"><code>docs/ReleaseWorkflow.md</code></a> for version pins and publishing steps.</p>
 
     </div>
     <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/runtime/README.md">Mirrored from <code>runtime/README.md</code></a></p>
@@ -204,43 +206,45 @@ directory) so that relative lane paths resolve:</p>
     </div>
   </div>
 </main>
-<script type="text/plain" id="doc-markdown-source"># runtime: Wine/CrossOver build workbench
+<script type="text/plain" id="doc-markdown-source"># Runtime workbench
 
-This directory contains the local runtime build driver and release notes for Gmac's Windows
-runtime (`Libraries.tar.gz`). Runtime builds are assembled and published as GitHub Releases on
-`rolling7ho/gmac`.
+This directory contains the local Wine and CrossOver runtime build driver and release notes for Gmac's Windows runtime (`Libraries.tar.gz`). Runtime builds are packaged locally and published as GitHub Releases on `rolling7ho/gmac`.
 
 The Wine and DXMT source trees live in separate repositories:
 
-- `rolling7ho/winecx` (branch `d3dmetal-errno`): patched Wine/CrossOver source tree.
-- `rolling7ho/dxmt` (branch `teardown`): DXMT source tree from which `gmacmetal` builds.
+- `rolling7ho/winecx` (branch `d3dmetal-errno`): patched Wine and CrossOver source tree.
+- `rolling7ho/dxmt` (branch `teardown`): DXMT source tree used to build `gmacmetal`.
 
-Local build lanes (`runtime-47/`, `runtime-up/`, `runtime-ci/`), packaged runtimes
-(`pkg-*/`), build dependencies (`deps/`), and `.local-ci/` state are untracked and ignored
-by `.gitignore`. Delete `build/`, `staging/`, and `smoke-prefix*` inside local lanes after
-an experiment.
+Local build lanes (`runtime-47/`, `runtime-up/`, `runtime-ci/`), packaged runtimes (`pkg-*/`), build dependencies (`deps/`), and `.local-ci/` state are untracked and ignored by `.gitignore`. Delete `build/`, `staging/`, and `smoke-prefix*` inside local lanes after an experiment.
 
 ## Contents
 
 | Path | Contents | Tracked |
 |---|---|---|
 | `local-build.rb` | Local runtime build driver replaying `runtime-up/.github/workflows/build.yml`. | yes |
-| `release-notes-474.md` | Release notes and digests for runtime 4.7.3/4.7.4 experiments. | yes |
+| `release-notes-474.md` | Release notes and digest for the 4.7.3-based runtime experiment. | yes |
 | `runtime-47/`, `runtime-up/`, `runtime-ci/` | Local runtime lane checkouts. | no |
 | `pkg-*/`, `deps/`, `.local-ci/` | Packaged runtimes, dependencies, and build state. | no |
-| `../../dxmt/` | Sibling checkout of `rolling7ho/dxmt` used by `../scripts/build-gmac-d3d12.sh`. | separate repo |
-| `../../winecx/` | Sibling checkout of `rolling7ho/winecx`. | separate repo |
+| `../../dxmt/` | Sibling checkout of `rolling7ho/dxmt` (`../dxmt/` from repository root) used by `../scripts/build-gmac-d3d12.sh`. | separate repo |
+| `../../winecx/` | Sibling checkout of `rolling7ho/winecx` (`../winecx/` from repository root). | separate repo |
 
 ## Usage
 
-Run `local-build.rb` from the `runtime/` directory (or from a dedicated external workbench
-directory) so that relative lane paths resolve:
+Run `local-build.rb` from the `runtime/` directory so relative lane paths resolve:
 
 ```sh
-cd runtime && ruby local-build.rb
+cd runtime
+ruby local-build.rb [first-step-name]
 ```
 
-Changes to `winecx` or `dxmt` belong in their respective repositories, not in `rolling7ho/gmac`.
+Optional environment variables control the build inputs:
+
+- `RECIPE`: lane checkout directory (defaults to `runtime-up`).
+- `WINECX_COMMIT`: `rolling7ho/winecx` commit hash to build.
+- `RUNTIME_VERSION_OVERRIDE`: runtime version string stamped into the package (defaults to `4.8.0`).
+- `FLOOR`: `MACOSX_DEPLOYMENT_TARGET` floor (defaults to `15.0`).
+
+Changes to `winecx` or `dxmt` belong in their respective repositories, not in `rolling7ho/gmac`. See [`docs/DEPENDENCIES.md`](../docs/DEPENDENCIES.md) and [`docs/ReleaseWorkflow.md`](../docs/ReleaseWorkflow.md) for version pins and publishing steps.
 </script>
 <footer class="site-footer">
   <div class="wrap footer-grid">

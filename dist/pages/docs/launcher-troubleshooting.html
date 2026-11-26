@@ -74,422 +74,339 @@
       <li class="toc-item toc-l2"><a href="#common-issues">Common issues</a></li>
       <li class="toc-item toc-l3"><a href="#steamwebhelper-is-not-responding">&quot;steamwebhelper is not responding&quot;</a></li>
       <li class="toc-item toc-l3"><a href="#steam-downloads-stall-at-99-percent">Steam downloads stall at 99 percent</a></li>
-      <li class="toc-item toc-l3"><a href="#rockstar-games-launcher-freezes-on-the-logo">Rockstar Games Launcher freezes on the logo</a></li>
-      <li class="toc-item toc-l3"><a href="#ea-app-displays-a-black-screen">EA App displays a black screen</a></li>
+      <li class="toc-item toc-l3"><a href="#rockstar-games-launcher-freezes-or-fails-to-initialize">Rockstar Games Launcher freezes or fails to initialize</a></li>
+      <li class="toc-item toc-l3"><a href="#ea-app-displays-a-black-screen-or-gpu-not-supported">EA App displays a black screen or &quot;GPU not supported&quot;</a></li>
       <li class="toc-item toc-l3"><a href="#epic-games-store-does-not-render-its-interface">Epic Games Store does not render its interface</a></li>
       <li class="toc-item toc-l3"><a href="#ubisoft-connect-cannot-update-or-launch-games">Ubisoft Connect cannot update or launch games</a></li>
       <li class="toc-item toc-l3"><a href="#battlenet-authentication-fails">Battle.net authentication fails</a></li>
       <li class="toc-item toc-l3"><a href="#paradox-launcher-reports-recursive-resource-lookup">Paradox Launcher reports &quot;recursive resource lookup&quot;</a></li>
-      <li class="toc-item toc-l2"><a href="#macos-154-and-later">macOS 15.4 and later</a></li>
-      <li class="toc-item toc-l2"><a href="#diagnostics-report">Diagnostics report</a></li>
-      <li class="toc-item toc-l3"><a href="#generating-a-report">Generating a report</a></li>
-      <li class="toc-item toc-l3"><a href="#reading-a-report">Reading a report</a></li>
-      <li class="toc-item toc-l2"><a href="#configuration-warnings">Configuration warnings</a></li>
+      <li class="toc-item toc-l2"><a href="#macos-153-and-154-platform-fixes">macOS 15.3 and 15.4+ platform fixes</a></li>
+      <li class="toc-item toc-l2"><a href="#inspecting-configuration-and-diagnostics">Inspecting configuration and diagnostics</a></li>
+      <li class="toc-item toc-l3"><a href="#active-environment-overrides-and-configuration-warnings">Active Environment Overrides and Configuration Warnings</a></li>
+      <li class="toc-item toc-l3"><a href="#diagnostic-tools">Diagnostic tools</a></li>
       <li class="toc-item toc-l2"><a href="#advanced-troubleshooting">Advanced troubleshooting</a></li>
-      <li class="toc-item toc-l3"><a href="#reset-launcher-configuration">Reset launcher configuration</a></li>
       <li class="toc-item toc-l3"><a href="#consult-wine-logs">Consult Wine logs</a></li>
       <li class="toc-item toc-l3"><a href="#verify-the-wine-installation">Verify the Wine installation</a></li>
-      <li class="toc-item toc-l3"><a href="#test-in-a-clean-bottle">Test in a clean bottle</a></li>
+      <li class="toc-item toc-l3"><a href="#reset-launcher-configuration">Reset launcher configuration</a></li>
+      <li class="toc-item toc-l3"><a href="#test-in-a-clean-pc">Test in a clean PC</a></li>
       <li class="toc-item toc-l2"><a href="#launcher-reference">Launcher reference</a></li>
-      <li class="toc-item toc-l3"><a href="#steam">Steam</a></li>
-      <li class="toc-item toc-l3"><a href="#rockstar-games-launcher">Rockstar Games Launcher</a></li>
-      <li class="toc-item toc-l3"><a href="#ea-app">EA App</a></li>
-      <li class="toc-item toc-l3"><a href="#epic-games-store">Epic Games Store</a></li>
-      <li class="toc-item toc-l3"><a href="#ubisoft-connect">Ubisoft Connect</a></li>
-      <li class="toc-item toc-l3"><a href="#battlenet">Battle.net</a></li>
-      <li class="toc-item toc-l3"><a href="#paradox-launcher">Paradox Launcher</a></li>
-      <li class="toc-item toc-l2"><a href="#reporting-an-issue">Reporting an issue</a></li>
       <li class="toc-item toc-l2"><a href="#security-considerations">Security considerations</a></li>
-      <li class="toc-item toc-l2"><a href="#operational-guidance">Operational guidance</a></li>
       <li class="toc-item toc-l2"><a href="#faq">FAQ</a></li>
-      <li class="toc-item toc-l2"><a href="#macos-compatibility">macOS compatibility</a></li>
-      <li class="toc-item toc-l2"><a href="#further-resources">Further resources</a></li>
+      <li class="toc-item toc-l2"><a href="#related-documentation">Related documentation</a></li>
     </ul>
   </aside>
   <article class="doc-article">
     <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
     <h1 class="doc-title">Launcher troubleshooting guide</h1>
     <div class="doc-body">
-<p><strong>Feature:</strong> Launcher compatibility system (frankea/Whisky#41)
-<strong>Last updated:</strong> 12 January 2026</p>
-<blockquote>
-<p><strong>Note:</strong> This document references issue numbers from this fork (frankea/Whisky) and from
-the original upstream project (whisky-app/whisky). Upstream references are retained for
-historical context. Report new issues to
-<a href="https://github.com/rolling7ho/gmac/issues">rolling7ho/gmac</a>.</p>
-</blockquote>
+<p>This guide covers diagnosing and resolving compatibility issues with Windows game launchers in Gmac, including Steam, Rockstar Games Launcher, EA App, Epic Games Store, Ubisoft Connect, Battle.net, and Paradox Launcher. Gmac presents each Wine prefix as a <strong>PC</strong> in the user interface and calls it a <strong>bottle</strong> in <code>GmacKit</code> and internal paths.</p>
 <h2 id="initial-procedure">Initial procedure</h2>
 <p>For any launcher problem:</p>
 <ol>
-<li>Open the bottle and select the <strong>Config</strong> tab.</li>
-<li>Expand <strong>Launcher Compatibility</strong>.</li>
+<li>Open the PC in Gmac and select <strong>Settings</strong>.</li>
+<li>Click <strong>Show</strong> next to <strong>Advanced</strong> and expand <strong>Launcher Compatibility</strong>.</li>
 <li>Enable <strong>Launcher Compatibility Mode</strong>.</li>
-<li>Set <strong>Detection Mode</strong> to <strong>Automatic</strong>.</li>
-<li>Launch the launcher and review any warnings displayed in the interface.</li>
+<li>Set <strong>Detection Mode</strong> to <strong>Automatic</strong> (or select <strong>Manual</strong> and pick the launcher if detection does not match).</li>
+<li>Launch the launcher and inspect <strong>Active Environment Overrides</strong> and <strong>Configuration Warnings</strong> in the same section.</li>
 </ol>
-<p>If the problem persists, consult the section for that launcher below.</p>
 <h2 id="common-issues">Common issues</h2>
 <h3 id="steamwebhelper-is-not-responding">&quot;steamwebhelper is not responding&quot;</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>The Steam window appears and immediately reports an error.</li>
-<li>The interface is unusable, and the restart options do not help.</li>
+<li>Steam opens and immediately displays an error that <code>steamwebhelper.exe</code> is not responding.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<ul>
+<li>Steam&#39;s Chromium Embedded Framework (CEF) fails ICU date and time parsing when the Wine locale does not specify UTF-8 encoding.</li>
 </ul>
 <p><strong>Solution</strong></p>
 <ol>
-<li>Open <strong>Config → Launcher Compatibility</strong> and enable compatibility mode.</li>
-<li>Confirm that <strong>Locale Override</strong> is <strong>English (en_US.UTF-8)</strong>. This resolves ICU parsing
-failures in <code>steamwebhelper.exe</code>.</li>
-<li>Select <strong>Generate Diagnostics Report</strong> and confirm <code>LC_ALL=en_US.UTF-8</code> and
-<code>STEAM_DISABLE_CEF_SANDBOX=1</code>.</li>
+<li>Open <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong> and enable <strong>Launcher Compatibility Mode</strong>.</li>
+<li>Set <strong>Locale Override</strong> to <strong>Automatic</strong> or <strong>English (en_US.UTF-8)</strong>.</li>
+<li>Expand <strong>Active Environment Overrides</strong> and confirm <code>LC_ALL=en_US.UTF-8</code> and <code>STEAM_DISABLE_CEF_SANDBOX=1</code> are active.</li>
 </ol>
-<p><strong>Cause</strong></p>
-<p>Steam&#39;s Chromium-based helper fails when parsing dates and times in certain locales. The
-<code>.UTF-8</code> suffix is required for correct Unicode handling.</p>
-<p><strong>Related issues:</strong> whisky-app/whisky#946, #1224, #1241.</p>
 <h3 id="steam-downloads-stall-at-99-percent">Steam downloads stall at 99 percent</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>Downloads reach 99 percent and never complete.</li>
-<li>A restart of Steam is required to continue, and several games are affected.</li>
+<li>Downloads stop at 99 percent and fail to finish without restarting Steam.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<ul>
+<li>Wine&#39;s HTTP implementation can drop or stall persistent connections before a transfer finishes.</li>
 </ul>
 <p><strong>Solution</strong></p>
 <ol>
-<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set <strong>Network
-Timeout</strong> to <strong>90 seconds</strong> or higher.</li>
-<li>Generate a diagnostics report and confirm <code>WINHTTP_CONNECT_TIMEOUT</code>. The receive timeout
-is set to twice that value. Gmac does not set <code>WINE_FORCE_HTTP11</code>.</li>
-<li>In Steam, open <strong>Settings → Downloads</strong>, select a geographically close region, then pause
-and resume the download.</li>
+<li>Open <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong> and set <strong>Network Timeout</strong> to <strong>90s</strong> or higher. Gmac sets <code>WINHTTP_CONNECT_TIMEOUT</code> to that millisecond value and <code>WINHTTP_RECEIVE_TIMEOUT</code> to twice that value. Gmac does not set <code>WINE_FORCE_HTTP11</code> or <code>WINE_MAX_CONNECTIONS_PER_SERVER</code>.</li>
+<li>In Steam, open <strong>Settings › Downloads</strong>, select a geographically close download region, clear the download cache, and resume.</li>
 </ol>
-<p><strong>Cause</strong></p>
-<p>Wine&#39;s HTTP behaviour is unstable under some persistent connection conditions. Higher
-timeouts resolve the connection failures.</p>
-<p><strong>Related issues:</strong> whisky-app/whisky#1148, #1072, #1176.</p>
-<h3 id="rockstar-games-launcher-freezes-on-the-logo">Rockstar Games Launcher freezes on the logo</h3>
+<h3 id="rockstar-games-launcher-freezes-or-fails-to-initialize">Rockstar Games Launcher freezes or fails to initialize</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>The launcher starts and freezes at the Rockstar logo without an error message.</li>
-<li>CPU usage may increase while the splash screen remains visible.</li>
+<li>The standalone launcher freezes at the Rockstar logo, or Steam-launched Rockstar titles stop with &quot;The Rockstar Games Launcher failed to initialize&quot;.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<ul>
+<li>The standalone launcher renders its splash screen and interface using Direct3D/Direct2D and Chromium components that fail without the appropriate per-executable rendering overrides.</li>
 </ul>
 <p><strong>Solution</strong></p>
-<ol>
-<li>Enable DXVK under <strong>Config → DXVK</strong>. It is required for the logo to render.</li>
-<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set detection to
-Automatic or select <strong>Rockstar Games Launcher</strong> explicitly.</li>
-<li>Generate a diagnostics report and confirm that DXVK is enabled and that
-<code>WINEDLLOVERRIDES</code> contains the Direct3D libraries.</li>
+<ul>
+<li><strong>Standalone launcher:</strong><ol>
+<li>Open <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong>, enable <strong>Launcher Compatibility Mode</strong>, and verify <strong>Use DXVK for Rockstar Games Launcher</strong> is enabled (<code>LauncherFixes</code> switches the PC to DXVK when Rockstar is detected and <code>autoEnableDXVK</code> is on).</li>
+<li>If the launcher executable still hangs, run <code>LauncherPatcher.exe</code> instead of <code>Launcher.exe</code> via <strong>Run…</strong>.</li>
 </ol>
-<p><strong>Alternative:</strong> use <code>LauncherPatcher.exe</code> instead of <code>Launcher.exe</code>.</p>
-<p><strong>Cause</strong></p>
-<p>The logo screen renders with Direct3D. Without DXVK the rendering fails without an error and
-the launcher blocks.</p>
-<p><strong>Related issues:</strong> whisky-app/whisky#835, #1335, #1120.</p>
-<h3 id="ea-app-displays-a-black-screen">EA App displays a black screen</h3>
+</li>
+<li><strong>Rockstar games launched through Steam:</strong><ol>
+<li>Keep <strong>PC › Settings › Graphics</strong> on <strong>Automatic (Recommended)</strong>.</li>
+<li>Launch the game from Gmac&#39;s Library or Steam. Gmac automatically writes <code>AppDefaults</code> overrides for <code>Launcher.exe</code> (OpenGL WineD3D with NVAPI and <code>d3d12</code> disabled) and <code>SocialClubHelper.exe</code> (DXVK).</li>
+</ol>
+</li>
+</ul>
+<h3 id="ea-app-displays-a-black-screen-or-gpu-not-supported">EA App displays a black screen or &quot;GPU not supported&quot;</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>The window is entirely black, although background sound is audible.</li>
-<li>The cursor changes over invisible controls, and a &quot;GPU not supported&quot; error may appear.</li>
+<li>The EA App window renders black with audible background audio or shows a &quot;GPU not supported&quot; error.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<ul>
+<li>The EA App queries OpenGL and Direct3D driver capabilities and rejects Wine&#39;s default reporting when capability overrides are missing.</li>
 </ul>
 <p><strong>Solution</strong></p>
 <ol>
-<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and enable <strong>GPU
-Spoofing</strong> with the <strong>NVIDIA</strong> vendor.</li>
-<li>Generate a diagnostics report and confirm GPU spoofing is active. The spoof sets
-<code>MESA_GL_VERSION_OVERRIDE=4.6</code>.</li>
-<li>Set <strong>Locale Override</strong> to <strong>English</strong>.</li>
+<li>Open <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong> and enable <strong>Launcher Compatibility Mode</strong>.</li>
+<li>Enable <strong>GPU Spoofing</strong> with vendor <strong>NVIDIA</strong>.</li>
+<li>Confirm <strong>Locale Override</strong> is <strong>English (en_US.UTF-8)</strong> (applied automatically by the EA App preset).</li>
+<li>Expand <strong>Active Environment Overrides</strong> to confirm <code>LC_ALL=en_US.UTF-8</code> and <code>CEF_DISABLE_SANDBOX=1</code> are active; <code>GPUDetection</code> also sets <code>MESA_GL_VERSION_OVERRIDE=4.6</code> and <code>MESA_GLSL_VERSION_OVERRIDE=460</code>.</li>
 </ol>
-<p><strong>Cause</strong></p>
-<p>The EA App queries GPU capabilities through Direct3D. Wine&#39;s incomplete driver reporting
-causes the launcher to conclude that the GPU is unsupported.</p>
-<p><strong>Related issues:</strong> whisky-app/whisky#1195, #1322.</p>
 <h3 id="epic-games-store-does-not-render-its-interface">Epic Games Store does not render its interface</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>The window appears blank or grey and the web view does not load.</li>
-<li>Sign-in is impossible and connection errors may be reported.</li>
+<li>The Epic Games Store window is blank or grey and sign-in cannot proceed.</li>
+</ul>
+<p><strong>Cause</strong></p>
+<ul>
+<li>Epic&#39;s Chromium Embedded Framework conflicts with Wine when the CEF sandbox is enabled or the locale is non-UTF-8.</li>
 </ul>
 <p><strong>Solution</strong></p>
 <ol>
-<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set <strong>Locale
-Override</strong> to <strong>English</strong>.</li>
-<li>Generate a diagnostics report and confirm <code>CEF_DISABLE_SANDBOX=1</code>.</li>
+<li>Open <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong> and enable <strong>Launcher Compatibility Mode</strong>.</li>
+<li>Confirm <code>CEF_DISABLE_SANDBOX=1</code> under <strong>Active Environment Overrides</strong> and keep <strong>Locale Override</strong> on <strong>Automatic</strong> or <strong>English (en_US.UTF-8)</strong>.</li>
 </ol>
-<p><strong>Cause</strong></p>
-<p>Epic&#39;s Chromium Embedded Framework conflicts with Wine&#39;s threading model. Disabling the CEF
-sandbox resolves the conflict.</p>
 <h3 id="ubisoft-connect-cannot-update-or-launch-games">Ubisoft Connect cannot update or launch games</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>Ubisoft Connect starts, but games do not launch.</li>
-<li>Update progress does not advance and &quot;Failed to initialize&quot; errors appear.</li>
+<li>Ubisoft Connect starts, but updates stall or games fail to initialize.</li>
 </ul>
 <p><strong>Solution</strong></p>
 <ol>
-<li>Under <strong>Config → DXVK</strong>, enable DXVK and <strong>DXVK Async</strong>.</li>
-<li>Under <strong>Config → Launcher Compatibility</strong>, set the network timeout to <strong>90 seconds</strong>.</li>
+<li>Open <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong> and enable <strong>Launcher Compatibility Mode</strong>.</li>
+<li>Set <strong>Network Timeout</strong> to <strong>90s</strong> or higher.</li>
+<li>Confirm <strong>PC › Settings › Graphics</strong> is set to <strong>DirectX 11 (Compatibility)</strong> (DXVK) with <strong>DXVK Async</strong> enabled under <strong>PC › Settings › Advanced (Show) › Graphics Tuning › DXVK Configuration</strong> (enabled automatically when Ubisoft Connect is detected).</li>
 </ol>
-<p><strong>Related issues:</strong> whisky-app/whisky#1004, #879.</p>
 <h3 id="battlenet-authentication-fails">Battle.net authentication fails</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>The launcher opens, but the sign-in page does not load and redirects fail.</li>
+<li>Battle.net opens, but the embedded browser sign-in flow fails to load or redirect.</li>
 </ul>
 <p><strong>Solution</strong></p>
-<p>Enable compatibility mode with the English locale. Battle.net&#39;s web-based authentication
-requires working Chromium rendering.</p>
+<ol>
+<li>Enable <strong>Launcher Compatibility Mode</strong> with <strong>Battle.net</strong> detected (or manually selected).</li>
+<li>Confirm <code>LC_ALL=en_US.UTF-8</code> and <code>CEF_DISABLE_SANDBOX=1</code> are active and that DXVK is active (<strong>DirectX 11 (Compatibility)</strong> under <strong>Graphics</strong>).</li>
+</ol>
 <h3 id="paradox-launcher-reports-recursive-resource-lookup">Paradox Launcher reports &quot;recursive resource lookup&quot;</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
-<li>Installation fails with a resource lookup error and initialisation does not complete.</li>
+<li>Paradox Launcher installation or initialization reports a resource lookup error.</li>
 </ul>
 <p><strong>Solution</strong></p>
-<p>Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.</p>
-<p>Gmac applies no Paradox-specific environment fix. The <code>WINE_DISABLE_FAST_PATH</code> workaround
-that earlier versions set is read by no shipped runtime and has been removed.</p>
-<p><strong>Related issues:</strong> whisky-app/whisky#1091.</p>
-<h2 id="macos-154-and-later">macOS 15.4 and later</h2>
-<p><strong>Symptoms</strong></p>
 <ul>
-<li>Launchers that worked on macOS 15.3 crash on 15.4 or later.</li>
-<li>Wine preloader threads remain blocked and Mach port timeouts occur.</li>
+<li>Enable <strong>Launcher Compatibility Mode</strong> with Paradox Launcher detected or selected. Gmac applies the platform <code>CEF_DISABLE_SANDBOX=1</code> and macOS 15.4+ synchronization overrides automatically. Earlier versions of this guide referenced <code>WINE_DISABLE_FAST_PATH</code>, which no shipped runtime reads and which Gmac removed.</li>
 </ul>
-<p><strong>Solution</strong></p>
-<ol>
-<li>Enable <strong>Config → Metal → Sequoia Compatibility Mode</strong>.</li>
-<li>Generate a diagnostics report and confirm the macOS version and <code>WINEFSYNC=0</code>.</li>
-</ol>
-<p><strong>Cause</strong></p>
-<p>Apple changed threading and Mach port behaviour in macOS 15.4. The compatibility mode applies
-the required Wine environment changes.</p>
-<p><strong>Related issues:</strong> whisky-app/whisky#1372, #1310, #1307.</p>
-<h2 id="diagnostics-report">Diagnostics report</h2>
-<h3 id="generating-a-report">Generating a report</h3>
-<ol>
-<li>Open <strong>Bottle → Config → Launcher Compatibility</strong>.</li>
-<li>Select <strong>Generate Diagnostics Report</strong> and review the configuration in the window.</li>
-<li>Copy the report to the clipboard for a GitHub issue, or export it to a file.</li>
-</ol>
-<h3 id="reading-a-report">Reading a report</h3>
-<p><strong>System information</strong></p>
-<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1">macOS version: 15.4.1
-Wine version: 11.0
-Architecture: Apple Silicon (arm64)
-Rosetta 2: installed
-</code></pre></div>
-<p><strong>Launcher configuration</strong></p>
-<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2">Compatibility mode: enabled
-Detected launcher: Steam
-Launcher locale: English (en_US.UTF-8)
-GPU spoofing: enabled (NVIDIA)
-</code></pre></div>
-<p><strong>Environment variables</strong></p>
+<h2 id="macos-153-and-154-platform-fixes">macOS 15.3 and 15.4+ platform fixes</h2>
+<p>On macOS 15.3 and later, Gmac applies required platform overrides automatically in <code>MacOSCompatibilityFixes</code> without requiring a manual compatibility toggle:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Condition</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>STEAM_DISABLE_CEF_SANDBOX=1</code></td>
+<td>All macOS versions</td>
+<td>Disables Steam CEF sandbox incompatible with Wine</td>
+</tr>
+<tr>
+<td><code>CEF_DISABLE_SANDBOX=1</code></td>
+<td>All macOS versions</td>
+<td>Disables CEF sandbox for Chromium-based launchers</td>
+</tr>
+<tr>
+<td><code>MTL_DEBUG_LAYER=0</code></td>
+<td>macOS 15.3 and later</td>
+<td>Prevents Metal validation layer rendering issues</td>
+</tr>
+<tr>
+<td><code>WINEFSYNC=0</code></td>
+<td>macOS 15.4 and later</td>
+<td>Disables fsync due to macOS 15.4 threading/Mach port changes</td>
+</tr>
+<tr>
+<td><code>STEAM_RUNTIME=0</code></td>
+<td>macOS 15.4 and later</td>
+<td>Disables Steam Runtime under Wine</td>
+</tr>
+<tr>
+<td><code>WINEESYNC=1</code></td>
+<td>macOS 15.4 and later when Enhanced Sync is None</td>
+<td>Keeps ESync active for process stability</td>
+</tr>
+</tbody></table></div>
+<p>View the active platform fixes in <strong>PC › Settings › Advanced (Show) › Launcher Compatibility › Active Environment Overrides</strong>.</p>
+<h2 id="inspecting-configuration-and-diagnostics">Inspecting configuration and diagnostics</h2>
+<h3 id="active-environment-overrides-and-configuration-warnings">Active Environment Overrides and Configuration Warnings</h3>
+<p>Under <strong>PC › Settings › Advanced (Show) › Launcher Compatibility</strong>:</p>
 <ul>
-<li><code>LC_ALL=en_US.UTF-8</code> (locale fix)</li>
-<li><code>STEAM_DISABLE_CEF_SANDBOX=1</code> (Steam CEF fix)</li>
-<li><code>CEF_DISABLE_SANDBOX=1</code> (global CEF fix)</li>
-<li><code>MESA_GL_VERSION_OVERRIDE=4.6</code> (GPU spoofing)</li>
-<li><code>WINHTTP_CONNECT_TIMEOUT=90000</code> (network timeout)</li>
+<li>Expand <strong>Active Environment Overrides</strong> to see each launcher-specific and macOS platform environment variable along with its reason.</li>
+<li>Review <strong>Configuration Warnings</strong>, which surface conditions detected by <code>LauncherDetection</code>:</li>
 </ul>
-<p><strong>Validation results</strong></p>
-<p>The report states either that the configuration is optimal or that warnings require
-attention.</p>
-<h2 id="configuration-warnings">Configuration warnings</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Warning</th>
-<th>Impact</th>
+<th>Meaning</th>
 <th>Action</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>DXVK should be enabled for Steam</td>
-<td>Steam interface may stutter</td>
-<td>Enable DXVK under <strong>Config → DXVK</strong></td>
+<td>Steam locale warning</td>
+<td>Steam is selected and Locale Override is set to a non-English, non-Automatic locale</td>
+<td>Set <strong>Locale Override</strong> to <strong>Automatic</strong> or <strong>English (en_US.UTF-8)</strong></td>
 </tr>
 <tr>
-<td>DXVK required for the Rockstar Launcher</td>
-<td>Logo does not render; launcher unusable</td>
-<td>Enable DXVK</td>
+<td>Steam GPU spoofing warning</td>
+<td>GPU Spoofing is disabled for Steam</td>
+<td>Enable <strong>GPU Spoofing</strong></td>
 </tr>
 <tr>
-<td>Steam may fail without the en_US locale</td>
-<td><code>steamwebhelper.exe</code> failure likely</td>
-<td>Set Locale Override to English</td>
+<td>Rockstar DXVK required</td>
+<td>Rockstar Games Launcher is selected and bottle DXVK is off</td>
+<td>Select <strong>DirectX 11 (Compatibility)</strong> or enable <strong>Use DXVK for Rockstar Games Launcher</strong></td>
 </tr>
 <tr>
-<td>GPU spoofing required for the EA App</td>
-<td>Black screen or &quot;GPU not supported&quot;</td>
-<td>Enable GPU spoofing</td>
+<td>EA App GPU spoofing required</td>
+<td>EA App is selected and GPU Spoofing is off</td>
+<td>Enable <strong>GPU Spoofing</strong></td>
+</tr>
+<tr>
+<td>EA App / Epic / Battle.net locale recommended</td>
+<td>Locale Override is not English (<code>en_US.UTF-8</code>)</td>
+<td>Set <strong>Locale Override</strong> to <strong>English (en_US.UTF-8)</strong></td>
+</tr>
+<tr>
+<td>Launcher Compatibility Mode disabled</td>
+<td>Compatibility mode is off</td>
+<td>Enable <strong>Launcher Compatibility Mode</strong></td>
 </tr>
 </tbody></table></div>
+<h3 id="diagnostic-tools">Diagnostic tools</h3>
+<ul>
+<li><strong>View Latest Diagnosis / Export Diagnostic Report…:</strong> available under <strong>PC › Settings › Advanced (Show) › Diagnostic Reports</strong> (and via the <strong>View Diagnostics</strong> button in <strong>Launcher Compatibility</strong>). Exports a Markdown summary or ZIP bundle with privacy toggles for scrubbing sensitive arguments and logs.</li>
+<li><strong>Generate Stability Diagnostics:</strong> available under <strong>PC › Settings › Advanced (Show) › Diagnostic Reports</strong>. Produces a bounded report containing system versions, PC settings, environment keys only (without values), and the tail of the newest Wine log.</li>
+<li><strong>Help › Run Diagnostics… (<code>⇧⌘D</code>)</strong> and <strong>Help › Troubleshoot… (<code>⇧⌘T</code>):</strong> analyze a program&#39;s last run log or launch the guided troubleshooting wizard.</li>
+</ul>
 <h2 id="advanced-troubleshooting">Advanced troubleshooting</h2>
-<h3 id="reset-launcher-configuration">Reset launcher configuration</h3>
-<ol>
-<li>Disable Launcher Compatibility Mode.</li>
-<li>Right-click the bottle, select <strong>Show in Finder</strong> and delete <code>Metadata.plist</code>.</li>
-<li>Recreate the bottle; Gmac regenerates it with defaults.</li>
-<li>Enable Launcher Compatibility Mode again.</li>
-</ol>
 <h3 id="consult-wine-logs">Consult Wine logs</h3>
 <ol>
-<li>Open <code>~/Library/Logs/com.rolling7ho.Gmac/</code>.</li>
-<li>Locate the newest log by timestamp and inspect entries around launcher startup.</li>
-<li>Search for <code>steamwebhelper</code>, <code>CEF</code>, <code>locale</code>, <code>crash</code> and <code>segfault</code>.</li>
+<li>Select <strong>File › Open Logs Folder</strong> (<code>⌘L</code>) or click <strong>Show in Finder</strong> next to <strong>Logs</strong> in <strong>Gmac Settings › Storage</strong>.</li>
+<li>Open <code>~/Library/Logs/com.rolling7ho.Gmac/</code> and inspect the newest <code>.log</code> file by timestamp.</li>
+<li>Search for <code>steamwebhelper</code>, <code>CEF</code>, <code>locale</code>, <code>err:</code>, or <code>segfault</code>.</li>
 </ol>
 <h3 id="verify-the-wine-installation">Verify the Wine installation</h3>
-<p>Confirm that <code>~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/</code> contains
-the <code>bin/</code>, <code>lib/</code> and <code>share/</code> directories. The application reports the runtime version it
-uses in the diagnostics report.</p>
-<h3 id="test-in-a-clean-bottle">Test in a clean bottle</h3>
+<p>Confirm that <code>~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/</code> contains <code>bin/</code>, <code>lib/</code>, and <code>share/</code>, and that <code>~/Library/Application Support/com.rolling7ho.Gmac/Libraries/WhiskyWineVersion.plist</code> exists. If the runtime is damaged, open <strong>Gmac › Setup…</strong> to reinstall it.</p>
+<h3 id="reset-launcher-configuration">Reset launcher configuration</h3>
+<p><code>Metadata.plist</code> stores all settings for a PC (name, pinned programs, graphics settings, and launcher compatibility settings) inside the PC directory (<code>~/Library/Containers/com.rolling7ho.Gmac/Bottles/&lt;UUID&gt;/Metadata.plist</code> by default).</p>
 <ol>
-<li>Create a new bottle named &quot;Launcher Test&quot; with Windows 10.</li>
-<li>Enable Launcher Compatibility Mode before installing anything.</li>
-<li>Install the launcher from the official installer.</li>
-<li>Test the launcher. If it works, the original bottle had a configuration fault; if it
-fails, the fault lies with Wine or macOS.</li>
+<li>Quit everything running in the PC (<strong>Quit Everything Running</strong>).</li>
+<li>Right-click the PC in the sidebar and select <strong>Show in Finder</strong>.</li>
+<li>Back up <code>Metadata.plist</code>, then delete <code>Metadata.plist</code> if the configuration is corrupted.</li>
+<li>Restart Gmac. Gmac regenerates default <code>Metadata.plist</code> settings without deleting <code>drive_c</code> or installed games; re-enable <strong>Launcher Compatibility Mode</strong> afterwards.</li>
+</ol>
+<h3 id="test-in-a-clean-pc">Test in a clean PC</h3>
+<ol>
+<li>Create a new PC named <code>Launcher Test</code> with <strong>Windows 10</strong>.</li>
+<li>Enable <strong>Launcher Compatibility Mode</strong> before installing the launcher.</li>
+<li>Install the launcher from its official installer and test sign-in and rendering. If the launcher works in the clean PC, the issue is isolated to the original PC&#39;s configuration or prefix state.</li>
 </ol>
 <h2 id="launcher-reference">Launcher reference</h2>
-<h3 id="steam">Steam</h3>
-<ul>
-<li>Required: Launcher Compatibility Mode; locale <code>en_US.UTF-8</code>.</li>
-<li>Recommended: DXVK; network timeout of 90 seconds.</li>
-<li>Variables: <code>LC_ALL=en_US.UTF-8</code>, <code>STEAM_DISABLE_CEF_SANDBOX=1</code>.</li>
-</ul>
-<h3 id="rockstar-games-launcher">Rockstar Games Launcher</h3>
-<ul>
-<li>Required: DXVK; Launcher Compatibility Mode.</li>
-<li>Recommended: locale English.</li>
-<li>DXVK cannot be disabled for this launcher.</li>
-</ul>
-<h3 id="ea-app">EA App</h3>
-<ul>
-<li>Required: GPU spoofing; Launcher Compatibility Mode.</li>
-<li>Recommended: NVIDIA vendor; locale English.</li>
-</ul>
-<h3 id="epic-games-store">Epic Games Store</h3>
-<ul>
-<li>Required: Launcher Compatibility Mode; locale English.</li>
-<li>Recommended: GPU spoofing.</li>
-<li>Variables: <code>CEF_DISABLE_SANDBOX=1</code>.</li>
-</ul>
-<h3 id="ubisoft-connect">Ubisoft Connect</h3>
-<ul>
-<li>Required: Launcher Compatibility Mode.</li>
-<li>Recommended: DXVK with DXVK Async; network timeout of 90 seconds.</li>
-<li>Variables: <code>DXVK_ASYNC=1</code>.</li>
-</ul>
-<h3 id="battlenet">Battle.net</h3>
-<ul>
-<li>Required: Launcher Compatibility Mode; locale English.</li>
-<li>Recommended: DXVK.</li>
-<li>Variables: <code>CEF_DISABLE_SANDBOX=1</code>.</li>
-</ul>
-<h3 id="paradox-launcher">Paradox Launcher</h3>
-<ul>
-<li>Required: Launcher Compatibility Mode.</li>
-<li>No additional environment configuration.</li>
-</ul>
-<h2 id="reporting-an-issue">Reporting an issue</h2>
-<p>Before reporting:</p>
-<ol>
-<li>Generate the diagnostics report under <strong>Config → Launcher Compatibility</strong> and export it.</li>
-<li>Review all warnings and apply the recommended changes.</li>
-<li>Confirm that the issue reproduces in a clean bottle.</li>
-</ol>
-<p>Include in the report:</p>
-<ol>
-<li>The diagnostics report, attached or pasted in full.</li>
-<li>System information: macOS version, Mac model and Gmac version.</li>
-<li>Reproduction steps, expected behaviour and actual behaviour.</li>
-<li>Screenshots of error messages and configuration screens.</li>
-</ol>
-<h2 id="security-considerations">Security considerations</h2>
-<p>Launcher compatibility mode disables the Chromium sandbox, which is required under Wine.</p>
-<p>Implications:</p>
-<ul>
-<li>Embedded browser content runs with the process&#39;s privileges.</li>
-<li>A browser exploit could compromise the Wine process.</li>
-</ul>
-<p>Use compatibility mode with established launchers (Steam, Epic, EA, Rockstar), keep those
-launchers updated, and avoid browsing untrusted sites inside them. Do not use compatibility
-mode with unknown launcher software.</p>
-<h2 id="operational-guidance">Operational guidance</h2>
-<p><strong>Performance</strong></p>
-<ul>
-<li>Enable DXVK Async to reduce shader compilation stutter.</li>
-<li>Enable the shader cache under <strong>Config → Performance</strong>.</li>
-</ul>
-<p><strong>Stability</strong></p>
-<ul>
-<li>Use a dedicated bottle for each launcher to avoid conflicts.</li>
-<li>Reinstall launchers after significant Wine updates and keep them updated.</li>
-<li>Monitor Wine processes in Activity Monitor; sustained high CPU usage may indicate a
-hung launcher component.</li>
-</ul>
-<p><strong>Before changing a working configuration</strong></p>
-<ul>
-<li><p>Export the diagnostics report.</p>
-</li>
-<li><p>Copy <code>Metadata.plist</code>:</p>
-<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-3" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-3" class="language-sh">cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
-</code></pre></div>
-</li>
-<li><p>Record the working configuration, for example with screenshots of the Config tabs.</p>
-</li>
-</ul>
-<h2 id="faq">FAQ</h2>
-<p><strong>Can launcher compatibility be used with games?</strong>
-Yes, but it is designed for launchers. Games generally do not require these fixes and may
-receive launcher-specific optimisations that they do not need.</p>
-<p><strong>Why does launcher detection fail?</strong>
-Detection uses heuristics based on filename and path. For unusual cases, switch to Manual
-detection and select the launcher explicitly.</p>
-<p><strong>Is GPU spoofing safe with anti-cheat?</strong>
-GPU spoofing changes capability queries only and does not modify game memory. Whether a
-given anti-cheat system tolerates it depends on that system.</p>
-<p><strong>Does launcher compatibility reduce game performance?</strong>
-No measurable effect is expected. The environment variable setup occurs at launch and is
-negligible.</p>
-<p><strong>Can individual launcher settings be customised?</strong>
-Settings apply to the detected launcher. Per-game overrides may be added in a future
-version.</p>
-<p><strong>Why does a launcher require the English locale?</strong>
-The Chromium Embedded Framework used by several launchers has Unicode parsing defects with
-certain locales. <code>en_US.UTF-8</code> avoids them.</p>
-<h2 id="macos-compatibility">macOS compatibility</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
-<th>macOS version</th>
-<th>Compatibility</th>
-<th>Notes</th>
+<th>Launcher</th>
+<th>Applied profile (<code>LauncherFixes</code>)</th>
+<th>Managed environment (<code>fixDetails</code>)</th>
+<th>Helper executables (<code>AppDefaults</code>)</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>15.0 to 15.2</td>
-<td>Full</td>
-<td>No known issues</td>
+<td><strong>Steam</strong></td>
+<td><code>en_US.UTF-8</code> locale, GPU spoofing on, 90s network timeout; DXVK per-executable (restores Automatic when GPTK is present)</td>
+<td><code>LC_ALL=en_US.UTF-8</code>, <code>LANG=en_US.UTF-8</code>, <code>LC_TIME=C</code>, <code>LC_NUMERIC=C</code>, <code>STEAM_DISABLE_CEF_SANDBOX=1</code>, <code>STEAM_RUNTIME=0</code>, <code>DXVK_ASYNC=1</code></td>
+<td><code>steamwebhelper.exe</code>, <code>steamservice.exe</code>, <code>gameoverlayui64.exe</code>, <code>GameOverlayUI.exe</code></td>
 </tr>
 <tr>
-<td>15.3</td>
-<td>Full</td>
-<td>Graphics validation handled</td>
+<td><strong>Rockstar Games Launcher</strong></td>
+<td>Enables DXVK if <code>autoEnableDXVK</code> is on, <code>en_US.UTF-8</code> locale</td>
+<td><code>WINE_LARGE_ADDRESS_AWARE=1</code>, <code>LC_ALL=en_US.UTF-8</code></td>
+<td>Chain executables: <code>Launcher.exe</code> (OpenGL WineD3D, no NVAPI, no <code>d3d12</code>), <code>SocialClubHelper.exe</code> (DXVK)</td>
 </tr>
 <tr>
-<td>15.4 and later</td>
-<td>Full</td>
-<td>Synchronisation mode and Steam Runtime handled</td>
+<td><strong>EA App</strong></td>
+<td>GPU spoofing on (NVIDIA), <code>en_US.UTF-8</code> locale</td>
+<td><code>LC_ALL=en_US.UTF-8</code>, <code>LANG=en_US.UTF-8</code></td>
+<td><code>EABackgroundService.exe</code></td>
+</tr>
+<tr>
+<td><strong>Epic Games Store</strong></td>
+<td><code>en_US.UTF-8</code> locale, GPU spoofing on</td>
+<td><code>LC_ALL=en_US.UTF-8</code></td>
+<td><code>EpicWebHelper.exe</code></td>
+</tr>
+<tr>
+<td><strong>Ubisoft Connect</strong></td>
+<td>Enables DXVK and DXVK Async, 90s network timeout</td>
+<td><code>DXVK_ASYNC=1</code></td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Battle.net</strong></td>
+<td><code>en_US.UTF-8</code> locale, GPU spoofing on, enables DXVK</td>
+<td><code>LC_ALL=en_US.UTF-8</code></td>
+<td><code>Battle.net Helper.exe</code></td>
+</tr>
+<tr>
+<td><strong>Paradox Launcher</strong></td>
+<td>Enables Launcher Compatibility Mode</td>
+<td>None (relies on platform fixes)</td>
+<td>None</td>
 </tr>
 </tbody></table></div>
-<p>macOS 15 is the minimum supported version.</p>
-<h2 id="further-resources">Further resources</h2>
+<p>Note on <strong>GPU Spoofing</strong>: enabling GPU spoofing emits <code>MESA_GL_VERSION_OVERRIDE=4.6</code> and <code>MESA_GLSL_VERSION_OVERRIDE=460</code> regardless of the selected vendor, because no shipped runtime reads the legacy vendor-ID environment variables. <code>D3DM_SUPPORT_DXR</code> is controlled independently by <strong>DirectX Raytracing</strong> under <strong>Graphics Tuning › Metal</strong>.</p>
+<h2 id="security-considerations">Security considerations</h2>
+<p>Launcher Compatibility Mode disables the Chromium sandbox (<code>CEF_DISABLE_SANDBOX=1</code> and <code>STEAM_DISABLE_CEF_SANDBOX=1</code>), which is required for Chromium-based launchers to run under Wine. Embedded browser content runs with the privileges of the Wine process. Use Launcher Compatibility Mode only with established, trusted launchers and avoid browsing untrusted websites inside launcher web views.</p>
+<h2 id="faq">FAQ</h2>
+<p><strong>Can Launcher Compatibility Mode be used with standalone games?</strong>
+It is intended for game launchers. Standalone games receive their own per-game environment and preset overrides without needing launcher mode.</p>
+<p><strong>Why does automatic launcher detection miss an executable?</strong>
+Detection inspects the executable filename and path (<code>LauncherType.detect(from:)</code>). If a launcher uses a non-standard path or executable name, switch <strong>Detection Mode</strong> to <strong>Manual</strong> and select the launcher explicitly.</p>
+<p><strong>Does GPU spoofing interfere with anti-cheat?</strong>
+GPU spoofing only overrides OpenGL capability strings (<code>MESA_GL_VERSION_OVERRIDE</code>, <code>MESA_GLSL_VERSION_OVERRIDE</code>) and does not modify game memory. Anti-cheat compatibility still depends on the anti-cheat system itself; kernel-level anti-cheat drivers remain unsupported under Wine.</p>
+<p><strong>Can settings be customized per game instead of for the entire PC?</strong>
+Yes. Open <strong>PC › Advanced (Show) › Installed Apps</strong> and select an executable to configure per-program arguments, environment overrides, locale, and graphics backend overrides. Popular titles also receive automatic presets from <strong>PC › Advanced (Show) › Game Presets</strong> (<code>GameDB.json</code>).</p>
+<h2 id="related-documentation">Related documentation</h2>
 <ul>
-<li>Issue tracker: <a href="https://github.com/rolling7ho/gmac/issues">https://github.com/rolling7ho/gmac/issues</a></li>
-<li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
-<li>Steam guide: <a href="steam.html">SteamCompatibility.md</a></li>
-<li>Stability guide: <a href="stability.html">StabilityTroubleshooting.md</a></li>
+<li><a href="steam.html">Steam compatibility guide</a></li>
+<li><a href="stability.html">Stability troubleshooting guide</a></li>
 </ul>
 
     </div>
@@ -561,412 +478,216 @@ certain locales. <code>en_US.UTF-8</code> avoids them.</p>
 </main>
 <script type="text/plain" id="doc-markdown-source"># Launcher troubleshooting guide
 
-**Feature:** Launcher compatibility system (frankea/Whisky#41)
-**Last updated:** 12 January 2026
-
-> **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
-> the original upstream project (whisky-app/whisky). Upstream references are retained for
-> historical context. Report new issues to
-> [rolling7ho/gmac](https://github.com/rolling7ho/gmac/issues).
+This guide covers diagnosing and resolving compatibility issues with Windows game launchers in Gmac, including Steam, Rockstar Games Launcher, EA App, Epic Games Store, Ubisoft Connect, Battle.net, and Paradox Launcher. Gmac presents each Wine prefix as a **PC** in the user interface and calls it a **bottle** in `GmacKit` and internal paths.
 
 ## Initial procedure
 
 For any launcher problem:
 
-1. Open the bottle and select the **Config** tab.
-2. Expand **Launcher Compatibility**.
+1. Open the PC in Gmac and select **Settings**.
+2. Click **Show** next to **Advanced** and expand **Launcher Compatibility**.
 3. Enable **Launcher Compatibility Mode**.
-4. Set **Detection Mode** to **Automatic**.
-5. Launch the launcher and review any warnings displayed in the interface.
-
-If the problem persists, consult the section for that launcher below.
+4. Set **Detection Mode** to **Automatic** (or select **Manual** and pick the launcher if detection does not match).
+5. Launch the launcher and inspect **Active Environment Overrides** and **Configuration Warnings** in the same section.
 
 ## Common issues
 
 ### "steamwebhelper is not responding"
 
 **Symptoms**
-
-- The Steam window appears and immediately reports an error.
-- The interface is unusable, and the restart options do not help.
-
-**Solution**
-
-1. Open **Config → Launcher Compatibility** and enable compatibility mode.
-2. Confirm that **Locale Override** is **English (en_US.UTF-8)**. This resolves ICU parsing
-   failures in `steamwebhelper.exe`.
-3. Select **Generate Diagnostics Report** and confirm `LC_ALL=en_US.UTF-8` and
-   `STEAM_DISABLE_CEF_SANDBOX=1`.
+- Steam opens and immediately displays an error that `steamwebhelper.exe` is not responding.
 
 **Cause**
+- Steam's Chromium Embedded Framework (CEF) fails ICU date and time parsing when the Wine locale does not specify UTF-8 encoding.
 
-Steam's Chromium-based helper fails when parsing dates and times in certain locales. The
-`.UTF-8` suffix is required for correct Unicode handling.
-
-**Related issues:** whisky-app/whisky#946, #1224, #1241.
+**Solution**
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and enable **Launcher Compatibility Mode**.
+2. Set **Locale Override** to **Automatic** or **English (en_US.UTF-8)**.
+3. Expand **Active Environment Overrides** and confirm `LC_ALL=en_US.UTF-8` and `STEAM_DISABLE_CEF_SANDBOX=1` are active.
 
 ### Steam downloads stall at 99 percent
 
 **Symptoms**
-
-- Downloads reach 99 percent and never complete.
-- A restart of Steam is required to continue, and several games are affected.
-
-**Solution**
-
-1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Network
-   Timeout** to **90 seconds** or higher.
-2. Generate a diagnostics report and confirm `WINHTTP_CONNECT_TIMEOUT`. The receive timeout
-   is set to twice that value. Gmac does not set `WINE_FORCE_HTTP11`.
-3. In Steam, open **Settings → Downloads**, select a geographically close region, then pause
-   and resume the download.
+- Downloads stop at 99 percent and fail to finish without restarting Steam.
 
 **Cause**
+- Wine's HTTP implementation can drop or stall persistent connections before a transfer finishes.
 
-Wine's HTTP behaviour is unstable under some persistent connection conditions. Higher
-timeouts resolve the connection failures.
+**Solution**
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and set **Network Timeout** to **90s** or higher. Gmac sets `WINHTTP_CONNECT_TIMEOUT` to that millisecond value and `WINHTTP_RECEIVE_TIMEOUT` to twice that value. Gmac does not set `WINE_FORCE_HTTP11` or `WINE_MAX_CONNECTIONS_PER_SERVER`.
+2. In Steam, open **Settings › Downloads**, select a geographically close download region, clear the download cache, and resume.
 
-**Related issues:** whisky-app/whisky#1148, #1072, #1176.
-
-### Rockstar Games Launcher freezes on the logo
+### Rockstar Games Launcher freezes or fails to initialize
 
 **Symptoms**
-
-- The launcher starts and freezes at the Rockstar logo without an error message.
-- CPU usage may increase while the splash screen remains visible.
-
-**Solution**
-
-1. Enable DXVK under **Config → DXVK**. It is required for the logo to render.
-2. Open **Config → Launcher Compatibility**, enable compatibility mode and set detection to
-   Automatic or select **Rockstar Games Launcher** explicitly.
-3. Generate a diagnostics report and confirm that DXVK is enabled and that
-   `WINEDLLOVERRIDES` contains the Direct3D libraries.
-
-**Alternative:** use `LauncherPatcher.exe` instead of `Launcher.exe`.
+- The standalone launcher freezes at the Rockstar logo, or Steam-launched Rockstar titles stop with "The Rockstar Games Launcher failed to initialize".
 
 **Cause**
+- The standalone launcher renders its splash screen and interface using Direct3D/Direct2D and Chromium components that fail without the appropriate per-executable rendering overrides.
 
-The logo screen renders with Direct3D. Without DXVK the rendering fails without an error and
-the launcher blocks.
+**Solution**
+- **Standalone launcher:**
+  1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility**, enable **Launcher Compatibility Mode**, and verify **Use DXVK for Rockstar Games Launcher** is enabled (`LauncherFixes` switches the PC to DXVK when Rockstar is detected and `autoEnableDXVK` is on).
+  2. If the launcher executable still hangs, run `LauncherPatcher.exe` instead of `Launcher.exe` via **Run…**.
+- **Rockstar games launched through Steam:**
+  1. Keep **PC › Settings › Graphics** on **Automatic (Recommended)**.
+  2. Launch the game from Gmac's Library or Steam. Gmac automatically writes `AppDefaults` overrides for `Launcher.exe` (OpenGL WineD3D with NVAPI and `d3d12` disabled) and `SocialClubHelper.exe` (DXVK).
 
-**Related issues:** whisky-app/whisky#835, #1335, #1120.
-
-### EA App displays a black screen
+### EA App displays a black screen or "GPU not supported"
 
 **Symptoms**
-
-- The window is entirely black, although background sound is audible.
-- The cursor changes over invisible controls, and a "GPU not supported" error may appear.
-
-**Solution**
-
-1. Open **Config → Launcher Compatibility**, enable compatibility mode and enable **GPU
-   Spoofing** with the **NVIDIA** vendor.
-2. Generate a diagnostics report and confirm GPU spoofing is active. The spoof sets
-   `MESA_GL_VERSION_OVERRIDE=4.6`.
-3. Set **Locale Override** to **English**.
+- The EA App window renders black with audible background audio or shows a "GPU not supported" error.
 
 **Cause**
+- The EA App queries OpenGL and Direct3D driver capabilities and rejects Wine's default reporting when capability overrides are missing.
 
-The EA App queries GPU capabilities through Direct3D. Wine's incomplete driver reporting
-causes the launcher to conclude that the GPU is unsupported.
-
-**Related issues:** whisky-app/whisky#1195, #1322.
+**Solution**
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and enable **Launcher Compatibility Mode**.
+2. Enable **GPU Spoofing** with vendor **NVIDIA**.
+3. Confirm **Locale Override** is **English (en_US.UTF-8)** (applied automatically by the EA App preset).
+4. Expand **Active Environment Overrides** to confirm `LC_ALL=en_US.UTF-8` and `CEF_DISABLE_SANDBOX=1` are active; `GPUDetection` also sets `MESA_GL_VERSION_OVERRIDE=4.6` and `MESA_GLSL_VERSION_OVERRIDE=460`.
 
 ### Epic Games Store does not render its interface
 
 **Symptoms**
-
-- The window appears blank or grey and the web view does not load.
-- Sign-in is impossible and connection errors may be reported.
-
-**Solution**
-
-1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Locale
-   Override** to **English**.
-2. Generate a diagnostics report and confirm `CEF_DISABLE_SANDBOX=1`.
+- The Epic Games Store window is blank or grey and sign-in cannot proceed.
 
 **Cause**
+- Epic's Chromium Embedded Framework conflicts with Wine when the CEF sandbox is enabled or the locale is non-UTF-8.
 
-Epic's Chromium Embedded Framework conflicts with Wine's threading model. Disabling the CEF
-sandbox resolves the conflict.
+**Solution**
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and enable **Launcher Compatibility Mode**.
+2. Confirm `CEF_DISABLE_SANDBOX=1` under **Active Environment Overrides** and keep **Locale Override** on **Automatic** or **English (en_US.UTF-8)**.
 
 ### Ubisoft Connect cannot update or launch games
 
 **Symptoms**
-
-- Ubisoft Connect starts, but games do not launch.
-- Update progress does not advance and "Failed to initialize" errors appear.
+- Ubisoft Connect starts, but updates stall or games fail to initialize.
 
 **Solution**
-
-1. Under **Config → DXVK**, enable DXVK and **DXVK Async**.
-2. Under **Config → Launcher Compatibility**, set the network timeout to **90 seconds**.
-
-**Related issues:** whisky-app/whisky#1004, #879.
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and enable **Launcher Compatibility Mode**.
+2. Set **Network Timeout** to **90s** or higher.
+3. Confirm **PC › Settings › Graphics** is set to **DirectX 11 (Compatibility)** (DXVK) with **DXVK Async** enabled under **PC › Settings › Advanced (Show) › Graphics Tuning › DXVK Configuration** (enabled automatically when Ubisoft Connect is detected).
 
 ### Battle.net authentication fails
 
 **Symptoms**
-
-- The launcher opens, but the sign-in page does not load and redirects fail.
+- Battle.net opens, but the embedded browser sign-in flow fails to load or redirect.
 
 **Solution**
-
-Enable compatibility mode with the English locale. Battle.net's web-based authentication
-requires working Chromium rendering.
+1. Enable **Launcher Compatibility Mode** with **Battle.net** detected (or manually selected).
+2. Confirm `LC_ALL=en_US.UTF-8` and `CEF_DISABLE_SANDBOX=1` are active and that DXVK is active (**DirectX 11 (Compatibility)** under **Graphics**).
 
 ### Paradox Launcher reports "recursive resource lookup"
 
 **Symptoms**
-
-- Installation fails with a resource lookup error and initialisation does not complete.
-
-**Solution**
-
-Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.
-
-Gmac applies no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH` workaround
-that earlier versions set is read by no shipped runtime and has been removed.
-
-**Related issues:** whisky-app/whisky#1091.
-
-## macOS 15.4 and later
-
-**Symptoms**
-
-- Launchers that worked on macOS 15.3 crash on 15.4 or later.
-- Wine preloader threads remain blocked and Mach port timeouts occur.
+- Paradox Launcher installation or initialization reports a resource lookup error.
 
 **Solution**
+- Enable **Launcher Compatibility Mode** with Paradox Launcher detected or selected. Gmac applies the platform `CEF_DISABLE_SANDBOX=1` and macOS 15.4+ synchronization overrides automatically. Earlier versions of this guide referenced `WINE_DISABLE_FAST_PATH`, which no shipped runtime reads and which Gmac removed.
 
-1. Enable **Config → Metal → Sequoia Compatibility Mode**.
-2. Generate a diagnostics report and confirm the macOS version and `WINEFSYNC=0`.
+## macOS 15.3 and 15.4+ platform fixes
 
-**Cause**
+On macOS 15.3 and later, Gmac applies required platform overrides automatically in `MacOSCompatibilityFixes` without requiring a manual compatibility toggle:
 
-Apple changed threading and Mach port behaviour in macOS 15.4. The compatibility mode applies
-the required Wine environment changes.
-
-**Related issues:** whisky-app/whisky#1372, #1310, #1307.
-
-## Diagnostics report
-
-### Generating a report
-
-1. Open **Bottle → Config → Launcher Compatibility**.
-2. Select **Generate Diagnostics Report** and review the configuration in the window.
-3. Copy the report to the clipboard for a GitHub issue, or export it to a file.
-
-### Reading a report
-
-**System information**
-
-```
-macOS version: 15.4.1
-Wine version: 11.0
-Architecture: Apple Silicon (arm64)
-Rosetta 2: installed
-```
-
-**Launcher configuration**
-
-```
-Compatibility mode: enabled
-Detected launcher: Steam
-Launcher locale: English (en_US.UTF-8)
-GPU spoofing: enabled (NVIDIA)
-```
-
-**Environment variables**
-
-- `LC_ALL=en_US.UTF-8` (locale fix)
-- `STEAM_DISABLE_CEF_SANDBOX=1` (Steam CEF fix)
-- `CEF_DISABLE_SANDBOX=1` (global CEF fix)
-- `MESA_GL_VERSION_OVERRIDE=4.6` (GPU spoofing)
-- `WINHTTP_CONNECT_TIMEOUT=90000` (network timeout)
-
-**Validation results**
-
-The report states either that the configuration is optimal or that warnings require
-attention.
-
-## Configuration warnings
-
-| Warning | Impact | Action |
+| Variable | Condition | Reason |
 |---|---|---|
-| DXVK should be enabled for Steam | Steam interface may stutter | Enable DXVK under **Config → DXVK** |
-| DXVK required for the Rockstar Launcher | Logo does not render; launcher unusable | Enable DXVK |
-| Steam may fail without the en_US locale | `steamwebhelper.exe` failure likely | Set Locale Override to English |
-| GPU spoofing required for the EA App | Black screen or "GPU not supported" | Enable GPU spoofing |
+| `STEAM_DISABLE_CEF_SANDBOX=1` | All macOS versions | Disables Steam CEF sandbox incompatible with Wine |
+| `CEF_DISABLE_SANDBOX=1` | All macOS versions | Disables CEF sandbox for Chromium-based launchers |
+| `MTL_DEBUG_LAYER=0` | macOS 15.3 and later | Prevents Metal validation layer rendering issues |
+| `WINEFSYNC=0` | macOS 15.4 and later | Disables fsync due to macOS 15.4 threading/Mach port changes |
+| `STEAM_RUNTIME=0` | macOS 15.4 and later | Disables Steam Runtime under Wine |
+| `WINEESYNC=1` | macOS 15.4 and later when Enhanced Sync is None | Keeps ESync active for process stability |
+
+View the active platform fixes in **PC › Settings › Advanced (Show) › Launcher Compatibility › Active Environment Overrides**.
+
+## Inspecting configuration and diagnostics
+
+### Active Environment Overrides and Configuration Warnings
+
+Under **PC › Settings › Advanced (Show) › Launcher Compatibility**:
+
+- Expand **Active Environment Overrides** to see each launcher-specific and macOS platform environment variable along with its reason.
+- Review **Configuration Warnings**, which surface conditions detected by `LauncherDetection`:
+
+| Warning | Meaning | Action |
+|---|---|---|
+| Steam locale warning | Steam is selected and Locale Override is set to a non-English, non-Automatic locale | Set **Locale Override** to **Automatic** or **English (en_US.UTF-8)** |
+| Steam GPU spoofing warning | GPU Spoofing is disabled for Steam | Enable **GPU Spoofing** |
+| Rockstar DXVK required | Rockstar Games Launcher is selected and bottle DXVK is off | Select **DirectX 11 (Compatibility)** or enable **Use DXVK for Rockstar Games Launcher** |
+| EA App GPU spoofing required | EA App is selected and GPU Spoofing is off | Enable **GPU Spoofing** |
+| EA App / Epic / Battle.net locale recommended | Locale Override is not English (`en_US.UTF-8`) | Set **Locale Override** to **English (en_US.UTF-8)** |
+| Launcher Compatibility Mode disabled | Compatibility mode is off | Enable **Launcher Compatibility Mode** |
+
+### Diagnostic tools
+
+- **View Latest Diagnosis / Export Diagnostic Report…:** available under **PC › Settings › Advanced (Show) › Diagnostic Reports** (and via the **View Diagnostics** button in **Launcher Compatibility**). Exports a Markdown summary or ZIP bundle with privacy toggles for scrubbing sensitive arguments and logs.
+- **Generate Stability Diagnostics:** available under **PC › Settings › Advanced (Show) › Diagnostic Reports**. Produces a bounded report containing system versions, PC settings, environment keys only (without values), and the tail of the newest Wine log.
+- **Help › Run Diagnostics… (`⇧⌘D`)** and **Help › Troubleshoot… (`⇧⌘T`):** analyze a program's last run log or launch the guided troubleshooting wizard.
 
 ## Advanced troubleshooting
 
-### Reset launcher configuration
-
-1. Disable Launcher Compatibility Mode.
-2. Right-click the bottle, select **Show in Finder** and delete `Metadata.plist`.
-3. Recreate the bottle; Gmac regenerates it with defaults.
-4. Enable Launcher Compatibility Mode again.
-
 ### Consult Wine logs
 
-1. Open `~/Library/Logs/com.rolling7ho.Gmac/`.
-2. Locate the newest log by timestamp and inspect entries around launcher startup.
-3. Search for `steamwebhelper`, `CEF`, `locale`, `crash` and `segfault`.
+1. Select **File › Open Logs Folder** (`⌘L`) or click **Show in Finder** next to **Logs** in **Gmac Settings › Storage**.
+2. Open `~/Library/Logs/com.rolling7ho.Gmac/` and inspect the newest `.log` file by timestamp.
+3. Search for `steamwebhelper`, `CEF`, `locale`, `err:`, or `segfault`.
 
 ### Verify the Wine installation
 
-Confirm that `~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/` contains
-the `bin/`, `lib/` and `share/` directories. The application reports the runtime version it
-uses in the diagnostics report.
+Confirm that `~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/` contains `bin/`, `lib/`, and `share/`, and that `~/Library/Application Support/com.rolling7ho.Gmac/Libraries/WhiskyWineVersion.plist` exists. If the runtime is damaged, open **Gmac › Setup…** to reinstall it.
 
-### Test in a clean bottle
+### Reset launcher configuration
 
-1. Create a new bottle named "Launcher Test" with Windows 10.
-2. Enable Launcher Compatibility Mode before installing anything.
-3. Install the launcher from the official installer.
-4. Test the launcher. If it works, the original bottle had a configuration fault; if it
-   fails, the fault lies with Wine or macOS.
+`Metadata.plist` stores all settings for a PC (name, pinned programs, graphics settings, and launcher compatibility settings) inside the PC directory (`~/Library/Containers/com.rolling7ho.Gmac/Bottles/<UUID>/Metadata.plist` by default).
+
+1. Quit everything running in the PC (**Quit Everything Running**).
+2. Right-click the PC in the sidebar and select **Show in Finder**.
+3. Back up `Metadata.plist`, then delete `Metadata.plist` if the configuration is corrupted.
+4. Restart Gmac. Gmac regenerates default `Metadata.plist` settings without deleting `drive_c` or installed games; re-enable **Launcher Compatibility Mode** afterwards.
+
+### Test in a clean PC
+
+1. Create a new PC named `Launcher Test` with **Windows 10**.
+2. Enable **Launcher Compatibility Mode** before installing the launcher.
+3. Install the launcher from its official installer and test sign-in and rendering. If the launcher works in the clean PC, the issue is isolated to the original PC's configuration or prefix state.
 
 ## Launcher reference
 
-### Steam
+| Launcher | Applied profile (`LauncherFixes`) | Managed environment (`fixDetails`) | Helper executables (`AppDefaults`) |
+|---|---|---|---|
+| **Steam** | `en_US.UTF-8` locale, GPU spoofing on, 90s network timeout; DXVK per-executable (restores Automatic when GPTK is present) | `LC_ALL=en_US.UTF-8`, `LANG=en_US.UTF-8`, `LC_TIME=C`, `LC_NUMERIC=C`, `STEAM_DISABLE_CEF_SANDBOX=1`, `STEAM_RUNTIME=0`, `DXVK_ASYNC=1` | `steamwebhelper.exe`, `steamservice.exe`, `gameoverlayui64.exe`, `GameOverlayUI.exe` |
+| **Rockstar Games Launcher** | Enables DXVK if `autoEnableDXVK` is on, `en_US.UTF-8` locale | `WINE_LARGE_ADDRESS_AWARE=1`, `LC_ALL=en_US.UTF-8` | Chain executables: `Launcher.exe` (OpenGL WineD3D, no NVAPI, no `d3d12`), `SocialClubHelper.exe` (DXVK) |
+| **EA App** | GPU spoofing on (NVIDIA), `en_US.UTF-8` locale | `LC_ALL=en_US.UTF-8`, `LANG=en_US.UTF-8` | `EABackgroundService.exe` |
+| **Epic Games Store** | `en_US.UTF-8` locale, GPU spoofing on | `LC_ALL=en_US.UTF-8` | `EpicWebHelper.exe` |
+| **Ubisoft Connect** | Enables DXVK and DXVK Async, 90s network timeout | `DXVK_ASYNC=1` | None |
+| **Battle.net** | `en_US.UTF-8` locale, GPU spoofing on, enables DXVK | `LC_ALL=en_US.UTF-8` | `Battle.net Helper.exe` |
+| **Paradox Launcher** | Enables Launcher Compatibility Mode | None (relies on platform fixes) | None |
 
-- Required: Launcher Compatibility Mode; locale `en_US.UTF-8`.
-- Recommended: DXVK; network timeout of 90 seconds.
-- Variables: `LC_ALL=en_US.UTF-8`, `STEAM_DISABLE_CEF_SANDBOX=1`.
-
-### Rockstar Games Launcher
-
-- Required: DXVK; Launcher Compatibility Mode.
-- Recommended: locale English.
-- DXVK cannot be disabled for this launcher.
-
-### EA App
-
-- Required: GPU spoofing; Launcher Compatibility Mode.
-- Recommended: NVIDIA vendor; locale English.
-
-### Epic Games Store
-
-- Required: Launcher Compatibility Mode; locale English.
-- Recommended: GPU spoofing.
-- Variables: `CEF_DISABLE_SANDBOX=1`.
-
-### Ubisoft Connect
-
-- Required: Launcher Compatibility Mode.
-- Recommended: DXVK with DXVK Async; network timeout of 90 seconds.
-- Variables: `DXVK_ASYNC=1`.
-
-### Battle.net
-
-- Required: Launcher Compatibility Mode; locale English.
-- Recommended: DXVK.
-- Variables: `CEF_DISABLE_SANDBOX=1`.
-
-### Paradox Launcher
-
-- Required: Launcher Compatibility Mode.
-- No additional environment configuration.
-
-## Reporting an issue
-
-Before reporting:
-
-1. Generate the diagnostics report under **Config → Launcher Compatibility** and export it.
-2. Review all warnings and apply the recommended changes.
-3. Confirm that the issue reproduces in a clean bottle.
-
-Include in the report:
-
-1. The diagnostics report, attached or pasted in full.
-2. System information: macOS version, Mac model and Gmac version.
-3. Reproduction steps, expected behaviour and actual behaviour.
-4. Screenshots of error messages and configuration screens.
+Note on **GPU Spoofing**: enabling GPU spoofing emits `MESA_GL_VERSION_OVERRIDE=4.6` and `MESA_GLSL_VERSION_OVERRIDE=460` regardless of the selected vendor, because no shipped runtime reads the legacy vendor-ID environment variables. `D3DM_SUPPORT_DXR` is controlled independently by **DirectX Raytracing** under **Graphics Tuning › Metal**.
 
 ## Security considerations
 
-Launcher compatibility mode disables the Chromium sandbox, which is required under Wine.
-
-Implications:
-
-- Embedded browser content runs with the process's privileges.
-- A browser exploit could compromise the Wine process.
-
-Use compatibility mode with established launchers (Steam, Epic, EA, Rockstar), keep those
-launchers updated, and avoid browsing untrusted sites inside them. Do not use compatibility
-mode with unknown launcher software.
-
-## Operational guidance
-
-**Performance**
-
-- Enable DXVK Async to reduce shader compilation stutter.
-- Enable the shader cache under **Config → Performance**.
-
-**Stability**
-
-- Use a dedicated bottle for each launcher to avoid conflicts.
-- Reinstall launchers after significant Wine updates and keep them updated.
-- Monitor Wine processes in Activity Monitor; sustained high CPU usage may indicate a
-  hung launcher component.
-
-**Before changing a working configuration**
-
-- Export the diagnostics report.
-- Copy `Metadata.plist`:
-
-  ```sh
-  cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
-  ```
-
-- Record the working configuration, for example with screenshots of the Config tabs.
+Launcher Compatibility Mode disables the Chromium sandbox (`CEF_DISABLE_SANDBOX=1` and `STEAM_DISABLE_CEF_SANDBOX=1`), which is required for Chromium-based launchers to run under Wine. Embedded browser content runs with the privileges of the Wine process. Use Launcher Compatibility Mode only with established, trusted launchers and avoid browsing untrusted websites inside launcher web views.
 
 ## FAQ
 
-**Can launcher compatibility be used with games?**
-Yes, but it is designed for launchers. Games generally do not require these fixes and may
-receive launcher-specific optimisations that they do not need.
+**Can Launcher Compatibility Mode be used with standalone games?**
+It is intended for game launchers. Standalone games receive their own per-game environment and preset overrides without needing launcher mode.
 
-**Why does launcher detection fail?**
-Detection uses heuristics based on filename and path. For unusual cases, switch to Manual
-detection and select the launcher explicitly.
+**Why does automatic launcher detection miss an executable?**
+Detection inspects the executable filename and path (`LauncherType.detect(from:)`). If a launcher uses a non-standard path or executable name, switch **Detection Mode** to **Manual** and select the launcher explicitly.
 
-**Is GPU spoofing safe with anti-cheat?**
-GPU spoofing changes capability queries only and does not modify game memory. Whether a
-given anti-cheat system tolerates it depends on that system.
+**Does GPU spoofing interfere with anti-cheat?**
+GPU spoofing only overrides OpenGL capability strings (`MESA_GL_VERSION_OVERRIDE`, `MESA_GLSL_VERSION_OVERRIDE`) and does not modify game memory. Anti-cheat compatibility still depends on the anti-cheat system itself; kernel-level anti-cheat drivers remain unsupported under Wine.
 
-**Does launcher compatibility reduce game performance?**
-No measurable effect is expected. The environment variable setup occurs at launch and is
-negligible.
+**Can settings be customized per game instead of for the entire PC?**
+Yes. Open **PC › Advanced (Show) › Installed Apps** and select an executable to configure per-program arguments, environment overrides, locale, and graphics backend overrides. Popular titles also receive automatic presets from **PC › Advanced (Show) › Game Presets** (`GameDB.json`).
 
-**Can individual launcher settings be customised?**
-Settings apply to the detected launcher. Per-game overrides may be added in a future
-version.
+## Related documentation
 
-**Why does a launcher require the English locale?**
-The Chromium Embedded Framework used by several launchers has Unicode parsing defects with
-certain locales. `en_US.UTF-8` avoids them.
-
-## macOS compatibility
-
-| macOS version | Compatibility | Notes |
-|---|---|---|
-| 15.0 to 15.2 | Full | No known issues |
-| 15.3 | Full | Graphics validation handled |
-| 15.4 and later | Full | Synchronisation mode and Steam Runtime handled |
-
-macOS 15 is the minimum supported version.
-
-## Further resources
-
-- Issue tracker: <https://github.com/rolling7ho/gmac/issues>
-- Upstream project: <https://github.com/whisky-app/whisky>
-- Steam guide: [SteamCompatibility.md](SteamCompatibility.md)
-- Stability guide: [StabilityTroubleshooting.md](StabilityTroubleshooting.md)
+- [Steam compatibility guide](SteamCompatibility.md)
+- [Stability troubleshooting guide](StabilityTroubleshooting.md)
 </script>
 <footer class="site-footer">
   <div class="wrap footer-grid">

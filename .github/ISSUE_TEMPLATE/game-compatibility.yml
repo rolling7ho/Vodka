@@ -1,15 +1,15 @@
-name: 🎮 Game Compatibility Report
-description: A specific game won't run, crashes, or runs poorly.
+name: Game Compatibility Report
+description: A specific game fails to launch, crashes, or runs poorly.
 labels: ["game-compatibility"]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this template for **game-specific** issues — a particular game crashing, freezing, rendering wrong, or not launching.
-        For non-game bugs (Gmac UI, bottle creation, etc.), use the **Bug Report** template instead.
+        Use this template for **game-specific** issues where a game crashes, freezes, renders incorrectly, or fails to launch.
+        For non-game bugs (Gmac interface, PC creation, or runtime downloads), use the **Bug Report** template instead.
 
         **Before filing:**
-        - Open the **Game Configurations** browser inside Gmac — your game may already have a recommended config.
+        - Check **PC › Advanced › Game Presets** inside Gmac to see whether a preset already exists.
         - Search [existing issues](https://github.com/rolling7ho/gmac/issues?q=is%3Aissue+label%3Agame-compatibility).
   - type: input
     id: game-name
@@ -22,34 +22,34 @@ body:
     id: game-store
     attributes:
       label: Store / launcher
-      description: Where you bought / launch the game from.
+      description: Where the game was purchased or launched from.
       placeholder: "e.g., Steam, Epic, GOG, EA App, standalone installer"
     validations:
       required: true
   - type: dropdown
     id: rating
     attributes:
-      label: Compatibility rating you'd give it
-      description: Match the GameDB rating system.
+      label: Compatibility rating
+      description: Match the GameDB rating definitions.
       options:
-        - "Works — runs perfectly with no issues"
-        - "Playable — runs with minor issues or required tweaks"
-        - "Broken — crashes, freezes, or unplayable"
-        - "Doesn't launch — installer or launcher fails before game loads"
+        - "Works: runs with no issues"
+        - "Playable: runs with minor issues or required tweaks"
+        - "Broken: crashes, freezes, or unplayable"
+        - "Will not launch: installer or launcher fails before game loads"
     validations:
       required: true
   - type: textarea
     id: what-happens
     attributes:
       label: What happens
-      description: Crash on launch? Black screen? Bad performance? Audio cuts out? Be specific.
+      description: Describe the symptom (crash on launch, black screen, poor performance, or audio dropout).
     validations:
       required: true
   - type: textarea
     id: repro
     attributes:
-      label: Steps you took
-      description: Including any tweaks (DXVK, registry edits, winetricks verbs, env vars) you applied before hitting the issue.
+      label: Steps taken
+      description: Include any settings or tweaks (graphics backend, registry edits, winetricks verbs, or environment variables) applied before hitting the issue.
     validations:
       required: true
   - type: dropdown
@@ -57,19 +57,20 @@ body:
     attributes:
       label: Graphics backend tried
       options:
-        - "Recommended (auto)"
-        - "D3DMetal"
-        - "DXVK"
-        - "DXVK with Async"
-        - "WineD3D"
+        - "Automatic (Recommended)"
+        - "DirectX 12 (D3DMetal)"
+        - "DirectX 11 (DXMT)"
+        - "DirectX 11 (Compatibility / DXVK)"
+        - "DirectX 9 / OpenGL / Vulkan (WineD3D)"
+        - "Gmac DirectX 12 (DXMT / gmacmetal)"
     validations:
       required: true
   - type: input
     id: gamedb-id
     attributes:
-      label: GameDB entry id (if you applied one)
-      description: From the URL in the Game Configurations browser, e.g. `baldurs-gate-3`. Leave blank if no recommended config exists yet.
-      placeholder: "e.g., baldurs-gate-3 — or leave blank"
+      label: GameDB entry id (if applied)
+      description: Entry identifier from **Game Presets**, such as `baldurs-gate-3`. Leave blank if no preset exists.
+      placeholder: "e.g., baldurs-gate-3"
     validations:
       required: false
   - type: textarea
@@ -77,7 +78,7 @@ body:
     attributes:
       label: Wine log (relevant excerpt)
       description: |
-        Press **⌘L** in Gmac to open the most recent Wine log. Paste the parts around the crash / error.
+        Press **⌘L** in Gmac to open the Wine logs folder and paste the lines around the crash or error.
       render: bash
     validations:
       required: false
@@ -85,7 +86,7 @@ body:
     id: gmac-version
     attributes:
       label: Gmac version
-      placeholder: "e.g., 3.0.1"
+      placeholder: "e.g., 4.1.1"
     validations:
       required: true
   - type: dropdown
@@ -108,24 +109,24 @@ body:
     id: hardware
     attributes:
       label: Hardware
-      description: Apple Silicon model + RAM. From **Apple Menu → About This Mac**.
-      placeholder: "e.g., MacBook Pro M4 Max, 64GB"
+      description: Apple Silicon model and unified memory from **Apple Menu › About This Mac**.
+      placeholder: "e.g., MacBook Pro M4 Max, 64 GB"
     validations:
       required: true
   - type: checkboxes
     attributes:
       label: Anti-cheat
-      description: Some anti-cheat systems are fundamentally incompatible with Wine on macOS.
+      description: Kernel-level anti-cheat drivers are incompatible with Wine on macOS.
       options:
-        - label: This game uses an anti-cheat system (EasyAntiCheat, BattlEye, Vanguard, Denuvo, etc.) that I'm aware of.
+        - label: This game uses an anti-cheat system (EasyAntiCheat, BattlEye, Vanguard, Denuvo, or similar) that I am aware of.
           required: false
   - type: checkboxes
     attributes:
       label: Pre-flight checks
       options:
-        - label: I checked the in-app Game Configurations browser for an existing config.
+        - label: I checked **PC › Advanced › Game Presets** for an existing preset.
           required: true
-        - label: I am running **this fork** (`rolling7ho/gmac`, confirmed via **Gmac -> About**) rather than the archived Whisky original.
+        - label: I am running **this fork** (`rolling7ho/gmac`, confirmed via **Gmac › About Gmac**) rather than the archived Whisky original.
           required: true
         - label: I searched existing issues for this game.
           required: true

@@ -1,45 +1,45 @@
-name: ✨ Feature Request
+name: Feature Request
 description: Suggest a new feature or improvement.
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to suggest something. Please:
+        Before submitting a feature request:
         - Search [existing issues](https://github.com/rolling7ho/gmac/issues?q=is%3Aissue) to avoid duplicates.
   - type: textarea
     id: problem
     attributes:
       label: Problem the feature would solve
-      description: A clear description of the user-facing problem. ("I want to do X but the app makes that hard because…")
+      description: Describe the user-facing problem clearly.
     validations:
       required: true
   - type: textarea
     id: solution
     attributes:
       label: Proposed solution
-      description: How would the app behave if the feature existed? Be specific.
+      description: Describe how Gmac should behave if this feature existed.
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Other approaches you thought about, or workarounds you currently use.
+      description: Describe alternative approaches or current workarounds.
     validations:
       required: false
   - type: textarea
     id: extra-info
     attributes:
       label: Additional context
-      description: Screenshots, mockups, links, anything that helps explain.
+      description: Provide screenshots, mockups, or links if helpful.
     validations:
       required: false
   - type: checkboxes
     attributes:
       label: Pre-flight checks
       options:
-        - label: I searched existing issues and didn't find a duplicate.
+        - label: I searched existing issues and did not find a duplicate.
           required: true
         - label: My request is written in English.
           required: true

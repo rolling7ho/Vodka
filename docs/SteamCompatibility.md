@@ -1,467 +1,183 @@
 # Steam compatibility guide
 
-**Feature:** Launcher compatibility system (frankea/Whisky#41)
-**Last updated:** 12 January 2026
+This guide describes the recommended configuration, graphics routing, and known troubleshooting steps for running Steam and Windows Steam games in Gmac. Gmac presents each isolated Wine prefix as a **PC** in the user interface and calls it a **bottle** in `GmacKit` and internal paths.
 
-> **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
-> the original upstream project (whisky-app/whisky). Upstream references are retained for
-> historical context. Report new issues to
-> [rolling7ho/gmac](https://github.com/rolling7ho/gmac/issues).
+## Recommended setup
 
-## Overview
+### Option A: Guided Steam setup (recommended)
 
-Steam is the most commonly used launcher with Gmac and accounts for the largest share of
-launcher compatibility reports. This guide describes the recommended configuration and the
-known failure modes.
+1. Open Gmac and complete first-run Wine runtime setup.
+2. In the Library view, follow the four-step **Steam Setup Guide**:
+   - **Step 1 (Create your Steam space):** select **Create** to create a dedicated Windows 10 PC named `Steam`.
+   - **Step 2 (Choose your graphics):** select **Automatic (Recommended)** (or choose a specific DirectX option). If you intend to run DirectX 12 titles, follow the **Get It from Apple** card to download Apple's Game Porting Toolkit `.dmg` and click **Install** when Gmac detects it in `~/Downloads` (or use **Choose File…**).
+   - **Step 3 (Install Steam):** select **Install Steam**. Gmac downloads `SteamSetup.exe` from Valve and runs a silent installation into the PC.
+   - **Step 4 (Sign in and install a game):** select **Open Steam**. On first launch, Steam updates itself for 2 to 5 minutes, during which the window may appear blank or display "Updating Steam". Once sign-in appears, log in and install games into the library.
 
-## Recommended configuration
+### Option B: Manual PC setup
 
-### Step 1: Create a dedicated Steam bottle
+1. Create a new PC named `Steam` with Windows version **Windows 10**.
+2. Open the PC, select **Settings**, click **Show** next to **Advanced**, and expand **Launcher Compatibility**.
+3. Enable **Launcher Compatibility Mode** and keep **Detection Mode** set to **Automatic**.
+4. Select **Run…** at the bottom of the PC view and run Valve's `SteamSetup.exe` (accept the default path `C:\Program Files (x86)\Steam\`).
 
-1. Create a new bottle with the name "Steam" and Windows version **Windows 10**
-   (recommended), at the default location.
-2. Open **Config → Launcher Compatibility** and enable **Launcher Compatibility Mode**.
-3. Set **Detection Mode** to **Automatic**. Launching Steam should then report
-   "Detected Launcher: Steam".
+### Graphics routing and per-game settings
 
-### Step 2: Install Steam
+Keep **PC › Settings › Graphics** set to **Automatic (Recommended)**:
 
-1. Download `SteamSetup.exe`, the Windows installer, from
-   <https://store.steampowered.com/about/>.
-2. Select **Bottle → Run**, choose `SteamSetup.exe` and accept the default installation
-   path (`C:\Program Files (x86)\Steam\`).
-3. Steam starts automatically after installation. If `steamwebhelper.exe` fails, see the
-   first issue below.
+- **Steam client processes:** Gmac automatically configures DXVK per executable (`AppDefaults`) for `steam.exe`, `steamwebhelper.exe`, `steamservice.exe`, `gameoverlayui64.exe`, and `GameOverlayUI.exe`. Steam's Chromium interface renders on DXVK even when the PC runs DirectX 12 games on D3DMetal.
+- **Games:** launching a game from the Gmac Library, via `GmacCmd launch`, or via a `gmac://launch?steam=<appid>` URL applies per-game settings, bundled **Game Presets** (`GameDB.json`), and import-based backend detection.
+- **Without Apple Game Porting Toolkit deployed:** when a PC is on **Automatic (Recommended)** and Apple D3DMetal is not deployed, Steam's profile temporarily sets the PC to DXVK so DirectX 11 titles and the client share compatible DLLs. Importing Game Porting Toolkit later automatically restores the PC to **Automatic (Recommended)** (`LauncherBackendMigration`).
+- **Rockstar games on Steam:** launching Rockstar titles through Steam automatically writes per-executable overrides for `Launcher.exe` (WineD3D OpenGL without NVAPI, `d3d12` disabled) and `SocialClubHelper.exe` (DXVK) so the Rockstar Games Launcher initializes and exits cleanly.
 
-### Step 3: Configure graphics and network settings
+### Optional Steam settings
 
-1. Leave the graphics backend on **Recommended**. Steam's own processes (`steam.exe`,
-   `steamwebhelper.exe`, `steamservice.exe`, `gameoverlayui64.exe`) receive DXVK through
-   per-executable overrides, so the client renders through DXVK while games retain the
-   bottle's backend. When the D3DMetal payload is installed, the recommended backend is
-   D3DMetal, which DirectX 12 games require.
-   A game started from the Gmac library, from `gmac launch` or from a `gmac://` link
-   receives its own settings from the Programs tab and the game database, applied to its
-   own executables regardless of which process starts it.
-   On a runtime without the D3DMetal payload, **Play** switches the bottle to DXVK.
-   Importing the Game Porting Toolkit later restores the recommended backend once, with a
-   note in the bottle's graphics settings, unless DXVK was selected explicitly.
-   Setting the entire bottle to DXVK disables Direct3D 12 for every game when the payload is
-   deployed; do this only for a bottle whose games all require DXVK.
-2. In **Config → Launcher Compatibility**, set the network timeout to **90 seconds**.
-3. In the same section, enable **GPU Spoofing** with the **NVIDIA** vendor, which provides
-   the best compatibility.
+- **Network timeout:** under **PC › Settings › Advanced (Show) › Launcher Compatibility**, confirm **Network Timeout** is at least **90s** (applied automatically when Steam is detected).
+- **GPU spoofing:** in the same section, keep **GPU Spoofing** enabled (**NVIDIA** selected by default).
+- **Auto-start Steam:** enable **Gmac Settings › Gaming › Open Steam when Gmac opens** to start Steam automatically when Gmac launches.
+- **Faster mode:** in the Library view, toggle **Faster** on an individual Steam game to render at half resolution and upscale with MetalFX.
+- **Add to Dock:** right-click a game card and choose **Add to Dock** to create a standalone `.app` shortcut in `~/Applications`.
 
-### Step 4: Verify the configuration
+### Verify configuration
 
-1. In **Config → Launcher Compatibility**, select **Generate Diagnostics Report**.
-2. Confirm the critical settings:
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility**.
+2. Confirm **Detected:** shows `Steam`.
+3. Expand **Active Environment Overrides** to inspect the exact Steam and macOS platform overrides applied at launch:
 
-   ```
-   LC_ALL = en_US.UTF-8                      # required; prevents steamwebhelper failure
-   STEAM_DISABLE_CEF_SANDBOX = 1             # required; CEF under Wine
-   STEAM_RUNTIME = 0                         # required; Steam Runtime under Wine
-   DXVK_ASYNC = 1                            # UI performance
+   ```text
+   LC_ALL=en_US.UTF-8
+   LANG=en_US.UTF-8
+   LC_TIME=C
+   LC_NUMERIC=C
+   STEAM_DISABLE_CEF_SANDBOX=1
+   CEF_DISABLE_SANDBOX=1
+   STEAM_RUNTIME=0
+   DXVK_ASYNC=1
+   MTL_DEBUG_LAYER=0          (macOS 15.3 and later)
+   WINEFSYNC=0                (macOS 15.4 and later)
    ```
 
-3. Review the reported warnings. "Configuration is optimal" indicates a complete setup;
-   any warning requires the corresponding change.
+   With **Network Timeout** at 90s and **GPU Spoofing** enabled, Gmac also sets `WINHTTP_CONNECT_TIMEOUT=90000`, `WINHTTP_RECEIVE_TIMEOUT=180000`, `MESA_GL_VERSION_OVERRIDE=4.6`, and `MESA_GLSL_VERSION_OVERRIDE=460`.
+4. Check the **Configuration Warnings** subsection; no warnings appear when the configuration is valid.
 
 ## Common issues
 
-### Issue 1: "steamwebhelper is not responding"
-
-This is the most frequent Steam issue.
+### "steamwebhelper is not responding"
 
 **Symptoms**
-
-- The Steam window reports an error immediately after launch.
-- A dialog states that `steamwebhelper.exe` is not responding, and the restart and wait
-  options do not help.
-- The Steam interface is unusable.
+- The Steam window reports that `steamwebhelper.exe` is not responding immediately after launch, and restart options do not resolve it.
 
 **Cause**
-
-Steam's Chromium Embedded Framework (CEF) fails when the locale does not specify UTF-8
-encoding, when ICU fails to initialise, or when date and time parsing encounters an
-unexpected format.
+- Steam's Chromium Embedded Framework (CEF) fails to initialize ICU date/time parsing when the Wine locale lacks UTF-8 encoding.
 
 **Solution**
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and confirm **Launcher Compatibility Mode** is enabled.
+2. Confirm **Detected:** is `Steam` (or set **Detection Mode** to **Manual** and select **Steam**) and confirm **Locale Override** is **Automatic** or **English (en_US.UTF-8)**.
+3. Expand **Active Environment Overrides** and verify `LC_ALL=en_US.UTF-8` and `STEAM_DISABLE_CEF_SANDBOX=1` are listed. `en_US` without `.UTF-8` is insufficient.
+4. If Steam still fails, delete the Steam folder inside `drive_c/Program Files (x86)/Steam/`, verify compatibility mode is enabled, and reinstall Steam.
 
-1. Open **Config → Launcher Compatibility** and enable compatibility mode.
-2. Set **Locale Override** to **English**.
-3. Generate diagnostics and confirm `LC_ALL=en_US.UTF-8`.
-
-The `.UTF-8` suffix is required. `en_US` alone does not resolve the failure.
-
-```
-LC_ALL=en_US.UTF-8   # correct
-LC_ALL=en_US         # incorrect; steamwebhelper still fails
-```
-
-If the failure persists, delete the Steam installation, create a new bottle with
-compatibility mode enabled before installation, install Steam again and verify the locale
-before the first launch.
-
-**Related issues:** whisky-app/whisky#946, #1224, #1241.
-
-### Issue 2: Downloads stall at 99 percent
+### Steam downloads stall at 99 percent
 
 **Symptoms**
-
-- Progress reaches 99 percent and does not complete.
-- The "Download starting…" message repeats.
-- Steam must be restarted to continue.
-- The behaviour occurs with several games.
+- Download progress reaches 99 percent, repeats "Download starting…", and fails to finish until Steam restarts.
 
 **Cause**
-
-Wine's HTTP implementation misbehaves with persistent connections under some conditions,
-so downloads time out before completion.
+- Wine's HTTP stack can stall on persistent connections before a download completes.
 
 **Solution**
+1. Open **PC › Settings › Advanced (Show) › Launcher Compatibility** and raise **Network Timeout** to **90s** or higher (`WINHTTP_CONNECT_TIMEOUT` and `WINHTTP_RECEIVE_TIMEOUT` at twice that value). Gmac does not set `WINE_FORCE_HTTP11` or `WINE_MAX_CONNECTIONS_PER_SERVER`, as no shipped runtime reads them.
+2. Quit Steam cleanly (from the Steam panel `…` menu › **Quit Steam** or right-click PC › **Quit Everything Running**) and relaunch it.
+3. If stalls continue, open Steam **Settings › Downloads**, choose a geographically close download region, clear the download cache, and resume.
 
-1. Open **Config → Launcher Compatibility** and set **Network Timeout** to **90 seconds** or
-   higher, then restart Steam. The timeout configures `WINHTTP_CONNECT_TIMEOUT`, and
-   `WINHTTP_RECEIVE_TIMEOUT` is set to twice that value.
-2. Alternatively, in Steam open **Settings → Downloads**, select a different download
-   region, pause and resume the download, and clear the download cache.
-
-Longer timeouts prevent premature connection closure. Gmac does not set
-`WINE_FORCE_HTTP11` or `WINE_MAX_CONNECTIONS_PER_SERVER`; earlier versions of this guide
-listed variables that no shipped runtime reads.
-
-**Related issues:** whisky-app/whisky#1148, #1072, #991, #1222.
-
-### Issue 3: Steam disconnects repeatedly
+### Steam disconnects repeatedly
 
 **Symptoms**
-
-- "No connection" errors occur every few minutes.
-- Reconnection is required repeatedly, and download progress is lost.
-- The friends list disconnects.
-
-**Cause**
-
-Network keepalive timeouts and TLS handshake behaviour under Wine.
+- "No connection" errors occur repeatedly and the friends list drops offline.
 
 **Solution**
+1. Raise **Network Timeout** to **120s** or higher under **Launcher Compatibility**. Gmac does not set `WINE_ENABLE_SSL` or `WINE_SSL_VERSION_MIN`.
+2. Verify **System Settings › Network** and temporarily disable any VPN to test whether the connection stabilizes.
 
-1. Raise the network timeout to **120 seconds** or more.
-2. Generate diagnostics and confirm that the locale and sandbox variables listed under
-   Step 4 are present. Gmac does not set `WINE_ENABLE_SSL` or `WINE_SSL_VERSION_MIN`.
-3. In **System Settings → Network**, confirm a stable connection and temporarily disable
-   any VPN for testing.
-
-**Related issues:** whisky-app/whisky#1176, #954.
-
-### Issue 4: Steam interface is blurry or stutters
+### Steam interface is blurry or stutters
 
 **Symptoms**
-
-- Text appears blurry or pixelated.
-- Interface animations stutter and scrolling is uneven.
-- Window dragging lags.
+- Steam text appears blurry or pixelated, or scrolling and animations stutter.
 
 **Solution**
+1. Under **PC › Settings › Game Settings**, ensure **Sharp, full-resolution games** is enabled (this also keeps Steam sharp on Retina displays). If you turn it off to adjust scaling manually, configure **Retina Mode** and **DPI Scaling** (96 DPI standard or 192 DPI Retina) under **PC › Settings › Advanced (Show) › Wine**.
+2. Verify Steam is not running on WineD3D: keep **Graphics** on **Automatic (Recommended)** (which routes Steam processes to DXVK) or **DirectX 11 (Compatibility)**, and confirm **DXVK Async** is enabled if using bottle-wide DXVK under **PC › Settings › Advanced (Show) › Graphics Tuning › DXVK Configuration**.
 
-1. Enable **DXVK Async** in **Config → DXVK** and restart Steam. DXVK provides better GPU
-   acceleration for the Steam interface.
-2. If text remains blurry, adjust the DPI under **Config → Wine → DPI Configuration**,
-   selecting 96 DPI (standard) or 192 DPI (Retina).
-
-**Related issues:** whisky-app/whisky#1256, #1233.
-
-### Issue 5: Steam starts without a visible interface
+### Steam starts without a visible window
 
 **Symptoms**
-
-- The Steam process runs but no window appears, or the window is blank.
-- Notification sounds are audible.
+- Steam processes appear active, or notification sounds play, but no window is visible.
 
 **Solution**
+1. Right-click the PC in the sidebar and choose **Quit Everything Running** (or press `⇧⌘K` for **File › Quit Everything Running**).
+2. Confirm **Launcher Compatibility Mode** is enabled with **Steam** detected.
+3. Under **PC › Settings › Advanced (Show) › Graphics Tuning › Metal**, confirm **Metal Validation** is off.
+4. Open Wine logs via **File › Open Logs Folder** (`⌘L`, stored in `~/Library/Logs/com.rolling7ho.Gmac/`) and inspect the newest log for CEF or graphics errors.
 
-1. Select **Bottle → Kill All Processes**.
-2. Enable compatibility mode if it is not already enabled.
-3. Enable DXVK, disable Metal validation if enabled, and enable Sequoia compatibility mode
-   on macOS 15 or later.
-4. Generate diagnostics and confirm `CEF_DISABLE_SANDBOX=1`.
+## macOS 15.3 and 15.4+ behaviour
 
-If the interface remains invisible, delete Steam, reinstall it, and inspect
-`~/Library/Logs/com.rolling7ho.Gmac/` for errors.
+Apple changed Mach port and threading behaviour in macOS 15.4 and Metal debug layer behaviour in macOS 15.3. Gmac applies the required fixes automatically at the platform layer (`MacOSCompatibilityFixes`):
 
-**Related issues:** whisky-app/whisky#1183, #1009.
+- `MTL_DEBUG_LAYER=0` on macOS 15.3 and later
+- `WINEFSYNC=0` and `STEAM_RUNTIME=0` on macOS 15.4 and later
+- `WINEESYNC=1` on macOS 15.4 and later when **Enhanced Sync** is set to **None**
 
-## macOS 15.4 and later
+There is no manual Sequoia compatibility toggle in the interface. You can inspect these active platform overrides under **PC › Settings › Advanced (Show) › Launcher Compatibility › Active Environment Overrides**.
 
-**Symptoms**
-
-- Steam worked on macOS 15.3 and fails to start after updating to 15.4 or 15.4.1.
-- Wine preloader threads remain blocked.
-- Mach port timeouts occur.
-
-**Cause**
-
-Apple changed Mach port and threading behaviour in macOS 15.4, which breaks Wine's process
-creation.
-
-**Solution**
-
-1. Enable **Config → Metal → Sequoia Compatibility Mode**.
-2. Generate diagnostics and confirm the macOS version and the following variables:
-
-   ```
-   WINEFSYNC = 0
-   STEAM_RUNTIME = 0
-   CEF_DISABLE_SANDBOX = 1
-   ```
-
-3. Terminate all Wine processes and relaunch Steam.
-
-**Related issues:** whisky-app/whisky#1372, #1310, #1307.
-
-## Advanced configuration
+## Advanced configuration and tuning
 
 ### Launch options
 
-For individual games started through Steam, open the game's **Properties** and set launch
-options. Common values:
+Set per-game Steam launch options in Steam **Properties**, or configure arguments and environment overrides per executable in Gmac under **PC › Advanced (Show) › Installed Apps**. Common Steam launch flags:
 
-```
+```text
 -windowed    force windowed mode
 -dx11        force Direct3D 11
 -nojoy       disable joystick support
 -novid       skip introductory videos
 ```
 
-### Big Picture mode
+### Big Picture, Workshop, and Cloud
 
-Big Picture generally works with compatibility mode enabled. Enable DXVK for performance,
-connect the controller before launching, and exit through the Steam menu rather than forcing
-the process to quit.
+- **Big Picture mode:** connect any controller before launching, and exit through the Steam power menu rather than force-quitting Wine.
+- **Steam Workshop:** generally works with Launcher Compatibility Mode enabled; raise **Network Timeout** to 150s or 180s for large items.
+- **Steam Cloud:** generally works when enabled under the game's **Properties › Updates** in Steam.
 
-### Steam Workshop
+### Performance and stability defaults
 
-Workshop content generally works with compatibility mode enabled. If it fails, raise the
-network timeout to 180 seconds, confirm that no firewall blocks the download, and install
-the content manually as a fallback.
-
-### Steam Cloud
-
-Cloud saves are generally functional. Confirm that the game has Cloud enabled under
-**Properties → Updates**, and test synchronisation by launching the same game from a second
-bottle.
-
-## Performance tuning
-
-**Frame rate**
-
-- Enable DXVK and DXVK Async.
-- Leave the DXVK HUD off unless diagnosing a problem.
-- Enable the shader cache after the first run to reduce stuttering.
-
-**Stability**
-
-- Set Enhanced Sync to ESync under **Config → Wine**.
-- Use Windows 10, which is the most tested Windows version.
-- Enable AVX only for games that require it.
-
-**Download throughput**
-
-- Set the network timeout to 120 to 180 seconds.
-- Select a geographically close download region.
-- Clear the Steam download cache.
-- Prefer a wired connection where possible.
-
-## Pre-report checklist
-
-Before reporting a Steam issue, confirm the following:
-
-- Launcher Compatibility Mode is enabled.
-- The locale is `en_US.UTF-8`.
-- DXVK is enabled.
-- The network timeout is at least 90 seconds.
-- Sequoia Compatibility Mode is enabled on macOS 15 or later.
-- A diagnostics report has been generated and its warnings reviewed.
-- The issue reproduces in a clean bottle.
-- Wine logs have been checked for errors.
+- **Graphics:** **Automatic (Recommended)**
+- **Shader Cache:** enabled under **PC › Settings › Advanced (Show) › Performance**
+- **Enhanced Sync:** **ESync** (or **MSync** if supported by a title) under **PC › Settings › Advanced (Show) › Wine**
+- **Windows Version:** **Windows 10**
+- **Advertise AVX Support:** off unless a specific game requires AVX instructions via Rosetta 2
+- **Metal 4 Backend:** experimental under **PC › Settings › Advanced (Show) › Graphics Tuning**; disable if a game freezes on loading screens
+- **DLSS Frame Generation:** keep disabled unless testing a specific title, as enabling it has caused WindowServer hangs on tested systems
 
 ## Known limitations
 
-**Supported:** Steam client features (store, library, friends), game downloads, most
-Direct3D 9, 10 and 11 games, Workshop content, Cloud saves in most cases, achievements and
-screenshots.
+- **Supported:** Steam Store, Library, Friends, downloads, Direct3D 9/10/11/12 games (with D3DMetal deployed for D3D12), Workshop, Cloud saves, and achievements.
+- **Limited:** advanced Steam Input features and the in-game Steam overlay (game dependent).
+- **Unsupported:** VR titles, Remote Play, Steam broadcasting, and multiplayer games using kernel-level anti-cheat (such as BattlEye, Easy Anti-Cheat kernel mode, or Vanguard).
 
-**Limited:** Steam Input controller configuration, the Steam overlay (game dependent).
+## Recovery and save locations
 
-**Unsupported:** broadcasting, Remote Play and VR.
+- **Find PC files on disk:** right-click the PC in Gmac's sidebar and select **Show in Finder**, or click **Open C: Drive** under **PC › Advanced (Show)**. Default PCs reside in `~/Library/Containers/com.rolling7ho.Gmac/Bottles/<UUID>/`.
+- **Save files:** most Windows games write saves under `drive_c/users/<username>/Documents/` or `drive_c/users/<username>/AppData/`. Back up save directories before deleting or recreating a PC.
+- **Reset Steam in place:** close all running processes, open `drive_c/Program Files (x86)/Steam/`, remove `steam.exe` and `steamwebhelper.exe` (preserving `steamapps/`), and run `SteamSetup.exe` again.
 
-**Game compatibility:** Direct3D 9 and 11 games generally work well, older titles work
-well, and Direct3D 12 titles vary. Multiplayer with kernel-level anti-cheat varies by
-title, and VR titles are unsupported.
+## Reporting Steam issues
 
-## Reporting issues
+Before opening an issue at <https://github.com/rolling7ho/gmac/issues>:
 
-Include the following:
+1. Verify **Launcher Compatibility Mode** is enabled, **Steam** is detected, and **Configuration Warnings** is clear.
+2. Run **Help › Troubleshoot…** (`⇧⌘T`) or **Help › Run Diagnostics…** (`⇧⌘D`) and export the report (**Export Diagnostic Report…** under **PC › Settings › Advanced (Show) › Diagnostic Reports**).
+3. For crashes or hangs, also collect **Generate Stability Diagnostics** from the same **Diagnostic Reports** section.
+4. Include your Mac model, macOS version, Gmac version, GmacWine version, reproduction steps, and the exported diagnostics.
 
-1. The diagnostics report, attached to the issue.
-2. The Steam version and build date (**Help → About Steam**).
-3. The exact error message and the point at which it occurs (sign-in, download, launch).
-4. Reproduction steps.
-5. System details: macOS version, Mac model and available disk space.
+## Related documentation
 
-Example report:
-
-```markdown
-**Issue:** Steam downloads stall at 99 percent
-
-**System:**
-- macOS 15.4.1
-- M2 Pro MacBook Pro
-- Gmac version 4.x
-- Steam version: December 2025 build
-
-**Configuration:**
-- Launcher Compatibility: enabled
-- Network Timeout: 60 seconds
-- DXVK: enabled
-
-**Steps to reproduce:**
-1. Queue a large game download.
-2. Progress reaches 99 percent.
-3. The download stalls indefinitely.
-4. Restarting Steam resumes the download, which stalls again at 99 percent.
-
-**Diagnostics report:** attached
-
-**Attempted fixes:**
-- Changed the download region; no change.
-- Raised the timeout to 90 seconds; the download still stalls.
-- Cleared the download cache; no change.
-```
-
-## Further resources
-
-- Steam support: <https://help.steampowered.com/>
-- Launcher troubleshooting: [LauncherTroubleshooting.md](LauncherTroubleshooting.md)
-- Issue tracker: <https://github.com/rolling7ho/gmac/issues>
-- Upstream project: <https://github.com/whisky-app/whisky>
-
-## Comparison of execution methods
-
-| Method | Setup effort | Compatibility | Performance | Assessment |
-|---|---|---|---|---|
-| Gmac with launcher compatibility | Low | High | Good | Recommended |
-| Native macOS Steam | Low | macOS titles only | Native | Limited catalog |
-| CrossOver | Medium | High | Good | Commercial |
-| Virtual machine | High | High | Fair | Resource intensive |
-| Boot Camp | High | Complete | Complete | Requires reboot |
-
-Gmac is free and open source, requires no reboot, integrates with macOS, and applies the
-compatibility configuration described above automatically once launcher compatibility is
-enabled.
-
-## FAQ
-
-**Can an existing Steam library be reused?**
-Games must be downloaded again, or restored from a Steam backup. Save files may not transfer
-automatically, and individual games may require configuration.
-
-**Does Steam report that the machine runs macOS?**
-No. Steam reports the Windows version presented by Wine.
-
-**Does the Workshop work?**
-Generally yes. Raise the network timeout for large Workshop items.
-
-**Does the Steam overlay work?**
-This depends on the game; some titles do not render it correctly.
-
-**Is game streaming supported?**
-Streaming from this Steam installation to other devices is limited. Streaming to this
-installation is not recommended, because it adds a second translation layer.
-
-**Do achievements work?**
-Yes.
-
-**Is the Steam Controller supported?**
-Partially. Basic controller input works; advanced Steam Input features may not.
-
-**Does anti-cheat work?**
-This depends on the game. VAC is reported to work generally, while EAC and BattlEye are
-frequently blocked. Consult ProtonDB for a specific title.
-
-## Recommended settings summary
-
-```
-Bottle
-  Name: Steam
-  Windows version: Windows 10
-
-Launcher compatibility
-  Mode: enabled
-  Detection: automatic
-  Locale: English (en_US.UTF-8)
-  GPU spoofing: enabled (NVIDIA)
-  Network timeout: 90 seconds
-
-Graphics
-  Backend: Recommended
-  DXVK HUD: off, or FPS while monitoring
-
-Performance
-  Shader cache: enabled
-
-Wine
-  Enhanced Sync: ESync
-  AVX: enabled only when required
-
-Metal
-  Sequoia compatibility mode: on (macOS 15 or later)
-  Metal HUD: off
-  Validation: off
-```
-
-## Monitoring and maintenance
-
-**Weekly:** Steam updates automatically. Check for Gmac updates and review new
-configuration warnings.
-
-**After a macOS update:** confirm that Steam launches, that `steamwebhelper.exe` starts,
-that downloads complete, and regenerate diagnostics if problems appear.
-
-**After a Wine update:** test compatibility, recreate the bottle if failures are severe,
-and review the issue tracker for known problems with the runtime version.
-
-**Healthy indicators:** Steam launches within 10 seconds, store pages load promptly,
-downloads sustain their throughput, and games launch without delay.
-
-**Warning signs:** launches taking longer than 30 seconds, frequent disconnects, downloads
-that consistently stall, and high CPU usage while idle.
-
-## Recovery
-
-**Reset Steam within the bottle**
-
-1. Select **Bottle → Open in Finder**.
-2. Navigate to `drive_c/Program Files (x86)/Steam/`.
-3. Delete `steam.exe` and `steamwebhelper.exe`.
-4. Run `SteamSetup.exe` again.
-
-**Create a fresh bottle**
-
-1. Create a new bottle with compatibility mode enabled before installation.
-2. Install Steam.
-3. Sign in and verify the client before downloading games.
-
-**Restore from backup**
-
-If `Metadata.plist` was backed up, replace the current file with the backup, restart Gmac
-and test Steam.
-
-**Save file location**
-
-```
-~/Library/Application Support/<Bottle>/drive_c/users/<username>/My Documents/
-```
-
-Most games store saves in the Documents directory. Back it up before recreating a bottle.
+- [Launcher troubleshooting guide](LauncherTroubleshooting.md)
+- [Stability troubleshooting guide](StabilityTroubleshooting.md)

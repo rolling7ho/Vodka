@@ -1,17 +1,16 @@
-name: 🕹️ Game Config Submission
-description: A game runs well with settings you worked out; share them so they can ship in the bundled Game Configurations.
+name: Game Config Submission
+description: Share working settings for a game so they can be added to bundled Game Presets.
 labels: ["game-compatibility", "gamedb"]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this template when you have a **working configuration** for a game and want it added to the in-app
-        Game Configurations browser, so the next person gets it with one click.
-        If the game is broken and you need help, use the **Game Compatibility Report** template instead.
+        Use this template when you have a **working configuration** for a game and want it added to the bundled **Game Presets** (`GameDB.json`).
+        If the game is broken and you need assistance, use the **Game Compatibility Report** template instead.
 
         **Before filing:**
-        - Check the **Game Configurations** browser inside Gmac; the game may already have an entry.
-        - If an entry exists but your settings work better, file anyway and say what should change.
+        - Check **PC › Advanced › Game Presets** inside Gmac to see whether an entry already exists.
+        - If an entry exists and your settings improve compatibility, submit anyway and explain what changed.
   - type: input
     id: game-name
     attributes:
@@ -23,7 +22,7 @@ body:
     id: game-store
     attributes:
       label: Store / launcher
-      description: Where you bought / launch the game from. Include the Steam App ID if it is a Steam game.
+      description: Where the game was purchased or launched from. Include the Steam App ID for Steam titles.
       placeholder: "e.g., Steam (App ID 1086940), GOG, standalone installer"
     validations:
       required: true
@@ -31,16 +30,16 @@ body:
     id: exe-names
     attributes:
       label: Executable name(s)
-      description: The game's main .exe as it appears in the Programs list.
+      description: The game's main `.exe` filenames as shown under **PC › Advanced › Installed Apps**.
       placeholder: "e.g., bg3.exe, bg3_dx11.exe"
     validations:
       required: true
   - type: dropdown
     id: rating
     attributes:
-      label: How well does it run with your settings
+      label: Compatibility rating with these settings
       options:
-        - "Works: runs perfectly with no issues"
+        - "Works: runs with no issues"
         - "Playable: runs with minor issues"
     validations:
       required: true
@@ -49,10 +48,11 @@ body:
     attributes:
       label: Graphics backend
       options:
-        - "Recommended (auto)"
-        - "DXMT"
-        - "DXVK"
-        - "WineD3D"
+        - "Automatic (Recommended)"
+        - "DirectX 12 (D3DMetal)"
+        - "DirectX 11 (DXMT)"
+        - "DirectX 11 (Compatibility / DXVK)"
+        - "DirectX 9 / OpenGL / Vulkan (WineD3D)"
     validations:
       required: true
   - type: textarea
@@ -60,8 +60,8 @@ body:
     attributes:
       label: Settings that make it work
       description: |
-        Everything you changed from defaults: Windows version, enhanced sync, DXVK async, AVX,
-        retina mode, launch arguments, environment variables, winetricks verbs, registry edits.
+        List every change from defaults: Windows version, Enhanced Sync, DXVK Async, AVX advertisement,
+        Retina Mode, launch arguments, environment variables, winetricks verbs, and registry edits.
         "All defaults" is a valid answer.
     validations:
       required: true
@@ -69,12 +69,12 @@ body:
     id: known-issues
     attributes:
       label: Remaining issues with this config
-      description: Anything that still misbehaves (minor glitches, audio quirks, performance notes), so the entry can say so honestly.
+      description: Describe any remaining glitches, audio quirks, or performance notes.
   - type: input
     id: gmac-version
     attributes:
       label: Gmac version
-      placeholder: "e.g., 3.5.2 (About window)"
+      placeholder: "e.g., 4.1.1 (About window)"
     validations:
       required: true
   - type: input
@@ -96,7 +96,7 @@ body:
     attributes:
       label: Verification
       options:
-        - label: I tested this config on a fresh bottle (not one carrying unrelated tweaks).
+        - label: I tested this config on a fresh PC rather than one carrying unrelated tweaks.
           required: true
-        - label: I'm running this fork (`rolling7ho/gmac`, confirmed via **Gmac → About**).
+        - label: I am running this fork (`rolling7ho/gmac`, confirmed via **Gmac › About Gmac**).
           required: true

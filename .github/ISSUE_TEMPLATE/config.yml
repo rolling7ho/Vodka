@@ -1,14 +1,14 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 🔧 Launcher / Steam / Epic / EA App troubleshooting
+  - name: Launcher, Steam, Epic, and EA App troubleshooting
     url: https://github.com/rolling7ho/gmac/blob/main/docs/LauncherTroubleshooting.md
-    about: Most launcher issues are addressed here before opening a new issue.
-  - name: 💥 Crash / freeze / kernel panic troubleshooting
+    about: Common launcher problems are documented here.
+  - name: Crash, freeze, and kernel panic troubleshooting
     url: https://github.com/rolling7ho/gmac/blob/main/docs/StabilityTroubleshooting.md
-    about: Run the in-app diagnostics (Bottle Configuration → View Diagnostics) before reporting.
-  - name: 🎮 Game configurations (bundled)
+    about: Collect diagnostics under PC › Settings › Advanced › Diagnostic Reports before reporting.
+  - name: Game presets (bundled)
     url: https://github.com/rolling7ho/gmac/blob/main/GmacKit/Sources/GmacKit/GameDatabase/Resources/GameDB.json
-    about: Check whether your game already has a recommended config (also browsable in-app under Game Configurations).
-  - name: 📦 Archived upstream (whisky-app/whisky)
+    about: Check whether the game already has a bundled preset under PC › Advanced › Game Presets.
+  - name: Archived upstream (whisky-app/whisky)
     url: https://github.com/whisky-app/whisky
-    about: Do NOT open issues there — that repo is archived and unmaintained. Issues filed there will not be seen.
+    about: Do not open issues there. That repository is archived and unmaintained.

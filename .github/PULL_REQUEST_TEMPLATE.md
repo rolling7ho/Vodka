@@ -17,6 +17,7 @@
 - [ ] Built the affected Xcode scheme (when application or UI changed)
 - [ ] `swiftformat --lint . && swiftlint --strict`
 - [ ] `./scripts/british-english.py --check` (when strings changed)
+- [ ] `python3 scripts/build-docs-site.py` (when mirrored documentation changed)
 - [ ] `./scripts/scan-secrets.sh`
 - [ ] Screenshots or recordings attached (when UI changed)
 
@@ -26,7 +27,7 @@
 - [ ] Swift files retain the GPL header; new application-target files are in `Gmac.xcodeproj`
 - [ ] Changelog updated under `[Unreleased]` for user-facing changes
 - [ ] Documentation updated where behaviour or paths changed
-- [ ] No secrets, keys, certificates or personal diagnostics in the diff
+- [ ] No secrets, keys, certificates, or personal diagnostics in the diff
 - [ ] Commits are scoped and signed off (`git commit -s`)
 - [ ] Working branch to be deleted after merge
 
