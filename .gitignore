@@ -116,3 +116,9 @@ scripts/VodkaAudioTest.exe
 # A build's Discord application id. The id belongs to whoever owns the
 # application users see, so it is supplied per build rather than committed.
 VodkaKit/Sources/VodkaKit/Discord/Local/client-id.txt
+
+# Local runtime build workbench directories (kept untracked beside runtime/local-build.rb)
+runtime/runtime-*/
+runtime/pkg-*/
+runtime/deps/
+runtime/.local-ci/

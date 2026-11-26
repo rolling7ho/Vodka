@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime workbench | Vodka</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/runtime.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Runtime</p>
+  <h1>Runtime workbench</h1>
+<p>This directory contains the local runtime build driver and release notes for Vodka&#39;s Windows
+runtime (<code>Libraries.tar.gz</code>). Runtime builds are assembled and published as GitHub Releases on
+<code>rolling7ho/Vodka</code>.</p>
+<p>The Wine and DXMT source trees live in separate repositories:</p>
+<ul>
+<li><code>rolling7ho/winecx</code> (branch <code>d3dmetal-errno</code>): patched Wine/CrossOver source tree.</li>
+<li><code>rolling7ho/dxmt</code> (branch <code>teardown</code>): DXMT source tree from which <code>vodkametal</code> builds.</li>
+</ul>
+<p>Local build lanes (<code>runtime-47/</code>, <code>runtime-up/</code>, <code>runtime-ci/</code>), packaged runtimes
+(<code>pkg-*/</code>), build dependencies (<code>deps/</code>), and <code>.local-ci/</code> state are untracked and ignored
+by <code>.gitignore</code>. Delete <code>build/</code>, <code>staging/</code>, and <code>smoke-prefix*</code> inside local lanes after
+an experiment.</p>
+<h2>Contents</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+<th>Tracked</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>local-build.rb</code></td>
+<td>Local runtime build driver replaying <code>runtime-up/.github/workflows/build.yml</code>.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>release-notes-474.md</code></td>
+<td>Release notes and digests for runtime 4.7.3/4.7.4 experiments.</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>runtime-47/</code>, <code>runtime-up/</code>, <code>runtime-ci/</code></td>
+<td>Local runtime lane checkouts.</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>pkg-*/</code>, <code>deps/</code>, <code>.local-ci/</code></td>
+<td>Packaged runtimes, dependencies, and build state.</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>../../dxmt/</code></td>
+<td>Sibling checkout of <code>rolling7ho/dxmt</code> used by <code>../scripts/build-vodka-d3d12.sh</code>.</td>
+<td>separate repo</td>
+</tr>
+<tr>
+<td><code>../../winecx/</code></td>
+<td>Sibling checkout of <code>rolling7ho/winecx</code>.</td>
+<td>separate repo</td>
+</tr>
+</tbody></table>
+<h2>Usage</h2>
+<p>Run <code>local-build.rb</code> from the <code>runtime/</code> directory (or from a dedicated external workbench
+directory) so that relative lane paths resolve:</p>
+<pre><code class="language-sh">cd runtime &amp;&amp; ruby local-build.rb
+</code></pre>
+<p>Changes to <code>winecx</code> or <code>dxmt</code> belong in their respective repositories, not in <code>rolling7ho/Vodka</code>.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/runtime/README.md">runtime/README.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

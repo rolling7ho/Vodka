@@ -3,28 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Runtime dependencies — Vodka Stack</title>
+<title>Runtime dependencies | Vodka</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/dependencies.html">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/dependencies.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka Stack</span>
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
     </nav>
   </div>
 </header>
 <main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Vodka</p>
+  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
   <h1>Runtime dependencies</h1>
 <p>The Vodka application is built from this repository, but the <strong>Wine runtime</strong> it downloads
 during setup (<code>Libraries.tar.gz</code>) is assembled from third-party binaries. This document is
@@ -32,7 +32,7 @@ the authoritative record of which versions are bundled and where they originate,
 the runtime cannot become stale silently and any maintainer can reproduce a build. Update
 it whenever a runtime release is produced.</p>
 <p>See <a href="release-workflow.html"><code>ReleaseWorkflow.md</code></a> for the assembly and publication procedure,
-and <a href="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/.github/workflows/RuntimeTrack.yml"><code>.github/workflows/RuntimeTrack.yml</code></a> for the
+and <a href="https://raw.githubusercontent.com/rolling7ho/Vodka/main/.github/workflows/RuntimeTrack.yml"><code>.github/workflows/RuntimeTrack.yml</code></a> for the
 automation that reports when a bundled component falls behind upstream.</p>
 <p>The application currently pins the <code>gamingRuntime</code> release <code>4.6.12-gaming.1</code> in
 <code>VodkaKit/Sources/VodkaKit/Utils/DistributionConfig.swift</code>. The table below records the most
@@ -112,7 +112,7 @@ record them here so that this table remains authoritative.</p>
 </tr>
 </tbody></table>
 <p>The same digest is published in
-<a href="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/dist/pages/WhiskyWineVersion.plist"><code>dist/pages/WhiskyWineVersion.plist</code></a> under the
+<a href="https://raw.githubusercontent.com/rolling7ho/Vodka/main/dist/pages/WhiskyWineVersion.plist"><code>dist/pages/WhiskyWineVersion.plist</code></a> under the
 <code>sha256</code> key. The application verifies the downloaded archive against it before
 installation and <strong>fails closed</strong> on a mismatch, the common cause of which is a corrupted
 or truncated download. This is an integrity check, not a substitute for transport security.
@@ -121,7 +121,7 @@ When producing a runtime release, compute the digest of the exact published asse
 incorrect value blocks every fresh installation.</p>
 <h2>Bundled in the application</h2>
 <p>These files ship <strong>inside the application bundle</strong> (<code>Vodka.app/Contents/Resources/</code>). They
-are committed to this repository under <a href="https://github.com/rolling7ho/vodka-stack/tree/main/apps/vodka/Libraries"><code>Libraries/</code></a> and copied in by the
+are committed to this repository under <a href="https://github.com/rolling7ho/Vodka/tree/main/Libraries"><code>Libraries/</code></a> and copied in by the
 application target&#39;s &quot;Embed VodkaCmd&quot; build phase. They are <strong>not</strong> part of the downloaded
 <code>Libraries.tar.gz</code> runtime: bundling them in the application means that a fix reaches every
 installation through a normal application update, with no runtime download.</p>
@@ -180,8 +180,8 @@ detection and a documented, reproducible assembly procedure.</p>
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/apps/vodka/docs/DEPENDENCIES.md">apps/vodka/docs/DEPENDENCIES.md</a></p>
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/docs/DEPENDENCIES.md">docs/DEPENDENCIES.md</a></p>
   </div>
 </footer>
 </body>

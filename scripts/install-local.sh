@@ -7,7 +7,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DERIVED="${DERIVED:-$ROOT/../../.build}"
+DERIVED="${DERIVED:-$ROOT/.build}"
 DEST="${DEST:-/Applications/Vodka.app}"
 
 LOG="$(mktemp -t vodka-build.XXXXXX)"
