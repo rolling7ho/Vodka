@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Launcher troubleshooting | Vodka</title>
+<title>Launcher troubleshooting | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka/docs/launcher-troubleshooting.html">
+<link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/launcher-troubleshooting.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka</span>
+      <img src="../gmac-mark.svg" width="32" height="24" alt="">
+      <span>Gmac</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka">GitHub</a>
+      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
     </nav>
   </div>
 </header>
@@ -32,7 +32,7 @@
 <p><strong>Note:</strong> This document references issue numbers from this fork (frankea/Whisky) and from
 the original upstream project (whisky-app/whisky). Upstream references are retained for
 historical context. Report new issues to
-<a href="https://github.com/rolling7ho/vodka/issues">rolling7ho/vodka</a>.</p>
+<a href="https://github.com/rolling7ho/gmac/issues">rolling7ho/gmac</a>.</p>
 </blockquote>
 <h2>Initial procedure</h2>
 <p>For any launcher problem:</p>
@@ -74,7 +74,7 @@ failures in <code>steamwebhelper.exe</code>.</li>
 <li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set <strong>Network
 Timeout</strong> to <strong>90 seconds</strong> or higher.</li>
 <li>Generate a diagnostics report and confirm <code>WINHTTP_CONNECT_TIMEOUT</code>. The receive timeout
-is set to twice that value. Vodka does not set <code>WINE_FORCE_HTTP11</code>.</li>
+is set to twice that value. Gmac does not set <code>WINE_FORCE_HTTP11</code>.</li>
 <li>In Steam, open <strong>Settings → Downloads</strong>, select a geographically close region, then pause
 and resume the download.</li>
 </ol>
@@ -161,7 +161,7 @@ requires working Chromium rendering.</p>
 </ul>
 <p><strong>Solution</strong></p>
 <p>Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.</p>
-<p>Vodka applies no Paradox-specific environment fix. The <code>WINE_DISABLE_FAST_PATH</code> workaround
+<p>Gmac applies no Paradox-specific environment fix. The <code>WINE_DISABLE_FAST_PATH</code> workaround
 that earlier versions set is read by no shipped runtime and has been removed.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1091.</p>
 <h2>macOS 15.4 and later</h2>
@@ -245,17 +245,17 @@ attention.</p>
 <ol>
 <li>Disable Launcher Compatibility Mode.</li>
 <li>Right-click the bottle, select <strong>Show in Finder</strong> and delete <code>Metadata.plist</code>.</li>
-<li>Recreate the bottle; Vodka regenerates it with defaults.</li>
+<li>Recreate the bottle; Gmac regenerates it with defaults.</li>
 <li>Enable Launcher Compatibility Mode again.</li>
 </ol>
 <h3>Consult Wine logs</h3>
 <ol>
-<li>Open <code>~/Library/Logs/com.rolling7ho.Vodka/</code>.</li>
+<li>Open <code>~/Library/Logs/com.rolling7ho.Gmac/</code>.</li>
 <li>Locate the newest log by timestamp and inspect entries around launcher startup.</li>
 <li>Search for <code>steamwebhelper</code>, <code>CEF</code>, <code>locale</code>, <code>crash</code> and <code>segfault</code>.</li>
 </ol>
 <h3>Verify the Wine installation</h3>
-<p>Confirm that <code>~/Library/Application Support/com.rolling7ho.Vodka/Libraries/Wine/</code> contains
+<p>Confirm that <code>~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/</code> contains
 the <code>bin/</code>, <code>lib/</code> and <code>share/</code> directories. The application reports the runtime version it
 uses in the diagnostics report.</p>
 <h3>Test in a clean bottle</h3>
@@ -317,7 +317,7 @@ fails, the fault lies with Wine or macOS.</li>
 <p>Include in the report:</p>
 <ol>
 <li>The diagnostics report, attached or pasted in full.</li>
-<li>System information: macOS version, Mac model and Vodka version.</li>
+<li>System information: macOS version, Mac model and Gmac version.</li>
 <li>Reproduction steps, expected behaviour and actual behaviour.</li>
 <li>Screenshots of error messages and configuration screens.</li>
 </ol>
@@ -402,7 +402,7 @@ certain locales. <code>en_US.UTF-8</code> avoids them.</p>
 <p>macOS 15 is the minimum supported version.</p>
 <h2>Further resources</h2>
 <ul>
-<li>Issue tracker: <a href="https://github.com/rolling7ho/vodka/issues">https://github.com/rolling7ho/vodka/issues</a></li>
+<li>Issue tracker: <a href="https://github.com/rolling7ho/gmac/issues">https://github.com/rolling7ho/gmac/issues</a></li>
 <li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
 <li>Steam guide: <a href="steam.html">SteamCompatibility.md</a></li>
 <li>Stability guide: <a href="stability.html">StabilityTroubleshooting.md</a></li>
@@ -410,9 +410,9 @@ certain locales. <code>en_US.UTF-8</code> avoids them.</p>
 
 </main>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Vodka is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka/blob/main/docs/LauncherTroubleshooting.md">docs/LauncherTroubleshooting.md</a></p>
+  <div class="wrap footer-inner">
+    <p>Gmac is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/LauncherTroubleshooting.md">docs/LauncherTroubleshooting.md</a></p>
   </div>
 </footer>
 </body>
