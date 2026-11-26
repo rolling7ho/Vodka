@@ -220,12 +220,12 @@ struct VodkaApp: App {
             }
             CommandGroup(replacing: .help) {
                 Button("help.github") {
-                    if let url = URL(string: "https://github.com/rolling7ho/vodka-stack") {
+                    if let url = URL(string: "https://github.com/rolling7ho/Vodka") {
                         openURL(url)
                     }
                 }
                 Button("help.issues") {
-                    if let url = URL(string: "https://github.com/rolling7ho/vodka-stack/issues") {
+                    if let url = URL(string: "https://github.com/rolling7ho/Vodka/issues") {
                         openURL(url)
                     }
                 }

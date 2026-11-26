@@ -8,7 +8,7 @@
 
 A free, native macOS application for running Steam and Windows games.
 
-[Install](#install) · [Features](#features) · [Troubleshooting](#troubleshooting) · [Report a bug](https://github.com/rolling7ho/vodka-stack/issues)
+[Install](#install) · [Features](#features) · [Troubleshooting](#troubleshooting) · [Report a bug](https://github.com/rolling7ho/Vodka/issues)
 
 </div>
 
@@ -70,9 +70,9 @@ Vodka is not yet distributed as a signed download, so it is built locally. Xcode
 later is required.
 
 ```sh
-git clone https://github.com/rolling7ho/vodka-stack.git
+git clone https://github.com/rolling7ho/Vodka.git
 cd Vodka
-apps/vodka/scripts/install-local.sh
+scripts/install-local.sh
 ```
 
 The script builds Vodka, signs it for the local Mac only and copies it to `/Applications`.
@@ -149,3 +149,12 @@ Vodka builds on the work of:
 For a commercially supported method of running Windows software on a Mac, consider
 [CrossOver](https://www.codeweavers.com/crossover). CodeWeavers' work on Wine makes
 projects such as this one possible.
+
+## Related repositories
+
+- [rolling7ho/winecx](https://github.com/rolling7ho/winecx): patched Wine and CrossOver
+  source tree used to build Vodka's runtimes.
+- [rolling7ho/dxmt](https://github.com/rolling7ho/dxmt): Metal-based Direct3D 11/10
+  implementation and `vodkametal` Direct3D 12 bridge.
+- [rolling7ho/openv](https://github.com/rolling7ho/openv): open-source single-player
+  ScriptHookV replacement for GTA V Enhanced.

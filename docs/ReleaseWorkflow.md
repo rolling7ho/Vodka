@@ -13,7 +13,7 @@ Libraries archive, and which credentials the pipeline depends on.
 | Static site data | none | version plist, appcast | `scripts/publish-update.sh`, `scripts/update-appcast.py` |
 
 The Sparkle update feed is `appcast.xml` on the `gh-pages` branch, served at
-`https://rolling7ho.github.io/vodka-stack/appcast.xml` and referenced by `SUFeedURL` in the
+`https://rolling7ho.github.io/Vodka/appcast.xml` and referenced by `SUFeedURL` in the
 application's `Info.plist`. The committed site content used by the publishing scripts
 resides in `dist/pages/`.
 
@@ -203,7 +203,7 @@ shape. The archive name, tag and URL match the output of `publish-update.sh`:
     <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
     <description><![CDATA[<p>Release notes…</p>]]></description>
     <enclosure
-        url="https://github.com/rolling7ho/vodka-stack/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip"
+        url="https://github.com/rolling7ho/Vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip"
         sparkle:edSignature="…"
         length="…"
         type="application/octet-stream" />
@@ -264,10 +264,10 @@ and their origins. When the runtime must change:
 
 ## URLs the application depends on
 
-- `https://rolling7ho.github.io/vodka-stack/appcast.xml`: Sparkle update feed (`SUFeedURL`).
-- `https://github.com/rolling7ho/vodka-stack/releases/download/v<tag>/Libraries.tar.gz`: Wine
+- `https://rolling7ho.github.io/Vodka/appcast.xml`: Sparkle update feed (`SUFeedURL`).
+- `https://github.com/rolling7ho/Vodka/releases/download/v<tag>/Libraries.tar.gz`: Wine
   runtime archive for the pinned `gamingRuntime` tag in `DistributionConfig.swift`.
-- `https://github.com/rolling7ho/vodka-stack/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip`:
+- `https://github.com/rolling7ho/Vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip`:
   application update archive.
 
 ## Pitfalls

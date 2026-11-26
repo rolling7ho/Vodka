@@ -3,7 +3,7 @@
 # teardown) and stages it where scripts/install-local.sh embeds it in the app.
 #
 # Usage: scripts/build-vodka-d3d12.sh [dxmt checkout]
-#        (default: ../../engine/dxmt-work/dxmt, at the monorepo root)
+#        (default: $VODKA_DXMT_DIR or ../dxmt, sibling checkout of rolling7ho/dxmt)
 #
 # The checkout needs DXMT's toolchains/ (llvm-darwin and wine), as for any DXMT
 # build, and both mingw-w64 cross compilers. The bridge is built as vodkametal,
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DXMT="$(cd "${1:-$ROOT/../../engine/dxmt-work/dxmt}" && pwd)"
+DXMT="$(cd "${1:-${VODKA_DXMT_DIR:-$ROOT/../dxmt}}" && pwd)"
 OUT="$ROOT/build/vodka-d3d12"
 
 for bits in 64 32; do
@@ -33,16 +33,13 @@ mkdir -p "$OUT/x64" "$OUT/x32" "$OUT/unix"
 cp "$DXMT"/install-vodka64/system32/{d3d12,dxgi}.dll "$DXMT/install-vodka64/x86_64-windows/vodkametal.dll" "$OUT/x64/"
 cp "$DXMT"/install-vodka32/syswow64/{d3d12,dxgi}.dll "$DXMT/install-vodka32/i386-windows/vodkametal.dll" "$OUT/x32/"
 cp "$DXMT/install-vodka64/x86_64-unix/vodkametal.so" "$OUT/unix/"
-# Record the DXMT source. In the monorepo DXMT is a subtree without its own
-# .git; a separate checkout passed as an argument still has one.
-MONO="$(cd "$ROOT/../.." && pwd)"
+# Record the DXMT source commit when building from a Git checkout.
 if git -C "$DXMT" rev-parse --git-dir >/dev/null 2>&1; then
     DXMT_REF="$(git -C "$DXMT" rev-parse --short HEAD)"
     DXMT_LOG="$(git -C "$DXMT" log -1 --format='rolling7ho/dxmt %H %s')"
 else
-    DXMT_REL="${DXMT#"$MONO"/}"
-    DXMT_REF="$(git -C "$MONO" rev-parse --short HEAD)"
-    DXMT_LOG="$(git -C "$MONO" log -1 --format='vodka monorepo %H %s' -- ":(top)$DXMT_REL")"
+    DXMT_REF="untracked"
+    DXMT_LOG="dxmt $DXMT"
 fi
 printf '%s\n' "$DXMT_LOG" > "$OUT/SOURCE"
 echo "Staged $OUT ($DXMT_REF)"

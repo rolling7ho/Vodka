@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vodka Stack — Windows and Steam games on Apple Silicon</title>
-<meta name="description" content="The Vodka Stack monorepo: the Vodka macOS application, the OpenV GTA V mod tooling, and the patched Wine and DXMT engine sources they run on.">
+<title>Vodka | Windows and Steam games on Apple Silicon</title>
+<meta name="description" content="Vodka is a native macOS application for running Steam and Windows games on Apple Silicon Macs.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="favicon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://rolling7ho.github.io/vodka-stack/">
-<meta property="og:title" content="Vodka Stack — Windows and Steam games on Apple Silicon">
-<meta property="og:description" content="The Vodka application, the OpenV GTA V mod tooling, and the patched Wine and DXMT engine sources in one repository.">
-<meta property="og:image" content="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png">
+<meta property="og:url" content="https://rolling7ho.github.io/Vodka/">
+<meta property="og:title" content="Vodka | Windows and Steam games on Apple Silicon">
+<meta property="og:description" content="A native macOS application for running Steam and Windows games on Apple Silicon Macs.">
+<meta property="og:image" content="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
@@ -25,14 +25,14 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="./">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka Stack</span>
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
     </a>
     <nav aria-label="Main">
-      <a href="#projects">Projects</a>
+      <a href="#targets">Targets</a>
       <a href="#start">Quick start</a>
       <a href="docs/">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
     </nav>
   </div>
 </header>
@@ -41,39 +41,39 @@
 
   <section class="intro">
     <h1>Windows and Steam games on Apple Silicon</h1>
-    <p class="lead">One repository for the Vodka application, the OpenV GTA V mod tooling, and the patched Wine and DXMT engine sources they run on.</p>
+    <p class="lead">Vodka is a native SwiftUI application that creates Wine bottles, installs Steam, and launches games with per-game settings, launcher fixes, and controller support.</p>
     <p class="actions">
-      <a class="button" href="https://github.com/rolling7ho/vodka-stack">Browse the source</a>
+      <a class="button" href="https://github.com/rolling7ho/Vodka">Browse the source</a>
       <a class="button secondary" href="docs/">Read the documentation</a>
     </p>
   </section>
 
-  <section aria-labelledby="projects">
-    <h2 id="projects">Projects</h2>
+  <section aria-labelledby="targets">
+    <h2 id="targets">Repository targets and related projects</h2>
     <div class="projects">
 
       <article>
-        <h3>Vodka</h3>
-        <p>A native SwiftUI application that creates Wine bottles, installs Steam and launches games with per-game settings, launcher fixes and controller support.</p>
-        <p class="path"><a href="docs/app-readme.html"><code>apps/vodka/</code></a></p>
-      </article>
-
-      <article>
-        <h3>OpenV</h3>
-        <p>A single-player ScriptHookV replacement for GTA V Enhanced. Signatures and native tables are data files, so a new game build can be supported without recompiling.</p>
-        <p class="path"><a href="docs/openv-plan.html"><code>apps/openv/</code></a></p>
+        <h3>Vodka application</h3>
+        <p>SwiftUI application, <code>VodkaKit</code> logic package, <code>VodkaCmd</code> Dock launch helper, and <code>VodkaThumbnail</code> Quick Look extension.</p>
+        <p class="path"><a href="docs/readme.html"><code>README.md</code></a></p>
       </article>
 
       <article>
         <h3>winecx</h3>
-        <p>The patched Wine/CrossOver tree from which Vodka's runtimes are built, including the Mac driver, Retina and D3DMetal fixes the application ships.</p>
-        <p class="path"><a href="https://github.com/rolling7ho/vodka-stack/tree/main/engine/winecx"><code>engine/winecx/</code></a></p>
+        <p>Patched Wine and CrossOver source tree from which Vodka's runtimes are built, carrying Mac driver, Retina, and D3DMetal fixes.</p>
+        <p class="path"><a href="https://github.com/rolling7ho/winecx"><code>rolling7ho/winecx</code></a></p>
       </article>
 
       <article>
         <h3>dxmt</h3>
-        <p>A Metal-based implementation of Direct3D 11 and 10 for macOS. Vodka builds its Direct3D 12 bridge, <code>vodkametal</code>, from this tree.</p>
-        <p class="path"><a href="https://github.com/rolling7ho/vodka-stack/tree/main/engine/dxmt-work/dxmt"><code>engine/dxmt-work/dxmt/</code></a></p>
+        <p>Metal-based implementation of Direct3D 11 and 10 for macOS. Vodka builds its Direct3D 12 bridge, <code>vodkametal</code>, from this repository.</p>
+        <p class="path"><a href="https://github.com/rolling7ho/dxmt"><code>rolling7ho/dxmt</code></a></p>
+      </article>
+
+      <article>
+        <h3>OpenV</h3>
+        <p>Single-player ScriptHookV replacement for GTA V Enhanced with data-driven native tables and signature files.</p>
+        <p class="path"><a href="https://github.com/rolling7ho/openv"><code>rolling7ho/openv</code></a></p>
       </article>
 
     </div>
@@ -83,31 +83,33 @@
     <h2 id="start">Quick start</h2>
     <p>An Apple Silicon Mac running macOS 15 or later with Xcode 16 or later is required.</p>
     <pre><code># Build, ad-hoc sign and install /Applications/Vodka.app
-apps/vodka/scripts/install-local.sh
+scripts/install-local.sh
 
 # Run the unit tests
-swift test --package-path apps/vodka/VodkaKit</code></pre>
+swift test --package-path VodkaKit</code></pre>
   </section>
 
   <section aria-labelledby="layout">
     <h2 id="layout">Repository layout</h2>
-    <pre><code>apps/vodka/      macOS application, VodkaKit and tests
-apps/openv/      GTA V Enhanced mod tooling
-engine/          Wine and DXMT sources, local build lanes
-tools/           Rockstar Games Launcher registry repair</code></pre>
-    <p class="note">The runtime lanes and build caches under <code>engine/</code> are mostly local and untracked. Read the <a href="docs/engine.html">engine documentation</a> before building.</p>
+    <pre><code>Vodka/           SwiftUI application target
+VodkaKit/        Swift package for Wine, bottles, Steam, and game database logic
+VodkaCmd/        Command-line launch helper for Dock shortcuts
+VodkaThumbnail/  Quick Look thumbnail extension for .exe files
+scripts/         Build, release, localization, and secret-scan scripts
+runtime/         Local runtime build driver and release notes</code></pre>
+    <p class="note">Vodka downloads its Windows runtime archive at setup time. Read the <a href="docs/runtime.html">runtime documentation</a> before building custom Wine archives.</p>
   </section>
 
   <section aria-labelledby="documentation">
     <h2 id="documentation">Documentation</h2>
     <p>The repository documentation is published here and mirrored from the <code>main</code> branch.</p>
     <ul class="docs">
-      <li><a href="docs/">Documentation index</a> — every guide in one place</li>
-      <li><a href="docs/dependencies.html">Runtime dependencies</a> — component versions and digests</li>
-      <li><a href="docs/release-workflow.html">Release workflow</a> — runtime assembly and application releases</li>
-      <li><a href="docs/steam.html">Steam compatibility</a> — setup and known failures</li>
-      <li><a href="docs/launcher-troubleshooting.html">Launcher troubleshooting</a> — Epic, EA App, Battle.net, Rockstar</li>
-      <li><a href="docs/openv-plan.html">OpenV plan</a> — ABI contract and safety requirements</li>
+      <li><a href="docs/">Documentation index</a>: every guide in one place</li>
+      <li><a href="docs/dependencies.html">Runtime dependencies</a>: component versions and digests</li>
+      <li><a href="docs/release-workflow.html">Release workflow</a>: runtime assembly and application releases</li>
+      <li><a href="docs/steam.html">Steam compatibility</a>: setup and known failures</li>
+      <li><a href="docs/launcher-troubleshooting.html">Launcher troubleshooting</a>: Epic, EA App, Battle.net, Rockstar</li>
+      <li><a href="docs/stability.html">Stability troubleshooting</a>: triage for crashes and freezes</li>
     </ul>
   </section>
 
@@ -115,8 +117,8 @@ tools/           Rockstar Games Launcher registry repair</code></pre>
 
 <footer class="site-footer">
   <div class="wrap">
-    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later. See <a href="docs/notice.html">NOTICE.md</a>.</p>
-    <p class="muted">Source and issues: <a href="https://github.com/rolling7ho/vodka-stack">github.com/rolling7ho/vodka-stack</a></p>
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source and issues: <a href="https://github.com/rolling7ho/Vodka">github.com/rolling7ho/Vodka</a></p>
   </div>
 </footer>
 

@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agent operating manual — Vodka Stack</title>
+<title>Agent operating manual | Vodka</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/agent-manual.html">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/agent-manual.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka Stack</span>
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
     </nav>
   </div>
 </header>
@@ -28,14 +28,19 @@
   <h1>Agent operating manual</h1>
 <p>Operating manual for AI coding agents and new contributors working in this repository.
 <code>README.md</code> provides orientation for human readers; this file defines the rules and
-procedures. Where a nested <code>AGENTS.md</code> or an explicit user instruction conflicts with
-this file, the more specific instruction takes precedence.</p>
+procedures. Where an explicit user instruction conflicts with this file, the user
+instruction takes precedence.</p>
 <h2>Project</h2>
-<p>The repository is <strong>Vodka Stack</strong>, a monorepo containing <strong>Vodka</strong>, a native macOS
-application that runs Steam and Windows games on Apple Silicon (a fork of Whisky via
-frankea&#39;s community fork); <strong>OpenV</strong>, an open-source ScriptHookV replacement for GTA V
-Enhanced; and the local Wine/CrossOver build workbench shared by both. Toolchain: Swift 6,
-SwiftUI, macOS 15 or later, Xcode 16 or later.</p>
+<p><strong>Vodka</strong> is a native macOS application that runs Steam and Windows games on Apple Silicon
+(a fork of Whisky via frankea&#39;s community fork). Toolchain: Swift 6, SwiftUI, macOS 15 or
+later, Xcode 16 or later.</p>
+<p>Related repositories in the ecosystem live in separate Git repositories (typically cloned as
+siblings under a common parent directory):</p>
+<ul>
+<li><code>rolling7ho/winecx</code>: patched Wine/CrossOver source tree (<code>d3dmetal-errno</code> branch).</li>
+<li><code>rolling7ho/dxmt</code>: patched DXMT source tree (<code>teardown</code> branch) for <code>vodkametal</code>.</li>
+<li><code>rolling7ho/openv</code>: open-source single-player ScriptHookV replacement for GTA V Enhanced.</li>
+</ul>
 <h2>Repository map</h2>
 <table>
 <thead>
@@ -46,63 +51,51 @@ SwiftUI, macOS 15 or later, Xcode 16 or later.</p>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>apps/vodka/Vodka/</code></td>
+<td><code>Vodka/</code></td>
 <td>SwiftUI application target</td>
 <td>New files require entries in <code>Vodka.xcodeproj</code>.</td>
 </tr>
 <tr>
-<td><code>apps/vodka/VodkaKit/</code></td>
+<td><code>VodkaKit/</code></td>
 <td>Swift package containing the logic: Wine, bottles, Steam, library, playtime</td>
 <td>SwiftPM discovers new files automatically. Tests reside here.</td>
 </tr>
 <tr>
-<td><code>apps/vodka/VodkaCmd/</code></td>
+<td><code>VodkaCmd/</code></td>
 <td>Command-line interface used by Dock shortcuts to launch games</td>
 <td></td>
 </tr>
 <tr>
-<td><code>apps/vodka/VodkaThumbnail/</code></td>
+<td><code>VodkaThumbnail/</code></td>
 <td>Quick Look thumbnail extension for <code>.exe</code> files</td>
 <td></td>
 </tr>
 <tr>
-<td><code>apps/vodka/VodkaUITests/</code></td>
+<td><code>VodkaUITests/</code></td>
 <td>XCUITest suite for the application</td>
 <td>Fixture-dependent tests skip when no bottle exists.</td>
 </tr>
 <tr>
-<td><code>apps/vodka/scripts/</code></td>
+<td><code>scripts/</code></td>
 <td>Build, release, localization and secret-scan helpers</td>
 <td></td>
 </tr>
 <tr>
-<td><code>apps/vodka/docs/</code></td>
+<td><code>docs/</code></td>
 <td>Dependency, release and troubleshooting documentation</td>
-<td>Runtime pins must match <code>apps/vodka/docs/DEPENDENCIES.md</code>.</td>
+<td>Runtime pins must match <code>docs/DEPENDENCIES.md</code>.</td>
 </tr>
 <tr>
-<td><code>apps/openv/</code></td>
-<td>GTA V Enhanced map tooling (Python, C and Swift probes)</td>
-<td>See <code>apps/openv/PLAN.md</code>.</td>
-</tr>
-<tr>
-<td><code>engine/winecx/</code>, <code>engine/dxmt-work/dxmt/</code></td>
-<td>Patched Wine and DXMT sources, tracked as subtrees</td>
-<td>Build outputs and toolchains inside them remain untracked.</td>
-</tr>
-<tr>
-<td><code>engine/</code> (remainder)</td>
-<td><strong>Untracked</strong> runtime lanes, packages and caches</td>
-<td>Read <code>engine/README.md</code> before modifying anything.</td>
+<td><code>runtime/</code></td>
+<td>Local Wine runtime build driver and notes</td>
+<td>Local lanes (<code>runtime-*</code>, <code>pkg-*</code>, <code>deps/</code>) remain untracked.</td>
 </tr>
 <tr>
 <td><code>.build/</code></td>
-<td>Root DerivedData and SwiftPM output for the workspace</td>
-<td>Never commit. <code>apps/vodka/VodkaKit/.build</code> is ignored separately.</td>
+<td>DerivedData and SwiftPM output</td>
+<td>Never commit. <code>VodkaKit/.build</code> is ignored separately.</td>
 </tr>
 </tbody></table>
-<p><code>engine/</code> must remain at the workspace root because Vodka&#39;s scripts resolve <code>../../engine</code>.
-<code>apps/vodka</code> must not be moved relative to it.</p>
 <h2>Environment</h2>
 <ul>
 <li>Apple Silicon Mac, macOS 15 or later, Xcode 16 or later (<code>swift --version</code> should report
@@ -112,98 +105,71 @@ build.</li>
 <li><code>swiftformat</code> <strong>0.58.7</strong>, the version CI downloads. Homebrew&#39;s <code>swiftformat</code> is usually
 newer than that pin; verify <code>swiftformat --version</code> and install the 0.58.7 release if
 <code>--lint</code> reports differences that CI does not.</li>
-<li><code>trufflehog</code> for <code>apps/vodka/scripts/scan-secrets.sh</code> (<code>brew install trufflehog</code>).</li>
-<li>OpenV: Python 3.9 or later, with <code>capstone</code> installed in <code>apps/openv/.venv</code>. The
-rebuild command creates the environment.</li>
-<li>Engine work: Wine/CrossOver checkouts and mingw-w64. See <code>engine/README.md</code>.</li>
+<li><code>trufflehog</code> for <code>scripts/scan-secrets.sh</code> (<code>brew install trufflehog</code>).</li>
 </ul>
 <h2>Commands</h2>
-<p>Run commands from the repository root unless a <code>cd</code> is shown.</p>
-<h3>Vodka: build, test, install</h3>
+<p>Run commands from the repository root.</p>
+<h3>Build, test, install</h3>
 <pre><code class="language-sh"># Build the application (Debug, unsigned, with the codesign flags CI uses)
-xcodebuild -project apps/vodka/Vodka.xcodeproj -scheme Vodka -configuration Debug build \
+xcodebuild -project Vodka.xcodeproj -scheme Vodka -configuration Debug build \
   -derivedDataPath .build/debug \
   CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
 # Build every scheme, as CI does
 for scheme in Vodka VodkaCmd VodkaThumbnail; do
-  xcodebuild -project apps/vodka/Vodka.xcodeproj -scheme &quot;$scheme&quot; -configuration Debug build \
+  xcodebuild -project Vodka.xcodeproj -scheme &quot;$scheme&quot; -configuration Debug build \
     CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 done
 
 # Release build, ad-hoc signed, installed to /Applications
-apps/vodka/scripts/install-local.sh
+scripts/install-local.sh
 
 # Unit tests (VodkaKit); fast, run for any logic change
-swift test --package-path apps/vodka/VodkaKit
+swift test --package-path VodkaKit
 
 # A single suite or test
-swift test --package-path apps/vodka/VodkaKit --filter CommandKeyMappingTests
+swift test --package-path VodkaKit --filter CommandKeyMappingTests
 
 # UI tests (slow; run only when UI behaviour changed)
-xcodebuild -project apps/vodka/Vodka.xcodeproj -scheme Vodka -configuration Debug \
+xcodebuild -project Vodka.xcodeproj -scheme Vodka -configuration Debug \
   -destination &#39;platform=macOS&#39; -only-testing:VodkaUITests test \
   CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 </code></pre>
-<h3>Vodka: style, strings, secrets</h3>
-<pre><code class="language-sh">cd apps/vodka
-swiftformat --lint .                     # check; fix with: swiftformat .
+<h3>Style, strings, secrets</h3>
+<pre><code class="language-sh">swiftformat --lint .                     # check; fix with: swiftformat .
 swiftlint --strict                      # configuration: .swiftlint.yml
 ./scripts/british-english.py --check    # en-GB must cover every en key
 ./scripts/scan-secrets.sh               # same check as CI (TruffleHog)
 </code></pre>
-<h3>Vodka: Direct3D 12 layer</h3>
-<pre><code class="language-sh">apps/vodka/scripts/build-vodka-d3d12.sh
+<h3>Direct3D 12 layer</h3>
+<pre><code class="language-sh">scripts/build-vodka-d3d12.sh [dxmt-checkout-path]
 </code></pre>
-<p>Requires <code>engine/dxmt-work/dxmt</code> (or an explicit checkout path) with its <code>toolchains/</code>
-directory present. Stages DLLs into <code>apps/vodka/build/vodka-d3d12/</code>.</p>
-<h3>OpenV</h3>
-<pre><code class="language-sh">apps/openv/Rebuild\ OpenV\ Map.command     # opens GTA V, dumps, rebuilds the map (~20 min)
-
-# Pipeline stages directly (dump, live-table TSV, build, output)
-apps/openv/.venv/bin/python apps/openv/research/rebuild.py \
-  &lt;dump.bin&gt; &lt;natives.tsv&gt; &lt;build&gt; &lt;out.txt&gt;
-</code></pre>
-<p>The rebuild command requires GTA V Enhanced to be installed in a Vodka bottle. It is
-interactive and slow, so it must not be used as an automated check.</p>
-<h3>Engine</h3>
-<pre><code class="language-sh">cd engine &amp;&amp; ruby local-build.rb            # replays the runtime-up CI build locally
-</code></pre>
-<p>This requires the untracked <code>engine/runtime-up</code> checkout described in <code>engine/README.md</code>;
-it does not exist in a fresh clone. The other untracked lanes (<code>runtime-47</code>, <code>runtime-ci</code>,
-<code>pkg-*</code>) are independent nested git repositories; their contents must never be committed
-from the workspace repository. The two tracked subtrees, <code>engine/winecx</code> and
-<code>engine/dxmt-work/dxmt</code>, are committed here.</p>
-<p>Delete <code>build/</code>, <code>staging/</code> and <code>smoke-prefix*</code> when finished. They occupy several
-gigabytes and can be rebuilt.</p>
+<p>Defaults to <code>VODKA_DXMT_DIR</code> or <code>../dxmt</code> with its <code>toolchains/</code> directory present. Stages
+DLLs into <code>build/vodka-d3d12/</code>.</p>
 <h2>Architecture and boundaries</h2>
 <ul>
-<li><strong>Layering.</strong> UI and application lifecycle code belongs in <code>apps/vodka/Vodka/</code>; Wine,
-bottle, Steam, library and playtime logic belongs in <code>VodkaKit</code>. Testable logic belongs
-in <code>VodkaKit</code>, not in views.</li>
+<li><strong>Layering.</strong> UI and application lifecycle code belongs in <code>Vodka/</code>; Wine, bottle, Steam,
+library and playtime logic belongs in <code>VodkaKit</code>. Testable logic belongs in <code>VodkaKit</code>,
+not in views.</li>
 <li><strong>Game fixes are data.</strong> A fix that only changes Windows settings for one game belongs
 in <code>VodkaKit/Sources/VodkaKit/GameDatabase/Resources/GameDB.json</code>, with a reference to
 the origin of the fix. Games must not be special-cased in Swift.</li>
 <li><strong>Runtime is downloaded, not vendored.</strong> The application fetches <code>Libraries.tar.gz</code>
 according to <code>VodkaKit/Sources/VodkaKit/Utils/DistributionConfig.swift</code>. Runtime
 binaries must never be added to the repository. Runtime pins live in
-<code>apps/vodka/.github/workflows/RuntimeTrack.yml</code> and must remain in sync with
-<code>apps/vodka/docs/DEPENDENCIES.md</code>.</li>
-<li><strong>Localization.</strong> New user-facing strings are added to
-<code>apps/vodka/Vodka/Localizable.xcstrings</code> <strong>in English only</strong>, edited as text with only
-the required lines touched. Re-saving the file with a JSON tool reorders the catalog.
-Run <code>apps/vodka/scripts/british-english.py</code> afterwards to regenerate en-GB.</li>
+<code>.github/workflows/RuntimeTrack.yml</code> and must remain in sync with <code>docs/DEPENDENCIES.md</code>.</li>
+<li><strong>Localization.</strong> New user-facing strings are added to <code>Vodka/Localizable.xcstrings</code>
+<strong>in English only</strong>, edited as text with only the required lines touched. Re-saving the
+file with a JSON tool reorders the catalog. Run <code>scripts/british-english.py</code> afterwards to
+regenerate en-GB.</li>
 <li><strong>Xcode project.</strong> Files added to the application target (<code>Vodka/</code>) require
 <code>Vodka.xcodeproj</code> entries, while <code>VodkaKit</code> discovers files automatically. Adding those
 entries for a new source file is expected and is the only <code>project.pbxproj</code> edit
-permitted (see hard rule 3).</li>
-<li><strong>Generated site.</strong> <code>apps/vodka/dist/pages/</code> is published output (appcast, index).
-Modify it through <code>scripts/publish-update.sh</code> or <code>scripts/build-og-card.sh</code>, never by
-hand.</li>
-<li><strong>OpenV safety contract.</strong> Single-player only; GTA Online and BattlEye are hard-refused;
-no anti-cheat bypass; no game asset or code redistribution; the MSVC-mangled ABI must
-remain drop-in compatible (see <code>apps/openv/PLAN.md</code>). These are product requirements,
-not preferences.</li>
+permitted (see hard rule 2).</li>
+<li><strong>Generated site.</strong> <code>dist/pages/</code> holds the published site. The page and stylesheet are
+edited as source; the appcast is written by <code>scripts/publish-update.sh</code> and the
+documentation pages under <code>dist/pages/docs/</code> by <code>scripts/build-docs-site.py</code>. Publish by
+copying the directory to the <code>gh-pages</code> branch. Do not edit <code>appcast.xml</code> by hand.</li>
 </ul>
 <h2>Code conventions</h2>
 <ul>
@@ -221,9 +187,8 @@ adding a package.</li>
 <li>VodkaKit tests are mixed: XCTest and swift-testing (<code>@Test</code>, <code>struct ...Tests</code>)
 coexist. New tests use swift-testing, and existing XCTest files are not ported as
 incidental churn. <code>VodkaUITests</code> uses XCTest throughout.</li>
-<li>Changelog: describe user-facing changes under <code>[Unreleased]</code> in
-<code>apps/vodka/CHANGELOG.md</code>.</li>
-<li>Commit messages are imperative and scoped, for example <code>vodka: fix Steam launch resolver</code>, <code>openv: verify entity list bounds</code>, <code>docs: update the README</code>, <code>engine: bump DXMT</code>.</li>
+<li>Changelog: describe user-facing changes under <code>[Unreleased]</code> in <code>CHANGELOG.md</code>.</li>
+<li>Commit messages are imperative and scoped, for example <code>vodka: fix Steam launch resolver</code> or <code>docs: update the README</code>.</li>
 </ul>
 <h2>Writing and communication</h2>
 <p>One register applies to all text produced in this repository or in conversation with the
@@ -248,17 +213,15 @@ or &quot;do not&quot; for requirements.</li>
 <li>Use one term per concept and do not alternate synonyms for the same object.</li>
 <li>Prefer the concrete path, command or symbol to a paraphrase of it.</li>
 </ul>
-<p><strong>Exceptions.</strong> A guide written for non-specialists (for example
-<code>apps/openv/HOW TO FIX MODS AFTER A GTA UPDATE.txt</code>) may use plain language while keeping
-the same structure and avoiding slang. An explicit user instruction to write briefly or
-informally overrides this section for that response only.</p>
+<p><strong>Exceptions.</strong> An explicit user instruction to write briefly or informally overrides this
+section for that response only.</p>
 <h2>Testing guidance</h2>
 <ul>
-<li>Logic change: <code>swift test --package-path apps/vodka/VodkaKit</code>, with <code>--filter</code> for the
-affected suite.</li>
+<li>Logic change: <code>swift test --package-path VodkaKit</code>, with <code>--filter</code> for the affected
+suite.</li>
 <li>Application or UI change: build the affected scheme; run <code>VodkaUITests</code> only when the
 interaction itself changed.</li>
-<li>Strings or localization: <code>apps/vodka/scripts/british-english.py --check</code>.</li>
+<li>Strings or localization: <code>scripts/british-english.py --check</code>.</li>
 <li>Formatting and lint: <code>swiftformat --lint .</code> and <code>swiftlint --strict</code>.</li>
 <li>CI-only checks (coverage upload, Codecov, gh-pages) may be skipped locally.</li>
 <li>Never weaken, skip or delete a test to obtain a passing run. Fix the cause and report
@@ -275,69 +238,39 @@ branch, open the pull request and report its URL as part of completing the task.
 that is then fast-forwarded into <code>main</code> by hand, and do not merge a pull request without
 explicit user approval. The standard procedure:</p>
 <pre><code class="language-sh">git switch -c vodka/short-description
-# edit, then run the checks in the table below
+# edit, then run the checks in the verification table
 git add &lt;explicit paths&gt;
 git commit -m &quot;vodka: fix Steam launch resolver&quot;
 git push -u origin vodka/short-description
 gh pr create --fill --base main
 </code></pre>
-<p><code>main</code> currently has no required status checks, so GitHub will not block a failing pull
-request. Run the checks yourself rather than treating a green merge button as evidence.</p>
+<p>Run the checks yourself rather than treating a green merge button as evidence.</p>
 </li>
 <li><p><strong>Delete the branch after every pull request.</strong> Once the pull request merges, remove
 the remote branch with <code>git push origin --delete &lt;branch&gt;</code> and the local branch with
 <code>git branch -d &lt;branch&gt;</code>, then run <code>git fetch --prune</code> to drop stale remote-tracking
 references. A pull request that is closed without merging is cleaned up the same way.</p>
 </li>
-<li><p>One repository serves the whole workspace, published as <code>rolling7ho/vodka-stack</code> (<code>origin</code>,
-branch <code>main</code>). The histories of <code>apps/vodka</code>, <code>apps/openv</code>, <code>engine/winecx</code> and
-<code>engine/dxmt-work/dxmt</code> were imported with <code>git subtree</code>; their full graphs are present
-and the latter two repositories are archived read-only.</p>
-</li>
-<li><p>When syncing Vodka upstream, add the remotes first if they are missing:</p>
-<pre><code class="language-sh">git remote add vodka    https://github.com/rolling7ho/vodka-stack.git   # if missing
-git remote add upstream https://github.com/frankea/Whisky.git      # if missing
-git fetch vodka --no-tags
-git subtree pull --prefix apps/vodka vodka vodka-d3d12 --squash
-</code></pre>
-</li>
-<li><p>Stage explicit paths. Never use <code>git add -A</code> in a workspace containing untracked local
-trees, and never run <code>git clean -xdf</code> at the root, which deletes the contents of
-<code>engine/</code>.</p>
-</li>
-<li><p>The engine runtime lanes keep their own nested repositories, which workspace git
-operations must not rewrite. <code>engine/winecx</code> and <code>engine/dxmt-work/dxmt</code> are subtrees of
-this repository.</p>
+<li><p>Stage explicit paths rather than <code>git add -A</code> when untracked runtime lanes or local build
+artifacts are present.</p>
 </li>
 </ul>
 <h2>Hard rules</h2>
 <ol>
-<li>Do not move <code>apps/vodka</code> or <code>engine</code> relative to the workspace root. Scripts and Xcode
-paths depend on the current layout.</li>
-<li>Do not commit engine lane outputs (<code>engine/runtime-*</code>, <code>engine/pkg-*</code>, <code>engine/deps</code>,
-build caches), <code>.build/</code>, <code>*.tar.gz</code>, packaged runtimes, logs or machine-specific
-artifacts. Only <code>engine/README.md</code>, <code>engine/winecx/</code> and <code>engine/dxmt-work/dxmt/</code> are
-tracked; the root <code>.gitignore</code> encodes this.</li>
-<li>Do not edit generated files by hand: <code>apps/vodka/dist/pages/</code>, the formatting of
+<li>Do not commit runtime build outputs (<code>runtime/runtime-*</code>, <code>runtime/pkg-*</code>,
+<code>runtime/deps</code>, <code>.build/</code>, <code>*.tar.gz</code>, logs, or machine-specific artifacts).</li>
+<li>Do not edit generated files by hand: <code>dist/pages/docs/</code>, the formatting of
 <code>Vodka/Localizable.xcstrings</code>, or <code>*.xcodeproj</code> internals. The one permitted
 <code>Vodka.xcodeproj</code> edit is adding the file references and build-phase entries that a new
 application-target source file requires.</li>
 <li>Do not introduce secrets, API keys, certificates or provisioning profiles. The Sparkle
 signing key resides in the maintainer&#39;s keychain (<code>vodka</code> account) and must never be
 placed in the repository.</li>
-<li>The engine lanes (<code>engine/runtime-47</code>, <code>runtime-up</code>, <code>runtime-ci</code> and their own
-<code>winecx</code> checkouts) keep separate git histories. Do not rewrite them from the workspace
-repository. <code>engine/winecx</code> and <code>engine/dxmt-work/dxmt</code> are subtrees, so changes to them
-are committed here.</li>
-<li>Do not enable GTA Online, anti-cheat bypasses or game asset redistribution in OpenV,
-and keep its exports ABI-compatible.</li>
-<li>Do not run destructive commands (<code>git reset --hard</code>, <code>git clean -xdf</code>,
-<code>rm -rf engine/...</code>) unless the user explicitly requests that exact action.</li>
+<li>Do not run destructive commands (<code>git reset --hard</code>, <code>git clean -xdf</code>) unless the user
+explicitly requests that exact action.</li>
 <li>Do not add a dependency or a new top-level directory without asking.</li>
 <li>Do not push to <code>main</code>, and do not consider a change complete until it is on a branch
-with an open pull request. This is the default for every change, including documentation
-and trivial fixes, and requires no prompt. Only the merge into <code>main</code> waits for the user
-to ask.</li>
+with an open pull request. Only the merge into <code>main</code> waits for the user to ask.</li>
 <li>Write in the formal technical register defined under <strong>Writing and communication</strong>. The
 policy applies to every document, plan, ADR, pull request comment and reply to the
 maintainer, and requires no reminder from the user.</li>
@@ -352,7 +285,7 @@ maintainer, and requires no reminder from the user.</li>
 </thead>
 <tbody><tr>
 <td>VodkaKit logic</td>
-<td><code>swift test --package-path apps/vodka/VodkaKit --filter &lt;suite&gt;</code></td>
+<td><code>swift test --package-path VodkaKit --filter &lt;suite&gt;</code></td>
 </tr>
 <tr>
 <td>Application or UI</td>
@@ -360,23 +293,15 @@ maintainer, and requires no reminder from the user.</li>
 </tr>
 <tr>
 <td>User-facing strings</td>
-<td><code>cd apps/vodka &amp;&amp; ./scripts/british-english.py --check</code></td>
+<td><code>./scripts/british-english.py --check</code></td>
 </tr>
 <tr>
 <td>Swift style</td>
-<td><code>cd apps/vodka &amp;&amp; swiftformat --lint . &amp;&amp; swiftlint --strict</code></td>
+<td><code>swiftformat --lint . &amp;&amp; swiftlint --strict</code></td>
 </tr>
 <tr>
 <td>Documentation only</td>
 <td>check links and paths; builds may be skipped</td>
-</tr>
-<tr>
-<td>Engine</td>
-<td><code>cd engine &amp;&amp; ruby local-build.rb</code> (or the lane&#39;s workflow)</td>
-</tr>
-<tr>
-<td>OpenV</td>
-<td>run the affected script against a real dump; the map rebuild is manual</td>
 </tr>
 </tbody></table>
 <p>Report exactly which checks ran, their result, and any check that could not be run.
@@ -386,35 +311,22 @@ Compiling is not equivalent to testing behaviour.</p>
 <li>SwiftLint is skipped silently in Xcode when <code>CI=true</code> is set, so a local build can pass
 while CI fails. Run <code>swiftlint --strict</code> explicitly.</li>
 <li>en-GB must be complete. A single missing string causes macOS to display the raw key to
-British users. Regenerate it after modifying <code>apps/vodka/Vodka/Localizable.xcstrings</code>.</li>
+British users. Regenerate it after modifying <code>Vodka/Localizable.xcstrings</code>.</li>
 <li>The application bundle must ship <code>winetricks</code>, <code>verbs.txt</code> and <code>cabextract</code>. CI asserts
 on the built artifact because the copy phase can omit them without failing.</li>
-<li>CI workflows reside in <code>apps/vodka/.github</code>, inherited from the application repository,
-so GitHub does not run them from the monorepo root. Do not assume those workflows are
-active.</li>
-<li>The untracked engine trees are machine-specific. Build logs and generated CMake files
-under <code>engine/dxmt-work/dxmt/toolchains/</code> embed absolute <code>/Users/ivan/Desktop/vodka/...</code>
-paths. Do not copy commands or paths from them, and never commit them.</li>
 </ul>
 <h2>Read next</h2>
 <ul>
-<li><code>README.md</code>: layout and quick start.</li>
-<li><code>CONTRIBUTING.md</code>: repository-wide contribution process and checks.</li>
-<li><code>SECURITY.md</code>: private vulnerability reporting (never a public issue).</li>
-<li><code>apps/vodka/CONTRIBUTING.md</code>: build, pull request and release detail.</li>
-<li><code>apps/vodka/docs/</code>: dependencies, release workflow, Steam compatibility and
-troubleshooting.</li>
-<li><code>apps/openv/docs/re/</code>: native-table and crossmap reverse-engineering notes.</li>
-<li><code>engine/README.md</code>: lane inventory and engine rules.</li>
-<li><code>engine/dxmt-work/dxmt/AGENTS.md</code>: DXMT-specific instructions, which take precedence for
-work inside that subtree.</li>
+<li><code>README.md</code>: installation, features, and layout.</li>
+<li><code>CONTRIBUTING.md</code>: build, pull request, and release detail.</li>
+<li><code>docs/</code>: dependencies, release workflow, Steam compatibility, and troubleshooting.</li>
 </ul>
 
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/AGENTS.md">AGENTS.md</a></p>
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/AGENTS.md">AGENTS.md</a></p>
   </div>
 </footer>
 </body>

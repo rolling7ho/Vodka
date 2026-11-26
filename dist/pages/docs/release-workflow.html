@@ -3,28 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Release workflow — Vodka Stack</title>
+<title>Release workflow | Vodka</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="https://rolling7ho.github.io/vodka-stack/docs/release-workflow.html">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/release-workflow.html">
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="https://raw.githubusercontent.com/rolling7ho/vodka-stack/main/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka Stack</span>
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
       <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/vodka-stack">GitHub</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
     </nav>
   </div>
 </header>
 <main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Vodka</p>
+  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
   <h1>Release workflow</h1>
 <p>This document describes how to publish an application update, how to produce the Wine
 Libraries archive, and which credentials the pipeline depends on.</p>
@@ -64,7 +64,7 @@ Libraries archive, and which credentials the pipeline depends on.</p>
 </tr>
 </tbody></table>
 <p>The Sparkle update feed is <code>appcast.xml</code> on the <code>gh-pages</code> branch, served at
-<code>https://rolling7ho.github.io/vodka-stack/appcast.xml</code> and referenced by <code>SUFeedURL</code> in the
+<code>https://rolling7ho.github.io/Vodka/appcast.xml</code> and referenced by <code>SUFeedURL</code> in the
 application&#39;s <code>Info.plist</code>. The committed site content used by the publishing scripts
 resides in <code>dist/pages/</code>.</p>
 <h2>One-time setup</h2>
@@ -239,7 +239,7 @@ shape. The archive name, tag and URL match the output of <code>publish-update.sh
     &lt;sparkle:minimumSystemVersion&gt;15.0&lt;/sparkle:minimumSystemVersion&gt;
     &lt;description&gt;&lt;![CDATA[&lt;p&gt;Release notes…&lt;/p&gt;]]&gt;&lt;/description&gt;
     &lt;enclosure
-        url=&quot;https://github.com/rolling7ho/vodka-stack/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip&quot;
+        url=&quot;https://github.com/rolling7ho/Vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip&quot;
         sparkle:edSignature=&quot;…&quot;
         length=&quot;…&quot;
         type=&quot;application/octet-stream&quot; /&gt;
@@ -300,10 +300,10 @@ installations prompt for the update on their next version check.</p>
 </ol>
 <h2>URLs the application depends on</h2>
 <ul>
-<li><code>https://rolling7ho.github.io/vodka-stack/appcast.xml</code>: Sparkle update feed (<code>SUFeedURL</code>).</li>
-<li><code>https://github.com/rolling7ho/vodka-stack/releases/download/v&lt;tag&gt;/Libraries.tar.gz</code>: Wine
+<li><code>https://rolling7ho.github.io/Vodka/appcast.xml</code>: Sparkle update feed (<code>SUFeedURL</code>).</li>
+<li><code>https://github.com/rolling7ho/Vodka/releases/download/v&lt;tag&gt;/Libraries.tar.gz</code>: Wine
 runtime archive for the pinned <code>gamingRuntime</code> tag in <code>DistributionConfig.swift</code>.</li>
-<li><code>https://github.com/rolling7ho/vodka-stack/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip</code>:
+<li><code>https://github.com/rolling7ho/Vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip</code>:
 application update archive.</li>
 </ul>
 <h2>Pitfalls</h2>
@@ -326,8 +326,8 @@ overflows the operating system&#39;s pipe buffer.</li>
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/vodka-stack/blob/main/apps/vodka/docs/ReleaseWorkflow.md">apps/vodka/docs/ReleaseWorkflow.md</a></p>
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/docs/ReleaseWorkflow.md">docs/ReleaseWorkflow.md</a></p>
   </div>
 </footer>
 </body>

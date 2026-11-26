@@ -6,7 +6,7 @@
 > **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
 > the original upstream project (whisky-app/whisky). Upstream references are retained for
 > historical context. Report new issues to
-> [rolling7ho/vodka-stack](https://github.com/rolling7ho/vodka-stack/issues).
+> [rolling7ho/Vodka](https://github.com/rolling7ho/Vodka/issues).
 
 ## Initial procedure
 
@@ -402,7 +402,7 @@ macOS 15 is the minimum supported version.
 
 ## Further resources
 
-- Issue tracker: <https://github.com/rolling7ho/vodka-stack/issues>
+- Issue tracker: <https://github.com/rolling7ho/Vodka/issues>
 - Upstream project: <https://github.com/whisky-app/whisky>
 - Steam guide: [SteamCompatibility.md](SteamCompatibility.md)
 - Stability guide: [StabilityTroubleshooting.md](StabilityTroubleshooting.md)

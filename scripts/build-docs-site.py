@@ -18,7 +18,7 @@
 #
 # Renders the repository documentation into static HTML for the GitHub Pages site.
 #
-# Usage: apps/vodka/scripts/build-docs-site.py
+# Usage: scripts/build-docs-site.py
 #
 # Requirements: node and npx on PATH. The Markdown converter is fetched with
 # `npx --yes marked@18.3.0`, pinned so that output stays stable between runs.
@@ -32,52 +32,38 @@ import subprocess
 import sys
 import tempfile
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-PAGES = os.path.join(ROOT, "apps", "vodka", "dist", "pages")
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PAGES = os.path.join(ROOT, "dist", "pages")
 OUT = os.path.join(PAGES, "docs")
-SITE_BASE = "https://rolling7ho.github.io/vodka-stack"
-REPO = "rolling7ho/vodka-stack"
+SITE_BASE = "https://rolling7ho.github.io/Vodka"
+REPO = "rolling7ho/Vodka"
 BRANCH = "main"
 MARKED = ["npx", "--yes", "marked@18.3.0"]
 
 DOCS = [
     # slug, title, source path, group, summary
     ("readme", "Overview", "README.md", "Project",
-     "Layout, projects and quick start."),
+     "Installation, features and uninstall steps."),
     ("contributing", "Contributing", "CONTRIBUTING.md", "Project",
-     "Area guides, checks and pull request rules."),
+     "Build, test and release procedures."),
     ("security", "Security policy", "SECURITY.md", "Project",
      "Supported versions and private vulnerability reporting."),
-    ("notice", "Licensing", "NOTICE.md", "Project",
-     "Which license applies to each path."),
     ("agent-manual", "Agent operating manual", "AGENTS.md", "Project",
      "Rules and procedures for automated contributors."),
-    ("app-readme", "Vodka application", "apps/vodka/README.md", "Vodka",
-     "Installation, features and uninstall steps."),
-    ("app-contributing", "Contributing to the application", "apps/vodka/CONTRIBUTING.md", "Vodka",
-     "Build, test and release the application."),
-    ("app-security", "Application security policy", "apps/vodka/SECURITY.md", "Vodka",
-     "Security scope for the application and its helpers."),
-    ("dependencies", "Runtime dependencies", "apps/vodka/docs/DEPENDENCIES.md", "Vodka",
+    ("dependencies", "Runtime dependencies", "docs/DEPENDENCIES.md", "Guides",
      "Bundled component versions and archive digests."),
-    ("release-workflow", "Release workflow", "apps/vodka/docs/ReleaseWorkflow.md", "Vodka",
+    ("release-workflow", "Release workflow", "docs/ReleaseWorkflow.md", "Guides",
      "Application releases, Sparkle feed and runtime assembly."),
-    ("steam", "Steam compatibility", "apps/vodka/docs/SteamCompatibility.md", "Vodka",
+    ("steam", "Steam compatibility", "docs/SteamCompatibility.md", "Guides",
      "Recommended configuration and known Steam failures."),
-    ("launcher-troubleshooting", "Launcher troubleshooting", "apps/vodka/docs/LauncherTroubleshooting.md", "Vodka",
+    ("launcher-troubleshooting", "Launcher troubleshooting", "docs/LauncherTroubleshooting.md", "Guides",
      "Epic, EA App, Battle.net, Rockstar and others."),
-    ("stability", "Stability troubleshooting", "apps/vodka/docs/StabilityTroubleshooting.md", "Vodka",
+    ("stability", "Stability troubleshooting", "docs/StabilityTroubleshooting.md", "Guides",
      "Triage for crashes, freezes and kernel panics."),
-    ("discord-bridge", "Discord bridge", "apps/vodka/scripts/discord-bridge/README.md", "Vodka",
+    ("discord-bridge", "Discord bridge", "scripts/discord-bridge/README.md", "Guides",
      "Rich presence relay for games in a bottle."),
-    ("openv-plan", "OpenV plan", "apps/openv/PLAN.md", "OpenV",
-     "ABI contract, safety requirements and phases."),
-    ("openv-native-table", "Native registration table", "apps/openv/docs/re/01-native-table.md", "OpenV",
-     "Reverse-engineering notes for build 1158.16."),
-    ("openv-crossmap", "Native crossmap", "apps/openv/docs/re/02-crossmap.md", "OpenV",
-     "How the universal to build-specific map is derived."),
-    ("engine", "Engine workbench", "engine/README.md", "Engine",
-     "Lanes, tracked subtrees and build rules."),
+    ("runtime", "Runtime workbench", "runtime/README.md", "Runtime",
+     "Local build driver and sibling engine repositories."),
 ]
 
 BY_PATH = {path: slug for slug, _, path, _, _ in DOCS}
@@ -87,7 +73,7 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title} — Vodka Stack</title>
+<title>{title} | Vodka</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
@@ -97,8 +83,8 @@ TEMPLATE = """<!doctype html>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="{raw}/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka Stack</span>
+      <img src="{raw}/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
@@ -114,7 +100,7 @@ TEMPLATE = """<!doctype html>
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p>Vodka is licensed under GPL-3.0.</p>
     <p class="muted">Source: <a href="https://github.com/{repo}/blob/{branch}/{source}">{source}</a></p>
   </div>
 </footer>
@@ -127,7 +113,7 @@ INDEX_TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Documentation — Vodka Stack</title>
+<title>Documentation | Vodka</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="stylesheet" href="../style.css">
@@ -137,8 +123,8 @@ INDEX_TEMPLATE = """<!doctype html>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="{raw}/apps/vodka/images/vodka-icon.png" width="28" height="28" alt="">
-      <span>Vodka Stack</span>
+      <img src="{raw}/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
@@ -153,7 +139,7 @@ INDEX_TEMPLATE = """<!doctype html>
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p>Vodka Stack and the Vodka application are licensed under GPL-3.0. OpenV is MIT; the engine sources are LGPL-2.1-or-later.</p>
+    <p>Vodka is licensed under GPL-3.0.</p>
     <p class="muted">Source: <a href="https://github.com/{repo}">github.com/{repo}</a></p>
   </div>
 </footer>
@@ -263,14 +249,14 @@ def build_page(slug, title, path, group):
 
 
 def build_index():
-    order = ["Project", "Vodka", "OpenV", "Engine"]
+    order = ["Project", "Guides", "Runtime"]
     groups = []
     for group in order:
         items = [(slug, title, summary) for slug, title, _, g, summary in DOCS if g == group]
         if not items:
             continue
         entries = "\n".join(
-            f'      <li><a href="{slug}.html">{html.escape(title)}</a> — {html.escape(summary)}</li>'
+            f'      <li><a href="{slug}.html">{html.escape(title)}</a>: {html.escape(summary)}</li>'
             for slug, title, summary in items
         )
         groups.append(f'  <h2>{html.escape(group)}</h2>\n    <ul class="docs">\n{entries}\n    </ul>')
