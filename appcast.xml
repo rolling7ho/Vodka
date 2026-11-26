@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
         <title>Vodka</title>
-        <link>https://rolling7ho.github.io/Vodka/appcast.xml</link>
+        <link>https://rolling7ho.github.io/vodka/appcast.xml</link>
         <description>Vodka update feed</description>
         <language>en</language>
         <!-- items -->
@@ -21,7 +21,7 @@
 <li>Vodka's window no longer freezes while macOS asks for access to Downloads. The check for a downloaded Game Porting Toolkit now runs in the background.
 </ul>
             ]]></description>
-            <enclosure url="https://github.com/rolling7ho/Vodka/releases/download/app-v4.1.1/Vodka-4.1.1.zip" sparkle:edSignature="ZRYhUiBq3J0Lz5JyEbeBrHZx+Y6MuElZq8Ek3BW2wrMJQMubNsyI6nfLqo0vfUvChKSXJ8GJAy72QdQq4MUbCg==" length="28630232" type="application/octet-stream" />
+            <enclosure url="https://github.com/rolling7ho/vodka/releases/download/app-v4.1.1/Vodka-4.1.1.zip" sparkle:edSignature="ZRYhUiBq3J0Lz5JyEbeBrHZx+Y6MuElZq8Ek3BW2wrMJQMubNsyI6nfLqo0vfUvChKSXJ8GJAy72QdQq4MUbCg==" length="28630232" type="application/octet-stream" />
         </item>
         <item>
             <title>Vodka 4.1.0</title>
@@ -43,7 +43,7 @@
 <li>Vodka DirectX 12, Vodka's own DirectX 12 to Metal layer (a build of DXMT), as an experimental Teardown configuration. Teardown stays on D3DMetal by default.
 </ul>
             ]]></description>
-            <enclosure url="https://github.com/rolling7ho/Vodka/releases/download/app-v4.1.0/Vodka-4.1.0.zip" sparkle:edSignature="+rV4W45dmJHd+gGq8uG5z2Dt0GjwxKNM24u1IsKHJ7If8+reACs1NY9T0voDv7Hq31c51JECjNxKkkZADrCtBg==" length="28624262" type="application/octet-stream" />
+            <enclosure url="https://github.com/rolling7ho/vodka/releases/download/app-v4.1.0/Vodka-4.1.0.zip" sparkle:edSignature="+rV4W45dmJHd+gGq8uG5z2Dt0GjwxKNM24u1IsKHJ7If8+reACs1NY9T0voDv7Hq31c51JECjNxKkkZADrCtBg==" length="28624262" type="application/octet-stream" />
         </item>
         <item>
             <title>Vodka 4.0.0</title>
@@ -61,7 +61,7 @@
 <li><strong>No telemetry</strong>: usage tracking has been removed.
 </ul>
             ]]></description>
-            <enclosure url="https://github.com/rolling7ho/Vodka/releases/download/app-v4.0.0/Vodka-4.0.0.zip" sparkle:edSignature="PyXE4lf3E+bPtjyZqy7lE6rP1N+Pv2ynXfLPHJXlY9qteVPL6vJmmPiPeGLsZf8vt8HlhqJ7zuank2HgUXcoDg==" length="12645452" type="application/octet-stream" />
+            <enclosure url="https://github.com/rolling7ho/vodka/releases/download/app-v4.0.0/Vodka-4.0.0.zip" sparkle:edSignature="PyXE4lf3E+bPtjyZqy7lE6rP1N+Pv2ynXfLPHJXlY9qteVPL6vJmmPiPeGLsZf8vt8HlhqJ7zuank2HgUXcoDg==" length="12645452" type="application/octet-stream" />
         </item>
     </channel>
 </rss>
