@@ -122,3 +122,6 @@ runtime/runtime-*/
 runtime/pkg-*/
 runtime/deps/
 runtime/.local-ci/
+
+# GPUI Rust frontend build outputs
+gmac-gpui/target/

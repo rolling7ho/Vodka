@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Replaced the SwiftUI desktop user interface with a GPUI application (`gmac-gpui/`) backed by `GmacKit` over the persistent stdio JSON-RPC helper `gmac-bridge` (`GmacKit/Sources/GmacBridge/`).
+- Redesigned all primary surfaces (Library, Steam setup, PC Overview/Programs/Settings/Presets/Tools, Statistics, Activity processes and crash log analyzer, and application Settings) around neutral surfaces, the oxblood `#713131` / `#D98282` accent palette, custom monochrome vector icons, and light/dark/system themes.
 - Rebranded the application, framework (`GmacKit`), CLI (`GmacCmd`), Quick Look extension (`GmacThumbnail`), Direct3D 12 bridge (`gmacmetal`), URL scheme (`gmac://`), accent color (`#713131`), app icon, and documentation site from Vodka to Gmac, with automatic first-launch migration from `com.rolling7ho.Vodka` and `com.rolling7ho.Whisky`.
 
 ### Added
+- Added `scripts/build-gpui-app.sh` to build the release `gmac-bridge` and `gmac` GPUI binaries, assemble `build/Gmac.app`, generate `AppIcon.icns`, and apply ad-hoc code signing.
 - Grand Theft Auto V and GTA V Enhanced now receive Alt from either Option key. Mac keyboards have no
   Alt key, and Wine otherwise sends nothing for Option while Command acts as Ctrl. Other programs keep
   their usual Option behavior.

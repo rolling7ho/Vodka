@@ -28,6 +28,10 @@ let package = Package(
         .library(
             name: "GmacKit",
             targets: ["GmacKit"]
+        ),
+        .executable(
+            name: "gmac-bridge",
+            targets: ["GmacBridge"]
         )
     ],
     dependencies: [
@@ -54,6 +58,11 @@ let package = Package(
         .testTarget(
             name: "GmacKitTests",
             dependencies: ["GmacKit"]
+        ),
+        .executableTarget(
+            name: "GmacBridge",
+            dependencies: ["GmacKit", "SemanticVersion"],
+            path: "Sources/GmacBridge"
         )
     ],
     swiftLanguageModes: [.v6]
