@@ -150,14 +150,16 @@ public enum PlaytimeStore {
         guard let end = entry.endTime else { return }
         let file = url(for: programName, in: bottleURL)
 
-        var playtime: ProgramPlaytime
-        if let data = try? Data(contentsOf: file),
-           let stored = try? PropertyListDecoder().decode(ProgramPlaytime.self, from: data) {
-            playtime = stored
+        var playtime: ProgramPlaytime = if let data = try? Data(contentsOf: file),
+                                           let stored = try? PropertyListDecoder().decode(
+                                               ProgramPlaytime.self,
+                                               from: data
+                                           ) {
+            stored
         } else {
             // The first run since totals began: earlier runs still in the
             // history count too, rather than starting from zero.
-            playtime = ProgramPlaytime(history: history, excluding: entry.id)
+            ProgramPlaytime(history: history, excluding: entry.id)
         }
         playtime.add(start: entry.startTime, end: end)
 

@@ -42,7 +42,13 @@ public enum SteamInstallError: LocalizedError {
 /// silently (`/S`), so the only Steam window anyone sees is the client's own sign-in.
 public enum SteamInstaller {
     /// Valve's official Windows installer.
-    public static let installerURL = URL(string: "https://cdn.akamai.steamstatic.com/client/installer/SteamSetup.exe")!
+    public static let installerURL: URL = {
+        guard let url = URL(string: "https://cdn.akamai.steamstatic.com/client/installer/SteamSetup.exe")
+        else {
+            preconditionFailure("Invalid Steam installer URL literal")
+        }
+        return url
+    }()
 
     /// The bottle that holds a Steam install, if any does.
     @MainActor

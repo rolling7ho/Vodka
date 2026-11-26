@@ -88,7 +88,7 @@ public enum GraphicsAPIDetector {
     }
 
     private static let cacheLock = NSLock()
-    nonisolated(unsafe) private static var cache: [String: (modified: Date, dlls: Set<String>)] = [:]
+    private nonisolated(unsafe) static var cache: [String: (modified: Date, dlls: Set<String>)] = [:]
 
     /// Lowercased names of the DLLs `url` imports, directly or delay-loaded.
     /// Remembered per file until it changes, since every launch asks again.

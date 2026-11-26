@@ -70,7 +70,7 @@ struct ConfigView: View {
     var body: some View {
         ScrollViewReader { proxy in
             form
-                #if DEBUG
+            #if DEBUG
                 .task {
                     // Screenshots of the lower sections without scrolling by hand.
                     if let anchor = ProcessInfo.processInfo.environment["VODKA_DEBUG_SCROLL"] {
@@ -78,7 +78,7 @@ struct ConfigView: View {
                         proxy.scrollTo(anchor, anchor: .top)
                     }
                 }
-                #endif
+            #endif
         }
     }
 
@@ -257,8 +257,11 @@ struct ConfigView: View {
             Button {
                 repairPrefix()
             } label: {
-                FormActionRow(String(localized: "config.repairPrefix"), systemImage: "wrench.and.screwdriver",
-                              working: isRepairingPrefix)
+                FormActionRow(
+                    String(localized: "config.repairPrefix"),
+                    systemImage: "wrench.and.screwdriver",
+                    working: isRepairingPrefix
+                )
             }
             .buttonStyle(.plain)
             .disabled(isRepairingPrefix)

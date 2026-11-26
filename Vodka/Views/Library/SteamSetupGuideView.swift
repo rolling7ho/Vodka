@@ -49,10 +49,12 @@ struct SteamSetupGuideView: View {
         return SteamInstaller.steamBottle(in: bottles)
             ?? bottles.first { $0.settings.name == Self.bottleName }
     }
+
     private var steamInstalled: Bool {
         _ = pollTick
         return steamBottle.map(SteamInstaller.isInstalled(in:)) ?? false
     }
+
     private var installedGames: Int {
         _ = pollTick
         return steamBottle.map { SteamLibrary.enumerate(bottleURL: $0.url).count } ?? 0
@@ -160,7 +162,7 @@ struct SteamSetupGuideView: View {
                             )
                             pollTick += 1
                         }
-                            .buttonStyle(.borderedProminent).padding(.top, 2)
+                        .buttonStyle(.borderedProminent).padding(.top, 2)
                     }
                 }
             }
@@ -174,13 +176,22 @@ struct SteamSetupGuideView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Good to know").font(.headline)
             tip("play.rectangle", "Press Play on a game here, or in Steam — both use the best settings.")
-            tip("gamecontroller", "Play full screen to turn on Game Mode. You'll see a controller icon in "
-                + "the menu bar while it's on.")
+            tip(
+                "gamecontroller",
+                "Play full screen to turn on Game Mode. You'll see a controller icon in "
+                    + "the menu bar while it's on."
+            )
             tip("sparkles", "Popular games like Teardown have a preset that's applied automatically.")
-            tip("hourglass", "A game's first launch is slower while it prepares its graphics. "
-                + "Later launches are quicker.")
-            tip("exclamationmark.shield", "Games with kernel anti-cheat (many online shooters) "
-                + "can't run on a Mac this way.")
+            tip(
+                "hourglass",
+                "A game's first launch is slower while it prepares its graphics. "
+                    + "Later launches are quicker."
+            )
+            tip(
+                "exclamationmark.shield",
+                "Games with kernel anti-cheat (many online shooters) "
+                    + "can't run on a Mac this way."
+            )
         }
         .padding(16)
         .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
@@ -235,7 +246,7 @@ struct SteamSetupGuideView: View {
             bottleName: Self.bottleName, winVersion: .win10, bottleURL: BottleData.defaultBottleDir
         )
         Task {
-            while bottleVM.bottles.contains(where: { $0.inFlight }) {
+            while bottleVM.bottles.contains(where: \.inFlight) {
                 try? await Task.sleep(for: .milliseconds(500))
             }
             creating = false

@@ -48,11 +48,11 @@ final class PlaytimeTests: XCTestCase {
             }
         }
         """
-        let records = SteamPlaytimeReader.records(fromDocument: try VDFParser.parse(text))
+        let records = try SteamPlaytimeReader.records(fromDocument: VDFParser.parse(text))
 
         XCTAssertEqual(records.count, 1)
         XCTAssertEqual(records.first?.appID, 1_167_630)
-        XCTAssertEqual(records.first?.total, 6148 * 60)
+        XCTAssertEqual(records.first?.total, 6_148 * 60)
         XCTAssertEqual(records.first?.lastTwoWeeks, 887 * 60)
         XCTAssertEqual(records.first?.lastPlayed, Date(timeIntervalSince1970: 1_792_938_811))
     }

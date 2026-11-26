@@ -1464,6 +1464,12 @@
             "state" : "translated",
             "value" : "PC"
           }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PC"
+          }
         }
       }
     },
@@ -7585,7 +7591,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Manually select the launcher type for this Windows PC"
+            "value" : "Manually select the launcher type for this PC"
           }
         },
         "es" : {
@@ -8987,7 +8993,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rockstar Games Launcher shows no window without DXVK. When it is this Windows PC's launcher, the Windows PC switches to DXVK on detection and every program in it runs with DXVK, whatever Graphics Backend is set to. Other launchers already run on DXVK under the Recommended backend."
+            "value" : "Rockstar Games Launcher shows no window without DXVK. When it is this PC's launcher, the PC switches to DXVK on detection and every program in it runs with DXVK, whatever Graphics Backend is set to. Other launchers already run on DXVK under the Recommended backend."
           }
         }
       }
@@ -9683,6 +9689,12 @@
           }
         },
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a PC"
+          }
+        },
+        "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Select a PC"
@@ -19613,7 +19625,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apps are still running in this Windows PC. What would you like to do?"
+            "value" : "Apps are still running in this PC. What would you like to do?"
           }
         },
         "es" : {
@@ -20057,7 +20069,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remember for this Windows PC"
+            "value" : "Remember for this PC"
           }
         },
         "es" : {
@@ -20353,7 +20365,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create the Windows PC directory."
+            "value" : "Failed to create the PC directory."
           }
         },
         "es" : {
@@ -20501,7 +20513,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to create the Windows PC metadata."
+            "value" : "Failed to create the PC metadata."
           }
         },
         "es" : {
@@ -20649,7 +20661,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to save the Windows PC."
+            "value" : "Failed to save the PC."
           }
         },
         "es" : {
@@ -20797,7 +20809,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The Wine runtime (VodkaWine) isn't installed, so the Windows PC can't be initialized. Run Setup to download it, then try again."
+            "value" : "The Wine runtime (VodkaWine) isn't installed, so the PC can't be initialised. Run Setup to download it, then try again."
           }
         },
         "es" : {
@@ -21389,7 +21401,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Windows PC Creation Failed"
+            "value" : "PC Creation Failed"
           }
         },
         "es" : {
@@ -21559,7 +21571,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "There isn't enough free space to create a Windows PC: %1$@ available, but about %2$@ is needed. Free up space or choose another disk."
+            "value" : "There isn't enough free space to create a PC: %1$@ available, but about %2$@ is needed. Free up space or choose another disk."
           }
         },
         "es" : {
@@ -22031,7 +22043,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "These Windows PCs exist on disk but aren't in your library: %@. Re-importing adds them back to the sidebar; nothing on disk is changed."
+            "value" : "These PCs exist on disk but aren't in your library: %@. Re-importing adds them back to the sidebar; nothing on disk is changed."
           }
         },
         "es" : {
@@ -22327,7 +22339,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Windows PCs Found on Disk"
+            "value" : "PCs Found on Disk"
           }
         },
         "es" : {
@@ -22475,7 +22487,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vodka couldn't read its saved Windows PC list, so a fresh empty list was created. The unreadable file was moved to “%@”. Your Windows PC folders on disk were not deleted."
+            "value" : "Vodka couldn't read its saved PC list, so a fresh empty list was created. The unreadable file was moved to “%@”. Your PC folders on disk were not deleted."
           }
         },
         "es" : {
@@ -22623,7 +22635,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Windows PC List Couldn't Be Read"
+            "value" : "PC List Couldn't Be Read"
           }
         },
         "es" : {
@@ -22919,7 +22931,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apps are running in this Windows PC. They will be quit before it is removed."
+            "value" : "Apps are running in this PC. They will be quit before it is removed."
           }
         },
         "es" : {
@@ -23659,7 +23671,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New Windows PC"
+            "value" : "New PC"
           }
         },
         "es" : {
@@ -25435,7 +25447,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want to remove this Windows PC? This action is permanent."
+            "value" : "Are you sure you want to remove this PC? This action is permanent."
           }
         },
         "es" : {
@@ -25731,7 +25743,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove this unavailable Windows PC from the list"
+            "value" : "Remove this unavailable PC from the list"
           }
         },
         "es" : {
@@ -26027,7 +26039,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Run..."
+            "value" : "Run a Windows App…"
           }
         },
         "es" : {
@@ -30179,7 +30191,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset this Windows PC's saved audio state?"
+            "value" : "Reset this PC's saved audio state?"
           }
         },
         "es" : {
@@ -33579,7 +33591,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Set the Windows PC's screen DPI to scale Windows text and interface elements."
+            "value" : "Set the PC's screen DPI to scale Windows text and interface elements."
           }
         },
         "es" : {
@@ -37431,7 +37443,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Repair This Windows PC"
+            "value" : "Repair This PC"
           }
         },
         "es" : {
@@ -43417,7 +43429,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New Windows PC"
+            "value" : "New PC"
           }
         },
         "es" : {
@@ -46405,7 +46417,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Duplicate Windows PC"
+            "value" : "Duplicate PC"
           }
         },
         "es" : {
@@ -58731,7 +58743,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Runs this program"
+            "value" : "Opens it"
           }
         },
         "it" : {
@@ -58759,7 +58771,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Never run"
+            "value" : "Not played yet"
           }
         },
         "pl" : {
@@ -58859,7 +58871,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stop"
+            "value" : "Quit"
           }
         },
         "it" : {
@@ -58909,7 +58921,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create a Windows PC to install Windows programs into."
+            "value" : "Create a PC to install Windows programs into."
           }
         },
         "it" : {
@@ -58937,7 +58949,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Programs you install into a Windows PC show up here."
+            "value" : "Programs you install into a PC show up here."
           }
         },
         "pl" : {
@@ -58959,7 +58971,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open a Windows PC and pin a program to see it here."
+            "value" : "Open a PC and pin a program to see it here."
           }
         },
         "pl" : {
@@ -59075,7 +59087,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search programs"
+            "value" : "Search games and apps"
           }
         },
         "pl" : {
@@ -59153,7 +59165,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Windows PC"
+            "value" : "PC"
           }
         },
         "it" : {
@@ -59271,7 +59283,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Windows PCs"
+            "value" : "PCs"
           }
         },
         "it" : {
@@ -59421,7 +59433,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Windows PC is back on Recommended. Steam now uses DXVK on its own, so its games keep D3DMetal."
+            "value" : "This PC is back on Recommended. Steam now uses DXVK on its own, so its games keep D3DMetal."
           }
         }
       }
@@ -59913,7 +59925,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This program overrides the Windows PC's graphics backend."
+            "value" : "This program overrides the PC's graphics backend."
           }
         },
         "pl" : {
@@ -60013,7 +60025,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inherited from the Windows PC"
+            "value" : "Inherited from the PC"
           }
         },
         "pl" : {
@@ -60107,7 +60119,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reset this program's overrides so it follows the Windows PC again?"
+            "value" : "Reset this program's overrides so it follows the PC again?"
           }
         },
         "pl" : {
@@ -60173,7 +60185,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Winetricks verbs installed in this Windows PC."
+            "value" : "No Winetricks verbs installed in this PC."
           }
         },
         "pl" : {
@@ -60195,7 +60207,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verbs installed in the Windows PC this program runs in."
+            "value" : "Verbs installed in the PC this program runs in."
           }
         },
         "pl" : {
@@ -60261,7 +60273,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Overrides the Windows PC's display settings for this program only."
+            "value" : "Overrides the PC's display settings for this program only."
           }
         },
         "pl" : {
@@ -60307,7 +60319,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Set up a Windows PC to get started"
+            "value" : "Set up a PC to get started"
           }
         },
         "es" : {
@@ -60603,7 +60615,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Windows PCs yet"
+            "value" : "No PCs yet"
           }
         },
         "es" : {
@@ -61196,7 +61208,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add Existing Windows PC…"
+            "value" : "Add Existing PC…"
           }
         },
         "es" : {
@@ -70500,7 +70512,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rename Windows PC"
+            "value" : "Rename PC"
           }
         },
         "es" : {
@@ -71092,7 +71104,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Windows PC:"
+            "value" : "PC:"
           }
         },
         "es" : {
@@ -72736,7 +72748,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Default location for Windows PCs:"
+            "value" : "Default location for PCs:"
           }
         },
         "es" : {
@@ -81323,7 +81335,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Windows PC no longer contains a Steam installation."
+            "value" : "This PC no longer contains a Steam installation."
           }
         },
         "es" : {
@@ -81621,7 +81633,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Windows PC has App ID %lld installed."
+            "value" : "No PC has App ID %lld installed."
           }
         },
         "es" : {
@@ -81770,7 +81782,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Windows PC doesn't have Steam installed."
+            "value" : "This PC doesn't have Steam installed."
           }
         },
         "es" : {
@@ -82215,7 +82227,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No installed Steam games found in this Windows PC."
+            "value" : "No installed Steam games found in this PC."
           }
         },
         "es" : {
@@ -83696,7 +83708,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Running Processes"
+            "value" : "Running Apps"
           }
         },
         "es" : {
@@ -83844,7 +83856,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Installed Programs"
+            "value" : "Installed Apps"
           }
         },
         "es" : {
@@ -92702,7 +92714,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a Windows PC and optionally a program to troubleshoot."
+            "value" : "Select a PC and optionally a program to troubleshoot."
           }
         },
         "pl" : {
@@ -92724,7 +92736,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No specific program (Windows PC-level)"
+            "value" : "No specific program (PC-level)"
           }
         },
         "pl" : {
@@ -92746,7 +92758,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select a Windows PC"
+            "value" : "Select a PC"
           }
         },
         "pl" : {
@@ -94320,7 +94332,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Windows PC named %@."
+            "value" : "No PC named %@."
           }
         },
         "pl" : {
@@ -94513,7 +94525,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Windows PC's Wine prefix couldn't be set up, so nothing can run in it yet. The latest Wine log has the details."
+            "value" : "This PC's Wine prefix couldn't be set up, so nothing can run in it yet. The latest Wine log has the details."
           }
         }
       }
@@ -94530,7 +94542,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Windows PC's Wine prefix can't be set up because the Wine runtime isn't installed. Open Vodka to install it, then try again."
+            "value" : "This PC's Wine prefix can't be set up because the Wine runtime isn't installed. Open Vodka to install it, then try again."
           }
         }
       }
@@ -96648,7 +96660,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Failed to repair the Wine prefix. Please try recreating the Windows PC."
+            "value" : "Failed to repair the Wine prefix. Please try recreating the PC."
           }
         },
         "es" : {
@@ -98426,7 +98438,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remove the Wine runtime only, or remove everything Vodka has stored — including all Windows PCs?\n\nRemoving everything is permanent and cannot be undone."
+            "value" : "Remove the Wine runtime only, or remove everything Vodka has stored — including all PCs?\n\nRemoving everything is permanent and cannot be undone."
           }
         },
         "es" : {
@@ -100809,7 +100821,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This Windows PC is set to D3DMetal, which the installed engine doesn't include. Games will fall back to WineD3D, which can't run DirectX 11 titles — switch to DXMT or DXVK."
+            "value" : "This PC is set to D3DMetal, which the installed engine doesn't include. Games will fall back to WineD3D, which can't run DirectX 11 titles — switch to DXMT or DXVK."
           }
         },
         "es" : {
@@ -101851,7 +101863,7 @@
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inherited from Windows PC"
+            "value" : "Inherited from PC"
           }
         },
         "es" : {
