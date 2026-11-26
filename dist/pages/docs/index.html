@@ -9,49 +9,248 @@
 <link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../style.css">
 <link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/">
+<script src="../site.js" defer></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="../index.html">
-      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
+    <a class="brand" href="../index.html" aria-label="Gmac">
+      <span class="brand-viewport">
+        <svg class="brand-logo" viewBox="0 0 294 92" width="102" height="32" fill="none" aria-hidden="true">
+          <g class="brand-mark">
+            <g transform="translate(-9 -7) scale(0.265)">
+              <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
+          <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <g class="brand-letter brand-letter-m">
+              <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            </g>
+            <g class="brand-letter brand-letter-a">
+              <circle cx="200" cy="56" r="20"/>
+              <path d="M 220 36 L 220 76"/>
+            </g>
+            <g class="brand-letter brand-letter-c">
+              <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+            </g>
+          </g>
+        </svg>
+      </span>
     </a>
     <nav aria-label="Main">
-      <a href="../index.html">Home</a>
-      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
+      <a class="nav-icon" href="./" aria-current="page" aria-label="Documentation" title="Documentation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="../index.html#start" aria-label="Install" title="Install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </nav>
   </div>
 </header>
-<main class="wrap doc">
+<main class="wrap doc doc-index">
   <h1>Documentation</h1>
-  <p>Every guide in the repository, rendered from <code>main</code> at build time.</p>
-  <h2>Project</h2>
+  <p class="doc-index-lead">Guides, runtime notes, and troubleshooting references for Gmac.</p>
+  <section class="doc-group">
+    <h2 class="doc-group-title">Project</h2>
     <ul class="docs">
-      <li><a href="readme.html">Overview</a>: Installation, features and uninstall steps.</li>
-      <li><a href="contributing.html">Contributing</a>: Build, test and release procedures.</li>
-      <li><a href="security.html">Security policy</a>: Supported versions and private vulnerability reporting.</li>
-      <li><a href="agent-manual.html">Agent operating manual</a>: Rules and procedures for automated contributors.</li>
+      <li>
+        <a class="doc-card" href="readme.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Overview</span>
+            <span class="doc-card-summary">Gmac provisions an isolated Windows environment (a Wine prefix) on your Mac, lets you install Steam, Epic Games, GOG, Battle.net, or standalone Windows...</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="contributing.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Contributing</span>
+            <span class="doc-card-summary">Contributions are welcome: bug reports, fixes and game compatibility notes.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="security.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Security policy</span>
+            <span class="doc-card-summary">A reply will follow within a few days.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="agent-manual.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Agent operating manual</span>
+            <span class="doc-card-summary">Operating manual for AI coding agents and new contributors working in this repository.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
     </ul>
-  <h2>Guides</h2>
+  </section>
+  <section class="doc-group">
+    <h2 class="doc-group-title">Guides</h2>
     <ul class="docs">
-      <li><a href="dependencies.html">Runtime dependencies</a>: Bundled component versions and archive digests.</li>
-      <li><a href="release-workflow.html">Release workflow</a>: Application releases, Sparkle feed and runtime assembly.</li>
-      <li><a href="steam.html">Steam compatibility</a>: Recommended configuration and known Steam failures.</li>
-      <li><a href="launcher-troubleshooting.html">Launcher troubleshooting</a>: Epic, EA App, Battle.net, Rockstar and others.</li>
-      <li><a href="stability.html">Stability troubleshooting</a>: Triage for crashes, freezes and kernel panics.</li>
-      <li><a href="discord-bridge.html">Discord bridge</a>: Rich presence relay for games in a bottle.</li>
+      <li>
+        <a class="doc-card" href="dependencies.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Runtime dependencies</span>
+            <span class="doc-card-summary">The Gmac application is built from this repository, but the Wine runtime it downloads during setup (Libraries.tar.gz) is assembled from third-party binaries.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="launcher-troubleshooting.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Launcher troubleshooting guide</span>
+            <span class="doc-card-summary">If the problem persists, consult the section for that launcher below.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="release-workflow.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Release workflow</span>
+            <span class="doc-card-summary">This document describes how to publish an application update, how to produce the Wine Libraries archive, and which credentials the pipeline depends on.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="stability.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Stability troubleshooting guide</span>
+            <span class="doc-card-summary">This document is a contributor-facing procedure for triaging critical stability issues: crashes, hard freezes, reboots and kernel panics.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="steam.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Steam compatibility guide</span>
+            <span class="doc-card-summary">Steam is the most commonly used launcher with Gmac and accounts for the largest share of launcher compatibility reports.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a class="doc-card" href="discord-bridge.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Discord bridge</span>
+            <span class="doc-card-summary">Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so that a Windows game&#x27;s rich presence reaches Discord on macOS.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
     </ul>
-  <h2>Runtime</h2>
+  </section>
+  <section class="doc-group">
+    <h2 class="doc-group-title">Runtime</h2>
     <ul class="docs">
-      <li><a href="runtime.html">Runtime workbench</a>: Local build driver and sibling engine repositories.</li>
+      <li>
+        <a class="doc-card" href="runtime.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Runtime workbench</span>
+            <span class="doc-card-summary">This directory contains the local runtime build driver and release notes for Gmac&#x27;s Windows runtime (Libraries.tar.gz).</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
     </ul>
+  </section>
+  <section class="doc-group">
+    <h2 class="doc-group-title">Brand</h2>
+    <ul class="docs">
+      <li>
+        <a class="doc-card" href="brand.html">
+          <span class="doc-card-body">
+            <span class="doc-card-title">Gmac Brand Assets</span>
+            <span class="doc-card-summary">Canonical vector marks, system-adaptive application icons, and pure-vector wordmarks for Gmac.</span>
+          </span>
+          <svg class="doc-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </section>
 </main>
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>Gmac is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac">github.com/rolling7ho/gmac</a></p>
+  <div class="wrap footer-grid">
+    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+      <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
+        <g transform="translate(-9 -7) scale(0.265)">
+          <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+          <circle cx="200" cy="56" r="20"/>
+          <path d="M 220 36 L 220 76"/>
+          <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./">Documentation</a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a class="footer-social" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a href="https://github.com/rolling7ho/gmac/issues">Report a bug</a>
+    </nav>
+    <p class="footer-license">Gmac is licensed under <a class="footer-license-link" href="https://github.com/rolling7ho/gmac/blob/main/LICENSE">GNU GPL v3</a>.</p>
   </div>
 </footer>
 </body>

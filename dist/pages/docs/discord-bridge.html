@@ -9,35 +9,85 @@
 <link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../style.css">
 <link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/discord-bridge.html">
+<script src="../site.js" defer></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="../index.html">
-      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
+    <a class="brand" href="../index.html" aria-label="Gmac">
+      <span class="brand-viewport">
+        <svg class="brand-logo" viewBox="0 0 294 92" width="102" height="32" fill="none" aria-hidden="true">
+          <g class="brand-mark">
+            <g transform="translate(-9 -7) scale(0.265)">
+              <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
+          <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <g class="brand-letter brand-letter-m">
+              <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            </g>
+            <g class="brand-letter brand-letter-a">
+              <circle cx="200" cy="56" r="20"/>
+              <path d="M 220 36 L 220 76"/>
+            </g>
+            <g class="brand-letter brand-letter-c">
+              <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+            </g>
+          </g>
+        </svg>
+      </span>
     </a>
     <nav aria-label="Main">
-      <a href="../index.html">Home</a>
-      <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
+      <a class="nav-icon" href="./" aria-label="Documentation" title="Documentation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="../index.html#start" aria-label="Install" title="Install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </nav>
   </div>
 </header>
-<main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
-  <h1>Discord bridge</h1>
+<main class="doc-shell doc">
+  <aside class="doc-toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ul class="toc-list">
+      <li class="toc-item toc-l2"><a href="#design">Design</a></li>
+      <li class="toc-item toc-l2"><a href="#manual-test">Manual test</a></li>
+    </ul>
+  </aside>
+  <article class="doc-article">
+    <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+    <h1 class="doc-title">Discord bridge</h1>
+    <div class="doc-body">
 <p>Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
 that a Windows game&#39;s rich presence reaches Discord on macOS.</p>
 <p><code>make install</code> builds <code>GmacDiscordBridge.exe</code> and places it in
 <code>GmacKit/Sources/GmacKit/Discord/Resources/</code>, from which it ships as a bundle resource.
 The built binary is committed, because Xcode builds do not run <code>make</code> and CI has no MinGW
 toolchain. Rebuild and commit the binary whenever <code>bridge.c</code> changes.</p>
-<pre><code>brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1">brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
 make install
-</code></pre>
-<h2>Design</h2>
+</code></pre></div>
+<h2 id="design">Design</h2>
 <p>Both ends of the Discord RPC transport use the same framing, a little-endian opcode and
 length followed by JSON, so the relay forwards bytes without parsing messages. It serves
 <code>\\.\pipe\discord-ipc-0</code> inside the prefix and relays bytes to whichever of
@@ -59,10 +109,10 @@ terminates with the prefix rather than outliving it. The grace period exists bec
 starts the relay immediately before the game, and a prefix containing no ordinary process
 begins shutting down.</li>
 </ul>
-<h2>Manual test</h2>
+<h2 id="manual-test">Manual test</h2>
 <p>Serve a socket at a path short enough to fit <code>sun_path</code>, point the relay at it, and connect
 from inside the prefix:</p>
-<pre><code>mkdir -p /tmp/gmacipc
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2">mkdir -p /tmp/gmacipc
 python3 - /tmp/gmacipc/discord-ipc-0 &lt;&lt;&#39;EOF&#39;
 import socket, struct, sys
 server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -73,15 +123,167 @@ print(struct.unpack(&quot;&lt;II&quot;, header), conn.recv(4096))
 EOF
 
 WINEPREFIX=... wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
-</code></pre>
+</code></pre></div>
 <p><code>--grace</code> is specified in milliseconds. A large value prevents the relay from standing down
 while it is being tested.</p>
 
+    </div>
+    <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/scripts/discord-bridge/README.md">Mirrored from <code>scripts/discord-bridge/README.md</code></a></p>
+  </article>
+  <div class="doc-actions">
+    <div class="copy-split-wrap">
+      <div class="copy-split">
+        <button class="copy-split-main" type="button" aria-label="Copy page as Markdown">
+          <svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span class="copy-split-label">Copy page</span>
+        </button>
+        <button class="copy-split-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Copy options">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+      <div class="copy-menu" role="menu" aria-label="Copy page format">
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="text">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as plain text</span>
+            <span class="copy-menu-desc">Clean readable text without markup</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="markdown">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <path d="M6 15V9l3 3 3-3v6"/>
+              <path d="M16 9v6"/>
+              <path d="M14 13l2 2 2-2"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as Markdown</span>
+            <span class="copy-menu-desc">Raw Markdown source for LLMs</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="html">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as HTML</span>
+            <span class="copy-menu-desc">Rendered HTML markup of this page</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
+<script type="text/plain" id="doc-markdown-source"># Discord bridge
+
+Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
+that a Windows game's rich presence reaches Discord on macOS.
+
+`make install` builds `GmacDiscordBridge.exe` and places it in
+`GmacKit/Sources/GmacKit/Discord/Resources/`, from which it ships as a bundle resource.
+The built binary is committed, because Xcode builds do not run `make` and CI has no MinGW
+toolchain. Rebuild and commit the binary whenever `bridge.c` changes.
+
+```
+brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
+make install
+```
+
+## Design
+
+Both ends of the Discord RPC transport use the same framing, a little-endian opcode and
+length followed by JSON, so the relay forwards bytes without parsing messages. It serves
+`\\.\pipe\discord-ipc-0` inside the prefix and relays bytes to whichever of
+`discord-ipc-0` to `discord-ipc-9` exists in the socket directory it is given.
+
+Three constraints apply to any change:
+
+- **The socket is reached through raw xnu system calls.** PE code shares an address space
+  with the Unix side of Wine, so a `syscall` instruction enters the kernel directly. A PE
+  module cannot link libSystem, and the supported alternative, a PE plus a unixlib half,
+  would have to be built against a specific Wine build rather than plain MinGW. `sockaddr_un`
+  here follows xnu's layout (a length byte followed by a family byte), not Linux's 16-bit
+  family field.
+- **The socket directory is passed with `--dir`.** A PE process sees Wine's Windows
+  environment, in which the host's `TMPDIR` may not have survived, and the sockets are named
+  relative to that directory.
+- **The relay becomes a Wine system process after a grace period.** System processes do not
+  keep a prefix alive, so the relay stops holding a bottle open once the game exits and
+  terminates with the prefix rather than outliving it. The grace period exists because Gmac
+  starts the relay immediately before the game, and a prefix containing no ordinary process
+  begins shutting down.
+
+## Manual test
+
+Serve a socket at a path short enough to fit `sun_path`, point the relay at it, and connect
+from inside the prefix:
+
+```
+mkdir -p /tmp/gmacipc
+python3 - /tmp/gmacipc/discord-ipc-0 <<'EOF'
+import socket, struct, sys
+server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+server.bind(sys.argv[1]); server.listen(1)
+conn, _ = server.accept()
+header = conn.recv(8)
+print(struct.unpack("<II", header), conn.recv(4096))
+EOF
+
+WINEPREFIX=... wine64 GmacDiscordBridge.exe --dir /tmp/gmacipc --grace 600000
+```
+
+`--grace` is specified in milliseconds. A large value prevents the relay from standing down
+while it is being tested.
+</script>
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>Gmac is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/scripts/discord-bridge/README.md">scripts/discord-bridge/README.md</a></p>
+  <div class="wrap footer-grid">
+    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+      <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
+        <g transform="translate(-9 -7) scale(0.265)">
+          <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+          <circle cx="200" cy="56" r="20"/>
+          <path d="M 220 36 L 220 76"/>
+          <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./">Documentation</a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a class="footer-social" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a href="https://github.com/rolling7ho/gmac/issues">Report a bug</a>
+    </nav>
+    <p class="footer-license">Gmac is licensed under <a class="footer-license-link" href="https://github.com/rolling7ho/gmac/blob/main/LICENSE">GNU GPL v3</a>.</p>
   </div>
 </footer>
 </body>

@@ -9,29 +9,92 @@
 <link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../style.css">
 <link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/release-workflow.html">
+<script src="../site.js" defer></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="../index.html">
-      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
+    <a class="brand" href="../index.html" aria-label="Gmac">
+      <span class="brand-viewport">
+        <svg class="brand-logo" viewBox="0 0 294 92" width="102" height="32" fill="none" aria-hidden="true">
+          <g class="brand-mark">
+            <g transform="translate(-9 -7) scale(0.265)">
+              <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
+          <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <g class="brand-letter brand-letter-m">
+              <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            </g>
+            <g class="brand-letter brand-letter-a">
+              <circle cx="200" cy="56" r="20"/>
+              <path d="M 220 36 L 220 76"/>
+            </g>
+            <g class="brand-letter brand-letter-c">
+              <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+            </g>
+          </g>
+        </svg>
+      </span>
     </a>
     <nav aria-label="Main">
-      <a href="../index.html">Home</a>
-      <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
+      <a class="nav-icon" href="./" aria-label="Documentation" title="Documentation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="../index.html#start" aria-label="Install" title="Install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </nav>
   </div>
 </header>
-<main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
-  <h1>Release workflow</h1>
+<main class="doc-shell doc">
+  <aside class="doc-toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ul class="toc-list">
+      <li class="toc-item toc-l2"><a href="#artifacts">Artifacts</a></li>
+      <li class="toc-item toc-l2"><a href="#one-time-setup">One-time setup</a></li>
+      <li class="toc-item toc-l3"><a href="#apple-developer-id-application-certificate">Apple Developer ID Application certificate</a></li>
+      <li class="toc-item toc-l3"><a href="#notarytool-credentials">notarytool credentials</a></li>
+      <li class="toc-item toc-l3"><a href="#sparkle-eddsa-keys">Sparkle EdDSA keys</a></li>
+      <li class="toc-item toc-l2"><a href="#credential-continuity">Credential continuity</a></li>
+      <li class="toc-item toc-l3"><a href="#backup-procedure">Backup procedure</a></li>
+      <li class="toc-item toc-l3"><a href="#restore-test">Restore test</a></li>
+      <li class="toc-item toc-l3"><a href="#recovery-on-a-new-machine">Recovery on a new machine</a></li>
+      <li class="toc-item toc-l2"><a href="#application-update">Application update</a></li>
+      <li class="toc-item toc-l3"><a href="#notarized-disk-image">Notarized disk image</a></li>
+      <li class="toc-item toc-l3"><a href="#appcast-entry-format">Appcast entry format</a></li>
+      <li class="toc-item toc-l2"><a href="#wine-libraries-release">Wine Libraries release</a></li>
+      <li class="toc-item toc-l2"><a href="#urls-the-application-depends-on">URLs the application depends on</a></li>
+      <li class="toc-item toc-l2"><a href="#pitfalls">Pitfalls</a></li>
+    </ul>
+  </aside>
+  <article class="doc-article">
+    <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+    <h1 class="doc-title">Release workflow</h1>
+    <div class="doc-body">
 <p>This document describes how to publish an application update, how to produce the Wine
 Libraries archive, and which credentials the pipeline depends on.</p>
-<h2>Artifacts</h2>
-<table>
+<h2 id="artifacts">Artifacts</h2>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Artifact</th>
@@ -64,14 +127,14 @@ Libraries archive, and which credentials the pipeline depends on.</p>
 <td>version plist, appcast</td>
 <td><code>scripts/publish-update.sh</code>, <code>scripts/update-appcast.py</code></td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>The Sparkle update feed is <code>appcast.xml</code> on the <code>gh-pages</code> branch, served at
 <code>https://rolling7ho.github.io/gmac/appcast.xml</code> and referenced by <code>SUFeedURL</code> in the
 application&#39;s <code>Info.plist</code>. The committed site content used by the publishing scripts
 resides in <code>dist/pages/</code>.</p>
-<h2>One-time setup</h2>
+<h2 id="one-time-setup">One-time setup</h2>
 <p>The following steps are required once per maintainer machine.</p>
-<h3>Apple Developer ID Application certificate</h3>
+<h3 id="apple-developer-id-application-certificate">Apple Developer ID Application certificate</h3>
 <p>A Developer ID Application certificate is required for a Gatekeeper-compatible disk image.
 Apple Development and Apple Distribution certificates are insufficient.</p>
 <ol>
@@ -79,37 +142,37 @@ Apple Development and Apple Distribution certificates are insufficient.</p>
 <li>Select <strong>+</strong> → <strong>Developer ID Application</strong>.</li>
 <li>The certificate is installed in the login keychain automatically.</li>
 </ol>
-<h3>notarytool credentials</h3>
+<h3 id="notarytool-credentials">notarytool credentials</h3>
 <p>Apple&#39;s notary service requires an app-specific password.</p>
 <ol>
 <li><p>Generate one at <a href="https://appleid.apple.com">https://appleid.apple.com</a> under <strong>Sign-In and Security → App-Specific
 Passwords</strong>.</p>
 </li>
 <li><p>Store it as a notarytool keychain profile:</p>
-<pre><code class="language-sh">xcrun notarytool store-credentials AC_PASSWORD \
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh">xcrun notarytool store-credentials AC_PASSWORD \
   --apple-id &lt;apple-id-email&gt; \
   --team-id Z7JS58F8U3 \
   --password &lt;app-specific-password&gt;
-</code></pre>
+</code></pre></div>
 </li>
 <li><p>The release script reads this profile by name (<code>AC_PASSWORD</code>).</p>
 </li>
 </ol>
-<h3>Sparkle EdDSA keys</h3>
+<h3 id="sparkle-eddsa-keys">Sparkle EdDSA keys</h3>
 <p>A key pair signs appcast entries. Sparkle&#39;s <code>generate_keys</code> tool ships with the Sparkle
 Swift package; after building Gmac once, it is located at:</p>
-<pre><code>~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2">~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
+</code></pre></div>
 <p>Run it once. The private key is stored in the login keychain. The public key is printed to
 standard output and is already committed in <code>Gmac/Info.plist</code> under <code>SUPublicEDKey</code>.
 Regenerating the keys invalidates the public key in every shipped application and requires a
 new release.</p>
-<h2>Credential continuity</h2>
+<h2 id="credential-continuity">Credential continuity</h2>
 <p>Three secrets gate the release pipeline. Losing the Sparkle key is <strong>unrecoverable</strong> for
 existing installations, because <code>SUPublicEDKey</code> is embedded in every shipped <code>Info.plist</code>;
 a regenerated key permanently prevents installed copies from receiving updates. Maintain
 current, restore-tested backups of all three.</p>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Secret</th>
@@ -132,13 +195,13 @@ current, restore-tested backups of all three.</p>
 <td>appleid.apple.com, cached as keychain profile <code>AC_PASSWORD</code></td>
 <td>Regenerate at appleid.apple.com and rerun <code>store-credentials</code></td>
 </tr>
-</tbody></table>
-<h3>Backup procedure</h3>
+</tbody></table></div>
+<h3 id="backup-procedure">Backup procedure</h3>
 <ol>
 <li><p>Export the Sparkle private key. Keychain will prompt for access:</p>
-<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-3" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-3" class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
 &quot;$SPARKLE_BIN/generate_keys&quot; -x sparkle_ed25519_private.key
-</code></pre>
+</code></pre></div>
 <p>If several <code>Gmac-*</code> DerivedData directories exist, this selects the most recently
 modified one.</p>
 </li>
@@ -146,9 +209,9 @@ modified one.</p>
 <em>Developer ID Application: …</em>, then <strong>Export</strong> as <code>.p12</code> with a strong password.</p>
 </li>
 <li><p>Encrypt both files before they leave the machine:</p>
-<pre><code class="language-sh">age -p sparkle_ed25519_private.key &gt; sparkle_ed25519_private.key.age   # or: gpg -c &lt;file&gt;
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-4" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-4" class="language-sh">age -p sparkle_ed25519_private.key &gt; sparkle_ed25519_private.key.age   # or: gpg -c &lt;file&gt;
 age -p developer_id.p12 &gt; developer_id.p12.age
-</code></pre>
+</code></pre></div>
 <p>Neither <code>age</code> nor <code>gpg</code> ships with macOS. Install <code>age</code> with <code>brew install age</code>.</p>
 </li>
 <li><p>Store the encrypted files, together with the app-specific password, in <strong>two</strong>
@@ -156,8 +219,8 @@ off-machine locations, for example a password-manager secure note and one offlin
 medium. Delete the plaintext exports afterwards.</p>
 </li>
 <li><p>Record the certificate expiry date and set reminders at 60 and 14 days before it:</p>
-<pre><code class="language-sh">security find-certificate -c &quot;Developer ID Application&quot; -p | openssl x509 -noout -enddate
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-5" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-5" class="language-sh">security find-certificate -c &quot;Developer ID Application&quot; -p | openssl x509 -noout -enddate
+</code></pre></div>
 <p>This prints the first matching certificate only. During a renewal window, when old and
 new certificates coexist in the keychain, inspect every match with
 <code>security find-certificate -a -c &quot;Developer ID Application&quot; -p</code>, where each
@@ -165,23 +228,23 @@ new certificates coexist in the keychain, inspect every match with
 reminder tracks the new expiry date.</p>
 </li>
 </ol>
-<h3>Restore test</h3>
+<h3 id="restore-test">Restore test</h3>
 <p>A backup that has never been restored from is unverified. <code>sign_update</code> can sign directly
 from a key file, so the test does not modify the keychain:</p>
-<pre><code class="language-sh">&quot;$SPARKLE_BIN/sign_update&quot; --ed-key-file sparkle_ed25519_private.key build/release/Gmac-X.Y.Z.dmg
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-6" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-6" class="language-sh">&quot;$SPARKLE_BIN/sign_update&quot; --ed-key-file sparkle_ed25519_private.key build/release/Gmac-X.Y.Z.dmg
+</code></pre></div>
 <p>The printed <code>sparkle:edSignature</code> <strong>and</strong> the printed <code>length</code> must both match that
 release&#39;s entry in <code>appcast.xml</code>. Ed25519 signatures are deterministic, so a mismatch in
 either value indicates a wrong key or a non-canonical artifact: either the exported key is
 incorrect, or the file signed is not the exact published artifact. If in doubt, download
 the release asset from the appcast enclosure URL and sign that.</p>
-<h3>Recovery on a new machine</h3>
+<h3 id="recovery-on-a-new-machine">Recovery on a new machine</h3>
 <ol>
 <li><p>Build Gmac once so that the Sparkle tools exist in DerivedData (see
 <a href="#sparkle-eddsa-keys">Sparkle EdDSA keys</a>); <code>generate_keys</code> ships inside the Sparkle
 Swift package and is not on <code>PATH</code>. Declare <code>SPARKLE_BIN</code> in the fresh shell:</p>
-<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-7" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-7" class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
+</code></pre></div>
 </li>
 <li><p>Decrypt the backup
 (<code>age -d sparkle_ed25519_private.key.age &gt; sparkle_ed25519_private.key</code>, entering the
@@ -197,7 +260,7 @@ key once the import succeeds.</p>
 One-time setup).</p>
 </li>
 </ol>
-<h2>Application update</h2>
+<h2 id="application-update">Application update</h2>
 <p><code>scripts/publish-update.sh &lt;version&gt;</code> performs the complete update procedure. It requires a
 clean working tree, <code>gh</code> authenticated with push access, and the Sparkle key. The script:</p>
 <ol>
@@ -210,11 +273,11 @@ as the release notes.</li>
 archive.</li>
 <li>Adds the release to <code>appcast.xml</code> on <code>gh-pages</code>, which GitHub Pages serves.</li>
 </ol>
-<pre><code class="language-sh">scripts/publish-update.sh 4.0.1
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-8" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-8" class="language-sh">scripts/publish-update.sh 4.0.1
+</code></pre></div>
 <p>The appcast is updated by the script. Do not edit <code>appcast.xml</code> on <code>gh-pages</code> or
 <code>dist/pages/appcast.xml</code> by hand.</p>
-<h3>Notarized disk image</h3>
+<h3 id="notarized-disk-image">Notarized disk image</h3>
 <p><code>scripts/release.sh X.Y.Z</code> produces a Gatekeeper-compatible disk image for direct
 distribution. The script:</p>
 <ol>
@@ -230,10 +293,10 @@ minutes.</li>
 <li>Staples the notarization ticket and verifies the result with <code>spctl --assess</code>.</li>
 </ol>
 <p>The artifact is written to <code>build/release/Gmac-X.Y.Z.dmg</code>.</p>
-<h3>Appcast entry format</h3>
+<h3 id="appcast-entry-format">Appcast entry format</h3>
 <p>For reference, an appcast item produced by <code>scripts/update-appcast.py</code> has the following
 shape. The archive name, tag and URL match the output of <code>publish-update.sh</code>:</p>
-<pre><code class="language-xml">&lt;item&gt;
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-9" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-9" class="language-xml">&lt;item&gt;
     &lt;title&gt;Gmac X.Y.Z&lt;/title&gt;
     &lt;pubDate&gt;RFC 822 date&lt;/pubDate&gt;
     &lt;sparkle:version&gt;BUILD_NUMBER&lt;/sparkle:version&gt;
@@ -246,8 +309,8 @@ shape. The archive name, tag and URL match the output of <code>publish-update.sh
         length=&quot;…&quot;
         type=&quot;application/octet-stream&quot; /&gt;
 &lt;/item&gt;
-</code></pre>
-<h2>Wine Libraries release</h2>
+</code></pre></div>
+<h2 id="wine-libraries-release">Wine Libraries release</h2>
 <p>The runtime (<code>Libraries.tar.gz</code>) is <strong>assembled from upstream binaries, not built from
 source</strong>. <a href="dependencies.html"><code>DEPENDENCIES.md</code></a> lists the components, their pinned versions
 and their origins. When the runtime must change:</p>
@@ -276,13 +339,13 @@ pipe-drain constraint described under Pitfalls.</li>
 <li><p>Compute the SHA-256 of the <strong>exact published asset</strong>. The application verifies the
 download against this value and fails closed on a mismatch, so an incorrect value blocks
 every fresh installation:</p>
-<pre><code class="language-sh">shasum -a 256 Libraries.tar.gz
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-10" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-10" class="language-sh">shasum -a 256 Libraries.tar.gz
+</code></pre></div>
 </li>
 <li><p>Update <code>dist/pages/WhiskyWineVersion.plist</code> with the version, the bundled DXVK version
 and the digest from the previous step. Record the same digest in
 <a href="dependencies.html"><code>DEPENDENCIES.md</code></a>:</p>
-<pre><code class="language-xml">&lt;dict&gt;
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-11" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-11" class="language-xml">&lt;dict&gt;
     &lt;key&gt;version&lt;/key&gt;
     &lt;dict&gt;
         &lt;key&gt;major&lt;/key&gt;&lt;integer&gt;X&lt;/integer&gt;
@@ -294,13 +357,13 @@ and the digest from the previous step. Record the same digest in
     &lt;key&gt;sha256&lt;/key&gt;
     &lt;string&gt;…64-hex-digest…&lt;/string&gt;
 &lt;/dict&gt;
-</code></pre>
+</code></pre></div>
 </li>
 <li><p>Commit and push the change on a branch and open a pull request. Once merged, existing
 installations prompt for the update on their next version check.</p>
 </li>
 </ol>
-<h2>URLs the application depends on</h2>
+<h2 id="urls-the-application-depends-on">URLs the application depends on</h2>
 <ul>
 <li><code>https://rolling7ho.github.io/gmac/appcast.xml</code>: Sparkle update feed (<code>SUFeedURL</code>).</li>
 <li><code>https://github.com/rolling7ho/gmac/releases/download/v&lt;tag&gt;/Libraries.tar.gz</code>: Wine
@@ -308,7 +371,7 @@ runtime archive for the pinned <code>gamingRuntime</code> tag in <code>Distribut
 <li><code>https://github.com/rolling7ho/gmac/releases/download/app-vX.Y.Z/Gmac-X.Y.Z.zip</code>:
 application update archive.</li>
 </ul>
-<h2>Pitfalls</h2>
+<h2 id="pitfalls">Pitfalls</h2>
 <ul>
 <li><strong>Do not override <code>CODE_SIGN_IDENTITY</code> at archive time.</strong> The project is configured for
 Apple Development with automatic signing, and overriding it conflicts with provisioning.
@@ -325,11 +388,390 @@ drained, not before. The verbose tar listing for a multi-hundred-megabyte archiv
 overflows the operating system&#39;s pipe buffer.</li>
 </ul>
 
+    </div>
+    <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/docs/ReleaseWorkflow.md">Mirrored from <code>docs/ReleaseWorkflow.md</code></a></p>
+  </article>
+  <div class="doc-actions">
+    <div class="copy-split-wrap">
+      <div class="copy-split">
+        <button class="copy-split-main" type="button" aria-label="Copy page as Markdown">
+          <svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span class="copy-split-label">Copy page</span>
+        </button>
+        <button class="copy-split-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Copy options">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+      <div class="copy-menu" role="menu" aria-label="Copy page format">
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="text">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as plain text</span>
+            <span class="copy-menu-desc">Clean readable text without markup</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="markdown">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <path d="M6 15V9l3 3 3-3v6"/>
+              <path d="M16 9v6"/>
+              <path d="M14 13l2 2 2-2"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as Markdown</span>
+            <span class="copy-menu-desc">Raw Markdown source for LLMs</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="html">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as HTML</span>
+            <span class="copy-menu-desc">Rendered HTML markup of this page</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
+<script type="text/plain" id="doc-markdown-source"># Release workflow
+
+This document describes how to publish an application update, how to produce the Wine
+Libraries archive, and which credentials the pipeline depends on.
+
+## Artifacts
+
+| Artifact | Tag | Contents | Produced by |
+|---|---|---|---|
+| Application update | `app-vX.Y.Z` | `Gmac-X.Y.Z.zip`, signed for Sparkle | `scripts/publish-update.sh` |
+| Notarized disk image | `app-vX.Y.Z` | `Gmac-X.Y.Z.dmg` | `scripts/release.sh` |
+| Wine runtime | `vX.Y.Z` | `Libraries.tar.gz` | assembled manually, then published |
+| Static site data | none | version plist, appcast | `scripts/publish-update.sh`, `scripts/update-appcast.py` |
+
+The Sparkle update feed is `appcast.xml` on the `gh-pages` branch, served at
+`https://rolling7ho.github.io/gmac/appcast.xml` and referenced by `SUFeedURL` in the
+application's `Info.plist`. The committed site content used by the publishing scripts
+resides in `dist/pages/`.
+
+## One-time setup
+
+The following steps are required once per maintainer machine.
+
+### Apple Developer ID Application certificate
+
+A Developer ID Application certificate is required for a Gatekeeper-compatible disk image.
+Apple Development and Apple Distribution certificates are insufficient.
+
+1. **Xcode → Settings → Accounts** → select the Apple ID → **Manage Certificates…**
+2. Select **+** → **Developer ID Application**.
+3. The certificate is installed in the login keychain automatically.
+
+### notarytool credentials
+
+Apple's notary service requires an app-specific password.
+
+1. Generate one at <https://appleid.apple.com> under **Sign-In and Security → App-Specific
+   Passwords**.
+2. Store it as a notarytool keychain profile:
+
+   ```sh
+   xcrun notarytool store-credentials AC_PASSWORD \
+     --apple-id <apple-id-email> \
+     --team-id Z7JS58F8U3 \
+     --password <app-specific-password>
+   ```
+
+3. The release script reads this profile by name (`AC_PASSWORD`).
+
+### Sparkle EdDSA keys
+
+A key pair signs appcast entries. Sparkle's `generate_keys` tool ships with the Sparkle
+Swift package; after building Gmac once, it is located at:
+
+```
+~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
+```
+
+Run it once. The private key is stored in the login keychain. The public key is printed to
+standard output and is already committed in `Gmac/Info.plist` under `SUPublicEDKey`.
+Regenerating the keys invalidates the public key in every shipped application and requires a
+new release.
+
+## Credential continuity
+
+Three secrets gate the release pipeline. Losing the Sparkle key is **unrecoverable** for
+existing installations, because `SUPublicEDKey` is embedded in every shipped `Info.plist`;
+a regenerated key permanently prevents installed copies from receiving updates. Maintain
+current, restore-tested backups of all three.
+
+| Secret | Location | Consequence if lost |
+|---|---|---|
+| Sparkle EdDSA private key | login keychain ("Private key for signing Sparkle updates") | Existing installations receive no further automatic updates |
+| Developer ID Application identity | login keychain | Re-issue from the Apple Developer portal; releases are blocked until complete |
+| notarytool app-specific password | appleid.apple.com, cached as keychain profile `AC_PASSWORD` | Regenerate at appleid.apple.com and rerun `store-credentials` |
+
+### Backup procedure
+
+1. Export the Sparkle private key. Keychain will prompt for access:
+
+   ```sh
+   SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2>/dev/null | head -1)
+   "$SPARKLE_BIN/generate_keys" -x sparkle_ed25519_private.key
+   ```
+
+   If several `Gmac-*` DerivedData directories exist, this selects the most recently
+   modified one.
+
+2. Export the Developer ID identity: **Keychain Access → My Certificates**, right-click
+   *Developer ID Application: …*, then **Export** as `.p12` with a strong password.
+
+3. Encrypt both files before they leave the machine:
+
+   ```sh
+   age -p sparkle_ed25519_private.key > sparkle_ed25519_private.key.age   # or: gpg -c <file>
+   age -p developer_id.p12 > developer_id.p12.age
+   ```
+
+   Neither `age` nor `gpg` ships with macOS. Install `age` with `brew install age`.
+
+4. Store the encrypted files, together with the app-specific password, in **two**
+   off-machine locations, for example a password-manager secure note and one offline
+   medium. Delete the plaintext exports afterwards.
+
+5. Record the certificate expiry date and set reminders at 60 and 14 days before it:
+
+   ```sh
+   security find-certificate -c "Developer ID Application" -p | openssl x509 -noout -enddate
+   ```
+
+   This prints the first matching certificate only. During a renewal window, when old and
+   new certificates coexist in the keychain, inspect every match with
+   `security find-certificate -a -c "Developer ID Application" -p`, where each
+   `-----BEGIN` block is one certificate. Rerun this step after renewal so that the
+   reminder tracks the new expiry date.
+
+### Restore test
+
+A backup that has never been restored from is unverified. `sign_update` can sign directly
+from a key file, so the test does not modify the keychain:
+
+```sh
+"$SPARKLE_BIN/sign_update" --ed-key-file sparkle_ed25519_private.key build/release/Gmac-X.Y.Z.dmg
+```
+
+The printed `sparkle:edSignature` **and** the printed `length` must both match that
+release's entry in `appcast.xml`. Ed25519 signatures are deterministic, so a mismatch in
+either value indicates a wrong key or a non-canonical artifact: either the exported key is
+incorrect, or the file signed is not the exact published artifact. If in doubt, download
+the release asset from the appcast enclosure URL and sign that.
+
+### Recovery on a new machine
+
+1. Build Gmac once so that the Sparkle tools exist in DerivedData (see
+   [Sparkle EdDSA keys](#sparkle-eddsa-keys)); `generate_keys` ships inside the Sparkle
+   Swift package and is not on `PATH`. Declare `SPARKLE_BIN` in the fresh shell:
+
+   ```sh
+   SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Gmac-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2>/dev/null | head -1)
+   ```
+
+2. Decrypt the backup
+   (`age -d sparkle_ed25519_private.key.age > sparkle_ed25519_private.key`, entering the
+   backup passphrase), then import the Sparkle key:
+   `"$SPARKLE_BIN/generate_keys" -f sparkle_ed25519_private.key`. If an item named
+   *Private key for signing Sparkle updates* already exists in the login keychain, the
+   import fails until that item is removed through Keychain Access. Delete the decrypted
+   key once the import succeeds.
+3. Open the `.p12` to install the Developer ID identity in the login keychain.
+4. Recreate the notary profile with `xcrun notarytool store-credentials AC_PASSWORD …` (see
+   One-time setup).
+
+## Application update
+
+`scripts/publish-update.sh <version>` performs the complete update procedure. It requires a
+clean working tree, `gh` authenticated with push access, and the Sparkle key. The script:
+
+1. Moves the changelog entries from `[Unreleased]` into a `[X.Y.Z]` section and uses them
+   as the release notes.
+2. Bumps `MARKETING_VERSION` to the new version and increments `CURRENT_PROJECT_VERSION`.
+3. Builds and ad-hoc signs the application, archives it as
+   `Gmac-X.Y.Z.zip`, and signs the archive with the Sparkle key.
+4. Tags `app-vX.Y.Z`, pushes the branch and tag, and creates the GitHub release with the
+   archive.
+5. Adds the release to `appcast.xml` on `gh-pages`, which GitHub Pages serves.
+
+```sh
+scripts/publish-update.sh 4.0.1
+```
+
+The appcast is updated by the script. Do not edit `appcast.xml` on `gh-pages` or
+`dist/pages/appcast.xml` by hand.
+
+### Notarized disk image
+
+`scripts/release.sh X.Y.Z` produces a Gatekeeper-compatible disk image for direct
+distribution. The script:
+
+1. Archives the application, using Apple Development signing during the archive; automatic
+   provisioning handles certificate resolution.
+2. Re-signs on export with the Developer ID Application certificate, per
+   `scripts/exportOptions.plist`.
+3. Verifies the signature with `codesign --verify --deep --strict`.
+4. Builds a UDZO disk image with `hdiutil` and signs it with the Developer ID Application
+   certificate.
+5. Submits the image to Apple's notary service and waits for the verdict, typically 5 to 15
+   minutes.
+6. Staples the notarization ticket and verifies the result with `spctl --assess`.
+
+The artifact is written to `build/release/Gmac-X.Y.Z.dmg`.
+
+### Appcast entry format
+
+For reference, an appcast item produced by `scripts/update-appcast.py` has the following
+shape. The archive name, tag and URL match the output of `publish-update.sh`:
+
+```xml
+<item>
+    <title>Gmac X.Y.Z</title>
+    <pubDate>RFC 822 date</pubDate>
+    <sparkle:version>BUILD_NUMBER</sparkle:version>
+    <sparkle:shortVersionString>X.Y.Z</sparkle:shortVersionString>
+    <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+    <description><![CDATA[<p>Release notes…</p>]]></description>
+    <enclosure
+        url="https://github.com/rolling7ho/gmac/releases/download/app-vX.Y.Z/Gmac-X.Y.Z.zip"
+        sparkle:edSignature="…"
+        length="…"
+        type="application/octet-stream" />
+</item>
+```
+
+## Wine Libraries release
+
+The runtime (`Libraries.tar.gz`) is **assembled from upstream binaries, not built from
+source**. [`DEPENDENCIES.md`](DEPENDENCIES.md) lists the components, their pinned versions
+and their origins. When the runtime must change:
+
+1. **Assemble `Libraries.tar.gz`** from the pinned upstream binaries. The archive unpacks to
+   the `Libraries/` tree the application expects, in which `Libraries/Wine/bin/` is the Wine
+   binary directory per `GmacWineInstaller.binFolder`. To reproduce a build:
+   - Download the pinned **Wine** build (Gcenx `macOS_Wine_builds`) and unpack it as
+     `Libraries/Wine/`.
+   - Add the pinned **DXVK-macOS** DLLs and the **DXMT** prebuilt release in the Gcenx
+     layout.
+   - Place **D3DMetal** as extracted from Apple's Game Porting Toolkit. Redistribution is
+     governed by Apple's GPTK license; confirm the terms before publishing.
+   - Record the exact versions used in `docs/DEPENDENCIES.md` and update the matching
+     `*_PINNED` tags in `.github/workflows/RuntimeTrack.yml` so that drift detection remains
+     accurate.
+   - Create the archive with `tar -czf Libraries.tar.gz Libraries/`, observing the `Tar`
+     pipe-drain constraint described under Pitfalls.
+2. Tag with the bare version `vX.Y.Z`, without the `app-` prefix.
+3. Publish it: `gh release create vX.Y.Z --title "Wine Libraries vX.Y.Z" Libraries.tar.gz`.
+4. Compute the SHA-256 of the **exact published asset**. The application verifies the
+   download against this value and fails closed on a mismatch, so an incorrect value blocks
+   every fresh installation:
+
+   ```sh
+   shasum -a 256 Libraries.tar.gz
+   ```
+
+5. Update `dist/pages/WhiskyWineVersion.plist` with the version, the bundled DXVK version
+   and the digest from the previous step. Record the same digest in
+   [`DEPENDENCIES.md`](DEPENDENCIES.md):
+
+   ```xml
+   <dict>
+       <key>version</key>
+       <dict>
+           <key>major</key><integer>X</integer>
+           <key>minor</key><integer>Y</integer>
+           <key>patch</key><integer>Z</integer>
+       </dict>
+       <key>dxvkVersion</key>
+       <string>1.10.3</string>
+       <key>sha256</key>
+       <string>…64-hex-digest…</string>
+   </dict>
+   ```
+
+6. Commit and push the change on a branch and open a pull request. Once merged, existing
+   installations prompt for the update on their next version check.
+
+## URLs the application depends on
+
+- `https://rolling7ho.github.io/gmac/appcast.xml`: Sparkle update feed (`SUFeedURL`).
+- `https://github.com/rolling7ho/gmac/releases/download/v<tag>/Libraries.tar.gz`: Wine
+  runtime archive for the pinned `gamingRuntime` tag in `DistributionConfig.swift`.
+- `https://github.com/rolling7ho/gmac/releases/download/app-vX.Y.Z/Gmac-X.Y.Z.zip`:
+  application update archive.
+
+## Pitfalls
+
+- **Do not override `CODE_SIGN_IDENTITY` at archive time.** The project is configured for
+  Apple Development with automatic signing, and overriding it conflicts with provisioning.
+  The release script lets `xcodebuild archive` use the project default and re-signs on
+  export.
+- **Do not bundle the GmacKit folder as a resource.** Doing so packages the package's
+  `.build` directory, including DocC plugin executables, into the application, and Apple's
+  notary rejects the archive because those executables lack the hardened runtime. The
+  `PBXResourcesBuildPhase` entry for `GmacKit` was removed from the project for this
+  reason and must not be restored. The `PBXFileReference` and `PBXGroup` entries must
+  remain, or Xcode's Swift package integration crashes on CI.
+- **Pipe deadlocks in `Tar`.** `process.waitUntilExit()` must be called after the pipe is
+  drained, not before. The verbose tar listing for a multi-hundred-megabyte archive
+  overflows the operating system's pipe buffer.
+</script>
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>Gmac is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/ReleaseWorkflow.md">docs/ReleaseWorkflow.md</a></p>
+  <div class="wrap footer-grid">
+    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+      <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
+        <g transform="translate(-9 -7) scale(0.265)">
+          <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+          <circle cx="200" cy="56" r="20"/>
+          <path d="M 220 36 L 220 76"/>
+          <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./">Documentation</a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a class="footer-social" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a href="https://github.com/rolling7ho/gmac/issues">Report a bug</a>
+    </nav>
+    <p class="footer-license">Gmac is licensed under <a class="footer-license-link" href="https://github.com/rolling7ho/gmac/blob/main/LICENSE">GNU GPL v3</a>.</p>
   </div>
 </footer>
 </body>
