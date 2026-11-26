@@ -1,0 +1,65 @@
+name: Publish Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'README.md'
+      - 'CONTRIBUTING.md'
+      - 'SECURITY.md'
+      - 'AGENTS.md'
+      - 'docs/**'
+      - 'scripts/**/README.md'
+      - 'runtime/README.md'
+      - 'images/brand/README.md'
+      - 'scripts/build-docs-site.py'
+      - 'dist/pages/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Mirror documentation from repository folders
+        run: python3 scripts/build-docs-site.py
+
+      - name: Publish to gh-pages
+        run: |
+          PAGES_DIR="$RUNNER_TEMP/gh-pages"
+          git fetch origin gh-pages
+          git worktree add "$PAGES_DIR" origin/gh-pages
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.nojekyll' \
+            --exclude='appcast.xml' \
+            --exclude='WhiskyWineVersion.plist' \
+            --exclude='_og-card-source.html' \
+            dist/pages/ "$PAGES_DIR/"
+          cd "$PAGES_DIR"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m 'docs: mirror repository documentation to GitHub Pages'
+            git push origin HEAD:gh-pages
+          else
+            echo 'No site changes to publish.'
+          fi

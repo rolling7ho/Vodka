@@ -5,29 +5,111 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141010" media="(prefers-color-scheme: dark)">
-<title>Launcher troubleshooting | Gmac</title>
+<title>Launcher troubleshooting guide | Gmac</title>
 <link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../style.css">
 <link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/launcher-troubleshooting.html">
+<script src="../site.js" defer></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="../index.html">
-      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
+    <a class="brand" href="../index.html" aria-label="Gmac">
+      <span class="brand-viewport">
+        <svg class="brand-logo" viewBox="0 0 294 92" width="102" height="32" fill="none" aria-hidden="true">
+          <g class="brand-mark">
+            <g transform="translate(-9 -7) scale(0.265)">
+              <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
+          <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <g class="brand-letter brand-letter-m">
+              <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            </g>
+            <g class="brand-letter brand-letter-a">
+              <circle cx="200" cy="56" r="20"/>
+              <path d="M 220 36 L 220 76"/>
+            </g>
+            <g class="brand-letter brand-letter-c">
+              <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+            </g>
+          </g>
+        </svg>
+      </span>
     </a>
     <nav aria-label="Main">
-      <a href="../index.html">Home</a>
-      <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
+      <a class="nav-icon" href="./" aria-label="Documentation" title="Documentation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="../index.html#start" aria-label="Install" title="Install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </nav>
   </div>
 </header>
-<main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
-  <h1>Launcher troubleshooting</h1>
+<main class="doc-shell doc">
+  <aside class="doc-toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ul class="toc-list">
+      <li class="toc-item toc-l2"><a href="#initial-procedure">Initial procedure</a></li>
+      <li class="toc-item toc-l2"><a href="#common-issues">Common issues</a></li>
+      <li class="toc-item toc-l3"><a href="#steamwebhelper-is-not-responding">&quot;steamwebhelper is not responding&quot;</a></li>
+      <li class="toc-item toc-l3"><a href="#steam-downloads-stall-at-99-percent">Steam downloads stall at 99 percent</a></li>
+      <li class="toc-item toc-l3"><a href="#rockstar-games-launcher-freezes-on-the-logo">Rockstar Games Launcher freezes on the logo</a></li>
+      <li class="toc-item toc-l3"><a href="#ea-app-displays-a-black-screen">EA App displays a black screen</a></li>
+      <li class="toc-item toc-l3"><a href="#epic-games-store-does-not-render-its-interface">Epic Games Store does not render its interface</a></li>
+      <li class="toc-item toc-l3"><a href="#ubisoft-connect-cannot-update-or-launch-games">Ubisoft Connect cannot update or launch games</a></li>
+      <li class="toc-item toc-l3"><a href="#battlenet-authentication-fails">Battle.net authentication fails</a></li>
+      <li class="toc-item toc-l3"><a href="#paradox-launcher-reports-recursive-resource-lookup">Paradox Launcher reports &quot;recursive resource lookup&quot;</a></li>
+      <li class="toc-item toc-l2"><a href="#macos-154-and-later">macOS 15.4 and later</a></li>
+      <li class="toc-item toc-l2"><a href="#diagnostics-report">Diagnostics report</a></li>
+      <li class="toc-item toc-l3"><a href="#generating-a-report">Generating a report</a></li>
+      <li class="toc-item toc-l3"><a href="#reading-a-report">Reading a report</a></li>
+      <li class="toc-item toc-l2"><a href="#configuration-warnings">Configuration warnings</a></li>
+      <li class="toc-item toc-l2"><a href="#advanced-troubleshooting">Advanced troubleshooting</a></li>
+      <li class="toc-item toc-l3"><a href="#reset-launcher-configuration">Reset launcher configuration</a></li>
+      <li class="toc-item toc-l3"><a href="#consult-wine-logs">Consult Wine logs</a></li>
+      <li class="toc-item toc-l3"><a href="#verify-the-wine-installation">Verify the Wine installation</a></li>
+      <li class="toc-item toc-l3"><a href="#test-in-a-clean-bottle">Test in a clean bottle</a></li>
+      <li class="toc-item toc-l2"><a href="#launcher-reference">Launcher reference</a></li>
+      <li class="toc-item toc-l3"><a href="#steam">Steam</a></li>
+      <li class="toc-item toc-l3"><a href="#rockstar-games-launcher">Rockstar Games Launcher</a></li>
+      <li class="toc-item toc-l3"><a href="#ea-app">EA App</a></li>
+      <li class="toc-item toc-l3"><a href="#epic-games-store">Epic Games Store</a></li>
+      <li class="toc-item toc-l3"><a href="#ubisoft-connect">Ubisoft Connect</a></li>
+      <li class="toc-item toc-l3"><a href="#battlenet">Battle.net</a></li>
+      <li class="toc-item toc-l3"><a href="#paradox-launcher">Paradox Launcher</a></li>
+      <li class="toc-item toc-l2"><a href="#reporting-an-issue">Reporting an issue</a></li>
+      <li class="toc-item toc-l2"><a href="#security-considerations">Security considerations</a></li>
+      <li class="toc-item toc-l2"><a href="#operational-guidance">Operational guidance</a></li>
+      <li class="toc-item toc-l2"><a href="#faq">FAQ</a></li>
+      <li class="toc-item toc-l2"><a href="#macos-compatibility">macOS compatibility</a></li>
+      <li class="toc-item toc-l2"><a href="#further-resources">Further resources</a></li>
+    </ul>
+  </aside>
+  <article class="doc-article">
+    <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+    <h1 class="doc-title">Launcher troubleshooting guide</h1>
+    <div class="doc-body">
 <p><strong>Feature:</strong> Launcher compatibility system (frankea/Whisky#41)
 <strong>Last updated:</strong> 12 January 2026</p>
 <blockquote>
@@ -36,7 +118,7 @@ the original upstream project (whisky-app/whisky). Upstream references are retai
 historical context. Report new issues to
 <a href="https://github.com/rolling7ho/gmac/issues">rolling7ho/gmac</a>.</p>
 </blockquote>
-<h2>Initial procedure</h2>
+<h2 id="initial-procedure">Initial procedure</h2>
 <p>For any launcher problem:</p>
 <ol>
 <li>Open the bottle and select the <strong>Config</strong> tab.</li>
@@ -46,8 +128,8 @@ historical context. Report new issues to
 <li>Launch the launcher and review any warnings displayed in the interface.</li>
 </ol>
 <p>If the problem persists, consult the section for that launcher below.</p>
-<h2>Common issues</h2>
-<h3>&quot;steamwebhelper is not responding&quot;</h3>
+<h2 id="common-issues">Common issues</h2>
+<h3 id="steamwebhelper-is-not-responding">&quot;steamwebhelper is not responding&quot;</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>The Steam window appears and immediately reports an error.</li>
@@ -65,7 +147,7 @@ failures in <code>steamwebhelper.exe</code>.</li>
 <p>Steam&#39;s Chromium-based helper fails when parsing dates and times in certain locales. The
 <code>.UTF-8</code> suffix is required for correct Unicode handling.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#946, #1224, #1241.</p>
-<h3>Steam downloads stall at 99 percent</h3>
+<h3 id="steam-downloads-stall-at-99-percent">Steam downloads stall at 99 percent</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Downloads reach 99 percent and never complete.</li>
@@ -84,7 +166,7 @@ and resume the download.</li>
 <p>Wine&#39;s HTTP behaviour is unstable under some persistent connection conditions. Higher
 timeouts resolve the connection failures.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1148, #1072, #1176.</p>
-<h3>Rockstar Games Launcher freezes on the logo</h3>
+<h3 id="rockstar-games-launcher-freezes-on-the-logo">Rockstar Games Launcher freezes on the logo</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>The launcher starts and freezes at the Rockstar logo without an error message.</li>
@@ -103,7 +185,7 @@ Automatic or select <strong>Rockstar Games Launcher</strong> explicitly.</li>
 <p>The logo screen renders with Direct3D. Without DXVK the rendering fails without an error and
 the launcher blocks.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#835, #1335, #1120.</p>
-<h3>EA App displays a black screen</h3>
+<h3 id="ea-app-displays-a-black-screen">EA App displays a black screen</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>The window is entirely black, although background sound is audible.</li>
@@ -121,7 +203,7 @@ Spoofing</strong> with the <strong>NVIDIA</strong> vendor.</li>
 <p>The EA App queries GPU capabilities through Direct3D. Wine&#39;s incomplete driver reporting
 causes the launcher to conclude that the GPU is unsupported.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1195, #1322.</p>
-<h3>Epic Games Store does not render its interface</h3>
+<h3 id="epic-games-store-does-not-render-its-interface">Epic Games Store does not render its interface</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>The window appears blank or grey and the web view does not load.</li>
@@ -136,7 +218,7 @@ Override</strong> to <strong>English</strong>.</li>
 <p><strong>Cause</strong></p>
 <p>Epic&#39;s Chromium Embedded Framework conflicts with Wine&#39;s threading model. Disabling the CEF
 sandbox resolves the conflict.</p>
-<h3>Ubisoft Connect cannot update or launch games</h3>
+<h3 id="ubisoft-connect-cannot-update-or-launch-games">Ubisoft Connect cannot update or launch games</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Ubisoft Connect starts, but games do not launch.</li>
@@ -148,7 +230,7 @@ sandbox resolves the conflict.</p>
 <li>Under <strong>Config → Launcher Compatibility</strong>, set the network timeout to <strong>90 seconds</strong>.</li>
 </ol>
 <p><strong>Related issues:</strong> whisky-app/whisky#1004, #879.</p>
-<h3>Battle.net authentication fails</h3>
+<h3 id="battlenet-authentication-fails">Battle.net authentication fails</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>The launcher opens, but the sign-in page does not load and redirects fail.</li>
@@ -156,7 +238,7 @@ sandbox resolves the conflict.</p>
 <p><strong>Solution</strong></p>
 <p>Enable compatibility mode with the English locale. Battle.net&#39;s web-based authentication
 requires working Chromium rendering.</p>
-<h3>Paradox Launcher reports &quot;recursive resource lookup&quot;</h3>
+<h3 id="paradox-launcher-reports-recursive-resource-lookup">Paradox Launcher reports &quot;recursive resource lookup&quot;</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Installation fails with a resource lookup error and initialisation does not complete.</li>
@@ -166,7 +248,7 @@ requires working Chromium rendering.</p>
 <p>Gmac applies no Paradox-specific environment fix. The <code>WINE_DISABLE_FAST_PATH</code> workaround
 that earlier versions set is read by no shipped runtime and has been removed.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1091.</p>
-<h2>macOS 15.4 and later</h2>
+<h2 id="macos-154-and-later">macOS 15.4 and later</h2>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Launchers that worked on macOS 15.3 crash on 15.4 or later.</li>
@@ -181,26 +263,26 @@ that earlier versions set is read by no shipped runtime and has been removed.</p
 <p>Apple changed threading and Mach port behaviour in macOS 15.4. The compatibility mode applies
 the required Wine environment changes.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1372, #1310, #1307.</p>
-<h2>Diagnostics report</h2>
-<h3>Generating a report</h3>
+<h2 id="diagnostics-report">Diagnostics report</h2>
+<h3 id="generating-a-report">Generating a report</h3>
 <ol>
 <li>Open <strong>Bottle → Config → Launcher Compatibility</strong>.</li>
 <li>Select <strong>Generate Diagnostics Report</strong> and review the configuration in the window.</li>
 <li>Copy the report to the clipboard for a GitHub issue, or export it to a file.</li>
 </ol>
-<h3>Reading a report</h3>
+<h3 id="reading-a-report">Reading a report</h3>
 <p><strong>System information</strong></p>
-<pre><code>macOS version: 15.4.1
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1">macOS version: 15.4.1
 Wine version: 11.0
 Architecture: Apple Silicon (arm64)
 Rosetta 2: installed
-</code></pre>
+</code></pre></div>
 <p><strong>Launcher configuration</strong></p>
-<pre><code>Compatibility mode: enabled
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2">Compatibility mode: enabled
 Detected launcher: Steam
 Launcher locale: English (en_US.UTF-8)
 GPU spoofing: enabled (NVIDIA)
-</code></pre>
+</code></pre></div>
 <p><strong>Environment variables</strong></p>
 <ul>
 <li><code>LC_ALL=en_US.UTF-8</code> (locale fix)</li>
@@ -212,8 +294,8 @@ GPU spoofing: enabled (NVIDIA)
 <p><strong>Validation results</strong></p>
 <p>The report states either that the configuration is optimal or that warnings require
 attention.</p>
-<h2>Configuration warnings</h2>
-<table>
+<h2 id="configuration-warnings">Configuration warnings</h2>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Warning</th>
@@ -241,26 +323,26 @@ attention.</p>
 <td>Black screen or &quot;GPU not supported&quot;</td>
 <td>Enable GPU spoofing</td>
 </tr>
-</tbody></table>
-<h2>Advanced troubleshooting</h2>
-<h3>Reset launcher configuration</h3>
+</tbody></table></div>
+<h2 id="advanced-troubleshooting">Advanced troubleshooting</h2>
+<h3 id="reset-launcher-configuration">Reset launcher configuration</h3>
 <ol>
 <li>Disable Launcher Compatibility Mode.</li>
 <li>Right-click the bottle, select <strong>Show in Finder</strong> and delete <code>Metadata.plist</code>.</li>
 <li>Recreate the bottle; Gmac regenerates it with defaults.</li>
 <li>Enable Launcher Compatibility Mode again.</li>
 </ol>
-<h3>Consult Wine logs</h3>
+<h3 id="consult-wine-logs">Consult Wine logs</h3>
 <ol>
 <li>Open <code>~/Library/Logs/com.rolling7ho.Gmac/</code>.</li>
 <li>Locate the newest log by timestamp and inspect entries around launcher startup.</li>
 <li>Search for <code>steamwebhelper</code>, <code>CEF</code>, <code>locale</code>, <code>crash</code> and <code>segfault</code>.</li>
 </ol>
-<h3>Verify the Wine installation</h3>
+<h3 id="verify-the-wine-installation">Verify the Wine installation</h3>
 <p>Confirm that <code>~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/</code> contains
 the <code>bin/</code>, <code>lib/</code> and <code>share/</code> directories. The application reports the runtime version it
 uses in the diagnostics report.</p>
-<h3>Test in a clean bottle</h3>
+<h3 id="test-in-a-clean-bottle">Test in a clean bottle</h3>
 <ol>
 <li>Create a new bottle named &quot;Launcher Test&quot; with Windows 10.</li>
 <li>Enable Launcher Compatibility Mode before installing anything.</li>
@@ -268,48 +350,48 @@ uses in the diagnostics report.</p>
 <li>Test the launcher. If it works, the original bottle had a configuration fault; if it
 fails, the fault lies with Wine or macOS.</li>
 </ol>
-<h2>Launcher reference</h2>
-<h3>Steam</h3>
+<h2 id="launcher-reference">Launcher reference</h2>
+<h3 id="steam">Steam</h3>
 <ul>
 <li>Required: Launcher Compatibility Mode; locale <code>en_US.UTF-8</code>.</li>
 <li>Recommended: DXVK; network timeout of 90 seconds.</li>
 <li>Variables: <code>LC_ALL=en_US.UTF-8</code>, <code>STEAM_DISABLE_CEF_SANDBOX=1</code>.</li>
 </ul>
-<h3>Rockstar Games Launcher</h3>
+<h3 id="rockstar-games-launcher">Rockstar Games Launcher</h3>
 <ul>
 <li>Required: DXVK; Launcher Compatibility Mode.</li>
 <li>Recommended: locale English.</li>
 <li>DXVK cannot be disabled for this launcher.</li>
 </ul>
-<h3>EA App</h3>
+<h3 id="ea-app">EA App</h3>
 <ul>
 <li>Required: GPU spoofing; Launcher Compatibility Mode.</li>
 <li>Recommended: NVIDIA vendor; locale English.</li>
 </ul>
-<h3>Epic Games Store</h3>
+<h3 id="epic-games-store">Epic Games Store</h3>
 <ul>
 <li>Required: Launcher Compatibility Mode; locale English.</li>
 <li>Recommended: GPU spoofing.</li>
 <li>Variables: <code>CEF_DISABLE_SANDBOX=1</code>.</li>
 </ul>
-<h3>Ubisoft Connect</h3>
+<h3 id="ubisoft-connect">Ubisoft Connect</h3>
 <ul>
 <li>Required: Launcher Compatibility Mode.</li>
 <li>Recommended: DXVK with DXVK Async; network timeout of 90 seconds.</li>
 <li>Variables: <code>DXVK_ASYNC=1</code>.</li>
 </ul>
-<h3>Battle.net</h3>
+<h3 id="battlenet">Battle.net</h3>
 <ul>
 <li>Required: Launcher Compatibility Mode; locale English.</li>
 <li>Recommended: DXVK.</li>
 <li>Variables: <code>CEF_DISABLE_SANDBOX=1</code>.</li>
 </ul>
-<h3>Paradox Launcher</h3>
+<h3 id="paradox-launcher">Paradox Launcher</h3>
 <ul>
 <li>Required: Launcher Compatibility Mode.</li>
 <li>No additional environment configuration.</li>
 </ul>
-<h2>Reporting an issue</h2>
+<h2 id="reporting-an-issue">Reporting an issue</h2>
 <p>Before reporting:</p>
 <ol>
 <li>Generate the diagnostics report under <strong>Config → Launcher Compatibility</strong> and export it.</li>
@@ -323,7 +405,7 @@ fails, the fault lies with Wine or macOS.</li>
 <li>Reproduction steps, expected behaviour and actual behaviour.</li>
 <li>Screenshots of error messages and configuration screens.</li>
 </ol>
-<h2>Security considerations</h2>
+<h2 id="security-considerations">Security considerations</h2>
 <p>Launcher compatibility mode disables the Chromium sandbox, which is required under Wine.</p>
 <p>Implications:</p>
 <ul>
@@ -333,7 +415,7 @@ fails, the fault lies with Wine or macOS.</li>
 <p>Use compatibility mode with established launchers (Steam, Epic, EA, Rockstar), keep those
 launchers updated, and avoid browsing untrusted sites inside them. Do not use compatibility
 mode with unknown launcher software.</p>
-<h2>Operational guidance</h2>
+<h2 id="operational-guidance">Operational guidance</h2>
 <p><strong>Performance</strong></p>
 <ul>
 <li>Enable DXVK Async to reduce shader compilation stutter.</li>
@@ -351,13 +433,13 @@ hung launcher component.</li>
 <li><p>Export the diagnostics report.</p>
 </li>
 <li><p>Copy <code>Metadata.plist</code>:</p>
-<pre><code class="language-sh">cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-3" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-3" class="language-sh">cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
+</code></pre></div>
 </li>
 <li><p>Record the working configuration, for example with screenshots of the Config tabs.</p>
 </li>
 </ul>
-<h2>FAQ</h2>
+<h2 id="faq">FAQ</h2>
 <p><strong>Can launcher compatibility be used with games?</strong>
 Yes, but it is designed for launchers. Games generally do not require these fixes and may
 receive launcher-specific optimisations that they do not need.</p>
@@ -376,8 +458,8 @@ version.</p>
 <p><strong>Why does a launcher require the English locale?</strong>
 The Chromium Embedded Framework used by several launchers has Unicode parsing defects with
 certain locales. <code>en_US.UTF-8</code> avoids them.</p>
-<h2>macOS compatibility</h2>
-<table>
+<h2 id="macos-compatibility">macOS compatibility</h2>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>macOS version</th>
@@ -400,9 +482,9 @@ certain locales. <code>en_US.UTF-8</code> avoids them.</p>
 <td>Full</td>
 <td>Synchronisation mode and Steam Runtime handled</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>macOS 15 is the minimum supported version.</p>
-<h2>Further resources</h2>
+<h2 id="further-resources">Further resources</h2>
 <ul>
 <li>Issue tracker: <a href="https://github.com/rolling7ho/gmac/issues">https://github.com/rolling7ho/gmac/issues</a></li>
 <li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
@@ -410,11 +492,511 @@ certain locales. <code>en_US.UTF-8</code> avoids them.</p>
 <li>Stability guide: <a href="stability.html">StabilityTroubleshooting.md</a></li>
 </ul>
 
+    </div>
+    <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/docs/LauncherTroubleshooting.md">Mirrored from <code>docs/LauncherTroubleshooting.md</code></a></p>
+  </article>
+  <div class="doc-actions">
+    <div class="copy-split-wrap">
+      <div class="copy-split">
+        <button class="copy-split-main" type="button" aria-label="Copy page as Markdown">
+          <svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span class="copy-split-label">Copy page</span>
+        </button>
+        <button class="copy-split-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Copy options">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+      <div class="copy-menu" role="menu" aria-label="Copy page format">
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="text">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as plain text</span>
+            <span class="copy-menu-desc">Clean readable text without markup</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="markdown">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <path d="M6 15V9l3 3 3-3v6"/>
+              <path d="M16 9v6"/>
+              <path d="M14 13l2 2 2-2"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as Markdown</span>
+            <span class="copy-menu-desc">Raw Markdown source for LLMs</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="html">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as HTML</span>
+            <span class="copy-menu-desc">Rendered HTML markup of this page</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
+<script type="text/plain" id="doc-markdown-source"># Launcher troubleshooting guide
+
+**Feature:** Launcher compatibility system (frankea/Whisky#41)
+**Last updated:** 12 January 2026
+
+> **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
+> the original upstream project (whisky-app/whisky). Upstream references are retained for
+> historical context. Report new issues to
+> [rolling7ho/gmac](https://github.com/rolling7ho/gmac/issues).
+
+## Initial procedure
+
+For any launcher problem:
+
+1. Open the bottle and select the **Config** tab.
+2. Expand **Launcher Compatibility**.
+3. Enable **Launcher Compatibility Mode**.
+4. Set **Detection Mode** to **Automatic**.
+5. Launch the launcher and review any warnings displayed in the interface.
+
+If the problem persists, consult the section for that launcher below.
+
+## Common issues
+
+### "steamwebhelper is not responding"
+
+**Symptoms**
+
+- The Steam window appears and immediately reports an error.
+- The interface is unusable, and the restart options do not help.
+
+**Solution**
+
+1. Open **Config → Launcher Compatibility** and enable compatibility mode.
+2. Confirm that **Locale Override** is **English (en_US.UTF-8)**. This resolves ICU parsing
+   failures in `steamwebhelper.exe`.
+3. Select **Generate Diagnostics Report** and confirm `LC_ALL=en_US.UTF-8` and
+   `STEAM_DISABLE_CEF_SANDBOX=1`.
+
+**Cause**
+
+Steam's Chromium-based helper fails when parsing dates and times in certain locales. The
+`.UTF-8` suffix is required for correct Unicode handling.
+
+**Related issues:** whisky-app/whisky#946, #1224, #1241.
+
+### Steam downloads stall at 99 percent
+
+**Symptoms**
+
+- Downloads reach 99 percent and never complete.
+- A restart of Steam is required to continue, and several games are affected.
+
+**Solution**
+
+1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Network
+   Timeout** to **90 seconds** or higher.
+2. Generate a diagnostics report and confirm `WINHTTP_CONNECT_TIMEOUT`. The receive timeout
+   is set to twice that value. Gmac does not set `WINE_FORCE_HTTP11`.
+3. In Steam, open **Settings → Downloads**, select a geographically close region, then pause
+   and resume the download.
+
+**Cause**
+
+Wine's HTTP behaviour is unstable under some persistent connection conditions. Higher
+timeouts resolve the connection failures.
+
+**Related issues:** whisky-app/whisky#1148, #1072, #1176.
+
+### Rockstar Games Launcher freezes on the logo
+
+**Symptoms**
+
+- The launcher starts and freezes at the Rockstar logo without an error message.
+- CPU usage may increase while the splash screen remains visible.
+
+**Solution**
+
+1. Enable DXVK under **Config → DXVK**. It is required for the logo to render.
+2. Open **Config → Launcher Compatibility**, enable compatibility mode and set detection to
+   Automatic or select **Rockstar Games Launcher** explicitly.
+3. Generate a diagnostics report and confirm that DXVK is enabled and that
+   `WINEDLLOVERRIDES` contains the Direct3D libraries.
+
+**Alternative:** use `LauncherPatcher.exe` instead of `Launcher.exe`.
+
+**Cause**
+
+The logo screen renders with Direct3D. Without DXVK the rendering fails without an error and
+the launcher blocks.
+
+**Related issues:** whisky-app/whisky#835, #1335, #1120.
+
+### EA App displays a black screen
+
+**Symptoms**
+
+- The window is entirely black, although background sound is audible.
+- The cursor changes over invisible controls, and a "GPU not supported" error may appear.
+
+**Solution**
+
+1. Open **Config → Launcher Compatibility**, enable compatibility mode and enable **GPU
+   Spoofing** with the **NVIDIA** vendor.
+2. Generate a diagnostics report and confirm GPU spoofing is active. The spoof sets
+   `MESA_GL_VERSION_OVERRIDE=4.6`.
+3. Set **Locale Override** to **English**.
+
+**Cause**
+
+The EA App queries GPU capabilities through Direct3D. Wine's incomplete driver reporting
+causes the launcher to conclude that the GPU is unsupported.
+
+**Related issues:** whisky-app/whisky#1195, #1322.
+
+### Epic Games Store does not render its interface
+
+**Symptoms**
+
+- The window appears blank or grey and the web view does not load.
+- Sign-in is impossible and connection errors may be reported.
+
+**Solution**
+
+1. Open **Config → Launcher Compatibility**, enable compatibility mode and set **Locale
+   Override** to **English**.
+2. Generate a diagnostics report and confirm `CEF_DISABLE_SANDBOX=1`.
+
+**Cause**
+
+Epic's Chromium Embedded Framework conflicts with Wine's threading model. Disabling the CEF
+sandbox resolves the conflict.
+
+### Ubisoft Connect cannot update or launch games
+
+**Symptoms**
+
+- Ubisoft Connect starts, but games do not launch.
+- Update progress does not advance and "Failed to initialize" errors appear.
+
+**Solution**
+
+1. Under **Config → DXVK**, enable DXVK and **DXVK Async**.
+2. Under **Config → Launcher Compatibility**, set the network timeout to **90 seconds**.
+
+**Related issues:** whisky-app/whisky#1004, #879.
+
+### Battle.net authentication fails
+
+**Symptoms**
+
+- The launcher opens, but the sign-in page does not load and redirects fail.
+
+**Solution**
+
+Enable compatibility mode with the English locale. Battle.net's web-based authentication
+requires working Chromium rendering.
+
+### Paradox Launcher reports "recursive resource lookup"
+
+**Symptoms**
+
+- Installation fails with a resource lookup error and initialisation does not complete.
+
+**Solution**
+
+Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.
+
+Gmac applies no Paradox-specific environment fix. The `WINE_DISABLE_FAST_PATH` workaround
+that earlier versions set is read by no shipped runtime and has been removed.
+
+**Related issues:** whisky-app/whisky#1091.
+
+## macOS 15.4 and later
+
+**Symptoms**
+
+- Launchers that worked on macOS 15.3 crash on 15.4 or later.
+- Wine preloader threads remain blocked and Mach port timeouts occur.
+
+**Solution**
+
+1. Enable **Config → Metal → Sequoia Compatibility Mode**.
+2. Generate a diagnostics report and confirm the macOS version and `WINEFSYNC=0`.
+
+**Cause**
+
+Apple changed threading and Mach port behaviour in macOS 15.4. The compatibility mode applies
+the required Wine environment changes.
+
+**Related issues:** whisky-app/whisky#1372, #1310, #1307.
+
+## Diagnostics report
+
+### Generating a report
+
+1. Open **Bottle → Config → Launcher Compatibility**.
+2. Select **Generate Diagnostics Report** and review the configuration in the window.
+3. Copy the report to the clipboard for a GitHub issue, or export it to a file.
+
+### Reading a report
+
+**System information**
+
+```
+macOS version: 15.4.1
+Wine version: 11.0
+Architecture: Apple Silicon (arm64)
+Rosetta 2: installed
+```
+
+**Launcher configuration**
+
+```
+Compatibility mode: enabled
+Detected launcher: Steam
+Launcher locale: English (en_US.UTF-8)
+GPU spoofing: enabled (NVIDIA)
+```
+
+**Environment variables**
+
+- `LC_ALL=en_US.UTF-8` (locale fix)
+- `STEAM_DISABLE_CEF_SANDBOX=1` (Steam CEF fix)
+- `CEF_DISABLE_SANDBOX=1` (global CEF fix)
+- `MESA_GL_VERSION_OVERRIDE=4.6` (GPU spoofing)
+- `WINHTTP_CONNECT_TIMEOUT=90000` (network timeout)
+
+**Validation results**
+
+The report states either that the configuration is optimal or that warnings require
+attention.
+
+## Configuration warnings
+
+| Warning | Impact | Action |
+|---|---|---|
+| DXVK should be enabled for Steam | Steam interface may stutter | Enable DXVK under **Config → DXVK** |
+| DXVK required for the Rockstar Launcher | Logo does not render; launcher unusable | Enable DXVK |
+| Steam may fail without the en_US locale | `steamwebhelper.exe` failure likely | Set Locale Override to English |
+| GPU spoofing required for the EA App | Black screen or "GPU not supported" | Enable GPU spoofing |
+
+## Advanced troubleshooting
+
+### Reset launcher configuration
+
+1. Disable Launcher Compatibility Mode.
+2. Right-click the bottle, select **Show in Finder** and delete `Metadata.plist`.
+3. Recreate the bottle; Gmac regenerates it with defaults.
+4. Enable Launcher Compatibility Mode again.
+
+### Consult Wine logs
+
+1. Open `~/Library/Logs/com.rolling7ho.Gmac/`.
+2. Locate the newest log by timestamp and inspect entries around launcher startup.
+3. Search for `steamwebhelper`, `CEF`, `locale`, `crash` and `segfault`.
+
+### Verify the Wine installation
+
+Confirm that `~/Library/Application Support/com.rolling7ho.Gmac/Libraries/Wine/` contains
+the `bin/`, `lib/` and `share/` directories. The application reports the runtime version it
+uses in the diagnostics report.
+
+### Test in a clean bottle
+
+1. Create a new bottle named "Launcher Test" with Windows 10.
+2. Enable Launcher Compatibility Mode before installing anything.
+3. Install the launcher from the official installer.
+4. Test the launcher. If it works, the original bottle had a configuration fault; if it
+   fails, the fault lies with Wine or macOS.
+
+## Launcher reference
+
+### Steam
+
+- Required: Launcher Compatibility Mode; locale `en_US.UTF-8`.
+- Recommended: DXVK; network timeout of 90 seconds.
+- Variables: `LC_ALL=en_US.UTF-8`, `STEAM_DISABLE_CEF_SANDBOX=1`.
+
+### Rockstar Games Launcher
+
+- Required: DXVK; Launcher Compatibility Mode.
+- Recommended: locale English.
+- DXVK cannot be disabled for this launcher.
+
+### EA App
+
+- Required: GPU spoofing; Launcher Compatibility Mode.
+- Recommended: NVIDIA vendor; locale English.
+
+### Epic Games Store
+
+- Required: Launcher Compatibility Mode; locale English.
+- Recommended: GPU spoofing.
+- Variables: `CEF_DISABLE_SANDBOX=1`.
+
+### Ubisoft Connect
+
+- Required: Launcher Compatibility Mode.
+- Recommended: DXVK with DXVK Async; network timeout of 90 seconds.
+- Variables: `DXVK_ASYNC=1`.
+
+### Battle.net
+
+- Required: Launcher Compatibility Mode; locale English.
+- Recommended: DXVK.
+- Variables: `CEF_DISABLE_SANDBOX=1`.
+
+### Paradox Launcher
+
+- Required: Launcher Compatibility Mode.
+- No additional environment configuration.
+
+## Reporting an issue
+
+Before reporting:
+
+1. Generate the diagnostics report under **Config → Launcher Compatibility** and export it.
+2. Review all warnings and apply the recommended changes.
+3. Confirm that the issue reproduces in a clean bottle.
+
+Include in the report:
+
+1. The diagnostics report, attached or pasted in full.
+2. System information: macOS version, Mac model and Gmac version.
+3. Reproduction steps, expected behaviour and actual behaviour.
+4. Screenshots of error messages and configuration screens.
+
+## Security considerations
+
+Launcher compatibility mode disables the Chromium sandbox, which is required under Wine.
+
+Implications:
+
+- Embedded browser content runs with the process's privileges.
+- A browser exploit could compromise the Wine process.
+
+Use compatibility mode with established launchers (Steam, Epic, EA, Rockstar), keep those
+launchers updated, and avoid browsing untrusted sites inside them. Do not use compatibility
+mode with unknown launcher software.
+
+## Operational guidance
+
+**Performance**
+
+- Enable DXVK Async to reduce shader compilation stutter.
+- Enable the shader cache under **Config → Performance**.
+
+**Stability**
+
+- Use a dedicated bottle for each launcher to avoid conflicts.
+- Reinstall launchers after significant Wine updates and keep them updated.
+- Monitor Wine processes in Activity Monitor; sustained high CPU usage may indicate a
+  hung launcher component.
+
+**Before changing a working configuration**
+
+- Export the diagnostics report.
+- Copy `Metadata.plist`:
+
+  ```sh
+  cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
+  ```
+
+- Record the working configuration, for example with screenshots of the Config tabs.
+
+## FAQ
+
+**Can launcher compatibility be used with games?**
+Yes, but it is designed for launchers. Games generally do not require these fixes and may
+receive launcher-specific optimisations that they do not need.
+
+**Why does launcher detection fail?**
+Detection uses heuristics based on filename and path. For unusual cases, switch to Manual
+detection and select the launcher explicitly.
+
+**Is GPU spoofing safe with anti-cheat?**
+GPU spoofing changes capability queries only and does not modify game memory. Whether a
+given anti-cheat system tolerates it depends on that system.
+
+**Does launcher compatibility reduce game performance?**
+No measurable effect is expected. The environment variable setup occurs at launch and is
+negligible.
+
+**Can individual launcher settings be customised?**
+Settings apply to the detected launcher. Per-game overrides may be added in a future
+version.
+
+**Why does a launcher require the English locale?**
+The Chromium Embedded Framework used by several launchers has Unicode parsing defects with
+certain locales. `en_US.UTF-8` avoids them.
+
+## macOS compatibility
+
+| macOS version | Compatibility | Notes |
+|---|---|---|
+| 15.0 to 15.2 | Full | No known issues |
+| 15.3 | Full | Graphics validation handled |
+| 15.4 and later | Full | Synchronisation mode and Steam Runtime handled |
+
+macOS 15 is the minimum supported version.
+
+## Further resources
+
+- Issue tracker: <https://github.com/rolling7ho/gmac/issues>
+- Upstream project: <https://github.com/whisky-app/whisky>
+- Steam guide: [SteamCompatibility.md](SteamCompatibility.md)
+- Stability guide: [StabilityTroubleshooting.md](StabilityTroubleshooting.md)
+</script>
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>Gmac is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/LauncherTroubleshooting.md">docs/LauncherTroubleshooting.md</a></p>
+  <div class="wrap footer-grid">
+    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+      <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
+        <g transform="translate(-9 -7) scale(0.265)">
+          <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+          <circle cx="200" cy="56" r="20"/>
+          <path d="M 220 36 L 220 76"/>
+          <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./">Documentation</a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a class="footer-social" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a href="https://github.com/rolling7ho/gmac/issues">Report a bug</a>
+    </nav>
+    <p class="footer-license">Gmac is licensed under <a class="footer-license-link" href="https://github.com/rolling7ho/gmac/blob/main/LICENSE">GNU GPL v3</a>.</p>
   </div>
 </footer>
 </body>

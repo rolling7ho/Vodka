@@ -5,29 +5,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141010" media="(prefers-color-scheme: dark)">
-<title>Steam compatibility | Gmac</title>
+<title>Steam compatibility guide | Gmac</title>
 <link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../style.css">
 <link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/steam.html">
+<script src="../site.js" defer></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="../index.html">
-      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
+    <a class="brand" href="../index.html" aria-label="Gmac">
+      <span class="brand-viewport">
+        <svg class="brand-logo" viewBox="0 0 294 92" width="102" height="32" fill="none" aria-hidden="true">
+          <g class="brand-mark">
+            <g transform="translate(-9 -7) scale(0.265)">
+              <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
+          <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <g class="brand-letter brand-letter-m">
+              <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            </g>
+            <g class="brand-letter brand-letter-a">
+              <circle cx="200" cy="56" r="20"/>
+              <path d="M 220 36 L 220 76"/>
+            </g>
+            <g class="brand-letter brand-letter-c">
+              <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+            </g>
+          </g>
+        </svg>
+      </span>
     </a>
     <nav aria-label="Main">
-      <a href="../index.html">Home</a>
-      <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
+      <a class="nav-icon" href="./" aria-label="Documentation" title="Documentation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="../index.html#start" aria-label="Install" title="Install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </nav>
   </div>
 </header>
-<main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
-  <h1>Steam compatibility</h1>
+<main class="doc-shell doc">
+  <aside class="doc-toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ul class="toc-list">
+      <li class="toc-item toc-l2"><a href="#overview">Overview</a></li>
+      <li class="toc-item toc-l2"><a href="#recommended-configuration">Recommended configuration</a></li>
+      <li class="toc-item toc-l3"><a href="#step-1-create-a-dedicated-steam-bottle">Step 1: Create a dedicated Steam bottle</a></li>
+      <li class="toc-item toc-l3"><a href="#step-2-install-steam">Step 2: Install Steam</a></li>
+      <li class="toc-item toc-l3"><a href="#step-3-configure-graphics-and-network-settings">Step 3: Configure graphics and network settings</a></li>
+      <li class="toc-item toc-l3"><a href="#step-4-verify-the-configuration">Step 4: Verify the configuration</a></li>
+      <li class="toc-item toc-l2"><a href="#common-issues">Common issues</a></li>
+      <li class="toc-item toc-l3"><a href="#issue-1-steamwebhelper-is-not-responding">Issue 1: &quot;steamwebhelper is not responding&quot;</a></li>
+      <li class="toc-item toc-l3"><a href="#issue-2-downloads-stall-at-99-percent">Issue 2: Downloads stall at 99 percent</a></li>
+      <li class="toc-item toc-l3"><a href="#issue-3-steam-disconnects-repeatedly">Issue 3: Steam disconnects repeatedly</a></li>
+      <li class="toc-item toc-l3"><a href="#issue-4-steam-interface-is-blurry-or-stutters">Issue 4: Steam interface is blurry or stutters</a></li>
+      <li class="toc-item toc-l3"><a href="#issue-5-steam-starts-without-a-visible-interface">Issue 5: Steam starts without a visible interface</a></li>
+      <li class="toc-item toc-l2"><a href="#macos-154-and-later">macOS 15.4 and later</a></li>
+      <li class="toc-item toc-l2"><a href="#advanced-configuration">Advanced configuration</a></li>
+      <li class="toc-item toc-l3"><a href="#launch-options">Launch options</a></li>
+      <li class="toc-item toc-l3"><a href="#big-picture-mode">Big Picture mode</a></li>
+      <li class="toc-item toc-l3"><a href="#steam-workshop">Steam Workshop</a></li>
+      <li class="toc-item toc-l3"><a href="#steam-cloud">Steam Cloud</a></li>
+      <li class="toc-item toc-l2"><a href="#performance-tuning">Performance tuning</a></li>
+      <li class="toc-item toc-l2"><a href="#pre-report-checklist">Pre-report checklist</a></li>
+      <li class="toc-item toc-l2"><a href="#known-limitations">Known limitations</a></li>
+      <li class="toc-item toc-l2"><a href="#reporting-issues">Reporting issues</a></li>
+      <li class="toc-item toc-l2"><a href="#further-resources">Further resources</a></li>
+      <li class="toc-item toc-l2"><a href="#comparison-of-execution-methods">Comparison of execution methods</a></li>
+      <li class="toc-item toc-l2"><a href="#faq">FAQ</a></li>
+      <li class="toc-item toc-l2"><a href="#recommended-settings-summary">Recommended settings summary</a></li>
+      <li class="toc-item toc-l2"><a href="#monitoring-and-maintenance">Monitoring and maintenance</a></li>
+      <li class="toc-item toc-l2"><a href="#recovery">Recovery</a></li>
+    </ul>
+  </aside>
+  <article class="doc-article">
+    <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+    <h1 class="doc-title">Steam compatibility guide</h1>
+    <div class="doc-body">
 <p><strong>Feature:</strong> Launcher compatibility system (frankea/Whisky#41)
 <strong>Last updated:</strong> 12 January 2026</p>
 <blockquote>
@@ -36,12 +112,12 @@ the original upstream project (whisky-app/whisky). Upstream references are retai
 historical context. Report new issues to
 <a href="https://github.com/rolling7ho/gmac/issues">rolling7ho/gmac</a>.</p>
 </blockquote>
-<h2>Overview</h2>
+<h2 id="overview">Overview</h2>
 <p>Steam is the most commonly used launcher with Gmac and accounts for the largest share of
 launcher compatibility reports. This guide describes the recommended configuration and the
 known failure modes.</p>
-<h2>Recommended configuration</h2>
-<h3>Step 1: Create a dedicated Steam bottle</h3>
+<h2 id="recommended-configuration">Recommended configuration</h2>
+<h3 id="step-1-create-a-dedicated-steam-bottle">Step 1: Create a dedicated Steam bottle</h3>
 <ol>
 <li>Create a new bottle with the name &quot;Steam&quot; and Windows version <strong>Windows 10</strong>
 (recommended), at the default location.</li>
@@ -49,7 +125,7 @@ known failure modes.</p>
 <li>Set <strong>Detection Mode</strong> to <strong>Automatic</strong>. Launching Steam should then report
 &quot;Detected Launcher: Steam&quot;.</li>
 </ol>
-<h3>Step 2: Install Steam</h3>
+<h3 id="step-2-install-steam">Step 2: Install Steam</h3>
 <ol>
 <li>Download <code>SteamSetup.exe</code>, the Windows installer, from
 <a href="https://store.steampowered.com/about/">https://store.steampowered.com/about/</a>.</li>
@@ -58,7 +134,7 @@ path (<code>C:\Program Files (x86)\Steam\</code>).</li>
 <li>Steam starts automatically after installation. If <code>steamwebhelper.exe</code> fails, see the
 first issue below.</li>
 </ol>
-<h3>Step 3: Configure graphics and network settings</h3>
+<h3 id="step-3-configure-graphics-and-network-settings">Step 3: Configure graphics and network settings</h3>
 <ol>
 <li>Leave the graphics backend on <strong>Recommended</strong>. Steam&#39;s own processes (<code>steam.exe</code>,
 <code>steamwebhelper.exe</code>, <code>steamservice.exe</code>, <code>gameoverlayui64.exe</code>) receive DXVK through
@@ -77,23 +153,23 @@ deployed; do this only for a bottle whose games all require DXVK.</li>
 <li>In the same section, enable <strong>GPU Spoofing</strong> with the <strong>NVIDIA</strong> vendor, which provides
 the best compatibility.</li>
 </ol>
-<h3>Step 4: Verify the configuration</h3>
+<h3 id="step-4-verify-the-configuration">Step 4: Verify the configuration</h3>
 <ol>
 <li><p>In <strong>Config → Launcher Compatibility</strong>, select <strong>Generate Diagnostics Report</strong>.</p>
 </li>
 <li><p>Confirm the critical settings:</p>
-<pre><code>LC_ALL = en_US.UTF-8                      # required; prevents steamwebhelper failure
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1">LC_ALL = en_US.UTF-8                      # required; prevents steamwebhelper failure
 STEAM_DISABLE_CEF_SANDBOX = 1             # required; CEF under Wine
 STEAM_RUNTIME = 0                         # required; Steam Runtime under Wine
 DXVK_ASYNC = 1                            # UI performance
-</code></pre>
+</code></pre></div>
 </li>
 <li><p>Review the reported warnings. &quot;Configuration is optimal&quot; indicates a complete setup;
 any warning requires the corresponding change.</p>
 </li>
 </ol>
-<h2>Common issues</h2>
-<h3>Issue 1: &quot;steamwebhelper is not responding&quot;</h3>
+<h2 id="common-issues">Common issues</h2>
+<h3 id="issue-1-steamwebhelper-is-not-responding">Issue 1: &quot;steamwebhelper is not responding&quot;</h3>
 <p>This is the most frequent Steam issue.</p>
 <p><strong>Symptoms</strong></p>
 <ul>
@@ -113,14 +189,14 @@ unexpected format.</p>
 <li>Generate diagnostics and confirm <code>LC_ALL=en_US.UTF-8</code>.</li>
 </ol>
 <p>The <code>.UTF-8</code> suffix is required. <code>en_US</code> alone does not resolve the failure.</p>
-<pre><code>LC_ALL=en_US.UTF-8   # correct
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2">LC_ALL=en_US.UTF-8   # correct
 LC_ALL=en_US         # incorrect; steamwebhelper still fails
-</code></pre>
+</code></pre></div>
 <p>If the failure persists, delete the Steam installation, create a new bottle with
 compatibility mode enabled before installation, install Steam again and verify the locale
 before the first launch.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#946, #1224, #1241.</p>
-<h3>Issue 2: Downloads stall at 99 percent</h3>
+<h3 id="issue-2-downloads-stall-at-99-percent">Issue 2: Downloads stall at 99 percent</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Progress reaches 99 percent and does not complete.</li>
@@ -143,7 +219,7 @@ region, pause and resume the download, and clear the download cache.</li>
 <code>WINE_FORCE_HTTP11</code> or <code>WINE_MAX_CONNECTIONS_PER_SERVER</code>; earlier versions of this guide
 listed variables that no shipped runtime reads.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1148, #1072, #991, #1222.</p>
-<h3>Issue 3: Steam disconnects repeatedly</h3>
+<h3 id="issue-3-steam-disconnects-repeatedly">Issue 3: Steam disconnects repeatedly</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>&quot;No connection&quot; errors occur every few minutes.</li>
@@ -161,7 +237,7 @@ Step 4 are present. Gmac does not set <code>WINE_ENABLE_SSL</code> or <code>WINE
 any VPN for testing.</li>
 </ol>
 <p><strong>Related issues:</strong> whisky-app/whisky#1176, #954.</p>
-<h3>Issue 4: Steam interface is blurry or stutters</h3>
+<h3 id="issue-4-steam-interface-is-blurry-or-stutters">Issue 4: Steam interface is blurry or stutters</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Text appears blurry or pixelated.</li>
@@ -176,7 +252,7 @@ acceleration for the Steam interface.</li>
 selecting 96 DPI (standard) or 192 DPI (Retina).</li>
 </ol>
 <p><strong>Related issues:</strong> whisky-app/whisky#1256, #1233.</p>
-<h3>Issue 5: Steam starts without a visible interface</h3>
+<h3 id="issue-5-steam-starts-without-a-visible-interface">Issue 5: Steam starts without a visible interface</h3>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>The Steam process runs but no window appears, or the window is blank.</li>
@@ -193,7 +269,7 @@ on macOS 15 or later.</li>
 <p>If the interface remains invisible, delete Steam, reinstall it, and inspect
 <code>~/Library/Logs/com.rolling7ho.Gmac/</code> for errors.</p>
 <p><strong>Related issues:</strong> whisky-app/whisky#1183, #1009.</p>
-<h2>macOS 15.4 and later</h2>
+<h2 id="macos-154-and-later">macOS 15.4 and later</h2>
 <p><strong>Symptoms</strong></p>
 <ul>
 <li>Steam worked on macOS 15.3 and fails to start after updating to 15.4 or 15.4.1.</li>
@@ -208,37 +284,37 @@ creation.</p>
 <li><p>Enable <strong>Config → Metal → Sequoia Compatibility Mode</strong>.</p>
 </li>
 <li><p>Generate diagnostics and confirm the macOS version and the following variables:</p>
-<pre><code>WINEFSYNC = 0
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-3" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-3">WINEFSYNC = 0
 STEAM_RUNTIME = 0
 CEF_DISABLE_SANDBOX = 1
-</code></pre>
+</code></pre></div>
 </li>
 <li><p>Terminate all Wine processes and relaunch Steam.</p>
 </li>
 </ol>
 <p><strong>Related issues:</strong> whisky-app/whisky#1372, #1310, #1307.</p>
-<h2>Advanced configuration</h2>
-<h3>Launch options</h3>
+<h2 id="advanced-configuration">Advanced configuration</h2>
+<h3 id="launch-options">Launch options</h3>
 <p>For individual games started through Steam, open the game&#39;s <strong>Properties</strong> and set launch
 options. Common values:</p>
-<pre><code>-windowed    force windowed mode
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-4" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-4">-windowed    force windowed mode
 -dx11        force Direct3D 11
 -nojoy       disable joystick support
 -novid       skip introductory videos
-</code></pre>
-<h3>Big Picture mode</h3>
+</code></pre></div>
+<h3 id="big-picture-mode">Big Picture mode</h3>
 <p>Big Picture generally works with compatibility mode enabled. Enable DXVK for performance,
 connect the controller before launching, and exit through the Steam menu rather than forcing
 the process to quit.</p>
-<h3>Steam Workshop</h3>
+<h3 id="steam-workshop">Steam Workshop</h3>
 <p>Workshop content generally works with compatibility mode enabled. If it fails, raise the
 network timeout to 180 seconds, confirm that no firewall blocks the download, and install
 the content manually as a fallback.</p>
-<h3>Steam Cloud</h3>
+<h3 id="steam-cloud">Steam Cloud</h3>
 <p>Cloud saves are generally functional. Confirm that the game has Cloud enabled under
 <strong>Properties → Updates</strong>, and test synchronisation by launching the same game from a second
 bottle.</p>
-<h2>Performance tuning</h2>
+<h2 id="performance-tuning">Performance tuning</h2>
 <p><strong>Frame rate</strong></p>
 <ul>
 <li>Enable DXVK and DXVK Async.</li>
@@ -258,7 +334,7 @@ bottle.</p>
 <li>Clear the Steam download cache.</li>
 <li>Prefer a wired connection where possible.</li>
 </ul>
-<h2>Pre-report checklist</h2>
+<h2 id="pre-report-checklist">Pre-report checklist</h2>
 <p>Before reporting a Steam issue, confirm the following:</p>
 <ul>
 <li>Launcher Compatibility Mode is enabled.</li>
@@ -270,7 +346,7 @@ bottle.</p>
 <li>The issue reproduces in a clean bottle.</li>
 <li>Wine logs have been checked for errors.</li>
 </ul>
-<h2>Known limitations</h2>
+<h2 id="known-limitations">Known limitations</h2>
 <p><strong>Supported:</strong> Steam client features (store, library, friends), game downloads, most
 Direct3D 9, 10 and 11 games, Workshop content, Cloud saves in most cases, achievements and
 screenshots.</p>
@@ -279,7 +355,7 @@ screenshots.</p>
 <p><strong>Game compatibility:</strong> Direct3D 9 and 11 games generally work well, older titles work
 well, and Direct3D 12 titles vary. Multiplayer with kernel-level anti-cheat varies by
 title, and VR titles are unsupported.</p>
-<h2>Reporting issues</h2>
+<h2 id="reporting-issues">Reporting issues</h2>
 <p>Include the following:</p>
 <ol>
 <li>The diagnostics report, attached to the issue.</li>
@@ -289,7 +365,7 @@ title, and VR titles are unsupported.</p>
 <li>System details: macOS version, Mac model and available disk space.</li>
 </ol>
 <p>Example report:</p>
-<pre><code class="language-markdown">**Issue:** Steam downloads stall at 99 percent
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-5" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-5" class="language-markdown">**Issue:** Steam downloads stall at 99 percent
 
 **System:**
 - macOS 15.4.1
@@ -314,16 +390,16 @@ title, and VR titles are unsupported.</p>
 - Changed the download region; no change.
 - Raised the timeout to 90 seconds; the download still stalls.
 - Cleared the download cache; no change.
-</code></pre>
-<h2>Further resources</h2>
+</code></pre></div>
+<h2 id="further-resources">Further resources</h2>
 <ul>
 <li>Steam support: <a href="https://help.steampowered.com/">https://help.steampowered.com/</a></li>
 <li>Launcher troubleshooting: <a href="launcher-troubleshooting.html">LauncherTroubleshooting.md</a></li>
 <li>Issue tracker: <a href="https://github.com/rolling7ho/gmac/issues">https://github.com/rolling7ho/gmac/issues</a></li>
 <li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
 </ul>
-<h2>Comparison of execution methods</h2>
-<table>
+<h2 id="comparison-of-execution-methods">Comparison of execution methods</h2>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Method</th>
@@ -368,11 +444,11 @@ title, and VR titles are unsupported.</p>
 <td>Complete</td>
 <td>Requires reboot</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>Gmac is free and open source, requires no reboot, integrates with macOS, and applies the
 compatibility configuration described above automatically once launcher compatibility is
 enabled.</p>
-<h2>FAQ</h2>
+<h2 id="faq">FAQ</h2>
 <p><strong>Can an existing Steam library be reused?</strong>
 Games must be downloaded again, or restored from a Steam backup. Save files may not transfer
 automatically, and individual games may require configuration.</p>
@@ -392,8 +468,8 @@ Partially. Basic controller input works; advanced Steam Input features may not.<
 <p><strong>Does anti-cheat work?</strong>
 This depends on the game. VAC is reported to work generally, while EAC and BattlEye are
 frequently blocked. Consult ProtonDB for a specific title.</p>
-<h2>Recommended settings summary</h2>
-<pre><code>Bottle
+<h2 id="recommended-settings-summary">Recommended settings summary</h2>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-6" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-6">Bottle
   Name: Steam
   Windows version: Windows 10
 
@@ -419,8 +495,8 @@ Metal
   Sequoia compatibility mode: on (macOS 15 or later)
   Metal HUD: off
   Validation: off
-</code></pre>
-<h2>Monitoring and maintenance</h2>
+</code></pre></div>
+<h2 id="monitoring-and-maintenance">Monitoring and maintenance</h2>
 <p><strong>Weekly:</strong> Steam updates automatically. Check for Gmac updates and review new
 configuration warnings.</p>
 <p><strong>After a macOS update:</strong> confirm that Steam launches, that <code>steamwebhelper.exe</code> starts,
@@ -431,7 +507,7 @@ and review the issue tracker for known problems with the runtime version.</p>
 downloads sustain their throughput, and games launch without delay.</p>
 <p><strong>Warning signs:</strong> launches taking longer than 30 seconds, frequent disconnects, downloads
 that consistently stall, and high CPU usage while idle.</p>
-<h2>Recovery</h2>
+<h2 id="recovery">Recovery</h2>
 <p><strong>Reset Steam within the bottle</strong></p>
 <ol>
 <li>Select <strong>Bottle → Open in Finder</strong>.</li>
@@ -449,15 +525,574 @@ that consistently stall, and high CPU usage while idle.</p>
 <p>If <code>Metadata.plist</code> was backed up, replace the current file with the backup, restart Gmac
 and test Steam.</p>
 <p><strong>Save file location</strong></p>
-<pre><code>~/Library/Application Support/&lt;Bottle&gt;/drive_c/users/&lt;username&gt;/My Documents/
-</code></pre>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-7" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-7">~/Library/Application Support/&lt;Bottle&gt;/drive_c/users/&lt;username&gt;/My Documents/
+</code></pre></div>
 <p>Most games store saves in the Documents directory. Back it up before recreating a bottle.</p>
 
+    </div>
+    <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/docs/SteamCompatibility.md">Mirrored from <code>docs/SteamCompatibility.md</code></a></p>
+  </article>
+  <div class="doc-actions">
+    <div class="copy-split-wrap">
+      <div class="copy-split">
+        <button class="copy-split-main" type="button" aria-label="Copy page as Markdown">
+          <svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span class="copy-split-label">Copy page</span>
+        </button>
+        <button class="copy-split-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Copy options">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+      <div class="copy-menu" role="menu" aria-label="Copy page format">
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="text">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as plain text</span>
+            <span class="copy-menu-desc">Clean readable text without markup</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="markdown">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <path d="M6 15V9l3 3 3-3v6"/>
+              <path d="M16 9v6"/>
+              <path d="M14 13l2 2 2-2"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as Markdown</span>
+            <span class="copy-menu-desc">Raw Markdown source for LLMs</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="html">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as HTML</span>
+            <span class="copy-menu-desc">Rendered HTML markup of this page</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
+<script type="text/plain" id="doc-markdown-source"># Steam compatibility guide
+
+**Feature:** Launcher compatibility system (frankea/Whisky#41)
+**Last updated:** 12 January 2026
+
+> **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
+> the original upstream project (whisky-app/whisky). Upstream references are retained for
+> historical context. Report new issues to
+> [rolling7ho/gmac](https://github.com/rolling7ho/gmac/issues).
+
+## Overview
+
+Steam is the most commonly used launcher with Gmac and accounts for the largest share of
+launcher compatibility reports. This guide describes the recommended configuration and the
+known failure modes.
+
+## Recommended configuration
+
+### Step 1: Create a dedicated Steam bottle
+
+1. Create a new bottle with the name "Steam" and Windows version **Windows 10**
+   (recommended), at the default location.
+2. Open **Config → Launcher Compatibility** and enable **Launcher Compatibility Mode**.
+3. Set **Detection Mode** to **Automatic**. Launching Steam should then report
+   "Detected Launcher: Steam".
+
+### Step 2: Install Steam
+
+1. Download `SteamSetup.exe`, the Windows installer, from
+   <https://store.steampowered.com/about/>.
+2. Select **Bottle → Run**, choose `SteamSetup.exe` and accept the default installation
+   path (`C:\Program Files (x86)\Steam\`).
+3. Steam starts automatically after installation. If `steamwebhelper.exe` fails, see the
+   first issue below.
+
+### Step 3: Configure graphics and network settings
+
+1. Leave the graphics backend on **Recommended**. Steam's own processes (`steam.exe`,
+   `steamwebhelper.exe`, `steamservice.exe`, `gameoverlayui64.exe`) receive DXVK through
+   per-executable overrides, so the client renders through DXVK while games retain the
+   bottle's backend. When the D3DMetal payload is installed, the recommended backend is
+   D3DMetal, which DirectX 12 games require.
+   A game started from the Gmac library, from `gmac launch` or from a `gmac://` link
+   receives its own settings from the Programs tab and the game database, applied to its
+   own executables regardless of which process starts it.
+   On a runtime without the D3DMetal payload, **Play** switches the bottle to DXVK.
+   Importing the Game Porting Toolkit later restores the recommended backend once, with a
+   note in the bottle's graphics settings, unless DXVK was selected explicitly.
+   Setting the entire bottle to DXVK disables Direct3D 12 for every game when the payload is
+   deployed; do this only for a bottle whose games all require DXVK.
+2. In **Config → Launcher Compatibility**, set the network timeout to **90 seconds**.
+3. In the same section, enable **GPU Spoofing** with the **NVIDIA** vendor, which provides
+   the best compatibility.
+
+### Step 4: Verify the configuration
+
+1. In **Config → Launcher Compatibility**, select **Generate Diagnostics Report**.
+2. Confirm the critical settings:
+
+   ```
+   LC_ALL = en_US.UTF-8                      # required; prevents steamwebhelper failure
+   STEAM_DISABLE_CEF_SANDBOX = 1             # required; CEF under Wine
+   STEAM_RUNTIME = 0                         # required; Steam Runtime under Wine
+   DXVK_ASYNC = 1                            # UI performance
+   ```
+
+3. Review the reported warnings. "Configuration is optimal" indicates a complete setup;
+   any warning requires the corresponding change.
+
+## Common issues
+
+### Issue 1: "steamwebhelper is not responding"
+
+This is the most frequent Steam issue.
+
+**Symptoms**
+
+- The Steam window reports an error immediately after launch.
+- A dialog states that `steamwebhelper.exe` is not responding, and the restart and wait
+  options do not help.
+- The Steam interface is unusable.
+
+**Cause**
+
+Steam's Chromium Embedded Framework (CEF) fails when the locale does not specify UTF-8
+encoding, when ICU fails to initialise, or when date and time parsing encounters an
+unexpected format.
+
+**Solution**
+
+1. Open **Config → Launcher Compatibility** and enable compatibility mode.
+2. Set **Locale Override** to **English**.
+3. Generate diagnostics and confirm `LC_ALL=en_US.UTF-8`.
+
+The `.UTF-8` suffix is required. `en_US` alone does not resolve the failure.
+
+```
+LC_ALL=en_US.UTF-8   # correct
+LC_ALL=en_US         # incorrect; steamwebhelper still fails
+```
+
+If the failure persists, delete the Steam installation, create a new bottle with
+compatibility mode enabled before installation, install Steam again and verify the locale
+before the first launch.
+
+**Related issues:** whisky-app/whisky#946, #1224, #1241.
+
+### Issue 2: Downloads stall at 99 percent
+
+**Symptoms**
+
+- Progress reaches 99 percent and does not complete.
+- The "Download starting…" message repeats.
+- Steam must be restarted to continue.
+- The behaviour occurs with several games.
+
+**Cause**
+
+Wine's HTTP implementation misbehaves with persistent connections under some conditions,
+so downloads time out before completion.
+
+**Solution**
+
+1. Open **Config → Launcher Compatibility** and set **Network Timeout** to **90 seconds** or
+   higher, then restart Steam. The timeout configures `WINHTTP_CONNECT_TIMEOUT`, and
+   `WINHTTP_RECEIVE_TIMEOUT` is set to twice that value.
+2. Alternatively, in Steam open **Settings → Downloads**, select a different download
+   region, pause and resume the download, and clear the download cache.
+
+Longer timeouts prevent premature connection closure. Gmac does not set
+`WINE_FORCE_HTTP11` or `WINE_MAX_CONNECTIONS_PER_SERVER`; earlier versions of this guide
+listed variables that no shipped runtime reads.
+
+**Related issues:** whisky-app/whisky#1148, #1072, #991, #1222.
+
+### Issue 3: Steam disconnects repeatedly
+
+**Symptoms**
+
+- "No connection" errors occur every few minutes.
+- Reconnection is required repeatedly, and download progress is lost.
+- The friends list disconnects.
+
+**Cause**
+
+Network keepalive timeouts and TLS handshake behaviour under Wine.
+
+**Solution**
+
+1. Raise the network timeout to **120 seconds** or more.
+2. Generate diagnostics and confirm that the locale and sandbox variables listed under
+   Step 4 are present. Gmac does not set `WINE_ENABLE_SSL` or `WINE_SSL_VERSION_MIN`.
+3. In **System Settings → Network**, confirm a stable connection and temporarily disable
+   any VPN for testing.
+
+**Related issues:** whisky-app/whisky#1176, #954.
+
+### Issue 4: Steam interface is blurry or stutters
+
+**Symptoms**
+
+- Text appears blurry or pixelated.
+- Interface animations stutter and scrolling is uneven.
+- Window dragging lags.
+
+**Solution**
+
+1. Enable **DXVK Async** in **Config → DXVK** and restart Steam. DXVK provides better GPU
+   acceleration for the Steam interface.
+2. If text remains blurry, adjust the DPI under **Config → Wine → DPI Configuration**,
+   selecting 96 DPI (standard) or 192 DPI (Retina).
+
+**Related issues:** whisky-app/whisky#1256, #1233.
+
+### Issue 5: Steam starts without a visible interface
+
+**Symptoms**
+
+- The Steam process runs but no window appears, or the window is blank.
+- Notification sounds are audible.
+
+**Solution**
+
+1. Select **Bottle → Kill All Processes**.
+2. Enable compatibility mode if it is not already enabled.
+3. Enable DXVK, disable Metal validation if enabled, and enable Sequoia compatibility mode
+   on macOS 15 or later.
+4. Generate diagnostics and confirm `CEF_DISABLE_SANDBOX=1`.
+
+If the interface remains invisible, delete Steam, reinstall it, and inspect
+`~/Library/Logs/com.rolling7ho.Gmac/` for errors.
+
+**Related issues:** whisky-app/whisky#1183, #1009.
+
+## macOS 15.4 and later
+
+**Symptoms**
+
+- Steam worked on macOS 15.3 and fails to start after updating to 15.4 or 15.4.1.
+- Wine preloader threads remain blocked.
+- Mach port timeouts occur.
+
+**Cause**
+
+Apple changed Mach port and threading behaviour in macOS 15.4, which breaks Wine's process
+creation.
+
+**Solution**
+
+1. Enable **Config → Metal → Sequoia Compatibility Mode**.
+2. Generate diagnostics and confirm the macOS version and the following variables:
+
+   ```
+   WINEFSYNC = 0
+   STEAM_RUNTIME = 0
+   CEF_DISABLE_SANDBOX = 1
+   ```
+
+3. Terminate all Wine processes and relaunch Steam.
+
+**Related issues:** whisky-app/whisky#1372, #1310, #1307.
+
+## Advanced configuration
+
+### Launch options
+
+For individual games started through Steam, open the game's **Properties** and set launch
+options. Common values:
+
+```
+-windowed    force windowed mode
+-dx11        force Direct3D 11
+-nojoy       disable joystick support
+-novid       skip introductory videos
+```
+
+### Big Picture mode
+
+Big Picture generally works with compatibility mode enabled. Enable DXVK for performance,
+connect the controller before launching, and exit through the Steam menu rather than forcing
+the process to quit.
+
+### Steam Workshop
+
+Workshop content generally works with compatibility mode enabled. If it fails, raise the
+network timeout to 180 seconds, confirm that no firewall blocks the download, and install
+the content manually as a fallback.
+
+### Steam Cloud
+
+Cloud saves are generally functional. Confirm that the game has Cloud enabled under
+**Properties → Updates**, and test synchronisation by launching the same game from a second
+bottle.
+
+## Performance tuning
+
+**Frame rate**
+
+- Enable DXVK and DXVK Async.
+- Leave the DXVK HUD off unless diagnosing a problem.
+- Enable the shader cache after the first run to reduce stuttering.
+
+**Stability**
+
+- Set Enhanced Sync to ESync under **Config → Wine**.
+- Use Windows 10, which is the most tested Windows version.
+- Enable AVX only for games that require it.
+
+**Download throughput**
+
+- Set the network timeout to 120 to 180 seconds.
+- Select a geographically close download region.
+- Clear the Steam download cache.
+- Prefer a wired connection where possible.
+
+## Pre-report checklist
+
+Before reporting a Steam issue, confirm the following:
+
+- Launcher Compatibility Mode is enabled.
+- The locale is `en_US.UTF-8`.
+- DXVK is enabled.
+- The network timeout is at least 90 seconds.
+- Sequoia Compatibility Mode is enabled on macOS 15 or later.
+- A diagnostics report has been generated and its warnings reviewed.
+- The issue reproduces in a clean bottle.
+- Wine logs have been checked for errors.
+
+## Known limitations
+
+**Supported:** Steam client features (store, library, friends), game downloads, most
+Direct3D 9, 10 and 11 games, Workshop content, Cloud saves in most cases, achievements and
+screenshots.
+
+**Limited:** Steam Input controller configuration, the Steam overlay (game dependent).
+
+**Unsupported:** broadcasting, Remote Play and VR.
+
+**Game compatibility:** Direct3D 9 and 11 games generally work well, older titles work
+well, and Direct3D 12 titles vary. Multiplayer with kernel-level anti-cheat varies by
+title, and VR titles are unsupported.
+
+## Reporting issues
+
+Include the following:
+
+1. The diagnostics report, attached to the issue.
+2. The Steam version and build date (**Help → About Steam**).
+3. The exact error message and the point at which it occurs (sign-in, download, launch).
+4. Reproduction steps.
+5. System details: macOS version, Mac model and available disk space.
+
+Example report:
+
+```markdown
+**Issue:** Steam downloads stall at 99 percent
+
+**System:**
+- macOS 15.4.1
+- M2 Pro MacBook Pro
+- Gmac version 4.x
+- Steam version: December 2025 build
+
+**Configuration:**
+- Launcher Compatibility: enabled
+- Network Timeout: 60 seconds
+- DXVK: enabled
+
+**Steps to reproduce:**
+1. Queue a large game download.
+2. Progress reaches 99 percent.
+3. The download stalls indefinitely.
+4. Restarting Steam resumes the download, which stalls again at 99 percent.
+
+**Diagnostics report:** attached
+
+**Attempted fixes:**
+- Changed the download region; no change.
+- Raised the timeout to 90 seconds; the download still stalls.
+- Cleared the download cache; no change.
+```
+
+## Further resources
+
+- Steam support: <https://help.steampowered.com/>
+- Launcher troubleshooting: [LauncherTroubleshooting.md](LauncherTroubleshooting.md)
+- Issue tracker: <https://github.com/rolling7ho/gmac/issues>
+- Upstream project: <https://github.com/whisky-app/whisky>
+
+## Comparison of execution methods
+
+| Method | Setup effort | Compatibility | Performance | Assessment |
+|---|---|---|---|---|
+| Gmac with launcher compatibility | Low | High | Good | Recommended |
+| Native macOS Steam | Low | macOS titles only | Native | Limited catalog |
+| CrossOver | Medium | High | Good | Commercial |
+| Virtual machine | High | High | Fair | Resource intensive |
+| Boot Camp | High | Complete | Complete | Requires reboot |
+
+Gmac is free and open source, requires no reboot, integrates with macOS, and applies the
+compatibility configuration described above automatically once launcher compatibility is
+enabled.
+
+## FAQ
+
+**Can an existing Steam library be reused?**
+Games must be downloaded again, or restored from a Steam backup. Save files may not transfer
+automatically, and individual games may require configuration.
+
+**Does Steam report that the machine runs macOS?**
+No. Steam reports the Windows version presented by Wine.
+
+**Does the Workshop work?**
+Generally yes. Raise the network timeout for large Workshop items.
+
+**Does the Steam overlay work?**
+This depends on the game; some titles do not render it correctly.
+
+**Is game streaming supported?**
+Streaming from this Steam installation to other devices is limited. Streaming to this
+installation is not recommended, because it adds a second translation layer.
+
+**Do achievements work?**
+Yes.
+
+**Is the Steam Controller supported?**
+Partially. Basic controller input works; advanced Steam Input features may not.
+
+**Does anti-cheat work?**
+This depends on the game. VAC is reported to work generally, while EAC and BattlEye are
+frequently blocked. Consult ProtonDB for a specific title.
+
+## Recommended settings summary
+
+```
+Bottle
+  Name: Steam
+  Windows version: Windows 10
+
+Launcher compatibility
+  Mode: enabled
+  Detection: automatic
+  Locale: English (en_US.UTF-8)
+  GPU spoofing: enabled (NVIDIA)
+  Network timeout: 90 seconds
+
+Graphics
+  Backend: Recommended
+  DXVK HUD: off, or FPS while monitoring
+
+Performance
+  Shader cache: enabled
+
+Wine
+  Enhanced Sync: ESync
+  AVX: enabled only when required
+
+Metal
+  Sequoia compatibility mode: on (macOS 15 or later)
+  Metal HUD: off
+  Validation: off
+```
+
+## Monitoring and maintenance
+
+**Weekly:** Steam updates automatically. Check for Gmac updates and review new
+configuration warnings.
+
+**After a macOS update:** confirm that Steam launches, that `steamwebhelper.exe` starts,
+that downloads complete, and regenerate diagnostics if problems appear.
+
+**After a Wine update:** test compatibility, recreate the bottle if failures are severe,
+and review the issue tracker for known problems with the runtime version.
+
+**Healthy indicators:** Steam launches within 10 seconds, store pages load promptly,
+downloads sustain their throughput, and games launch without delay.
+
+**Warning signs:** launches taking longer than 30 seconds, frequent disconnects, downloads
+that consistently stall, and high CPU usage while idle.
+
+## Recovery
+
+**Reset Steam within the bottle**
+
+1. Select **Bottle → Open in Finder**.
+2. Navigate to `drive_c/Program Files (x86)/Steam/`.
+3. Delete `steam.exe` and `steamwebhelper.exe`.
+4. Run `SteamSetup.exe` again.
+
+**Create a fresh bottle**
+
+1. Create a new bottle with compatibility mode enabled before installation.
+2. Install Steam.
+3. Sign in and verify the client before downloading games.
+
+**Restore from backup**
+
+If `Metadata.plist` was backed up, replace the current file with the backup, restart Gmac
+and test Steam.
+
+**Save file location**
+
+```
+~/Library/Application Support/<Bottle>/drive_c/users/<username>/My Documents/
+```
+
+Most games store saves in the Documents directory. Back it up before recreating a bottle.
+</script>
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>Gmac is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/docs/SteamCompatibility.md">docs/SteamCompatibility.md</a></p>
+  <div class="wrap footer-grid">
+    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+      <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
+        <g transform="translate(-9 -7) scale(0.265)">
+          <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+          <circle cx="200" cy="56" r="20"/>
+          <path d="M 220 36 L 220 76"/>
+          <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./">Documentation</a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a class="footer-social" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a href="https://github.com/rolling7ho/gmac/issues">Report a bug</a>
+    </nav>
+    <p class="footer-license">Gmac is licensed under <a class="footer-license-link" href="https://github.com/rolling7ho/gmac/blob/main/LICENSE">GNU GPL v3</a>.</p>
   </div>
 </footer>
 </body>

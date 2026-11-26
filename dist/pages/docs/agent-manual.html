@@ -9,30 +9,94 @@
 <link rel="icon" href="../gmac-mark.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preload" href="../fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../style.css">
 <link rel="canonical" href="https://rolling7ho.github.io/gmac/docs/agent-manual.html">
+<script src="../site.js" defer></script>
 </head>
 <body>
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="../index.html">
-      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
+    <a class="brand" href="../index.html" aria-label="Gmac">
+      <span class="brand-viewport">
+        <svg class="brand-logo" viewBox="0 0 294 92" width="102" height="32" fill="none" aria-hidden="true">
+          <g class="brand-mark">
+            <g transform="translate(-9 -7) scale(0.265)">
+              <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
+          <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <g class="brand-letter brand-letter-m">
+              <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            </g>
+            <g class="brand-letter brand-letter-a">
+              <circle cx="200" cy="56" r="20"/>
+              <path d="M 220 36 L 220 76"/>
+            </g>
+            <g class="brand-letter brand-letter-c">
+              <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+            </g>
+          </g>
+        </svg>
+      </span>
     </a>
     <nav aria-label="Main">
-      <a href="../index.html">Home</a>
-      <a href="./">Documentation</a>
-      <a href="https://github.com/rolling7ho/gmac">GitHub</a>
+      <a class="nav-icon" href="./" aria-label="Documentation" title="Documentation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="13" y2="17"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="../index.html#start" aria-label="Install" title="Install">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </a>
+      <a class="nav-icon" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </nav>
   </div>
 </header>
-<main class="wrap doc">
-  <p class="doc-nav"><a href="./">Documentation</a> / Project</p>
-  <h1>Agent operating manual</h1>
+<main class="doc-shell doc">
+  <aside class="doc-toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ul class="toc-list">
+      <li class="toc-item toc-l2"><a href="#project">Project</a></li>
+      <li class="toc-item toc-l2"><a href="#repository-map">Repository map</a></li>
+      <li class="toc-item toc-l2"><a href="#environment">Environment</a></li>
+      <li class="toc-item toc-l2"><a href="#commands">Commands</a></li>
+      <li class="toc-item toc-l3"><a href="#build-test-install">Build, test, install</a></li>
+      <li class="toc-item toc-l3"><a href="#style-strings-secrets">Style, strings, secrets</a></li>
+      <li class="toc-item toc-l3"><a href="#direct3d-12-layer">Direct3D 12 layer</a></li>
+      <li class="toc-item toc-l2"><a href="#architecture-and-boundaries">Architecture and boundaries</a></li>
+      <li class="toc-item toc-l2"><a href="#code-conventions">Code conventions</a></li>
+      <li class="toc-item toc-l2"><a href="#writing-and-communication">Writing and communication</a></li>
+      <li class="toc-item toc-l2"><a href="#testing-guidance">Testing guidance</a></li>
+      <li class="toc-item toc-l2"><a href="#git-workflow">Git workflow</a></li>
+      <li class="toc-item toc-l2"><a href="#hard-rules">Hard rules</a></li>
+      <li class="toc-item toc-l2"><a href="#verification-before-finishing">Verification before finishing</a></li>
+      <li class="toc-item toc-l2"><a href="#known-pitfalls">Known pitfalls</a></li>
+      <li class="toc-item toc-l2"><a href="#read-next">Read next</a></li>
+    </ul>
+  </aside>
+  <article class="doc-article">
+    <p class="doc-nav"><a href="./">Documentation</a> / Project</p>
+    <h1 class="doc-title">Agent operating manual</h1>
+    <div class="doc-body">
 <p>Operating manual for AI coding agents and new contributors working in this repository.
 <code>README.md</code> provides orientation for human readers; this file defines the rules and
 procedures. Where an explicit user instruction conflicts with this file, the user
 instruction takes precedence.</p>
-<h2>Project</h2>
+<h2 id="project">Project</h2>
 <p><strong>Gmac</strong> is a native macOS application that runs Windows games and PC launchers on Apple Silicon
 (a fork of Whisky via frankea&#39;s community fork). Toolchain: Swift 6, SwiftUI, macOS 15 or
 later, Xcode 16 or later.</p>
@@ -43,8 +107,8 @@ siblings under a common parent directory):</p>
 <li><code>rolling7ho/dxmt</code>: patched DXMT source tree (<code>teardown</code> branch) for <code>gmacmetal</code>.</li>
 <li><code>rolling7ho/openv</code>: open-source single-player ScriptHookV replacement for GTA V Enhanced.</li>
 </ul>
-<h2>Repository map</h2>
-<table>
+<h2 id="repository-map">Repository map</h2>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Path</th>
@@ -97,8 +161,8 @@ siblings under a common parent directory):</p>
 <td>DerivedData and SwiftPM output</td>
 <td>Never commit. <code>GmacKit/.build</code> is ignored separately.</td>
 </tr>
-</tbody></table>
-<h2>Environment</h2>
+</tbody></table></div>
+<h2 id="environment">Environment</h2>
 <ul>
 <li>Apple Silicon Mac, macOS 15 or later, Xcode 16 or later (<code>swift --version</code> should report
 Swift 6).</li>
@@ -109,10 +173,10 @@ newer than that pin; verify <code>swiftformat --version</code> and install the 0
 <code>--lint</code> reports differences that CI does not.</li>
 <li><code>trufflehog</code> for <code>scripts/scan-secrets.sh</code> (<code>brew install trufflehog</code>).</li>
 </ul>
-<h2>Commands</h2>
+<h2 id="commands">Commands</h2>
 <p>Run commands from the repository root.</p>
-<h3>Build, test, install</h3>
-<pre><code class="language-sh"># Build the application (Debug, unsigned, with the codesign flags CI uses)
+<h3 id="build-test-install">Build, test, install</h3>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-1" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-1" class="language-sh"># Build the application (Debug, unsigned, with the codesign flags CI uses)
 xcodebuild -project Gmac.xcodeproj -scheme Gmac -configuration Debug build \
   -derivedDataPath .build/debug \
   CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
@@ -136,19 +200,19 @@ swift test --package-path GmacKit --filter CommandKeyMappingTests
 xcodebuild -project Gmac.xcodeproj -scheme Gmac -configuration Debug \
   -destination &#39;platform=macOS&#39; -only-testing:GmacUITests test \
   CODE_SIGN_IDENTITY=&quot;&quot; CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-</code></pre>
-<h3>Style, strings, secrets</h3>
-<pre><code class="language-sh">swiftformat --lint .                     # check; fix with: swiftformat .
+</code></pre></div>
+<h3 id="style-strings-secrets">Style, strings, secrets</h3>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-2" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-2" class="language-sh">swiftformat --lint .                     # check; fix with: swiftformat .
 swiftlint --strict                      # configuration: .swiftlint.yml
 ./scripts/british-english.py --check    # en-GB must cover every en key
 ./scripts/scan-secrets.sh               # same check as CI (TruffleHog)
-</code></pre>
-<h3>Direct3D 12 layer</h3>
-<pre><code class="language-sh">scripts/build-gmac-d3d12.sh [dxmt-checkout-path]
-</code></pre>
+</code></pre></div>
+<h3 id="direct3d-12-layer">Direct3D 12 layer</h3>
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-3" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-3" class="language-sh">scripts/build-gmac-d3d12.sh [dxmt-checkout-path]
+</code></pre></div>
 <p>Defaults to <code>GMAC_DXMT_DIR</code> or <code>../dxmt</code> with its <code>toolchains/</code> directory present. Stages
 DLLs into <code>build/gmac-d3d12/</code>.</p>
-<h2>Architecture and boundaries</h2>
+<h2 id="architecture-and-boundaries">Architecture and boundaries</h2>
 <ul>
 <li><strong>Layering.</strong> UI and application lifecycle code belongs in <code>Gmac/</code>; Wine, bottle, Steam,
 library and playtime logic belongs in <code>GmacKit</code>. Testable logic belongs in <code>GmacKit</code>,
@@ -173,7 +237,7 @@ edited as source; the appcast is written by <code>scripts/publish-update.sh</cod
 documentation pages under <code>dist/pages/docs/</code> by <code>scripts/build-docs-site.py</code>. Publish by
 copying the directory to the <code>gh-pages</code> branch. Do not edit <code>appcast.xml</code> by hand.</li>
 </ul>
-<h2>Code conventions</h2>
+<h2 id="code-conventions">Code conventions</h2>
 <ul>
 <li>Every Swift file begins with the GPL header (&quot;This file is part of Gmac, a fork of
 Whisky.&quot;). <code>file_header</code> is an error-level SwiftLint rule; copy the header from an
@@ -192,7 +256,7 @@ incidental churn. <code>GmacUITests</code> uses XCTest throughout.</li>
 <li>Changelog: describe user-facing changes under <code>[Unreleased]</code> in <code>CHANGELOG.md</code>.</li>
 <li>Commit messages are imperative and scoped, for example <code>gmac: fix Steam launch resolver</code> or <code>docs: update the README</code>.</li>
 </ul>
-<h2>Writing and communication</h2>
+<h2 id="writing-and-communication">Writing and communication</h2>
 <p>One register applies to all text produced in this repository or in conversation with the
 maintainer, unless an explicit instruction states otherwise. Do not require the user to ask
 for it.</p>
@@ -217,7 +281,7 @@ or &quot;do not&quot; for requirements.</li>
 </ul>
 <p><strong>Exceptions.</strong> An explicit user instruction to write briefly or informally overrides this
 section for that response only.</p>
-<h2>Testing guidance</h2>
+<h2 id="testing-guidance">Testing guidance</h2>
 <ul>
 <li>Logic change: <code>swift test --package-path GmacKit</code>, with <code>--filter</code> for the affected
 suite.</li>
@@ -229,7 +293,7 @@ interaction itself changed.</li>
 <li>Never weaken, skip or delete a test to obtain a passing run. Fix the cause and report
 anything that could not be run.</li>
 </ul>
-<h2>Git workflow</h2>
+<h2 id="git-workflow">Git workflow</h2>
 <ul>
 <li><p><strong>Every change goes through a pull request by default.</strong> This applies to all work,
 including code, documentation, configuration and one-line fixes. Do not wait for the
@@ -239,13 +303,13 @@ branch, open the pull request and report its URL as part of completing the task.
 <li><p><strong>Never push to <code>main</code> directly.</strong> Do not <code>git push</code> to <code>main</code>, do not push a branch
 that is then fast-forwarded into <code>main</code> by hand, and do not merge a pull request without
 explicit user approval. The standard procedure:</p>
-<pre><code class="language-sh">git switch -c gmac/short-description
+<div class="doc-code"><button class="copy-button" type="button" data-copy-target="doc-code-4" aria-label="Copy code" title="Copy"><svg class="icon-copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><svg class="icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></button><pre><code id="doc-code-4" class="language-sh">git switch -c gmac/short-description
 # edit, then run the checks in the verification table
 git add &lt;explicit paths&gt;
 git commit -m &quot;gmac: fix Steam launch resolver&quot;
 git push -u origin gmac/short-description
 gh pr create --fill --base main
-</code></pre>
+</code></pre></div>
 <p>Run the checks yourself rather than treating a green merge button as evidence.</p>
 </li>
 <li><p><strong>Delete the branch after every pull request.</strong> Once the pull request merges, remove
@@ -257,7 +321,7 @@ references. A pull request that is closed without merging is cleaned up the same
 artifacts are present.</p>
 </li>
 </ul>
-<h2>Hard rules</h2>
+<h2 id="hard-rules">Hard rules</h2>
 <ol>
 <li>Do not commit runtime build outputs (<code>runtime/runtime-*</code>, <code>runtime/pkg-*</code>,
 <code>runtime/deps</code>, <code>.build/</code>, <code>*.tar.gz</code>, logs, or machine-specific artifacts).</li>
@@ -277,8 +341,8 @@ with an open pull request. Only the merge into <code>main</code> waits for the u
 policy applies to every document, plan, ADR, pull request comment and reply to the
 maintainer, and requires no reminder from the user.</li>
 </ol>
-<h2>Verification before finishing</h2>
-<table>
+<h2 id="verification-before-finishing">Verification before finishing</h2>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>You changed</th>
@@ -305,10 +369,10 @@ maintainer, and requires no reminder from the user.</li>
 <td>Documentation only</td>
 <td>check links and paths; builds may be skipped</td>
 </tr>
-</tbody></table>
+</tbody></table></div>
 <p>Report exactly which checks ran, their result, and any check that could not be run.
 Compiling is not equivalent to testing behaviour.</p>
-<h2>Known pitfalls</h2>
+<h2 id="known-pitfalls">Known pitfalls</h2>
 <ul>
 <li>SwiftLint is skipped silently in Xcode when <code>CI=true</code> is set, so a local build can pass
 while CI fails. Run <code>swiftlint --strict</code> explicitly.</li>
@@ -317,18 +381,365 @@ British users. Regenerate it after modifying <code>Gmac/Localizable.xcstrings</c
 <li>The application bundle must ship <code>winetricks</code>, <code>verbs.txt</code> and <code>cabextract</code>. CI asserts
 on the built artifact because the copy phase can omit them without failing.</li>
 </ul>
-<h2>Read next</h2>
+<h2 id="read-next">Read next</h2>
 <ul>
 <li><code>README.md</code>: installation, features, and layout.</li>
 <li><code>CONTRIBUTING.md</code>: build, pull request, and release detail.</li>
 <li><code>docs/</code>: dependencies, release workflow, Steam compatibility, and troubleshooting.</li>
 </ul>
 
+    </div>
+    <p class="doc-source"><a class="doc-source-link" href="https://github.com/rolling7ho/gmac/blob/main/AGENTS.md">Mirrored from <code>AGENTS.md</code></a></p>
+  </article>
+  <div class="doc-actions">
+    <div class="copy-split-wrap">
+      <div class="copy-split">
+        <button class="copy-split-main" type="button" aria-label="Copy page as Markdown">
+          <svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span class="copy-split-label">Copy page</span>
+        </button>
+        <button class="copy-split-toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Copy options">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+      <div class="copy-menu" role="menu" aria-label="Copy page format">
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="text">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as plain text</span>
+            <span class="copy-menu-desc">Clean readable text without markup</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="markdown">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <path d="M6 15V9l3 3 3-3v6"/>
+              <path d="M16 9v6"/>
+              <path d="M14 13l2 2 2-2"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as Markdown</span>
+            <span class="copy-menu-desc">Raw Markdown source for LLMs</span>
+          </span>
+        </button>
+        <button class="copy-menu-item" type="button" role="menuitem" data-copy-format="html">
+          <span class="copy-menu-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </span>
+          <span class="copy-menu-text">
+            <span class="copy-menu-title">Copy as HTML</span>
+            <span class="copy-menu-desc">Rendered HTML markup of this page</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
+<script type="text/plain" id="doc-markdown-source"># AGENTS.md
+
+Operating manual for AI coding agents and new contributors working in this repository.
+`README.md` provides orientation for human readers; this file defines the rules and
+procedures. Where an explicit user instruction conflicts with this file, the user
+instruction takes precedence.
+
+## Project
+
+**Gmac** is a native macOS application that runs Windows games and PC launchers on Apple Silicon
+(a fork of Whisky via frankea's community fork). Toolchain: Swift 6, SwiftUI, macOS 15 or
+later, Xcode 16 or later.
+
+Related repositories in the ecosystem live in separate Git repositories (typically cloned as
+siblings under a common parent directory):
+
+- `rolling7ho/winecx`: patched Wine/CrossOver source tree (`d3dmetal-errno` branch).
+- `rolling7ho/dxmt`: patched DXMT source tree (`teardown` branch) for `gmacmetal`.
+- `rolling7ho/openv`: open-source single-player ScriptHookV replacement for GTA V Enhanced.
+
+## Repository map
+
+| Path | Role | Notes |
+|---|---|---|
+| `Gmac/` | SwiftUI application target | New files require entries in `Gmac.xcodeproj`. |
+| `GmacKit/` | Swift package containing the logic: Wine, bottles, Steam, library, playtime | SwiftPM discovers new files automatically. Tests reside here. |
+| `GmacCmd/` | Command-line interface used by Dock shortcuts to launch games | |
+| `GmacThumbnail/` | Quick Look thumbnail extension for `.exe` files | |
+| `GmacUITests/` | XCUITest suite for the application | Fixture-dependent tests skip when no bottle exists. |
+| `scripts/` | Build, release, localization and secret-scan helpers | |
+| `docs/` | Dependency, release and troubleshooting documentation | Runtime pins must match `docs/DEPENDENCIES.md`. |
+| `runtime/` | Local Wine runtime build driver and notes | Local lanes (`runtime-*`, `pkg-*`, `deps/`) remain untracked. |
+| `.build/` | DerivedData and SwiftPM output | Never commit. `GmacKit/.build` is ignored separately. |
+
+## Environment
+
+- Apple Silicon Mac, macOS 15 or later, Xcode 16 or later (`swift --version` should report
+  Swift 6).
+- `swiftlint`, which runs automatically as an Xcode build phase; violations fail the
+  build.
+- `swiftformat` **0.58.7**, the version CI downloads. Homebrew's `swiftformat` is usually
+  newer than that pin; verify `swiftformat --version` and install the 0.58.7 release if
+  `--lint` reports differences that CI does not.
+- `trufflehog` for `scripts/scan-secrets.sh` (`brew install trufflehog`).
+
+## Commands
+
+Run commands from the repository root.
+
+### Build, test, install
+
+```sh
+# Build the application (Debug, unsigned, with the codesign flags CI uses)
+xcodebuild -project Gmac.xcodeproj -scheme Gmac -configuration Debug build \
+  -derivedDataPath .build/debug \
+  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+# Build every scheme, as CI does
+for scheme in Gmac GmacCmd GmacThumbnail; do
+  xcodebuild -project Gmac.xcodeproj -scheme "$scheme" -configuration Debug build \
+    CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+done
+
+# Release build, ad-hoc signed, installed to /Applications
+scripts/install-local.sh
+
+# Unit tests (GmacKit); fast, run for any logic change
+swift test --package-path GmacKit
+
+# A single suite or test
+swift test --package-path GmacKit --filter CommandKeyMappingTests
+
+# UI tests (slow; run only when UI behaviour changed)
+xcodebuild -project Gmac.xcodeproj -scheme Gmac -configuration Debug \
+  -destination 'platform=macOS' -only-testing:GmacUITests test \
+  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+```
+
+### Style, strings, secrets
+
+```sh
+swiftformat --lint .                     # check; fix with: swiftformat .
+swiftlint --strict                      # configuration: .swiftlint.yml
+./scripts/british-english.py --check    # en-GB must cover every en key
+./scripts/scan-secrets.sh               # same check as CI (TruffleHog)
+```
+
+### Direct3D 12 layer
+
+```sh
+scripts/build-gmac-d3d12.sh [dxmt-checkout-path]
+```
+
+Defaults to `GMAC_DXMT_DIR` or `../dxmt` with its `toolchains/` directory present. Stages
+DLLs into `build/gmac-d3d12/`.
+
+## Architecture and boundaries
+
+- **Layering.** UI and application lifecycle code belongs in `Gmac/`; Wine, bottle, Steam,
+  library and playtime logic belongs in `GmacKit`. Testable logic belongs in `GmacKit`,
+  not in views.
+- **Game fixes are data.** A fix that only changes Windows settings for one game belongs
+  in `GmacKit/Sources/GmacKit/GameDatabase/Resources/GameDB.json`, with a reference to
+  the origin of the fix. Games must not be special-cased in Swift.
+- **Runtime is downloaded, not vendored.** The application fetches `Libraries.tar.gz`
+  according to `GmacKit/Sources/GmacKit/Utils/DistributionConfig.swift`. Runtime
+  binaries must never be added to the repository. Runtime pins live in
+  `.github/workflows/RuntimeTrack.yml` and must remain in sync with `docs/DEPENDENCIES.md`.
+- **Localization.** New user-facing strings are added to `Gmac/Localizable.xcstrings`
+  **in English only**, edited as text with only the required lines touched. Re-saving the
+  file with a JSON tool reorders the catalog. Run `scripts/british-english.py` afterwards to
+  regenerate en-GB.
+- **Xcode project.** Files added to the application target (`Gmac/`) require
+  `Gmac.xcodeproj` entries, while `GmacKit` discovers files automatically. Adding those
+  entries for a new source file is expected and is the only `project.pbxproj` edit
+  permitted (see hard rule 2).
+- **Generated site.** `dist/pages/` holds the published site. The page and stylesheet are
+  edited as source; the appcast is written by `scripts/publish-update.sh` and the
+  documentation pages under `dist/pages/docs/` by `scripts/build-docs-site.py`. Publish by
+  copying the directory to the `gh-pages` branch. Do not edit `appcast.xml` by hand.
+
+## Code conventions
+
+- Every Swift file begins with the GPL header ("This file is part of Gmac, a fork of
+  Whisky."). `file_header` is an error-level SwiftLint rule; copy the header from an
+  existing file.
+- SwiftFormat configuration: 4-space indent, maximum width 120, `--guardelse next-line`,
+  alphabetical import grouping, no semicolons. `redundantSelf` is disabled, so explicit
+  `self` is preserved; do not remove it by hand. Run the formatter rather than matching
+  style manually.
+- SwiftLint enables `force_unwrapping`; do not add `!` unwraps in new code.
+- Prefer existing patterns (bottle abstractions, the `Bottle` and `Wine` types,
+  swift-testing suites for new tests) over new abstractions or dependencies. Ask before
+  adding a package.
+- GmacKit tests are mixed: XCTest and swift-testing (`@Test`, `struct ...Tests`)
+  coexist. New tests use swift-testing, and existing XCTest files are not ported as
+  incidental churn. `GmacUITests` uses XCTest throughout.
+- Changelog: describe user-facing changes under `[Unreleased]` in `CHANGELOG.md`.
+- Commit messages are imperative and scoped, for example `gmac: fix Steam launch
+  resolver` or `docs: update the README`.
+
+## Writing and communication
+
+One register applies to all text produced in this repository or in conversation with the
+maintainer, unless an explicit instruction states otherwise. Do not require the user to ask
+for it.
+
+**Scope.** The policy covers:
+
+- documentation, README files, plans, ADRs and design notes;
+- pull request titles, descriptions, review comments and issue replies;
+- commit messages and code comments;
+- every response to the maintainer, including short status updates, questions and
+  summaries of work.
+
+**Register.**
+
+- Use complete sentences and state the fact or the action directly.
+- Do not use contractions, em-dash asides, exclamation marks or decorative emoji.
+- Do not use marketing superlatives, and do not assert claims the repository cannot
+  substantiate. Quantify only values that were measured.
+- Use the imperative mood for instructions, the present tense for descriptions, and "must"
+  or "do not" for requirements.
+- Use one term per concept and do not alternate synonyms for the same object.
+- Prefer the concrete path, command or symbol to a paraphrase of it.
+
+**Exceptions.** An explicit user instruction to write briefly or informally overrides this
+section for that response only.
+
+## Testing guidance
+
+- Logic change: `swift test --package-path GmacKit`, with `--filter` for the affected
+  suite.
+- Application or UI change: build the affected scheme; run `GmacUITests` only when the
+  interaction itself changed.
+- Strings or localization: `scripts/british-english.py --check`.
+- Formatting and lint: `swiftformat --lint .` and `swiftlint --strict`.
+- CI-only checks (coverage upload, Codecov, gh-pages) may be skipped locally.
+- Never weaken, skip or delete a test to obtain a passing run. Fix the cause and report
+  anything that could not be run.
+
+## Git workflow
+
+- **Every change goes through a pull request by default.** This applies to all work,
+  including code, documentation, configuration and one-line fixes. Do not wait for the
+  user to request a pull request or to point out that one is needed: branch, push the
+  branch, open the pull request and report its URL as part of completing the task.
+- **Never push to `main` directly.** Do not `git push` to `main`, do not push a branch
+  that is then fast-forwarded into `main` by hand, and do not merge a pull request without
+  explicit user approval. The standard procedure:
+
+  ```sh
+  git switch -c gmac/short-description
+  # edit, then run the checks in the verification table
+  git add <explicit paths>
+  git commit -m "gmac: fix Steam launch resolver"
+  git push -u origin gmac/short-description
+  gh pr create --fill --base main
+  ```
+
+  Run the checks yourself rather than treating a green merge button as evidence.
+- **Delete the branch after every pull request.** Once the pull request merges, remove
+  the remote branch with `git push origin --delete <branch>` and the local branch with
+  `git branch -d <branch>`, then run `git fetch --prune` to drop stale remote-tracking
+  references. A pull request that is closed without merging is cleaned up the same way.
+- Stage explicit paths rather than `git add -A` when untracked runtime lanes or local build
+  artifacts are present.
+
+## Hard rules
+
+1. Do not commit runtime build outputs (`runtime/runtime-*`, `runtime/pkg-*`,
+   `runtime/deps`, `.build/`, `*.tar.gz`, logs, or machine-specific artifacts).
+2. Do not edit generated files by hand: `dist/pages/docs/`, the formatting of
+   `Gmac/Localizable.xcstrings`, or `*.xcodeproj` internals. The one permitted
+   `Gmac.xcodeproj` edit is adding the file references and build-phase entries that a new
+   application-target source file requires.
+3. Do not introduce secrets, API keys, certificates or provisioning profiles. The Sparkle
+   signing key resides in the maintainer's keychain (`gmac` account) and must never be
+   placed in the repository.
+4. Do not run destructive commands (`git reset --hard`, `git clean -xdf`) unless the user
+   explicitly requests that exact action.
+5. Do not add a dependency or a new top-level directory without asking.
+6. Do not push to `main`, and do not consider a change complete until it is on a branch
+   with an open pull request. Only the merge into `main` waits for the user to ask.
+7. Write in the formal technical register defined under **Writing and communication**. The
+   policy applies to every document, plan, ADR, pull request comment and reply to the
+   maintainer, and requires no reminder from the user.
+
+## Verification before finishing
+
+| You changed | Run at least |
+|---|---|
+| GmacKit logic | `swift test --package-path GmacKit --filter <suite>` |
+| Application or UI | build the `Gmac` scheme; `GmacUITests` if interaction changed |
+| User-facing strings | `./scripts/british-english.py --check` |
+| Swift style | `swiftformat --lint . && swiftlint --strict` |
+| Documentation only | check links and paths; builds may be skipped |
+
+Report exactly which checks ran, their result, and any check that could not be run.
+Compiling is not equivalent to testing behaviour.
+
+## Known pitfalls
+
+- SwiftLint is skipped silently in Xcode when `CI=true` is set, so a local build can pass
+  while CI fails. Run `swiftlint --strict` explicitly.
+- en-GB must be complete. A single missing string causes macOS to display the raw key to
+  British users. Regenerate it after modifying `Gmac/Localizable.xcstrings`.
+- The application bundle must ship `winetricks`, `verbs.txt` and `cabextract`. CI asserts
+  on the built artifact because the copy phase can omit them without failing.
+
+## Read next
+
+- `README.md`: installation, features, and layout.
+- `CONTRIBUTING.md`: build, pull request, and release detail.
+- `docs/`: dependencies, release workflow, Steam compatibility, and troubleshooting.
+</script>
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p>Gmac is licensed under GPL-3.0.</p>
-    <p class="muted">Source: <a href="https://github.com/rolling7ho/gmac/blob/main/AGENTS.md">AGENTS.md</a></p>
+  <div class="wrap footer-grid">
+    <a class="footer-logo" href="../index.html" aria-label="Gmac">
+      <svg class="brand-logo" viewBox="0 0 294 92" width="115" height="36" fill="none" aria-hidden="true">
+        <g transform="translate(-9 -7) scale(0.265)">
+          <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="brand-wordmark" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+          <circle cx="200" cy="56" r="20"/>
+          <path d="M 220 36 L 220 76"/>
+          <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+        </g>
+      </svg>
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./">Documentation</a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a class="footer-social" href="https://github.com/rolling7ho/gmac" aria-label="GitHub" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+      <span class="footer-sep" aria-hidden="true">&bull;</span>
+      <a href="https://github.com/rolling7ho/gmac/issues">Report a bug</a>
+    </nav>
+    <p class="footer-license">Gmac is licensed under <a class="footer-license-link" href="https://github.com/rolling7ho/gmac/blob/main/LICENSE">GNU GPL v3</a>.</p>
   </div>
 </footer>
 </body>
