@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discord bridge | Vodka</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/discord-bridge.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+  <h1>Discord bridge</h1>
+<p>Relays the Discord RPC named pipe from inside a bottle to the Discord client on the host, so
+that a Windows game&#39;s rich presence reaches Discord on macOS.</p>
+<p><code>make install</code> builds <code>VodkaDiscordBridge.exe</code> and places it in
+<code>VodkaKit/Sources/VodkaKit/Discord/Resources/</code>, from which it ships as a bundle resource.
+The built binary is committed, because Xcode builds do not run <code>make</code> and CI has no MinGW
+toolchain. Rebuild and commit the binary whenever <code>bridge.c</code> changes.</p>
+<pre><code>brew install mingw-w64   # provides x86_64-w64-mingw32-gcc
+make install
+</code></pre>
+<h2>Design</h2>
+<p>Both ends of the Discord RPC transport use the same framing, a little-endian opcode and
+length followed by JSON, so the relay forwards bytes without parsing messages. It serves
+<code>\\.\pipe\discord-ipc-0</code> inside the prefix and relays bytes to whichever of
+<code>discord-ipc-0</code> to <code>discord-ipc-9</code> exists in the socket directory it is given.</p>
+<p>Three constraints apply to any change:</p>
+<ul>
+<li><strong>The socket is reached through raw xnu system calls.</strong> PE code shares an address space
+with the Unix side of Wine, so a <code>syscall</code> instruction enters the kernel directly. A PE
+module cannot link libSystem, and the supported alternative, a PE plus a unixlib half,
+would have to be built against a specific Wine build rather than plain MinGW. <code>sockaddr_un</code>
+here follows xnu&#39;s layout (a length byte followed by a family byte), not Linux&#39;s 16-bit
+family field.</li>
+<li><strong>The socket directory is passed with <code>--dir</code>.</strong> A PE process sees Wine&#39;s Windows
+environment, in which the host&#39;s <code>TMPDIR</code> may not have survived, and the sockets are named
+relative to that directory.</li>
+<li><strong>The relay becomes a Wine system process after a grace period.</strong> System processes do not
+keep a prefix alive, so the relay stops holding a bottle open once the game exits and
+terminates with the prefix rather than outliving it. The grace period exists because Vodka
+starts the relay immediately before the game, and a prefix containing no ordinary process
+begins shutting down.</li>
+</ul>
+<h2>Manual test</h2>
+<p>Serve a socket at a path short enough to fit <code>sun_path</code>, point the relay at it, and connect
+from inside the prefix:</p>
+<pre><code>mkdir -p /tmp/vodkaipc
+python3 - /tmp/vodkaipc/discord-ipc-0 &lt;&lt;&#39;EOF&#39;
+import socket, struct, sys
+server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+server.bind(sys.argv[1]); server.listen(1)
+conn, _ = server.accept()
+header = conn.recv(8)
+print(struct.unpack(&quot;&lt;II&quot;, header), conn.recv(4096))
+EOF
+
+WINEPREFIX=... wine64 VodkaDiscordBridge.exe --dir /tmp/vodkaipc --grace 600000
+</code></pre>
+<p><code>--grace</code> is specified in milliseconds. A large value prevents the relay from standing down
+while it is being tested.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/scripts/discord-bridge/README.md">scripts/discord-bridge/README.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

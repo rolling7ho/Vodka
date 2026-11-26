@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Release workflow | Vodka</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/release-workflow.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+  <h1>Release workflow</h1>
+<p>This document describes how to publish an application update, how to produce the Wine
+Libraries archive, and which credentials the pipeline depends on.</p>
+<h2>Artifacts</h2>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Tag</th>
+<th>Contents</th>
+<th>Produced by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Application update</td>
+<td><code>app-vX.Y.Z</code></td>
+<td><code>Vodka-X.Y.Z.zip</code>, signed for Sparkle</td>
+<td><code>scripts/publish-update.sh</code></td>
+</tr>
+<tr>
+<td>Notarized disk image</td>
+<td><code>app-vX.Y.Z</code></td>
+<td><code>Vodka-X.Y.Z.dmg</code></td>
+<td><code>scripts/release.sh</code></td>
+</tr>
+<tr>
+<td>Wine runtime</td>
+<td><code>vX.Y.Z</code></td>
+<td><code>Libraries.tar.gz</code></td>
+<td>assembled manually, then published</td>
+</tr>
+<tr>
+<td>Static site data</td>
+<td>none</td>
+<td>version plist, appcast</td>
+<td><code>scripts/publish-update.sh</code>, <code>scripts/update-appcast.py</code></td>
+</tr>
+</tbody></table>
+<p>The Sparkle update feed is <code>appcast.xml</code> on the <code>gh-pages</code> branch, served at
+<code>https://rolling7ho.github.io/Vodka/appcast.xml</code> and referenced by <code>SUFeedURL</code> in the
+application&#39;s <code>Info.plist</code>. The committed site content used by the publishing scripts
+resides in <code>dist/pages/</code>.</p>
+<h2>One-time setup</h2>
+<p>The following steps are required once per maintainer machine.</p>
+<h3>Apple Developer ID Application certificate</h3>
+<p>A Developer ID Application certificate is required for a Gatekeeper-compatible disk image.
+Apple Development and Apple Distribution certificates are insufficient.</p>
+<ol>
+<li><strong>Xcode → Settings → Accounts</strong> → select the Apple ID → <strong>Manage Certificates…</strong></li>
+<li>Select <strong>+</strong> → <strong>Developer ID Application</strong>.</li>
+<li>The certificate is installed in the login keychain automatically.</li>
+</ol>
+<h3>notarytool credentials</h3>
+<p>Apple&#39;s notary service requires an app-specific password.</p>
+<ol>
+<li><p>Generate one at <a href="https://appleid.apple.com">https://appleid.apple.com</a> under <strong>Sign-In and Security → App-Specific
+Passwords</strong>.</p>
+</li>
+<li><p>Store it as a notarytool keychain profile:</p>
+<pre><code class="language-sh">xcrun notarytool store-credentials AC_PASSWORD \
+  --apple-id &lt;apple-id-email&gt; \
+  --team-id Z7JS58F8U3 \
+  --password &lt;app-specific-password&gt;
+</code></pre>
+</li>
+<li><p>The release script reads this profile by name (<code>AC_PASSWORD</code>).</p>
+</li>
+</ol>
+<h3>Sparkle EdDSA keys</h3>
+<p>A key pair signs appcast entries. Sparkle&#39;s <code>generate_keys</code> tool ships with the Sparkle
+Swift package; after building Vodka once, it is located at:</p>
+<pre><code>~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys
+</code></pre>
+<p>Run it once. The private key is stored in the login keychain. The public key is printed to
+standard output and is already committed in <code>Vodka/Info.plist</code> under <code>SUPublicEDKey</code>.
+Regenerating the keys invalidates the public key in every shipped application and requires a
+new release.</p>
+<h2>Credential continuity</h2>
+<p>Three secrets gate the release pipeline. Losing the Sparkle key is <strong>unrecoverable</strong> for
+existing installations, because <code>SUPublicEDKey</code> is embedded in every shipped <code>Info.plist</code>;
+a regenerated key permanently prevents installed copies from receiving updates. Maintain
+current, restore-tested backups of all three.</p>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Location</th>
+<th>Consequence if lost</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sparkle EdDSA private key</td>
+<td>login keychain (&quot;Private key for signing Sparkle updates&quot;)</td>
+<td>Existing installations receive no further automatic updates</td>
+</tr>
+<tr>
+<td>Developer ID Application identity</td>
+<td>login keychain</td>
+<td>Re-issue from the Apple Developer portal; releases are blocked until complete</td>
+</tr>
+<tr>
+<td>notarytool app-specific password</td>
+<td>appleid.apple.com, cached as keychain profile <code>AC_PASSWORD</code></td>
+<td>Regenerate at appleid.apple.com and rerun <code>store-credentials</code></td>
+</tr>
+</tbody></table>
+<h3>Backup procedure</h3>
+<ol>
+<li><p>Export the Sparkle private key. Keychain will prompt for access:</p>
+<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
+&quot;$SPARKLE_BIN/generate_keys&quot; -x sparkle_ed25519_private.key
+</code></pre>
+<p>If several <code>Vodka-*</code> DerivedData directories exist, this selects the most recently
+modified one.</p>
+</li>
+<li><p>Export the Developer ID identity: <strong>Keychain Access → My Certificates</strong>, right-click
+<em>Developer ID Application: …</em>, then <strong>Export</strong> as <code>.p12</code> with a strong password.</p>
+</li>
+<li><p>Encrypt both files before they leave the machine:</p>
+<pre><code class="language-sh">age -p sparkle_ed25519_private.key &gt; sparkle_ed25519_private.key.age   # or: gpg -c &lt;file&gt;
+age -p developer_id.p12 &gt; developer_id.p12.age
+</code></pre>
+<p>Neither <code>age</code> nor <code>gpg</code> ships with macOS. Install <code>age</code> with <code>brew install age</code>.</p>
+</li>
+<li><p>Store the encrypted files, together with the app-specific password, in <strong>two</strong>
+off-machine locations, for example a password-manager secure note and one offline
+medium. Delete the plaintext exports afterwards.</p>
+</li>
+<li><p>Record the certificate expiry date and set reminders at 60 and 14 days before it:</p>
+<pre><code class="language-sh">security find-certificate -c &quot;Developer ID Application&quot; -p | openssl x509 -noout -enddate
+</code></pre>
+<p>This prints the first matching certificate only. During a renewal window, when old and
+new certificates coexist in the keychain, inspect every match with
+<code>security find-certificate -a -c &quot;Developer ID Application&quot; -p</code>, where each
+<code>-----BEGIN</code> block is one certificate. Rerun this step after renewal so that the
+reminder tracks the new expiry date.</p>
+</li>
+</ol>
+<h3>Restore test</h3>
+<p>A backup that has never been restored from is unverified. <code>sign_update</code> can sign directly
+from a key file, so the test does not modify the keychain:</p>
+<pre><code class="language-sh">&quot;$SPARKLE_BIN/sign_update&quot; --ed-key-file sparkle_ed25519_private.key build/release/Vodka-X.Y.Z.dmg
+</code></pre>
+<p>The printed <code>sparkle:edSignature</code> <strong>and</strong> the printed <code>length</code> must both match that
+release&#39;s entry in <code>appcast.xml</code>. Ed25519 signatures are deterministic, so a mismatch in
+either value indicates a wrong key or a non-canonical artifact: either the exported key is
+incorrect, or the file signed is not the exact published artifact. If in doubt, download
+the release asset from the appcast enclosure URL and sign that.</p>
+<h3>Recovery on a new machine</h3>
+<ol>
+<li><p>Build Vodka once so that the Sparkle tools exist in DerivedData (see
+<a href="#sparkle-eddsa-keys">Sparkle EdDSA keys</a>); <code>generate_keys</code> ships inside the Sparkle
+Swift package and is not on <code>PATH</code>. Declare <code>SPARKLE_BIN</code> in the fresh shell:</p>
+<pre><code class="language-sh">SPARKLE_BIN=$(ls -dt ~/Library/Developer/Xcode/DerivedData/Vodka-*/SourcePackages/artifacts/sparkle/Sparkle/bin 2&gt;/dev/null | head -1)
+</code></pre>
+</li>
+<li><p>Decrypt the backup
+(<code>age -d sparkle_ed25519_private.key.age &gt; sparkle_ed25519_private.key</code>, entering the
+backup passphrase), then import the Sparkle key:
+<code>&quot;$SPARKLE_BIN/generate_keys&quot; -f sparkle_ed25519_private.key</code>. If an item named
+<em>Private key for signing Sparkle updates</em> already exists in the login keychain, the
+import fails until that item is removed through Keychain Access. Delete the decrypted
+key once the import succeeds.</p>
+</li>
+<li><p>Open the <code>.p12</code> to install the Developer ID identity in the login keychain.</p>
+</li>
+<li><p>Recreate the notary profile with <code>xcrun notarytool store-credentials AC_PASSWORD …</code> (see
+One-time setup).</p>
+</li>
+</ol>
+<h2>Application update</h2>
+<p><code>scripts/publish-update.sh &lt;version&gt;</code> performs the complete update procedure. It requires a
+clean working tree, <code>gh</code> authenticated with push access, and the Sparkle key. The script:</p>
+<ol>
+<li>Moves the changelog entries from <code>[Unreleased]</code> into a <code>[X.Y.Z]</code> section and uses them
+as the release notes.</li>
+<li>Bumps <code>MARKETING_VERSION</code> to the new version and increments <code>CURRENT_PROJECT_VERSION</code>.</li>
+<li>Builds and ad-hoc signs the application, archives it as
+<code>Vodka-X.Y.Z.zip</code>, and signs the archive with the Sparkle key.</li>
+<li>Tags <code>app-vX.Y.Z</code>, pushes the branch and tag, and creates the GitHub release with the
+archive.</li>
+<li>Adds the release to <code>appcast.xml</code> on <code>gh-pages</code>, which GitHub Pages serves.</li>
+</ol>
+<pre><code class="language-sh">scripts/publish-update.sh 4.0.1
+</code></pre>
+<p>The appcast is updated by the script. Do not edit <code>appcast.xml</code> on <code>gh-pages</code> or
+<code>dist/pages/appcast.xml</code> by hand.</p>
+<h3>Notarized disk image</h3>
+<p><code>scripts/release.sh X.Y.Z</code> produces a Gatekeeper-compatible disk image for direct
+distribution. The script:</p>
+<ol>
+<li>Archives the application, using Apple Development signing during the archive; automatic
+provisioning handles certificate resolution.</li>
+<li>Re-signs on export with the Developer ID Application certificate, per
+<code>scripts/exportOptions.plist</code>.</li>
+<li>Verifies the signature with <code>codesign --verify --deep --strict</code>.</li>
+<li>Builds a UDZO disk image with <code>hdiutil</code> and signs it with the Developer ID Application
+certificate.</li>
+<li>Submits the image to Apple&#39;s notary service and waits for the verdict, typically 5 to 15
+minutes.</li>
+<li>Staples the notarization ticket and verifies the result with <code>spctl --assess</code>.</li>
+</ol>
+<p>The artifact is written to <code>build/release/Vodka-X.Y.Z.dmg</code>.</p>
+<h3>Appcast entry format</h3>
+<p>For reference, an appcast item produced by <code>scripts/update-appcast.py</code> has the following
+shape. The archive name, tag and URL match the output of <code>publish-update.sh</code>:</p>
+<pre><code class="language-xml">&lt;item&gt;
+    &lt;title&gt;Vodka X.Y.Z&lt;/title&gt;
+    &lt;pubDate&gt;RFC 822 date&lt;/pubDate&gt;
+    &lt;sparkle:version&gt;BUILD_NUMBER&lt;/sparkle:version&gt;
+    &lt;sparkle:shortVersionString&gt;X.Y.Z&lt;/sparkle:shortVersionString&gt;
+    &lt;sparkle:minimumSystemVersion&gt;15.0&lt;/sparkle:minimumSystemVersion&gt;
+    &lt;description&gt;&lt;![CDATA[&lt;p&gt;Release notes…&lt;/p&gt;]]&gt;&lt;/description&gt;
+    &lt;enclosure
+        url=&quot;https://github.com/rolling7ho/Vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip&quot;
+        sparkle:edSignature=&quot;…&quot;
+        length=&quot;…&quot;
+        type=&quot;application/octet-stream&quot; /&gt;
+&lt;/item&gt;
+</code></pre>
+<h2>Wine Libraries release</h2>
+<p>The runtime (<code>Libraries.tar.gz</code>) is <strong>assembled from upstream binaries, not built from
+source</strong>. <a href="dependencies.html"><code>DEPENDENCIES.md</code></a> lists the components, their pinned versions
+and their origins. When the runtime must change:</p>
+<ol>
+<li><p><strong>Assemble <code>Libraries.tar.gz</code></strong> from the pinned upstream binaries. The archive unpacks to
+the <code>Libraries/</code> tree the application expects, in which <code>Libraries/Wine/bin/</code> is the Wine
+binary directory per <code>VodkaWineInstaller.binFolder</code>. To reproduce a build:</p>
+<ul>
+<li>Download the pinned <strong>Wine</strong> build (Gcenx <code>macOS_Wine_builds</code>) and unpack it as
+<code>Libraries/Wine/</code>.</li>
+<li>Add the pinned <strong>DXVK-macOS</strong> DLLs and the <strong>DXMT</strong> prebuilt release in the Gcenx
+layout.</li>
+<li>Place <strong>D3DMetal</strong> as extracted from Apple&#39;s Game Porting Toolkit. Redistribution is
+governed by Apple&#39;s GPTK license; confirm the terms before publishing.</li>
+<li>Record the exact versions used in <code>docs/DEPENDENCIES.md</code> and update the matching
+<code>*_PINNED</code> tags in <code>.github/workflows/RuntimeTrack.yml</code> so that drift detection remains
+accurate.</li>
+<li>Create the archive with <code>tar -czf Libraries.tar.gz Libraries/</code>, observing the <code>Tar</code>
+pipe-drain constraint described under Pitfalls.</li>
+</ul>
+</li>
+<li><p>Tag with the bare version <code>vX.Y.Z</code>, without the <code>app-</code> prefix.</p>
+</li>
+<li><p>Publish it: <code>gh release create vX.Y.Z --title &quot;Wine Libraries vX.Y.Z&quot; Libraries.tar.gz</code>.</p>
+</li>
+<li><p>Compute the SHA-256 of the <strong>exact published asset</strong>. The application verifies the
+download against this value and fails closed on a mismatch, so an incorrect value blocks
+every fresh installation:</p>
+<pre><code class="language-sh">shasum -a 256 Libraries.tar.gz
+</code></pre>
+</li>
+<li><p>Update <code>dist/pages/WhiskyWineVersion.plist</code> with the version, the bundled DXVK version
+and the digest from the previous step. Record the same digest in
+<a href="dependencies.html"><code>DEPENDENCIES.md</code></a>:</p>
+<pre><code class="language-xml">&lt;dict&gt;
+    &lt;key&gt;version&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;major&lt;/key&gt;&lt;integer&gt;X&lt;/integer&gt;
+        &lt;key&gt;minor&lt;/key&gt;&lt;integer&gt;Y&lt;/integer&gt;
+        &lt;key&gt;patch&lt;/key&gt;&lt;integer&gt;Z&lt;/integer&gt;
+    &lt;/dict&gt;
+    &lt;key&gt;dxvkVersion&lt;/key&gt;
+    &lt;string&gt;1.10.3&lt;/string&gt;
+    &lt;key&gt;sha256&lt;/key&gt;
+    &lt;string&gt;…64-hex-digest…&lt;/string&gt;
+&lt;/dict&gt;
+</code></pre>
+</li>
+<li><p>Commit and push the change on a branch and open a pull request. Once merged, existing
+installations prompt for the update on their next version check.</p>
+</li>
+</ol>
+<h2>URLs the application depends on</h2>
+<ul>
+<li><code>https://rolling7ho.github.io/Vodka/appcast.xml</code>: Sparkle update feed (<code>SUFeedURL</code>).</li>
+<li><code>https://github.com/rolling7ho/Vodka/releases/download/v&lt;tag&gt;/Libraries.tar.gz</code>: Wine
+runtime archive for the pinned <code>gamingRuntime</code> tag in <code>DistributionConfig.swift</code>.</li>
+<li><code>https://github.com/rolling7ho/Vodka/releases/download/app-vX.Y.Z/Vodka-X.Y.Z.zip</code>:
+application update archive.</li>
+</ul>
+<h2>Pitfalls</h2>
+<ul>
+<li><strong>Do not override <code>CODE_SIGN_IDENTITY</code> at archive time.</strong> The project is configured for
+Apple Development with automatic signing, and overriding it conflicts with provisioning.
+The release script lets <code>xcodebuild archive</code> use the project default and re-signs on
+export.</li>
+<li><strong>Do not bundle the VodkaKit folder as a resource.</strong> Doing so packages the package&#39;s
+<code>.build</code> directory, including DocC plugin executables, into the application, and Apple&#39;s
+notary rejects the archive because those executables lack the hardened runtime. The
+<code>PBXResourcesBuildPhase</code> entry for <code>VodkaKit</code> was removed from the project for this
+reason and must not be restored. The <code>PBXFileReference</code> and <code>PBXGroup</code> entries must
+remain, or Xcode&#39;s Swift package integration crashes on CI.</li>
+<li><strong>Pipe deadlocks in <code>Tar</code>.</strong> <code>process.waitUntilExit()</code> must be called after the pipe is
+drained, not before. The verbose tar listing for a multi-hundred-megabyte archive
+overflows the operating system&#39;s pipe buffer.</li>
+</ul>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/docs/ReleaseWorkflow.md">docs/ReleaseWorkflow.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

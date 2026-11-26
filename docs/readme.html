@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview | Vodka</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/readme.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Project</p>
+  <h1>Overview</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/library.png" width="760" alt="The Vodka library showing Steam and Teardown">
+</p><p>Vodka provisions a Windows environment (a Wine prefix) on the Mac, installs Steam into it
+and presents the resulting games in a library. No configuration is required to begin; the
+per-game settings exist for titles that need them.</p>
+<p>Vodka is a fork of <a href="https://github.com/whisky-app/whisky">Whisky</a>, via
+<a href="https://github.com/frankea/Whisky">frankea&#39;s community fork</a>, focused on Steam gaming.</p>
+<h2>Features</h2>
+<p><strong>Getting started</strong></p>
+<ul>
+<li><strong>Guided Steam setup.</strong> Four steps: create a PC, select graphics settings, install Steam
+and sign in.</li>
+<li><strong>Library-first interface.</strong> Installed games appear as cards with their artwork. Select
+a card to play.</li>
+<li><strong>Add to Dock.</strong> Any game can receive its own Dock icon that starts it without opening
+Vodka.</li>
+</ul>
+<p><strong>Graphics and performance</strong></p>
+<ul>
+<li><strong>Graphics backend by DirectX version.</strong> Select Automatic, or choose per game:
+DirectX 12 (Apple D3DMetal), DirectX 11 (DXMT), or DirectX 9 and OpenGL/Vulkan
+(WineD3D). Automatic reads each game&#39;s imports.</li>
+<li><strong>DirectX 12.</strong> Vodka guides you to Apple&#39;s Game Porting Toolkit download, then locates
+and installs it.</li>
+<li><strong>Native resolution.</strong> Games render at the display&#39;s native pixel count, and Steam
+remains sharp on Retina displays.</li>
+<li><strong>Faster mode.</strong> Renders a game at a lower resolution and upscales it with MetalFX and
+sharpening.</li>
+<li><strong>macOS Game Mode.</strong> Engages automatically when a game runs full screen.</li>
+</ul>
+<p><strong>Everyday use</strong></p>
+<ul>
+<li><strong>Statistics.</strong> Total and recent playtime, most played titles, longest session and
+storage used.</li>
+<li><strong>Clean quit.</strong> Quitting Vodka stops Steam and every game it started, after confirmation.</li>
+<li><strong>Pre-launch warnings.</strong> Games known not to run, or whose anti-cheat blocks Wine, are
+flagged.</li>
+<li><strong>Simple reset.</strong> Deleting a PC stops the processes running in it and moves it to the
+Trash.</li>
+</ul>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/statistics.png" width="560" alt="Statistics in Vodka settings">
+</p><h2>Requirements</h2>
+<ul>
+<li>A Mac with Apple Silicon (M1 or later)</li>
+<li>macOS Sequoia 15 or later</li>
+<li>Approximately 1 GB of free space for the engine, in addition to space for games</li>
+</ul>
+<h2>Install</h2>
+<p>Vodka is not yet distributed as a signed download, so it is built locally. Xcode 16 or
+later is required.</p>
+<pre><code class="language-sh">git clone https://github.com/rolling7ho/Vodka.git
+cd Vodka
+scripts/install-local.sh
+</code></pre>
+<p>The script builds Vodka, signs it for the local Mac only and copies it to <code>/Applications</code>.
+During first-run setup, Vodka downloads its Wine engine, which is approximately 330 MB
+compressed.</p>
+<h3>Migrating from Whisky</h3>
+<ul>
+<li><strong>Earlier builds of this fork</strong> (<code>com.rolling7ho.Whisky</code>) are carried over automatically
+the first time Vodka opens: PCs, engine, logs, settings and Dock icons.</li>
+<li><strong>The original Whisky:</strong> select <strong>File › Migrate from the Original Whisky</strong>. Bottles are
+imported in place, so no data is copied.</li>
+</ul>
+<h2>Troubleshooting</h2>
+<ul>
+<li><a href="steam.html">Steam guide</a>: Steam windows, sign-in, downloads and game
+launching</li>
+<li><a href="launcher-troubleshooting.html">Launcher troubleshooting</a>: Epic, EA App, Battle.net,
+Rockstar and others</li>
+<li><a href="stability.html">Crashes and freezes</a>: what to collect and how to
+narrow down the cause</li>
+<li><strong>Help › Run Diagnostics…</strong> in the application produces a report suitable for attaching
+to an issue.</li>
+</ul>
+<h2>Uninstall</h2>
+<p>Moving Vodka.app to the Trash retains your PCs and the engine, so reinstalling resumes
+where you left off. To remove everything, back up anything required and run:</p>
+<pre><code class="language-sh">rm -rf /Applications/Vodka.app
+rm -rf ~/Library/Containers/com.rolling7ho.Vodka           # PCs and their list
+rm -rf ~/Library/Application\ Support/com.rolling7ho.Vodka  # the Wine engine
+rm -rf ~/Library/Caches/com.rolling7ho.Vodka ~/Library/Logs/com.rolling7ho.Vodka
+rm -f  ~/Library/Preferences/com.rolling7ho.Vodka.plist
+</code></pre>
+<p>PCs created in a custom folder remain in that location.</p>
+<h2>Privacy</h2>
+<p>Vodka contains no analytics and collects no usage data. It accesses the network only to
+download its engine and Steam&#39;s installer, and to check for updates. Game artwork is read
+from Steam&#39;s local cache.</p>
+<h2>Contributing</h2>
+<p>Bug reports and pull requests are welcome. See <a href="contributing.html">CONTRIBUTING.md</a> for
+building, testing and code style, and <a href="security.html">SECURITY.md</a> for private
+vulnerability reporting. Every change lands through a pull request; direct pushes to
+<code>main</code> are not accepted.</p>
+<h2>License and credits</h2>
+<p>Vodka is free software under the <a href="https://raw.githubusercontent.com/rolling7ho/Vodka/main/LICENSE">GNU GPL v3</a>. Wine is licensed under the LGPL.
+D3DMetal belongs to Apple and is not included; Vodka installs it from Apple&#39;s Game
+Porting Toolkit.</p>
+<p>Vodka builds on the work of:</p>
+<ul>
+<li><a href="https://github.com/whisky-app/whisky">Whisky</a> by Isaac Marovitz and contributors</li>
+<li><a href="https://github.com/frankea/Whisky">frankea/Whisky</a>, the community fork Vodka continues
+from</li>
+<li><a href="https://www.winehq.org">Wine</a> and <a href="https://www.codeweavers.com/crossover">CrossOver</a> by
+CodeWeavers</li>
+<li><a href="https://github.com/Gcenx/DXVK-macOS">DXVK-macOS</a> by Gcenx and doitsujin,
+<a href="https://github.com/3Shain/dxmt">DXMT</a> by 3Shain,
+<a href="https://github.com/KhronosGroup/MoltenVK">MoltenVK</a> by Khronos and
+<a href="https://github.com/marzent/wine-msync">msync</a> by marzent</li>
+<li><a href="https://github.com/sparkle-project/Sparkle">Sparkle</a>,
+<a href="https://github.com/SwiftPackageIndex/SemanticVersion">SemanticVersion</a> and
+<a href="https://github.com/apple/swift-argument-parser">swift-argument-parser</a></li>
+</ul>
+<p>For a commercially supported method of running Windows software on a Mac, consider
+<a href="https://www.codeweavers.com/crossover">CrossOver</a>. CodeWeavers&#39; work on Wine makes
+projects such as this one possible.</p>
+<h2>Related repositories</h2>
+<ul>
+<li><a href="https://github.com/rolling7ho/winecx">rolling7ho/winecx</a>: patched Wine and CrossOver
+source tree used to build Vodka&#39;s runtimes.</li>
+<li><a href="https://github.com/rolling7ho/dxmt">rolling7ho/dxmt</a>: Metal-based Direct3D 11/10
+implementation and <code>vodkametal</code> Direct3D 12 bridge.</li>
+<li><a href="https://github.com/rolling7ho/openv">rolling7ho/openv</a>: open-source single-player
+ScriptHookV replacement for GTA V Enhanced.</li>
+</ul>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/README.md">README.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

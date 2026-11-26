@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launcher troubleshooting | Vodka</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/launcher-troubleshooting.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+  <h1>Launcher troubleshooting</h1>
+<p><strong>Feature:</strong> Launcher compatibility system (frankea/Whisky#41)
+<strong>Last updated:</strong> 12 January 2026</p>
+<blockquote>
+<p><strong>Note:</strong> This document references issue numbers from this fork (frankea/Whisky) and from
+the original upstream project (whisky-app/whisky). Upstream references are retained for
+historical context. Report new issues to
+<a href="https://github.com/rolling7ho/Vodka/issues">rolling7ho/Vodka</a>.</p>
+</blockquote>
+<h2>Initial procedure</h2>
+<p>For any launcher problem:</p>
+<ol>
+<li>Open the bottle and select the <strong>Config</strong> tab.</li>
+<li>Expand <strong>Launcher Compatibility</strong>.</li>
+<li>Enable <strong>Launcher Compatibility Mode</strong>.</li>
+<li>Set <strong>Detection Mode</strong> to <strong>Automatic</strong>.</li>
+<li>Launch the launcher and review any warnings displayed in the interface.</li>
+</ol>
+<p>If the problem persists, consult the section for that launcher below.</p>
+<h2>Common issues</h2>
+<h3>&quot;steamwebhelper is not responding&quot;</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The Steam window appears and immediately reports an error.</li>
+<li>The interface is unusable, and the restart options do not help.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Open <strong>Config → Launcher Compatibility</strong> and enable compatibility mode.</li>
+<li>Confirm that <strong>Locale Override</strong> is <strong>English (en_US.UTF-8)</strong>. This resolves ICU parsing
+failures in <code>steamwebhelper.exe</code>.</li>
+<li>Select <strong>Generate Diagnostics Report</strong> and confirm <code>LC_ALL=en_US.UTF-8</code> and
+<code>STEAM_DISABLE_CEF_SANDBOX=1</code>.</li>
+</ol>
+<p><strong>Cause</strong></p>
+<p>Steam&#39;s Chromium-based helper fails when parsing dates and times in certain locales. The
+<code>.UTF-8</code> suffix is required for correct Unicode handling.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#946, #1224, #1241.</p>
+<h3>Steam downloads stall at 99 percent</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Downloads reach 99 percent and never complete.</li>
+<li>A restart of Steam is required to continue, and several games are affected.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set <strong>Network
+Timeout</strong> to <strong>90 seconds</strong> or higher.</li>
+<li>Generate a diagnostics report and confirm <code>WINHTTP_CONNECT_TIMEOUT</code>. The receive timeout
+is set to twice that value. Vodka does not set <code>WINE_FORCE_HTTP11</code>.</li>
+<li>In Steam, open <strong>Settings → Downloads</strong>, select a geographically close region, then pause
+and resume the download.</li>
+</ol>
+<p><strong>Cause</strong></p>
+<p>Wine&#39;s HTTP behaviour is unstable under some persistent connection conditions. Higher
+timeouts resolve the connection failures.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#1148, #1072, #1176.</p>
+<h3>Rockstar Games Launcher freezes on the logo</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The launcher starts and freezes at the Rockstar logo without an error message.</li>
+<li>CPU usage may increase while the splash screen remains visible.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Enable DXVK under <strong>Config → DXVK</strong>. It is required for the logo to render.</li>
+<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set detection to
+Automatic or select <strong>Rockstar Games Launcher</strong> explicitly.</li>
+<li>Generate a diagnostics report and confirm that DXVK is enabled and that
+<code>WINEDLLOVERRIDES</code> contains the Direct3D libraries.</li>
+</ol>
+<p><strong>Alternative:</strong> use <code>LauncherPatcher.exe</code> instead of <code>Launcher.exe</code>.</p>
+<p><strong>Cause</strong></p>
+<p>The logo screen renders with Direct3D. Without DXVK the rendering fails without an error and
+the launcher blocks.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#835, #1335, #1120.</p>
+<h3>EA App displays a black screen</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The window is entirely black, although background sound is audible.</li>
+<li>The cursor changes over invisible controls, and a &quot;GPU not supported&quot; error may appear.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and enable <strong>GPU
+Spoofing</strong> with the <strong>NVIDIA</strong> vendor.</li>
+<li>Generate a diagnostics report and confirm GPU spoofing is active. The spoof sets
+<code>MESA_GL_VERSION_OVERRIDE=4.6</code>.</li>
+<li>Set <strong>Locale Override</strong> to <strong>English</strong>.</li>
+</ol>
+<p><strong>Cause</strong></p>
+<p>The EA App queries GPU capabilities through Direct3D. Wine&#39;s incomplete driver reporting
+causes the launcher to conclude that the GPU is unsupported.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#1195, #1322.</p>
+<h3>Epic Games Store does not render its interface</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The window appears blank or grey and the web view does not load.</li>
+<li>Sign-in is impossible and connection errors may be reported.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Open <strong>Config → Launcher Compatibility</strong>, enable compatibility mode and set <strong>Locale
+Override</strong> to <strong>English</strong>.</li>
+<li>Generate a diagnostics report and confirm <code>CEF_DISABLE_SANDBOX=1</code>.</li>
+</ol>
+<p><strong>Cause</strong></p>
+<p>Epic&#39;s Chromium Embedded Framework conflicts with Wine&#39;s threading model. Disabling the CEF
+sandbox resolves the conflict.</p>
+<h3>Ubisoft Connect cannot update or launch games</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Ubisoft Connect starts, but games do not launch.</li>
+<li>Update progress does not advance and &quot;Failed to initialize&quot; errors appear.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Under <strong>Config → DXVK</strong>, enable DXVK and <strong>DXVK Async</strong>.</li>
+<li>Under <strong>Config → Launcher Compatibility</strong>, set the network timeout to <strong>90 seconds</strong>.</li>
+</ol>
+<p><strong>Related issues:</strong> whisky-app/whisky#1004, #879.</p>
+<h3>Battle.net authentication fails</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>The launcher opens, but the sign-in page does not load and redirects fail.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<p>Enable compatibility mode with the English locale. Battle.net&#39;s web-based authentication
+requires working Chromium rendering.</p>
+<h3>Paradox Launcher reports &quot;recursive resource lookup&quot;</h3>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Installation fails with a resource lookup error and initialisation does not complete.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<p>Enable compatibility mode and allow automatic or manual detection of the Paradox Launcher.</p>
+<p>Vodka applies no Paradox-specific environment fix. The <code>WINE_DISABLE_FAST_PATH</code> workaround
+that earlier versions set is read by no shipped runtime and has been removed.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#1091.</p>
+<h2>macOS 15.4 and later</h2>
+<p><strong>Symptoms</strong></p>
+<ul>
+<li>Launchers that worked on macOS 15.3 crash on 15.4 or later.</li>
+<li>Wine preloader threads remain blocked and Mach port timeouts occur.</li>
+</ul>
+<p><strong>Solution</strong></p>
+<ol>
+<li>Enable <strong>Config → Metal → Sequoia Compatibility Mode</strong>.</li>
+<li>Generate a diagnostics report and confirm the macOS version and <code>WINEFSYNC=0</code>.</li>
+</ol>
+<p><strong>Cause</strong></p>
+<p>Apple changed threading and Mach port behaviour in macOS 15.4. The compatibility mode applies
+the required Wine environment changes.</p>
+<p><strong>Related issues:</strong> whisky-app/whisky#1372, #1310, #1307.</p>
+<h2>Diagnostics report</h2>
+<h3>Generating a report</h3>
+<ol>
+<li>Open <strong>Bottle → Config → Launcher Compatibility</strong>.</li>
+<li>Select <strong>Generate Diagnostics Report</strong> and review the configuration in the window.</li>
+<li>Copy the report to the clipboard for a GitHub issue, or export it to a file.</li>
+</ol>
+<h3>Reading a report</h3>
+<p><strong>System information</strong></p>
+<pre><code>macOS version: 15.4.1
+Wine version: 11.0
+Architecture: Apple Silicon (arm64)
+Rosetta 2: installed
+</code></pre>
+<p><strong>Launcher configuration</strong></p>
+<pre><code>Compatibility mode: enabled
+Detected launcher: Steam
+Launcher locale: English (en_US.UTF-8)
+GPU spoofing: enabled (NVIDIA)
+</code></pre>
+<p><strong>Environment variables</strong></p>
+<ul>
+<li><code>LC_ALL=en_US.UTF-8</code> (locale fix)</li>
+<li><code>STEAM_DISABLE_CEF_SANDBOX=1</code> (Steam CEF fix)</li>
+<li><code>CEF_DISABLE_SANDBOX=1</code> (global CEF fix)</li>
+<li><code>MESA_GL_VERSION_OVERRIDE=4.6</code> (GPU spoofing)</li>
+<li><code>WINHTTP_CONNECT_TIMEOUT=90000</code> (network timeout)</li>
+</ul>
+<p><strong>Validation results</strong></p>
+<p>The report states either that the configuration is optimal or that warnings require
+attention.</p>
+<h2>Configuration warnings</h2>
+<table>
+<thead>
+<tr>
+<th>Warning</th>
+<th>Impact</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DXVK should be enabled for Steam</td>
+<td>Steam interface may stutter</td>
+<td>Enable DXVK under <strong>Config → DXVK</strong></td>
+</tr>
+<tr>
+<td>DXVK required for the Rockstar Launcher</td>
+<td>Logo does not render; launcher unusable</td>
+<td>Enable DXVK</td>
+</tr>
+<tr>
+<td>Steam may fail without the en_US locale</td>
+<td><code>steamwebhelper.exe</code> failure likely</td>
+<td>Set Locale Override to English</td>
+</tr>
+<tr>
+<td>GPU spoofing required for the EA App</td>
+<td>Black screen or &quot;GPU not supported&quot;</td>
+<td>Enable GPU spoofing</td>
+</tr>
+</tbody></table>
+<h2>Advanced troubleshooting</h2>
+<h3>Reset launcher configuration</h3>
+<ol>
+<li>Disable Launcher Compatibility Mode.</li>
+<li>Right-click the bottle, select <strong>Show in Finder</strong> and delete <code>Metadata.plist</code>.</li>
+<li>Recreate the bottle; Vodka regenerates it with defaults.</li>
+<li>Enable Launcher Compatibility Mode again.</li>
+</ol>
+<h3>Consult Wine logs</h3>
+<ol>
+<li>Open <code>~/Library/Logs/com.rolling7ho.Vodka/</code>.</li>
+<li>Locate the newest log by timestamp and inspect entries around launcher startup.</li>
+<li>Search for <code>steamwebhelper</code>, <code>CEF</code>, <code>locale</code>, <code>crash</code> and <code>segfault</code>.</li>
+</ol>
+<h3>Verify the Wine installation</h3>
+<p>Confirm that <code>~/Library/Application Support/com.rolling7ho.Vodka/Libraries/Wine/</code> contains
+the <code>bin/</code>, <code>lib/</code> and <code>share/</code> directories. The application reports the runtime version it
+uses in the diagnostics report.</p>
+<h3>Test in a clean bottle</h3>
+<ol>
+<li>Create a new bottle named &quot;Launcher Test&quot; with Windows 10.</li>
+<li>Enable Launcher Compatibility Mode before installing anything.</li>
+<li>Install the launcher from the official installer.</li>
+<li>Test the launcher. If it works, the original bottle had a configuration fault; if it
+fails, the fault lies with Wine or macOS.</li>
+</ol>
+<h2>Launcher reference</h2>
+<h3>Steam</h3>
+<ul>
+<li>Required: Launcher Compatibility Mode; locale <code>en_US.UTF-8</code>.</li>
+<li>Recommended: DXVK; network timeout of 90 seconds.</li>
+<li>Variables: <code>LC_ALL=en_US.UTF-8</code>, <code>STEAM_DISABLE_CEF_SANDBOX=1</code>.</li>
+</ul>
+<h3>Rockstar Games Launcher</h3>
+<ul>
+<li>Required: DXVK; Launcher Compatibility Mode.</li>
+<li>Recommended: locale English.</li>
+<li>DXVK cannot be disabled for this launcher.</li>
+</ul>
+<h3>EA App</h3>
+<ul>
+<li>Required: GPU spoofing; Launcher Compatibility Mode.</li>
+<li>Recommended: NVIDIA vendor; locale English.</li>
+</ul>
+<h3>Epic Games Store</h3>
+<ul>
+<li>Required: Launcher Compatibility Mode; locale English.</li>
+<li>Recommended: GPU spoofing.</li>
+<li>Variables: <code>CEF_DISABLE_SANDBOX=1</code>.</li>
+</ul>
+<h3>Ubisoft Connect</h3>
+<ul>
+<li>Required: Launcher Compatibility Mode.</li>
+<li>Recommended: DXVK with DXVK Async; network timeout of 90 seconds.</li>
+<li>Variables: <code>DXVK_ASYNC=1</code>.</li>
+</ul>
+<h3>Battle.net</h3>
+<ul>
+<li>Required: Launcher Compatibility Mode; locale English.</li>
+<li>Recommended: DXVK.</li>
+<li>Variables: <code>CEF_DISABLE_SANDBOX=1</code>.</li>
+</ul>
+<h3>Paradox Launcher</h3>
+<ul>
+<li>Required: Launcher Compatibility Mode.</li>
+<li>No additional environment configuration.</li>
+</ul>
+<h2>Reporting an issue</h2>
+<p>Before reporting:</p>
+<ol>
+<li>Generate the diagnostics report under <strong>Config → Launcher Compatibility</strong> and export it.</li>
+<li>Review all warnings and apply the recommended changes.</li>
+<li>Confirm that the issue reproduces in a clean bottle.</li>
+</ol>
+<p>Include in the report:</p>
+<ol>
+<li>The diagnostics report, attached or pasted in full.</li>
+<li>System information: macOS version, Mac model and Vodka version.</li>
+<li>Reproduction steps, expected behaviour and actual behaviour.</li>
+<li>Screenshots of error messages and configuration screens.</li>
+</ol>
+<h2>Security considerations</h2>
+<p>Launcher compatibility mode disables the Chromium sandbox, which is required under Wine.</p>
+<p>Implications:</p>
+<ul>
+<li>Embedded browser content runs with the process&#39;s privileges.</li>
+<li>A browser exploit could compromise the Wine process.</li>
+</ul>
+<p>Use compatibility mode with established launchers (Steam, Epic, EA, Rockstar), keep those
+launchers updated, and avoid browsing untrusted sites inside them. Do not use compatibility
+mode with unknown launcher software.</p>
+<h2>Operational guidance</h2>
+<p><strong>Performance</strong></p>
+<ul>
+<li>Enable DXVK Async to reduce shader compilation stutter.</li>
+<li>Enable the shader cache under <strong>Config → Performance</strong>.</li>
+</ul>
+<p><strong>Stability</strong></p>
+<ul>
+<li>Use a dedicated bottle for each launcher to avoid conflicts.</li>
+<li>Reinstall launchers after significant Wine updates and keep them updated.</li>
+<li>Monitor Wine processes in Activity Monitor; sustained high CPU usage may indicate a
+hung launcher component.</li>
+</ul>
+<p><strong>Before changing a working configuration</strong></p>
+<ul>
+<li><p>Export the diagnostics report.</p>
+</li>
+<li><p>Copy <code>Metadata.plist</code>:</p>
+<pre><code class="language-sh">cp ~/path/to/bottle/Metadata.plist ~/Desktop/bottle-backup.plist
+</code></pre>
+</li>
+<li><p>Record the working configuration, for example with screenshots of the Config tabs.</p>
+</li>
+</ul>
+<h2>FAQ</h2>
+<p><strong>Can launcher compatibility be used with games?</strong>
+Yes, but it is designed for launchers. Games generally do not require these fixes and may
+receive launcher-specific optimisations that they do not need.</p>
+<p><strong>Why does launcher detection fail?</strong>
+Detection uses heuristics based on filename and path. For unusual cases, switch to Manual
+detection and select the launcher explicitly.</p>
+<p><strong>Is GPU spoofing safe with anti-cheat?</strong>
+GPU spoofing changes capability queries only and does not modify game memory. Whether a
+given anti-cheat system tolerates it depends on that system.</p>
+<p><strong>Does launcher compatibility reduce game performance?</strong>
+No measurable effect is expected. The environment variable setup occurs at launch and is
+negligible.</p>
+<p><strong>Can individual launcher settings be customised?</strong>
+Settings apply to the detected launcher. Per-game overrides may be added in a future
+version.</p>
+<p><strong>Why does a launcher require the English locale?</strong>
+The Chromium Embedded Framework used by several launchers has Unicode parsing defects with
+certain locales. <code>en_US.UTF-8</code> avoids them.</p>
+<h2>macOS compatibility</h2>
+<table>
+<thead>
+<tr>
+<th>macOS version</th>
+<th>Compatibility</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>15.0 to 15.2</td>
+<td>Full</td>
+<td>No known issues</td>
+</tr>
+<tr>
+<td>15.3</td>
+<td>Full</td>
+<td>Graphics validation handled</td>
+</tr>
+<tr>
+<td>15.4 and later</td>
+<td>Full</td>
+<td>Synchronisation mode and Steam Runtime handled</td>
+</tr>
+</tbody></table>
+<p>macOS 15 is the minimum supported version.</p>
+<h2>Further resources</h2>
+<ul>
+<li>Issue tracker: <a href="https://github.com/rolling7ho/Vodka/issues">https://github.com/rolling7ho/Vodka/issues</a></li>
+<li>Upstream project: <a href="https://github.com/whisky-app/whisky">https://github.com/whisky-app/whisky</a></li>
+<li>Steam guide: <a href="steam.html">SteamCompatibility.md</a></li>
+<li>Stability guide: <a href="stability.html">StabilityTroubleshooting.md</a></li>
+</ul>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/docs/LauncherTroubleshooting.md">docs/LauncherTroubleshooting.md</a></p>
+  </div>
+</footer>
+</body>
+</html>

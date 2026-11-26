@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runtime dependencies | Vodka</title>
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://rolling7ho.github.io/Vodka/docs/dependencies.html">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../index.html">
+      <img src="https://raw.githubusercontent.com/rolling7ho/Vodka/main/images/vodka-icon.png" width="28" height="28" alt="">
+      <span>Vodka</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="../index.html">Home</a>
+      <a href="./">Documentation</a>
+      <a href="https://github.com/rolling7ho/Vodka">GitHub</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap doc">
+  <p class="doc-nav"><a href="./">Documentation</a> / Guides</p>
+  <h1>Runtime dependencies</h1>
+<p>The Vodka application is built from this repository, but the <strong>Wine runtime</strong> it downloads
+during setup (<code>Libraries.tar.gz</code>) is assembled from third-party binaries. This document is
+the authoritative record of which versions are bundled and where they originate, so that
+the runtime cannot become stale silently and any maintainer can reproduce a build. Update
+it whenever a runtime release is produced.</p>
+<p>See <a href="release-workflow.html"><code>ReleaseWorkflow.md</code></a> for the assembly and publication procedure,
+and <a href="https://raw.githubusercontent.com/rolling7ho/Vodka/main/.github/workflows/RuntimeTrack.yml"><code>.github/workflows/RuntimeTrack.yml</code></a> for the
+automation that reports when a bundled component falls behind upstream.</p>
+<p>The application currently pins the <code>gamingRuntime</code> release <code>4.6.12-gaming.1</code> in
+<code>VodkaKit/Sources/VodkaKit/Utils/DistributionConfig.swift</code>. The table below records the most
+recent fully documented assembly, <code>v3.1.1</code>; complete it when the pinned runtime is
+documented.</p>
+<h2>Bundled in runtime <code>v3.1.1</code></h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Bundled version</th>
+<th>Upstream source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Wine</strong></td>
+<td>11.0 (Gcenx <code>11.0_1</code> repack)</td>
+<td><a href="https://github.com/Gcenx/macOS_Wine_builds/releases">Gcenx/macOS_Wine_builds</a></td>
+<td>Wine publishes a new stable release each January; 11.0 is the January 2026 release. The Gcenx tag is <code>11.0_1</code>, a repack of the same Wine 11.0 after the bare <code>11.0</code> tag was retired. <code>RuntimeTrack.yml</code> pins that exact tag.</td>
+</tr>
+<tr>
+<td><strong>DXVK (macOS)</strong></td>
+<td>1.10.3</td>
+<td><a href="https://github.com/Gcenx/DXVK-macOS/releases">Gcenx/DXVK-macOS</a></td>
+<td>Frozen at 1.10.x <strong>by design</strong>: the DXVK 2.x line requires Vulkan 1.3 features that MoltenVK and macOS do not expose. The pin is intentional; do not upgrade to upstream 2.x.</td>
+</tr>
+<tr>
+<td><strong>DXMT</strong></td>
+<td>0.80</td>
+<td><a href="https://github.com/3Shain/dxmt/releases">3Shain/dxmt</a></td>
+<td>Direct3D 11 to Metal. Bundled from the project&#39;s prebuilt v0.80 release, the <strong>last MIT-licensed</strong> build (v1.0 and later are LGPL; moving past 0.80 is a deliberate relicensing decision, not routine drift). The release ships only the <code>wine_builtin_dll=true</code> asset, whose trio carries winebuild&#39;s &quot;Wine builtin DLL&quot; header marker and is intended for a global <code>lib/wine</code> installation. For per-bottle selection, <code>scripts/assemble-runtime.sh</code> strips that marker from <code>d3d11</code>, <code>dxgi</code> and <code>d3d10core</code> (x64 and x32), reproducing the project&#39;s <code>wine_builtin_dll=false</code> (native) variant, and stages them in <code>Libraries/DXMT/{x64,x32}</code>. The application then copies the native trio into each bottle&#39;s <code>system32</code> and <code>syswow64</code> with <code>dxgi,d3d11,d3d10core=n,b</code>, as it does for DXVK. <code>winemetal</code> remains a builtin: its <code>winemetal.dll</code> is synchronised into both Wine Windows trees, paired with <code>winemetal.so</code> in the Unix tree, and the application copies it into the prefix as the import redirect. Selectable per bottle or per program in app 3.4.0 and later (Experimental); requires a runtime assembled by the current script, because the older builtin-variant payload is rejected, since it would redirect to WineD3D without reporting an error.</td>
+</tr>
+<tr>
+<td><strong>D3DMetal</strong></td>
+<td>from Apple Game Porting Toolkit</td>
+<td><a href="https://developer.apple.com/games/game-porting-toolkit/">Apple GPTK</a></td>
+<td><strong>Apple-proprietary. Extracted, never built.</strong> Redistribution is governed by Apple&#39;s GPTK license; review its terms before bumping. Not bundled in the published runtime, and used only when a GPTK payload exists on disk. Since app 3.5.2 the Recommended backend resolves to DXMT or DXVK when the payload is absent, and the picker disables D3DMetal rather than offering a silent WineD3D fallback.</td>
+</tr>
+<tr>
+<td><strong>MoltenVK</strong></td>
+<td>confirm against the published archive</td>
+<td><a href="https://github.com/KhronosGroup/MoltenVK/releases">KhronosGroup/MoltenVK</a></td>
+<td>Vulkan to Metal translation; underpins the DXVK path.</td>
+</tr>
+<tr>
+<td><strong>msync</strong></td>
+<td>confirm against the published archive</td>
+<td><a href="https://github.com/marzent/wine-msync">marzent/wine-msync</a></td>
+<td>Mach-based synchronisation patch included in the Gcenx build.</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>The exact MoltenVK and msync versions are contained in the published <code>Libraries.tar.gz</code>,
+not in this repository. When producing a runtime release, read them from the build and
+record them here so that this table remains authoritative.</p>
+</blockquote>
+<h3>Archive integrity</h3>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Libraries.tar.gz</code> (<code>v3.1.1</code>)</td>
+<td><code>01f3a1b43b98065fe20c529c1023b61dd79a6d2ad93bba6040865f646481ccf3</code></td>
+</tr>
+<tr>
+<td><code>Libraries.tar.gz</code> (<code>v3.1.0</code>)</td>
+<td><code>86e2d54a60736f27e6ce82cacf2a91e500c20f6d32ae959a16afd912e6b03096</code></td>
+</tr>
+<tr>
+<td><code>Libraries.tar.gz</code> (<code>v3.0.0</code>)</td>
+<td><code>9c3d2a7d9bb682ae8398d8bae458e3cb52bb9f5a3345fb0830a64d9b6a1025f8</code></td>
+</tr>
+</tbody></table>
+<p>The same digest is published in
+<a href="https://raw.githubusercontent.com/rolling7ho/Vodka/main/dist/pages/WhiskyWineVersion.plist"><code>dist/pages/WhiskyWineVersion.plist</code></a> under the
+<code>sha256</code> key. The application verifies the downloaded archive against it before
+installation and <strong>fails closed</strong> on a mismatch, the common cause of which is a corrupted
+or truncated download. This is an integrity check, not a substitute for transport security.
+When producing a runtime release, compute the digest of the exact published asset
+(<code>shasum -a 256 Libraries.tar.gz</code>) and update <strong>both</strong> this table and the plist; an
+incorrect value blocks every fresh installation.</p>
+<h2>Bundled in the application</h2>
+<p>These files ship <strong>inside the application bundle</strong> (<code>Vodka.app/Contents/Resources/</code>). They
+are committed to this repository under <a href="https://github.com/rolling7ho/Vodka/tree/main/Libraries"><code>Libraries/</code></a> and copied in by the
+application target&#39;s &quot;Embed VodkaCmd&quot; build phase. They are <strong>not</strong> part of the downloaded
+<code>Libraries.tar.gz</code> runtime: bundling them in the application means that a fix reaches every
+installation through a normal application update, with no runtime download.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Pinned version</th>
+<th>Upstream source</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>winetricks</strong></td>
+<td><code>20260125</code></td>
+<td><a href="https://github.com/Winetricks/winetricks/releases/tag/20260125">Winetricks/winetricks</a></td>
+<td>Self-contained POSIX shell script (LGPL-2.1+). Drives dependency installations (VC++, .NET, DirectX, fonts) and verb queries. Invoked as <code>bash winetricks &lt;verb&gt;</code> with the bundled <code>cabextract</code> and the runtime&#39;s <code>Wine/bin</code> on <code>PATH</code>. To bump, fetch <code>src/winetricks</code> at a newer release tag and regenerate <code>verbs.txt</code>.</td>
+</tr>
+<tr>
+<td><strong>verbs.txt</strong></td>
+<td>generated from winetricks <code>20260125</code></td>
+<td>produced by <code>winetricks list-all</code></td>
+<td>Verb catalog displayed in the Winetricks browser. Regenerate whenever winetricks is bumped: <code>sh Libraries/winetricks list-all</code>, then remove the leading platform-warning line so the file begins at the first <code>=====</code> category header.</td>
+</tr>
+<tr>
+<td><strong>cabextract</strong></td>
+<td>prebuilt arm64 binary</td>
+<td><a href="https://www.cabextract.org.uk/">cabextract.org.uk</a></td>
+<td>Extracts Microsoft <code>.cab</code> archives and is a hard dependency of many winetricks verbs. Committed as a Mach-O executable that is code-signed on copy.</td>
+</tr>
+</tbody></table>
+<h2>Tracking cadence</h2>
+<ul>
+<li><strong>Wine:</strong> check each January for the new stable release (next expected: Wine 12,
+approximately January 2027). Test before bundling.</li>
+<li><strong>Wine, DXVK-macOS and DXMT:</strong> <code>RuntimeTrack.yml</code> polls these GitHub release feeds weekly
+and opens an issue when a bundled version falls behind. Triage is manual; bumping is a
+deliberate and tested decision.</li>
+<li><strong>D3DMetal (GPTK):</strong> Apple distributes it as a Game Porting Toolkit download without a
+GitHub release feed, so it is <strong>tracked manually</strong>. Check Apple&#39;s GPTK page when a new
+GPTK is released.</li>
+<li><strong>Security:</strong> a critical Wine or DXVK CVE should trigger an out-of-band runtime rebuild and
+application release. See <code>SECURITY.md</code>.</li>
+<li><strong>winetricks:</strong> releases approximately monthly and is tracked manually, since no feed
+exists in <code>RuntimeTrack.yml</code>. Bump it when a required verb&#39;s download URL breaks or a new
+component is required. It ships with an application release, not a runtime release.</li>
+</ul>
+<h2>Rationale for consuming upstream binaries</h2>
+<p>Building and maintaining the macOS Wine runtime is the most specialised and fragile task in
+this ecosystem; it is effectively the full-time role of the Gcenx project and CodeWeavers&#39;
+paid team. On a project with a single maintainer, assuming that responsibility would
+increase the bus-factor risk it is intended to reduce. The project therefore consumes
+upstream binaries and invests in discipline instead: pinned versions, automated staleness
+detection and a documented, reproducible assembly procedure.</p>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Vodka is licensed under GPL-3.0.</p>
+    <p class="muted">Source: <a href="https://github.com/rolling7ho/Vodka/blob/main/docs/DEPENDENCIES.md">docs/DEPENDENCIES.md</a></p>
+  </div>
+</footer>
+</body>
+</html>
