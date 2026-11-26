@@ -73,6 +73,8 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141010" media="(prefers-color-scheme: dark)">
 <title>{title} | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
@@ -83,8 +85,7 @@ TEMPLATE = """<!doctype html>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="../gmac-mark.svg" width="32" height="24" alt="">
-      <span>Gmac</span>
+      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>
@@ -113,6 +114,8 @@ INDEX_TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141010" media="(prefers-color-scheme: dark)">
 <title>Documentation | Gmac</title>
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
@@ -123,8 +126,7 @@ INDEX_TEMPLATE = """<!doctype html>
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="../index.html">
-      <img src="../gmac-mark.svg" width="32" height="24" alt="">
-      <span>Gmac</span>
+      <img src="../gmac-lockup-horizontal.svg" width="102" height="32" alt="Gmac">
     </a>
     <nav aria-label="Main">
       <a href="../index.html">Home</a>

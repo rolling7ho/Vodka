@@ -16,6 +16,7 @@
 //  If not, see https://www.gnu.org/licenses/.
 //
 
+import AppKit
 import Foundation
 import GmacKit
 import os
@@ -25,6 +26,7 @@ private let logger = Logger(subsystem: Bundle.gmacBundleIdentifier, category: "A
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     @AppStorage("hasShownMoveToApplicationsAlert") private var hasShownMoveToApplicationsAlert = false
+    private var appearanceObservation: NSKeyValueObservation?
 
     func application(_ application: NSApplication, open urls: [URL]) {
         // Test if automatic window tabbing is enabled
@@ -37,6 +39,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        self.appearanceObservation = NSApp.observe(
+            \.effectiveAppearance,
+            options: [.initial, .new]
+        ) { _, _ in
+            DispatchQueue.main.async {
+                Self.applyAdaptiveAppIcon()
+            }
+        }
+
         if !hasShownMoveToApplicationsAlert, !AppDelegate.insideAppsFolder {
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 NSApp.activate(ignoringOtherApps: true)
@@ -172,6 +183,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
               let pin = bottle.settings.pins.first(where: { $0.url == ref.pinURL })
         else { return }
         QuickLaunch.launch(pin: pin, in: bottle)
+    }
+
+    @MainActor
+    private static func applyAdaptiveAppIcon() {
+        guard let icon = NSImage(named: NSImage.Name("AdaptiveAppIcon")) else { return }
+        let appearance = NSApp.effectiveAppearance
+        let side: CGFloat = 512
+        let rect = NSRect(origin: .zero, size: NSSize(width: side, height: side))
+        let resolved = NSImage(size: rect.size, flipped: false) { drawRect in
+            appearance.performAsCurrentDrawingAppearance {
+                icon.draw(in: drawRect)
+            }
+            return true
+        }
+        NSApp.applicationIconImage = resolved
     }
 
     private static var appUrl: URL? {

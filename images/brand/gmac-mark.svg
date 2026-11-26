@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 48 304 304" width="304" height="304" fill="none">
+  <style>
+    .g-arc { stroke: #713131; }
+    .g-play { fill: #713131; stroke: #713131; }
+    @media (prefers-color-scheme: dark) {
+      .g-arc { stroke: #F5ECEC; }
+      .g-play { fill: #D98282; stroke: #D98282; }
+    }
+  </style>
+  <path class="g-play" d="M 189 183 L 217 200 L 189 217 Z" stroke-width="5" stroke-linejoin="round"/>
+  <path class="g-arc" d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke-width="22.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="g-arc" d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke-width="22.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

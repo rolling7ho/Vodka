@@ -15,7 +15,7 @@
   }
   .card {
     width: 1200px; height: 630px;
-    padding: 76px 96px;
+    padding: 68px 92px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -23,15 +23,30 @@
     border-top: 6px solid #713131;
     position: relative;
   }
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(113, 49, 49, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(113, 49, 49, 0.045) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(circle at 88% 48%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 62%);
+    mask-image: radial-gradient(circle at 88% 48%, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 62%);
+  }
   .top-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    z-index: 1;
   }
-  .brand-mark {
-    width: 112px;
-    height: auto;
-    display: block;
+  .badge {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #713131;
   }
   .site-label {
     font-size: 20px;
@@ -39,30 +54,40 @@
     color: #5E5454;
     letter-spacing: -0.01em;
   }
+  .main-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 56px;
+    position: relative;
+    z-index: 1;
+  }
   .body {
-    max-width: 820px;
+    max-width: 720px;
   }
-  .wordmark {
-    font-size: 118px;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 0.96;
+  .wordmark-svg {
+    width: 470px;
+    height: auto;
+    display: block;
     margin-bottom: 24px;
-    color: #161212;
-  }
-  .wordmark span {
-    color: #713131;
   }
   .tagline {
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 500;
     color: #5E5454;
     letter-spacing: -0.015em;
-    line-height: 1.22;
+    line-height: 1.24;
+  }
+  .icon-tile {
+    width: 240px;
+    height: 240px;
+    flex-shrink: 0;
   }
   .chips {
     display: flex;
     gap: 12px;
+    position: relative;
+    z-index: 1;
   }
   .chip {
     font-size: 19px;
@@ -83,21 +108,29 @@
 </head>
 <body>
   <div class="card">
+    <div class="bg-grid"></div>
     <div class="top-row">
-      <svg class="brand-mark" viewBox="0 0 560 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M 87.5 34.0 C 49.4 41.5, 34.8 82.2, 36.0 116.5 C 31.5 222.0, 165.4 244.8, 242.5 236.0 C 182.6 205.9, 115.8 192.5, 56.0 162.0 C 136.8 148.9, 221.0 147.0, 301.0 160.0 C 417.0 176.5, 503.6 274.6, 524.0 386.0"
-          stroke="#713131"
-          stroke-width="11"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <div class="badge">Native Windows Game Runner</div>
       <div class="site-label">rolling7ho.github.io/gmac</div>
     </div>
-    <div class="body">
-      <div class="wordmark"><span>G</span>mac</div>
-      <div class="tagline">Play Windows games on Macs.</div>
+    <div class="main-row">
+      <div class="body">
+        <svg class="wordmark-svg" viewBox="0 0 294 92" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(-9 -7) scale(0.265)">
+            <path d="M 189 183 L 217 200 L 189 217 Z" fill="#713131" stroke="#713131" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M 292.1 117.0 A 124 124 0 1 0 324 200 L 248 200" stroke="#713131" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 250.5 154.5 A 68 68 0 1 0 234.0 258.9" stroke="#713131" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <g stroke="#161212" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76"/>
+            <circle cx="200" cy="56" r="20"/>
+            <path d="M 220 36 L 220 76"/>
+            <path d="M 272.9 42.6 A 20 20 0 1 0 272.9 69.4"/>
+          </g>
+        </svg>
+        <div class="tagline">Play Windows games on Macs.</div>
+      </div>
+      <img class="icon-tile" src="../../images/gmac-icon.png" alt="Gmac app icon" />
     </div>
     <div class="chips">
       <span class="chip accent">Apple Silicon</span>
