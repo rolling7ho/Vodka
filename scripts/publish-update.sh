@@ -9,7 +9,7 @@
 #    with the Sparkle key in the login keychain (account "vodka", made by generate_keys).
 # 4. Pushes the branch and tag app-v<version>, and creates the GitHub release with the zip.
 # 5. Adds the update to appcast.xml on the gh-pages branch, which GitHub Pages serves at
-#    https://rolling7ho.github.io/Vodka/appcast.xml (Info.plist's SUFeedURL).
+#    https://rolling7ho.github.io/vodka/appcast.xml (Info.plist's SUFeedURL).
 #
 # Needs: a clean working tree, gh signed in with push access, and the Sparkle key
 # (~/.vodka-sparkle-private-key, or the login keychain's "vodka" account).
@@ -22,7 +22,7 @@ VERSION="${1:?usage: scripts/publish-update.sh <version>}"
 [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)+$ ]] || { echo "Version must be numeric dot-separated (for example 4.0.1)." >&2; exit 1; }
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DERIVED="${DERIVED:-$ROOT/.build}"
-REPO="rolling7ho/Vodka"
+REPO="rolling7ho/vodka"
 TAG="app-v$VERSION"
 PBXPROJ="$ROOT/Vodka.xcodeproj/project.pbxproj"
 cd "$ROOT"

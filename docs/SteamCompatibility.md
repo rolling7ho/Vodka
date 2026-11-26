@@ -6,7 +6,7 @@
 > **Note:** This document references issue numbers from this fork (frankea/Whisky) and from
 > the original upstream project (whisky-app/whisky). Upstream references are retained for
 > historical context. Report new issues to
-> [rolling7ho/Vodka](https://github.com/rolling7ho/Vodka/issues).
+> [rolling7ho/vodka](https://github.com/rolling7ho/vodka/issues).
 
 ## Overview
 
@@ -344,7 +344,7 @@ Example report:
 
 - Steam support: <https://help.steampowered.com/>
 - Launcher troubleshooting: [LauncherTroubleshooting.md](LauncherTroubleshooting.md)
-- Issue tracker: <https://github.com/rolling7ho/Vodka/issues>
+- Issue tracker: <https://github.com/rolling7ho/vodka/issues>
 - Upstream project: <https://github.com/whisky-app/whisky>
 
 ## Comparison of execution methods
