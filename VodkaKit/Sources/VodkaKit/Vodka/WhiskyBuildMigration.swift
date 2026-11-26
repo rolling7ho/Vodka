@@ -127,7 +127,8 @@ public enum WhiskyBuildMigration {
         }
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         list.waitUntilExit()
-        guard let output = String(bytes: data, encoding: .utf8) else { return nil }
+        // swiftlint:disable:next optional_data_string_conversion
+        let output = String(decoding: data, as: UTF8.self)
 
         let lines = output.split(separator: "\n")
         if lines.contains(where: { $0.hasSuffix("/Whisky.app/Contents/MacOS/Whisky") }) {
@@ -160,7 +161,7 @@ public enum WhiskyBuildMigration {
             .filter { !$0.lastPathComponent.hasPrefix(".com.apple.") }
         for item in items {
             let target = new.appending(path: item.lastPathComponent)
-            if fileManager.fileExists(atPath: target.path(percentEncoded: false)) {
+            if (try? fileManager.attributesOfItem(atPath: target.path(percentEncoded: false))) != nil {
                 try fileManager.removeItem(at: target)
             }
             try fileManager.moveItem(at: item, to: target)

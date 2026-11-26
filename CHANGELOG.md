@@ -12,6 +12,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Alt key, and Wine otherwise sends nothing for Option while Command acts as Ctrl. Other programs keep
   their usual Option behavior.
 
+### Fixed
+- Game database entries that set `"enhancedSync": "none"` now decode to `EnhancedSync.none` instead of
+  being dropped as unset.
+- `VDFParser` now handles Windows CRLF line endings inside `//` comments, line numbers, and quoted
+  strings so Steam manifests and configuration files parse reliably.
+- Windows `.lnk` shortcuts that store Unicode paths now decode UTF-16LE targets with two-byte null
+  terminators instead of failing at the first zero byte.
+- The running processes list now parses quoted CSV fields from `tasklist.exe` without splitting memory
+  usage values that contain thousands separators.
+- A failed bottle deletion no longer leaves the bottle permanently locked in an in-flight state, and
+  `VodkaCmd delete` no longer removes a bottle from the registry before deletion succeeds.
+- Diagnostic exports now serialize dictionaries with `JSONSerialization` to escape control characters
+  and slice log tails at line boundaries before UTF-8 decoding.
+- Headless winetricks installations no longer spin on pipe EOF or block cooperative concurrency threads
+  with `waitUntilExit()`.
+- Troubleshooting wizards now cancel in-flight checks and probes when the user navigates back or resets.
+- VodkaWine runtime installation now extracts into a staging directory and swaps `Libraries/` in place so
+  a failed extraction preserves an existing working runtime.
+- `WineGameMode` and `GPTKDiskImage` no longer call `waitUntilExit()` after a failed `Process.run()`, and
+  game-bundle conversion rolls back if symlink creation or revert moves fail.
+- `SteamClientOrchestrator` no longer surfaces spurious timeout or cancellation errors when a launch is
+  stopped, and cancels in-flight process list reads when stopping a game.
+- `Winetricks.listInstalledVerbs` now drains stdout concurrently to prevent pipe deadlocks and no longer
+  blocks cooperative concurrency threads, and `Winetricks.parseVerbs` skips blank lines without mangling
+  descriptions that repeat the verb name.
+- `ControllerMonitor.startMonitoring()` now clears existing notification observers before re-registering.
+- `GraphicsAPIDetector` now validates PE optional header magic and uses 64-bit RVA bounds arithmetic to
+  avoid overflow traps on malformed executables.
+- `VodkaWineSetupDiagnostics` now strips embedded URL credentials before emitting shareable reports, and
+  temporary launch scripts for terminal and winetricks runs are now restricted to `0700` permissions.
+- OpenV now bounds `snprintf` offsets in stall and health-check logging, guards its native hash table
+  against saturation and zero hashes, synchronizes script unregistration, and reuses cleared keyboard
+  handler slots.
+- The Discord RPC bridge now retries raw BSD `read` and `write` syscalls on `EINTR` instead of dropping
+  connections when interrupted by Wine signals.
+
 ## [4.1.1] - 2026-10-30
 
 ### Fixed

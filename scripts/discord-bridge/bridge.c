@@ -51,6 +51,7 @@
 #define BSD_AF_UNIX 1
 #define BSD_SOCK_STREAM 1
 #define BSD_SHUT_RDWR 2
+#define BSD_EINTR 4
 
 /* Wine's private process info class; see include/winternl.h in the Wine tree. */
 #define ProcessWineMakeProcessSystem 1000
@@ -127,12 +128,20 @@ static int unix_connect(int fd, const struct bsd_sockaddr_un *address)
 
 static LONG_PTR unix_read(int fd, void *buffer, DWORD length)
 {
-    return unix_syscall(SYS_READ, fd, (LONG_PTR)buffer, length);
+    LONG_PTR result;
+    do {
+        result = unix_syscall(SYS_READ, fd, (LONG_PTR)buffer, length);
+    } while (result == -BSD_EINTR);
+    return result;
 }
 
 static LONG_PTR unix_write(int fd, const void *buffer, DWORD length)
 {
-    return unix_syscall(SYS_WRITE, fd, (LONG_PTR)buffer, length);
+    LONG_PTR result;
+    do {
+        result = unix_syscall(SYS_WRITE, fd, (LONG_PTR)buffer, length);
+    } while (result == -BSD_EINTR);
+    return result;
 }
 
 static void unix_close(int fd)
@@ -380,10 +389,12 @@ int main(int argc, char **argv)
     log_line("serving %s from %s", PIPE_NAME, socket_directory);
 
     for (index = 0; index < PENDING_INSTANCES; index++) {
-        if (!CreateThread(NULL, 0, accept_clients, NULL, 0, NULL)) {
+        HANDLE thread = CreateThread(NULL, 0, accept_clients, NULL, 0, NULL);
+        if (!thread) {
             log_line("could not start an accept loop: %lu", GetLastError());
             return 1;
         }
+        CloseHandle(thread);
     }
 
     /* Stay an ordinary process for the grace window. Vodka starts the bridge

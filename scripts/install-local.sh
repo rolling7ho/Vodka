@@ -10,7 +10,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DERIVED="${DERIVED:-$ROOT/../../.build}"
 DEST="${DEST:-/Applications/Vodka.app}"
 
-LOG="$(mktemp -t vodka-build).log"
+LOG="$(mktemp -t vodka-build.XXXXXX)"
+ENTITLEMENTS=""
+cleanup() {
+    [ -n "$ENTITLEMENTS" ] && rm -f "$ENTITLEMENTS"
+}
+trap cleanup EXIT
 if ! xcodebuild -project "$ROOT/Vodka.xcodeproj" -scheme Vodka -configuration Release \
     -derivedDataPath "$DERIVED" CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" \
     build > "$LOG" 2>&1; then
@@ -18,6 +23,7 @@ if ! xcodebuild -project "$ROOT/Vodka.xcodeproj" -scheme Vodka -configuration Re
     echo "Build failed; full log: $LOG" >&2
     exit 1
 fi
+rm -f "$LOG"
 
 APP="$DERIVED/Build/Products/Release/Vodka.app"
 [ -d "$APP" ] || { echo "build failed" >&2; exit 1; }
@@ -33,7 +39,7 @@ else
     echo "warning: no $D3D12; building without Vodka's DirectX 12 layer" >&2
 fi
 
-ENTITLEMENTS="$(mktemp -t vodka-entitlements).plist"
+ENTITLEMENTS="$(mktemp -t vodka-entitlements.XXXXXX)"
 codesign -d --entitlements - --xml "$APP" > "$ENTITLEMENTS"
 
 find "$APP/Contents/Frameworks" -maxdepth 1 -name '*.framework' -print0 |
@@ -41,7 +47,6 @@ find "$APP/Contents/Frameworks" -maxdepth 1 -name '*.framework' -print0 |
 find "$APP/Contents/PlugIns" -maxdepth 1 -name '*.appex' -print0 |
     xargs -0 -I{} codesign --force --sign - --preserve-metadata=entitlements {}
 codesign --force --sign - --entitlements "$ENTITLEMENTS" "$APP"
-rm -f "$ENTITLEMENTS"
 
 # scripts/publish-update.sh only wants the signed build.
 if [ "${INSTALL:-1}" = 0 ]; then

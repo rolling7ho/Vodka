@@ -294,11 +294,11 @@ public enum BottleOperations {
         registry: BottleRegistry,
         routing: GameRouting = GameRouting()
     ) {
-        do {
-            if let bottle = registry.bottle(for: url) {
-                bottle.inFlight = true
-            }
+        let bottle = registry.bottle(for: url)
+        bottle?.inFlight = true
+        defer { bottle?.inFlight = false }
 
+        do {
             if deleteFiles {
                 try FileManager.default.removeItem(at: url)
                 routing.removeRoutes(toBottle: url)

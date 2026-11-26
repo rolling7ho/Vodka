@@ -111,10 +111,11 @@ public extension URL {
             newBottlePath += "/"
         }
 
-        let newPath = originalPath.replacingOccurrences(
-            of: oldBottlePath,
-            with: newBottlePath
-        )
+        let newPath = if originalPath.hasPrefix(oldBottlePath) {
+            newBottlePath + originalPath.dropFirst(oldBottlePath.count)
+        } else {
+            originalPath
+        }
         return URL(filePath: newPath)
     }
 }

@@ -163,6 +163,8 @@ public final class SteamClientOrchestrator: ObservableObject {
             where names.contains(process.imageName.lowercased()) {
             await driver.killProcess(winePID: process.winePID)
         }
+        snapshotRead?.cancel()
+        snapshotRead = nil
         processSnapshot = nil
         lastTracked = nil
         await refreshRunningState()
@@ -210,20 +212,30 @@ public final class SteamClientOrchestrator: ObservableObject {
 
         do {
             try await ensureClientRunning(steamExe: steamExe)
+        } catch is CancellationError {
+            return
         } catch {
-            launchError = error.localizedDescription
+            if !Task.isCancelled {
+                launchError = error.localizedDescription
+            }
             return
         }
+
+        guard !Task.isCancelled else { return }
 
         phases[game.appId] = .launching
         do {
             try driver.launchGame(game)
+        } catch is CancellationError {
+            return
         } catch {
-            launchError = error.localizedDescription
+            if !Task.isCancelled {
+                launchError = error.localizedDescription
+            }
             return
         }
 
-        if await !waitForGameProcess(installURL: game.installURL) {
+        if await !waitForGameProcess(installURL: game.installURL), !Task.isCancelled {
             launchError = String(localized: "steam.launch.timeout")
         }
     }
@@ -327,8 +339,12 @@ extension SteamClientOrchestrator {
         let read = Task { await driver.processList() }
         snapshotRead = read
         let processes = await read.value
-        snapshotRead = nil
-        processSnapshot = (processes, Date())
+        if snapshotRead == read {
+            snapshotRead = nil
+            if !read.isCancelled {
+                processSnapshot = (processes, Date())
+            }
+        }
         return processes
     }
 }

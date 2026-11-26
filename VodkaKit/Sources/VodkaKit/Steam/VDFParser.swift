@@ -103,13 +103,13 @@ public enum VDFParser {
         mutating func skipWhitespaceAndComments() {
             while index < characters.count {
                 let character = characters[index]
-                if character == "\n" {
+                if character.isNewline {
                     line += 1
                     index += 1
                 } else if character.isWhitespace {
                     index += 1
                 } else if character == "/", index + 1 < characters.count, characters[index + 1] == "/" {
-                    while index < characters.count, characters[index] != "\n" {
+                    while index < characters.count, !characters[index].isNewline {
                         index += 1
                     }
                 } else {
@@ -156,7 +156,7 @@ public enum VDFParser {
                     }
                     value.append(characters[index + 1])
                     index += 2
-                case "\n":
+                case _ where character.isNewline:
                     throw VDFParseError.unterminatedString(line: startLine)
                 default:
                     value.append(character)

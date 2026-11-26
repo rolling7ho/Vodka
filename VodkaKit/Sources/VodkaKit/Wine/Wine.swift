@@ -155,10 +155,15 @@ public class Wine {
         WineUserProfile.reconcile(bottleURL: bottle.url)
         let wineEnvironment = constructWineEnvironment(for: bottle, environment: environment)
 
-        return try runProcess(
-            name: name, args: args, environment: wineEnvironment, executableURL: wineBinary,
-            fileHandle: fileHandle
-        )
+        do {
+            return try runProcess(
+                name: name, args: args, environment: wineEnvironment, executableURL: wineBinary,
+                fileHandle: fileHandle
+            )
+        } catch {
+            try? fileHandle.closeWineLog()
+            throw error
+        }
     }
 
     /// Runs a Wine server process with the given arguments and returns a stream of output.
@@ -183,10 +188,15 @@ public class Wine {
 
         let wineserverEnvironment = constructWineEnvironment(for: bottle, environment: environment)
 
-        return try runProcess(
-            name: name, args: args, environment: wineserverEnvironment, executableURL: wineserverBinary,
-            fileHandle: fileHandle
-        )
+        do {
+            return try runProcess(
+                name: name, args: args, environment: wineserverEnvironment, executableURL: wineserverBinary,
+                fileHandle: fileHandle
+            )
+        } catch {
+            try? fileHandle.closeWineLog()
+            throw error
+        }
     }
 
     /// Result of a Wine program run, providing the exit code and log file URL
@@ -359,25 +369,45 @@ public class Wine {
         // get between itself and the program it is bridging for.
         DiscordIntegration.shared.programLaunching(url, bottle: bottle)
 
-        var exitCode: Int32 = 0
-        for await output in try runProcess(
-            name: programName,
-            args: launch.arguments,
-            environment: launch.environment, executableURL: wineBinary,
-            fileHandle: fileHandle
-        ) {
-            onOutput?(output)
-            if case let .terminated(code) = output {
-                exitCode = code
-            }
-        }
-
+        let exitCode = try await executeRunProcess(
+            entry: runLogEntry, launch: launch, fileHandle: fileHandle, bottle: bottle, onOutput: onOutput
+        )
         finishRun(
             runLogEntry.id, programName: programName, bottle: bottle,
             exitCode: exitCode, hasWineDebug: launch.environment.keys.contains("WINEDEBUG")
         )
 
         return ProgramRunResult(exitCode: exitCode, logFileURL: logFileURL, runLogEntryId: runLogEntry.id)
+    }
+
+    @MainActor
+    private static func executeRunProcess(
+        entry: RunLogEntry, launch: PreparedLaunch, fileHandle: FileHandle,
+        bottle: Bottle, onOutput: (@MainActor (ProcessOutput) -> Void)?
+    ) async throws -> Int32 {
+        let stream: AsyncStream<ProcessOutput>
+        do {
+            stream = try runProcess(
+                name: entry.programName, args: launch.arguments,
+                environment: launch.environment, executableURL: wineBinary, fileHandle: fileHandle
+            )
+        } catch {
+            try? fileHandle.closeWineLog()
+            finishRun(
+                entry.id, programName: entry.programName, bottle: bottle,
+                exitCode: -1, hasWineDebug: launch.environment.keys.contains("WINEDEBUG")
+            )
+            throw error
+        }
+
+        var exitCode: Int32 = 0
+        for await output in stream {
+            onOutput?(output)
+            if case let .terminated(code) = output {
+                exitCode = code
+            }
+        }
+        return exitCode
     }
 
     /// Closes a run's log entry with its exit information and adds the run to
@@ -546,7 +576,7 @@ public class Wine {
     }
 
     /// The `wine64` arguments for a launch, with an optional per-program virtual desktop.
-    private static func launchArguments(
+    static func launchArguments(
         for url: URL, args: [String], programOverrides: ProgramOverrides?
     ) -> [String] {
         let args = SteamLauncher.clientArguments(for: url, args: args)
@@ -556,7 +586,9 @@ public class Wine {
             return ["start", "/unix", url.path(percentEncoded: false)] + args
         }
         let resolution = Self.resolveVirtualDesktopResolution(from: overrides)
-        let desktopName = url.lastPathComponent.replacingOccurrences(of: " ", with: "_")
+        let desktopName = url.lastPathComponent
+            .replacingOccurrences(of: " ", with: "_")
+            .replacingOccurrences(of: ",", with: "_")
         return [
             "explorer", "/desktop=\(desktopName),\(resolution)",
             url.path(percentEncoded: false)
@@ -635,7 +667,7 @@ public class Wine {
     /// Prefixes `command` with an assignment for each environment variable.
     private static func shellCommand(_ command: String, environment: [String: String]) -> String {
         var wineCmd = command
-        for envVar in environment {
+        for envVar in environment.sorted(by: { $0.key > $1.key }) {
             if isValidEnvKey(envVar.key) {
                 // Keys are validated to be safe shell identifiers; values are escaped
                 // Note: No quotes needed - .esc handles all shell metacharacter escaping
@@ -779,7 +811,15 @@ public class Wine {
         WineUserProfile.reconcile(bottleURL: bottle.url)
         let wineEnvironment = constructWineEnvironment(for: bottle, environment: environment)
 
-        for await output in try runWineProcess(args: args, environment: wineEnvironment, fileHandle: fileHandle) {
+        let stream: AsyncStream<ProcessOutput>
+        do {
+            stream = try runWineProcess(args: args, environment: wineEnvironment, fileHandle: fileHandle)
+        } catch {
+            try? fileHandle?.closeWineLog()
+            throw error
+        }
+
+        for await output in stream {
             switch output {
             case .started, .terminated:
                 break
@@ -801,7 +841,15 @@ public class Wine {
         let fileHandle = try makeFileHandle()
         fileHandle.writeApplicationInfo()
 
-        for await output in try runWineProcess(args: args, environment: environment, fileHandle: fileHandle) {
+        let stream: AsyncStream<ProcessOutput>
+        do {
+            stream = try runWineProcess(args: args, environment: environment, fileHandle: fileHandle)
+        } catch {
+            try? fileHandle.closeWineLog()
+            throw error
+        }
+
+        for await output in stream {
             switch output {
             case .started, .terminated:
                 break

@@ -141,6 +141,7 @@ public final class TempFileTracker: @unchecked Sendable {
                     // Exponential backoff: 1s, 2s, 4s
                     let delay = TimeInterval(pow(2.0, Double(attempt)))
                     try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                    continue
                 } else {
                     logger
                         .error(

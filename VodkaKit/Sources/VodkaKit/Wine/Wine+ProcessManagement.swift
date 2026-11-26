@@ -105,15 +105,7 @@ public extension Wine {
         processes.reserveCapacity(lines.count)
 
         for line in lines {
-            let fields = line.split(separator: ",", omittingEmptySubsequences: false)
-                .map { field in
-                    var trimmed = field.trimmingCharacters(in: .whitespaces)
-                    // Strip surrounding quotes
-                    if trimmed.hasPrefix("\""), trimmed.hasSuffix("\"") {
-                        trimmed = String(trimmed.dropFirst().dropLast())
-                    }
-                    return trimmed
-                }
+            let fields = parseCSVFields(line)
 
             // Require at least 5 fields: Image Name, PID, Session Name, Session#, Mem Usage
             guard fields.count >= 5 else { continue }
@@ -136,6 +128,37 @@ public extension Wine {
         }
 
         return processes
+    }
+
+    /// Splits a single CSV line into unquoted fields so commas inside quoted
+    /// values such as `"24,576 K"` remain part of the field.
+    private static func parseCSVFields(_ line: Substring) -> [String] {
+        var fields: [String] = []
+        var current = ""
+        var inQuotes = false
+        var index = line.startIndex
+
+        while index < line.endIndex {
+            let character = line[index]
+            if character == "\"" {
+                let nextIndex = line.index(after: index)
+                if inQuotes, nextIndex < line.endIndex, line[nextIndex] == "\"" {
+                    current.append("\"")
+                    index = line.index(after: nextIndex)
+                    continue
+                }
+                inQuotes.toggle()
+            } else if character == ",", !inQuotes {
+                fields.append(current.trimmingCharacters(in: .whitespaces))
+                current = ""
+            } else {
+                current.append(character)
+            }
+            index = line.index(after: index)
+        }
+
+        fields.append(current.trimmingCharacters(in: .whitespaces))
+        return fields
     }
 
     /// Sends a graceful kill request for a single Wine process via `taskkill.exe`.

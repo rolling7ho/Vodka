@@ -168,9 +168,10 @@ public extension Program {
         let start = end > UInt64(maxBytes) ? end - UInt64(maxBytes) : 0
         try? handle.seek(toOffset: start)
 
-        guard let data = try? handle.readToEnd(),
-              let text = String(data: data, encoding: .utf8)
-        else { return false }
+        guard let data = try? handle.readToEnd() else { return false }
+        // Lossy UTF-8 decoding handles seeking mid-character or non-UTF-8 Wine output.
+        // swiftlint:disable:next optional_data_string_conversion
+        let text = String(decoding: data, as: UTF8.self)
 
         return crashSignatures.contains(where: { text.contains($0) })
     }

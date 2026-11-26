@@ -163,13 +163,13 @@ extension Vodka {
             // Should ask for confirmation
             let bottleToRemove = bottles.first(where: { $0.settings.name == name })
             if let bottleToRemove {
-                bottlesList.paths.removeAll(where: { $0 == bottleToRemove.url })
                 do {
                     try FileManager.default.removeItem(at: bottleToRemove.url)
+                    bottlesList.paths.removeAll(where: { $0 == bottleToRemove.url })
                     GameRouting().removeRoutes(toBottle: bottleToRemove.url)
                     print("Deleted \"\(name)\".")
                 } catch {
-                    print(error)
+                    throw DomainError("Failed to delete \"\(name)\": \(error.localizedDescription)")
                 }
             } else {
                 throw DomainError("No bottle called \"\(name)\" found.")

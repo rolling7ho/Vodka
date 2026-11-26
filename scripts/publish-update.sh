@@ -19,6 +19,7 @@
 set -euo pipefail
 
 VERSION="${1:?usage: scripts/publish-update.sh <version>}"
+[[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)+$ ]] || { echo "Version must be numeric dot-separated (for example 4.0.1)." >&2; exit 1; }
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DERIVED="${DERIVED:-$ROOT/../../.build}"
 REPO="rolling7ho/vodka-stack"
@@ -26,12 +27,24 @@ TAG="app-v$VERSION"
 PBXPROJ="$ROOT/Vodka.xcodeproj/project.pbxproj"
 cd "$ROOT"
 
+NOTES=""
+OUT=""
+PAGES=""
+cleanup() {
+    if [ -n "$PAGES" ] && [ -d "$PAGES" ]; then
+        git worktree remove --force "$PAGES" 2>/dev/null || true
+    fi
+    [ -n "$NOTES" ] && rm -f "$NOTES"
+    [ -n "$OUT" ] && rm -rf "$OUT"
+}
+trap cleanup EXIT
+
 [ -z "$(git status --porcelain)" ] || { echo "Commit or stash your changes first." >&2; exit 1; }
 git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && { echo "$TAG already exists." >&2; exit 1; }
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 BUILD=$(( $(grep -m1 -o 'CURRENT_PROJECT_VERSION = [0-9]*' "$PBXPROJ" | grep -o '[0-9]*$') + 1 ))
-NOTES="$(mktemp -t vodka-notes).md"
+NOTES="$(mktemp -t vodka-notes.XXXXXX)"
 python3 "$ROOT/scripts/update-appcast.py" changelog "$ROOT/CHANGELOG.md" "$VERSION" "$NOTES"
 sed -i '' -E "s/MARKETING_VERSION = [0-9.]+;/MARKETING_VERSION = $VERSION;/; s/CURRENT_PROJECT_VERSION = [0-9]+;/CURRENT_PROJECT_VERSION = $BUILD;/" "$PBXPROJ"
 git commit -q -am "Vodka $VERSION"

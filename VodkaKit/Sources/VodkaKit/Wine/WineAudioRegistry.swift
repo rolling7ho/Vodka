@@ -55,7 +55,7 @@ struct AudioRegistryState: Codable, Equatable {
     func save(to bottleURL: URL) throws {
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml
-        try encoder.encode(self).write(to: Self.markerURL(in: bottleURL))
+        try encoder.encode(self).write(to: Self.markerURL(in: bottleURL), options: .atomic)
     }
 }
 

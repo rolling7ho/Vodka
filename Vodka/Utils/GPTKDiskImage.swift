@@ -91,8 +91,9 @@ enum GPTKDiskImage {
             "attach", "-readonly", "-nobrowse", "-plist", image.path(percentEncoded: false)
         ]
         let stdout = Pipe()
+        process.standardInput = FileHandle.nullDevice
         process.standardOutput = stdout
-        process.standardError = Pipe()
+        process.standardError = FileHandle.nullDevice
         try process.run()
         let data = stdout.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
@@ -115,9 +116,13 @@ enum GPTKDiskImage {
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/hdiutil")
         process.arguments = ["detach", mountPoint.path(percentEncoded: false)]
-        process.standardOutput = Pipe()
-        process.standardError = Pipe()
-        try? process.run()
-        process.waitUntilExit()
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return
+        }
     }
 }

@@ -62,13 +62,11 @@ public class Tar {
 
         try process.run()
 
-        if let output = try pipe.fileHandleForReading.readToEnd() {
+        let output = try pipe.fileHandleForReading.readToEnd() ?? Data()
+        process.waitUntilExit()
+        if process.terminationStatus != 0 {
             let outputString = String(data: output, encoding: .utf8) ?? String()
-            process.waitUntilExit()
-            let status = process.terminationStatus
-            if status != 0 {
-                throw TarError.commandFailed(output: outputString)
-            }
+            throw TarError.commandFailed(output: outputString)
         }
     }
 
@@ -110,13 +108,11 @@ public class Tar {
 
         try process.run()
 
-        if let output = try pipe.fileHandleForReading.readToEnd() {
+        let output = try pipe.fileHandleForReading.readToEnd() ?? Data()
+        process.waitUntilExit()
+        if process.terminationStatus != 0 {
             let outputString = String(data: output, encoding: .utf8) ?? String()
-            process.waitUntilExit()
-            let status = process.terminationStatus
-            if status != 0 {
-                throw TarError.commandFailed(output: outputString)
-            }
+            throw TarError.commandFailed(output: outputString)
         }
 
         try auditSymlinks(underRoot: stagingDir)

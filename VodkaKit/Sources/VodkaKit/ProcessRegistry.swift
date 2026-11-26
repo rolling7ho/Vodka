@@ -388,6 +388,7 @@ public final class ProcessRegistry: @unchecked Sendable {
     public func reset() {
         lock.lock()
         activeProcesses.removeAll()
+        releaseDisplayWakeAssertionIfIdleLocked()
         lock.unlock()
     }
 }

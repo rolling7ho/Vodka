@@ -255,11 +255,13 @@ public struct DLLOverrideResolver: Sendable {
         // Build per-DLL effective mode: managed -> bottleCustom -> programCustom
         var effectiveMode: [String: DLLOverrideMode] = [:]
         var managedSources: [String: DLLOverrideSource] = [:]
+        var managedModes: [String: DLLOverrideMode] = [:]
 
         // Layer 1: Managed overrides
         for (entry, source) in managed {
             effectiveMode[entry.dllName] = entry.mode
             managedSources[entry.dllName] = source
+            managedModes[entry.dllName] = entry.mode
         }
 
         // Layer 2: Bottle custom overrides (wins over managed)
@@ -277,9 +279,7 @@ public struct DLLOverrideResolver: Sendable {
         for (dllName, source) in managedSources {
             guard let finalMode = effectiveMode[dllName] else { continue }
 
-            // Find the managed mode for this DLL
-            let managedMode = managed.first { $0.entry.dllName == dllName }?.entry.mode
-            guard let managedMode, finalMode != managedMode else { continue }
+            guard let managedMode = managedModes[dllName], finalMode != managedMode else { continue }
 
             // Check if overridden by bottle or program custom
             let isBottleOverride = bottleCustom.contains { $0.dllName == dllName }

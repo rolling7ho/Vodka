@@ -109,22 +109,40 @@ public struct LinkInfo: Hashable {
     func getProgram(handle: FileHandle, offset: UInt64, bottle: Bottle, unicode: Bool) -> Program? {
         do {
             try handle.seek(toOffset: offset)
-            if let pathData = try handle.readToEnd() {
-                if let nullRange = pathData.firstIndex(of: 0) {
-                    let encoding: String.Encoding = unicode ? .utf16 : .windowsCP1254
-                    if var string = String(data: pathData[..<nullRange], encoding: encoding) {
-                        // UNIX-ify the path
-                        string.replace("\\", with: "/")
-                        string.replace("C:", with: "\(bottle.url.path)/drive_c")
-                        let url = URL(filePath: string)
-                        return Program(url: url, bottle: bottle)
-                    }
+            guard let pathData = try handle.readToEnd(),
+                  let nullIndex = Self.nullTerminatorIndex(in: pathData, unicode: unicode)
+            else {
+                return nil
+            }
+
+            let encoding: String.Encoding = unicode ? .utf16LittleEndian : .windowsCP1254
+            if var string = String(data: pathData[..<nullIndex], encoding: encoding) {
+                // Convert Windows path separators and leading drive letter to the bottle path.
+                string.replace("\\", with: "/")
+                if string.hasPrefix("C:") || string.hasPrefix("c:") {
+                    string = "\(bottle.url.path)/drive_c" + string.dropFirst(2)
                 }
+                let url = URL(filePath: string)
+                return Program(url: url, bottle: bottle)
             }
         } catch {
             return nil
         }
 
+        return nil
+    }
+
+    private static func nullTerminatorIndex(in data: Data, unicode: Bool) -> Data.Index? {
+        guard unicode else {
+            return data.firstIndex(of: 0)
+        }
+        var index = data.startIndex
+        while index + 1 < data.endIndex {
+            if data[index] == 0, data[index + 1] == 0 {
+                return index
+            }
+            index += 2
+        }
         return nil
     }
 }

@@ -83,7 +83,9 @@ public enum RunningWinePrograms {
         }
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         list.waitUntilExit()
-        guard let output = String(bytes: data, encoding: .utf8) else { return [] }
+        // Lossy decoding ensures non-UTF-8 arguments in unrelated host processes do not hide Wine processes.
+        // swiftlint:disable:next optional_data_string_conversion
+        let output = String(decoding: data, as: UTF8.self)
         return output.split(separator: "\n").map(String.init)
     }
 }

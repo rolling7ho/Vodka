@@ -247,6 +247,8 @@ public struct VodkaWineSetupDiagnostics: Codable, Sendable {
     private func sanitizedURLString(_ urlString: String?) -> String? {
         guard let urlString, let url = URL(string: urlString) else { return urlString }
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return urlString }
+        components.user = nil
+        components.password = nil
         components.query = nil
         components.fragment = nil
         return components.url?.absoluteString ?? urlString

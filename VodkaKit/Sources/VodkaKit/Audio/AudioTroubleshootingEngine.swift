@@ -85,6 +85,9 @@ public final class AudioTroubleshootingEngine: ObservableObject {
     /// Maximum fix attempts before escalation.
     private let maxFixAttempts = 3
 
+    /// Active probe execution task, cancelled on reset or re-entry.
+    private var probeTask: Task<Void, Never>?
+
     private let logger = Logger(
         subsystem: "com.rolling7ho.Vodka",
         category: "AudioTroubleshootingEngine"
@@ -136,9 +139,10 @@ public final class AudioTroubleshootingEngine: ObservableObject {
     /// Sets the selected symptom, transitions to `.runningProbes`,
     /// and kicks off probe execution.
     public func selectSymptom(_ symptom: AudioSymptom) {
+        probeTask?.cancel()
         selectedSymptom = symptom
         wizardState = .runningProbes
-        Task {
+        probeTask = Task {
             await runProbes()
         }
     }
@@ -151,8 +155,16 @@ public final class AudioTroubleshootingEngine: ObservableObject {
         var findings: [AudioFinding] = []
 
         for probe in probes {
+            guard !Task.isCancelled else {
+                isRunningProbe = false
+                return
+            }
             logger.info("Running probe: \(probe.displayName)")
             let result = await probe.run()
+            guard !Task.isCancelled else {
+                isRunningProbe = false
+                return
+            }
             results.append(result)
             findings.append(contentsOf: result.findings)
         }
@@ -224,15 +236,19 @@ public final class AudioTroubleshootingEngine: ObservableObject {
             return
         }
 
+        probeTask?.cancel()
         wizardState = .runningProbes
-        Task {
+        probeTask = Task {
             await runProbes()
+            guard !Task.isCancelled else { return }
             offerNextFix()
         }
     }
 
     /// Resets all state and returns to the symptom picker.
     public func reset() {
+        probeTask?.cancel()
+        probeTask = nil
         selectedSymptom = nil
         probeResults = []
         currentFindings = []

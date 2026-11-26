@@ -496,18 +496,20 @@ extension DiagnosticExporter {
             try handle.seek(toOffset: start)
 
             let data = try handle.readToEnd() ?? Data()
-            guard var text = String(data: data, encoding: .utf8) else {
-                return "(Log tail unavailable: not UTF-8)"
-            }
-
-            guard !text.isEmpty else {
+            guard !data.isEmpty else {
                 return "(Log tail unavailable: empty)"
             }
 
-            // If we started from the middle, drop the first partial line
-            if start != 0, let firstNewline = text.firstIndex(of: "\n") {
-                text = String(text[text.index(after: firstNewline)...])
+            // If we started from the middle, drop the first partial line at the byte level
+            // before decoding so a multi-byte UTF-8 sequence split at the boundary is discarded.
+            let slice: Data = if start != 0, let firstNewline = data.firstIndex(of: 0x0A) {
+                data[data.index(after: firstNewline)...]
+            } else {
+                data
             }
+
+            // swiftlint:disable:next optional_data_string_conversion
+            let text = String(bytes: slice, encoding: .utf8) ?? String(decoding: slice, as: UTF8.self)
 
             let lines = text.split(separator: "\n", omittingEmptySubsequences: false)
             if lines.count <= lineCount {
@@ -521,19 +523,14 @@ extension DiagnosticExporter {
 
     /// Converts a [String: String] dictionary to a pretty-printed JSON string.
     fileprivate static func dictionaryToJSON(_ dict: [String: String]) -> String {
-        let sorted = dict.sorted { $0.key < $1.key }
-        var json = "{\n"
-        for (index, pair) in sorted.enumerated() {
-            let escapedValue = pair.value
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "\"", with: "\\\"")
-            json += "  \"\(pair.key)\": \"\(escapedValue)\""
-            if index < sorted.count - 1 {
-                json += ","
-            }
-            json += "\n"
+        guard let data = try? JSONSerialization.data(
+            withJSONObject: dict,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ),
+            let json = String(data: data, encoding: .utf8)
+        else {
+            return "{}"
         }
-        json += "}"
         return json
     }
 }

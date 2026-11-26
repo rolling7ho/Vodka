@@ -170,6 +170,8 @@ class ControllerMonitor: ObservableObject {
     /// ``NSNotification.Name.GCControllerDidDisconnect`` notifications,
     /// then performs an initial refresh to capture already-connected controllers.
     func startMonitoring() {
+        stopMonitoring()
+
         // Register for notifications before querying controllers()
         // so that late-discovered controllers update the list.
         connectObserver = NotificationCenter.default.addObserver(

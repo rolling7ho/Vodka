@@ -180,7 +180,7 @@ extension GPTKImporter {
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml
         try encoder.encode(GPTKOriginalsRecord(runtimeVersion: runtimeStamp))
-            .write(to: originalsRecordURL(inStore: store))
+            .write(to: originalsRecordURL(inStore: store), options: .atomic)
     }
 
     /// Testable seam for ``deployStoredPayload()``.
@@ -233,7 +233,7 @@ extension GPTKImporter {
         }
 
         let externalDest = wineLib.appending(path: "external")
-        if fileManager.fileExists(atPath: externalDest.path(percentEncoded: false)) {
+        if (try? fileManager.attributesOfItem(atPath: externalDest.path(percentEncoded: false))) != nil {
             try fileManager.removeItem(at: externalDest)
         }
         try fileManager.copyItem(at: storeLib.appending(path: "external"), to: externalDest)
@@ -323,7 +323,7 @@ extension GPTKImporter {
         }
 
         let external = wineLib.appending(path: "external")
-        if fileManager.fileExists(atPath: external.path(percentEncoded: false)) {
+        if (try? fileManager.attributesOfItem(atPath: external.path(percentEncoded: false))) != nil {
             try fileManager.removeItem(at: external)
         }
         logger.info("Removed GPTK payload from the runtime tree")

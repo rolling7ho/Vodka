@@ -226,7 +226,7 @@ public struct GameConfigVariantSettings: Codable, Sendable, Equatable {
         // so we try String first and fall back to the native Codable format.
         if let syncString = try container.decodeIfPresent(String.self, forKey: .enhancedSync) {
             switch syncString {
-            case "none": self.enhancedSync = .none
+            case "none": self.enhancedSync = EnhancedSync.none
             case "esync": self.enhancedSync = .esync
             case "msync": self.enhancedSync = .msync
             default: self.enhancedSync = nil

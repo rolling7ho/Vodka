@@ -148,11 +148,16 @@ extension GPTKImporter {
 
         guard fileManager.fileExists(atPath: slot.path(percentEncoded: false)) else { return }
 
-        if fileManager.fileExists(atPath: renamed.path(percentEncoded: false)) {
+        if (try? fileManager.attributesOfItem(atPath: renamed.path(percentEncoded: false))) != nil {
             try fileManager.removeItem(at: renamed)
         }
         try fileManager.copyItem(at: slot, to: renamed)
-        try rewriteExportName(at: renamed, from: interposer.slotName, to: interposer.renamedName)
+        do {
+            try rewriteExportName(at: renamed, from: interposer.slotName, to: interposer.renamedName)
+        } catch {
+            try? fileManager.removeItem(at: renamed)
+            throw error
+        }
 
         // The renamed PE needs its own unix half or D3DMetal never binds.
         let link = unixDir.appending(path: interposer.renamedUnixName)

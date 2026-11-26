@@ -340,7 +340,7 @@ public enum GPTKImporter {
         let record = GPTKStoreRecord(gptkVersion: version, importedAt: Date())
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .xml
-        try encoder.encode(record).write(to: recordURL(inStore: store))
+        try encoder.encode(record).write(to: recordURL(inStore: store), options: .atomic)
         // Validated above, as it sits in the store now, so the first deploy
         // does not check it again.
         if isAppleSigned != nil {

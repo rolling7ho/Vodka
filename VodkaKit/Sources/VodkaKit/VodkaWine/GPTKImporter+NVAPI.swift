@@ -80,31 +80,38 @@ extension GPTKImporter {
     /// overwritten.
     static func installNVAPIBridge(intoLibraryFolder folder: URL, usingStore store: URL) throws {
         guard let source = nvapiBridgeSource(inStore: store) else { return }
-        guard !isNVAPIBridgeInstalled(inLibraryFolder: folder, usingStore: store) else { return }
         let fileManager = FileManager.default
         let destination = nvapiBridgePE(inLibraryFolder: folder)
         let backup = nvapiPlaceholderBackup(inLibraryFolder: folder)
         let link = nvapiBridgeUnixLink(inLibraryFolder: folder)
+        let alreadyInstalled = isNVAPIBridgeInstalled(inLibraryFolder: folder, usingStore: store)
 
-        if fileManager.fileExists(atPath: destination.path(percentEncoded: false)) {
-            // Only the first install backs up: a second one would otherwise save
-            // Apple's DLL over the placeholder and lose it for good.
-            if !fileManager.fileExists(atPath: backup.path(percentEncoded: false)) {
-                try fileManager.copyItem(at: destination, to: backup)
+        if !alreadyInstalled {
+            if fileManager.fileExists(atPath: destination.path(percentEncoded: false)) {
+                // Only the first install backs up: a second one would otherwise save
+                // Apple's DLL over the placeholder and lose it for good.
+                if !fileManager.fileExists(atPath: backup.path(percentEncoded: false)) {
+                    try fileManager.copyItem(at: destination, to: backup)
+                }
+                try fileManager.removeItem(at: destination)
             }
-            try fileManager.removeItem(at: destination)
+            try fileManager.copyItem(at: source, to: destination)
         }
-        try fileManager.copyItem(at: source, to: destination)
 
-        try fileManager.createDirectory(
-            at: link.deletingLastPathComponent(), withIntermediateDirectories: true
-        )
-        try? fileManager.removeItem(at: link)
-        try fileManager.createSymbolicLink(
-            atPath: link.path(percentEncoded: false),
-            withDestinationPath: unixLinkDestination
-        )
-        logger.info("Installed Apple's NVAPI as \(nvapiBridgeName, privacy: .public)")
+        let currentTarget = try? fileManager.destinationOfSymbolicLink(atPath: link.path(percentEncoded: false))
+        if currentTarget != unixLinkDestination {
+            try fileManager.createDirectory(
+                at: link.deletingLastPathComponent(), withIntermediateDirectories: true
+            )
+            try? fileManager.removeItem(at: link)
+            try fileManager.createSymbolicLink(
+                atPath: link.path(percentEncoded: false),
+                withDestinationPath: unixLinkDestination
+            )
+        }
+        if !alreadyInstalled {
+            logger.info("Installed Apple's NVAPI as \(nvapiBridgeName, privacy: .public)")
+        }
     }
 
     /// Takes the bridge back out and restores Wine's placeholder.

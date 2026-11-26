@@ -105,6 +105,9 @@ public final class TroubleshootingFlowEngine: ObservableObject {
     /// Maximum automated steps before forced escalation.
     private static let maxAutomatedSteps = 50
 
+    /// In-flight check task, cancelled whenever navigation moves away from the check node.
+    private var activeCheckTask: Task<Void, Never>?
+
     // MARK: - Init
 
     /// Creates a new flow engine with all dependencies injected.
@@ -169,6 +172,8 @@ public final class TroubleshootingFlowEngine: ObservableObject {
     ///
     /// - Parameter nodeId: The target node ID.
     public func navigateToNode(_ nodeId: String) {
+        cancelActiveCheck()
+
         guard let node = resolveNode(nodeId) else {
             logger.error("Failed to resolve node: \(nodeId)")
             escalate()
@@ -212,61 +217,6 @@ public final class TroubleshootingFlowEngine: ObservableObject {
         // Auto-run checks for check-type nodes
         if let checkId = node.checkId {
             runCheck(checkId: checkId, params: node.params ?? [:], node: node)
-        }
-    }
-
-    // MARK: - Check Execution
-
-    /// Runs a check and branches based on the normalized result.
-    private func runCheck(checkId: String, params: [String: String], node: FlowStepNode) {
-        isRunningCheck = true
-
-        Task { [weak self] in
-            guard let self else { return }
-
-            let context = CheckContext(
-                bottleURL: session.preflightSnapshot?.bottleURL ?? session.bottleURL ?? URL(filePath: "/"),
-                bottleName: session.preflightSnapshot?.bottleName ?? "Unknown",
-                programURL: session.preflightSnapshot?.programURL ?? session.programURL,
-                // The name is what the game-database check matches on; a
-                // wizard opened from a program page has the URL but not always
-                // the name, so fall back to the executable's filename.
-                programName: session.preflightSnapshot?.programName
-                    ?? (session.preflightSnapshot?.programURL ?? session.programURL)?.lastPathComponent,
-                preflight: session.preflightSnapshot ?? PreflightData(
-                    bottleURL: session.bottleURL ?? URL(filePath: "/"),
-                    bottleName: "Unknown",
-                    isWineserverRunning: false,
-                    processCount: 0,
-                    graphicsBackend: "unknown"
-                ),
-                session: session
-            )
-
-            let result = await checkRegistry.run(checkId: checkId, params: params, context: context)
-
-            isRunningCheck = false
-            lastCheckResult = result
-            session.recordCheckResult(nodeId: node.id, result: result)
-
-            // Branch on normalized outcome
-            let outcome = result.outcome.rawValue
-            if let nextNodeId = node.on?[outcome] {
-                logger.debug("Check \(checkId) outcome '\(outcome)' -> navigating to \(nextNodeId)")
-                session.recordBranch(from: node.id, targetNodeId: nextNodeId, reason: "Check outcome: \(outcome)")
-                navigateToNode(nextNodeId)
-            } else if let defaultNext = node.on?["default"] {
-                logger.debug("Check \(checkId) outcome '\(outcome)' not mapped, using default -> \(defaultNext)")
-                session.recordBranch(
-                    from: node.id, targetNodeId: defaultNext,
-                    reason: "Default branch (outcome: \(outcome))"
-                )
-                navigateToNode(defaultNext)
-            } else {
-                logger.warning("Check \(checkId) outcome '\(outcome)' has no target and no default")
-            }
-
-            autoSave()
         }
     }
 
@@ -400,6 +350,8 @@ public final class TroubleshootingFlowEngine: ObservableObject {
     public func goBack() {
         guard session.stepHistory.count > 1 else { return }
 
+        cancelActiveCheck()
+
         // Remove the current step
         session.stepHistory.removeLast()
 
@@ -418,6 +370,7 @@ public final class TroubleshootingFlowEngine: ObservableObject {
     /// Sets the session phase to escalation and navigates to the export-escalation
     /// fragment if available.
     public func escalate() {
+        cancelActiveCheck()
         session.phase = .escalation
 
         // Try to navigate to the export-escalation fragment
@@ -435,6 +388,7 @@ public final class TroubleshootingFlowEngine: ObservableObject {
     ///
     /// Preserves the bottle and program URLs but clears all progress.
     public func startOver() {
+        cancelActiveCheck()
         let bottleURL = session.bottleURL
         let programURL = session.programURL
         let preflight = session.preflightSnapshot
@@ -502,6 +456,75 @@ public final class TroubleshootingFlowEngine: ObservableObject {
     private func handleBranchChange(from oldPath: String, to newPath: String, reason: String) {
         pathChanged = true
         pathChangeReason = reason
+    }
+}
+
+// MARK: - Check Execution
+
+extension TroubleshootingFlowEngine {
+    /// Runs a check and branches based on the normalized result.
+    private func runCheck(checkId: String, params: [String: String], node: FlowStepNode) {
+        cancelActiveCheck()
+        isRunningCheck = true
+        let expectedSessionId = session.id
+
+        activeCheckTask = Task { [weak self] in
+            guard let self else { return }
+
+            let context = CheckContext(
+                bottleURL: session.preflightSnapshot?.bottleURL ?? session.bottleURL ?? URL(filePath: "/"),
+                bottleName: session.preflightSnapshot?.bottleName ?? "Unknown",
+                programURL: session.preflightSnapshot?.programURL ?? session.programURL,
+                // The name is what the game-database check matches on; a
+                // wizard opened from a program page has the URL but not always
+                // the name, so fall back to the executable's filename.
+                programName: session.preflightSnapshot?.programName
+                    ?? (session.preflightSnapshot?.programURL ?? session.programURL)?.lastPathComponent,
+                preflight: session.preflightSnapshot ?? PreflightData(
+                    bottleURL: session.bottleURL ?? URL(filePath: "/"),
+                    bottleName: "Unknown",
+                    isWineserverRunning: false,
+                    processCount: 0,
+                    graphicsBackend: "unknown"
+                ),
+                session: session
+            )
+
+            let result = await checkRegistry.run(checkId: checkId, params: params, context: context)
+            guard !Task.isCancelled, session.id == expectedSessionId, currentNode?.id == node.id else {
+                return
+            }
+
+            isRunningCheck = false
+            activeCheckTask = nil
+            lastCheckResult = result
+            session.recordCheckResult(nodeId: node.id, result: result)
+
+            // Branch on normalized outcome
+            let outcome = result.outcome.rawValue
+            if let nextNodeId = node.on?[outcome] {
+                logger.debug("Check \(checkId) outcome '\(outcome)' -> navigating to \(nextNodeId)")
+                session.recordBranch(from: node.id, targetNodeId: nextNodeId, reason: "Check outcome: \(outcome)")
+                navigateToNode(nextNodeId)
+            } else if let defaultNext = node.on?["default"] {
+                logger.debug("Check \(checkId) outcome '\(outcome)' not mapped, using default -> \(defaultNext)")
+                session.recordBranch(
+                    from: node.id, targetNodeId: defaultNext,
+                    reason: "Default branch (outcome: \(outcome))"
+                )
+                navigateToNode(defaultNext)
+            } else {
+                logger.warning("Check \(checkId) outcome '\(outcome)' has no target and no default")
+            }
+
+            autoSave()
+        }
+    }
+
+    private func cancelActiveCheck() {
+        activeCheckTask?.cancel()
+        activeCheckTask = nil
+        isRunningCheck = false
     }
 }
 

@@ -142,6 +142,7 @@ private struct ImportTableReader {
         let sectionCount = Int(Self.u16(header, 6))
         let optionalSize = Int(Self.u16(header, 20))
         let magic = Self.u16(header, 24)
+        guard magic == 0x10B || magic == 0x20B else { return nil }
         let isPE32Plus = magic == 0x20B
         imageBase = isPE32Plus ? Self.u64(header, 24 + 24) : UInt64(Self.u32(header, 24 + 28))
         let directoryStart = 24 + (isPE32Plus ? 112 : 96)
@@ -183,7 +184,9 @@ private struct ImportTableReader {
     private func descriptorNames(at rva: UInt32, stride: Int, nameOffset: Int) -> [String] {
         var names: [String] = []
         for index in 0 ..< 512 {
-            guard let offset = fileOffset(rva: rva + UInt32(index * stride)),
+            let descriptorRVA = UInt64(rva) + UInt64(index) * UInt64(stride)
+            guard descriptorRVA <= UInt64(UInt32.max),
+                  let offset = fileOffset(rva: UInt32(descriptorRVA)),
                   let descriptor = Self.read(handle, at: offset, count: stride), descriptor.count == stride
             else { break }
             var nameRVA = Self.u32(descriptor, nameOffset)
@@ -205,10 +208,12 @@ private struct ImportTableReader {
     }
 
     private func fileOffset(rva: UInt32) -> UInt64? {
+        let rva64 = UInt64(rva)
         for section in sections {
-            let span = max(section.virtualSize, section.rawSize)
-            if rva >= section.virtualAddress, rva < section.virtualAddress &+ span {
-                return UInt64(rva - section.virtualAddress) + UInt64(section.rawPointer)
+            let start = UInt64(section.virtualAddress)
+            let span = UInt64(max(section.virtualSize, section.rawSize))
+            if rva64 >= start, rva64 < start + span {
+                return (rva64 - start) + UInt64(section.rawPointer)
             }
         }
         return nil

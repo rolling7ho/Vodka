@@ -113,7 +113,12 @@ extension Program {
         let scriptURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("vodka-run-\(UUID().uuidString).sh")
         try "#!/bin/bash\n\(command)\n".write(to: scriptURL, atomically: true, encoding: .utf8)
-        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
+        do {
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: scriptURL.path)
+        } catch {
+            try? FileManager.default.removeItem(at: scriptURL)
+            throw error
+        }
         TempFileTracker.shared.register(file: scriptURL)
         return scriptURL
     }

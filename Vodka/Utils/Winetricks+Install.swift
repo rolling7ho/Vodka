@@ -145,10 +145,14 @@ extension Winetricks {
     ) {
         let handler: @Sendable (FileHandle) -> Void = { handle in
             let data = handle.availableData
-            guard !data.isEmpty,
-                  let line = String(data: data, encoding: .utf8)?
-                  .trimmingCharacters(in: .whitespacesAndNewlines),
-                  !line.isEmpty
+            guard !data.isEmpty else {
+                // Remove the handler on EOF so the file handle does not keep firing in a busy loop.
+                handle.readabilityHandler = nil
+                return
+            }
+            guard let line = String(data: data, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+                !line.isEmpty
             else { return }
             continuation.yield(.output(line))
         }
@@ -185,24 +189,31 @@ extension Winetricks {
         process.standardError = stderrPipe
         attachOutputHandlers(stdout: stdoutPipe, stderr: stderrPipe, continuation: continuation)
 
+        guard !Task.isCancelled else {
+            stdoutPipe.fileHandleForReading.readabilityHandler = nil
+            stderrPipe.fileHandleForReading.readabilityHandler = nil
+            continuation.finish()
+            return
+        }
+
         do {
-            try process.run()
-            logger.info("Started winetricks install for verb '\(verb)'")
+            try await withTaskCancellationHandler {
+                try await runAndWaitForCompletion(process, verb: verb, timeout: timeout)
+            } onCancel: {
+                if process.isRunning {
+                    logger.info("winetricks install '\(verb)' cancelled, terminating")
+                    process.terminate()
+                }
+            }
         } catch {
+            stdoutPipe.fileHandleForReading.readabilityHandler = nil
+            stderrPipe.fileHandleForReading.readabilityHandler = nil
             logger.error("Failed to launch winetricks install: \(error.localizedDescription)")
             continuation.yield(.failed(error.localizedDescription))
             continuation.finish()
             return
         }
 
-        await withTaskCancellationHandler {
-            await awaitProcessCompletion(process, verb: verb, timeout: timeout)
-        } onCancel: {
-            if process.isRunning {
-                logger.info("winetricks install '\(verb)' cancelled, terminating")
-                process.terminate()
-            }
-        }
         stdoutPipe.fileHandleForReading.readabilityHandler = nil
         stderrPipe.fileHandleForReading.readabilityHandler = nil
 
@@ -215,20 +226,32 @@ extension Winetricks {
         continuation.finish()
     }
 
-    /// Waits for the process to exit or times out.
-    private static func awaitProcessCompletion(
+    /// Launches the process and suspends without blocking a cooperative thread until exit or timeout.
+    private static func runAndWaitForCompletion(
         _ process: Process,
         verb: String,
         timeout: TimeInterval
-    ) async {
-        let timeoutTask = Task {
-            try await Task.sleep(for: .seconds(timeout))
-            if process.isRunning {
-                logger.warning("winetricks install '\(verb)' timed out after \(Int(timeout)) seconds")
-                process.terminate()
+    ) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let timeoutTask = Task {
+                try await Task.sleep(for: .seconds(timeout))
+                if process.isRunning {
+                    logger.warning("winetricks install '\(verb)' timed out after \(Int(timeout)) seconds")
+                    process.terminate()
+                }
+            }
+            process.terminationHandler = { _ in
+                timeoutTask.cancel()
+                continuation.resume()
+            }
+            do {
+                try process.run()
+                logger.info("Started winetricks install for verb '\(verb)'")
+            } catch {
+                timeoutTask.cancel()
+                process.terminationHandler = nil
+                continuation.resume(throwing: error)
             }
         }
-        process.waitUntilExit()
-        timeoutTask.cancel()
     }
 }

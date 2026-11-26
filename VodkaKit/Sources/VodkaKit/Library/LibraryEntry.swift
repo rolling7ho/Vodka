@@ -94,7 +94,7 @@ public struct LibraryEntry: Identifiable, Hashable, Sendable {
 ///
 /// Deliberately takes a bottle URL and its settings rather than a ``Bottle``,
 /// so a source can run off the main actor and be tested without building one.
-public protocol LibrarySource {
+public protocol LibrarySource: Sendable {
     static var id: LibrarySourceID { get }
     static func items(inBottleAt url: URL, settings: BottleSettings) -> [LibraryEntry]
 }

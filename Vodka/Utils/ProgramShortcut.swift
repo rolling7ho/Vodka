@@ -143,6 +143,7 @@ extension ProgramShortcut {
         let side: CGFloat = 1024
         let body = NSRect(x: 100, y: 100, width: 824, height: 824)
         return NSImage(size: NSSize(width: side, height: side), flipped: false) { _ in
+            guard art.size.width > 0, art.size.height > 0 else { return false }
             NSBezierPath(roundedRect: body, xRadius: 185, yRadius: 185).addClip()
             let scale = max(body.width / art.size.width, body.height / art.size.height)
             let drawn = NSSize(width: art.size.width * scale, height: art.size.height * scale)

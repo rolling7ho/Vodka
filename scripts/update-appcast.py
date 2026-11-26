@@ -16,15 +16,18 @@ import sys
 
 
 def changelog(path, version, notes_out):
-    text = open(path).read()
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
     match = re.search(r"^## \[Unreleased\]\n(.*?)(?=^## \[)", text, re.S | re.M)
     if not match or not match.group(1).strip():
         sys.exit("CHANGELOG.md has nothing under [Unreleased] to release.")
     notes = match.group(1).strip() + "\n"
     today = datetime.date.today().isoformat()
     released = f"## [Unreleased]\n\n## [{version}] - {today}\n\n{notes}\n"
-    open(path, "w").write(text[: match.start()] + released + text[match.end():])
-    open(notes_out, "w").write(notes)
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(text[: match.start()] + released + text[match.end():])
+    with open(notes_out, "w", encoding="utf-8") as handle:
+        handle.write(notes)
 
 
 def markdown_to_html(notes):
@@ -32,7 +35,9 @@ def markdown_to_html(notes):
     out, in_list = [], False
     for line in notes.splitlines():
         if line.startswith("- "):
-            if not in_list:
+            if in_list:
+                out[-1] += "</li>"
+            else:
                 out.append("<ul>")
                 in_list = True
             out.append(f"<li>{inline(line[2:])}")
@@ -41,6 +46,7 @@ def markdown_to_html(notes):
             out[-1] += " " + inline(line.strip())
             continue
         if in_list:
+            out[-1] += "</li>"
             out.append("</ul>")
             in_list = False
         if line.startswith("### "):
@@ -48,6 +54,7 @@ def markdown_to_html(notes):
         elif line.strip():
             out.append(f"<p>{inline(line)}</p>")
     if in_list:
+        out[-1] += "</li>"
         out.append("</ul>")
     return "\n".join(out)
 
@@ -59,25 +66,34 @@ def inline(text):
 
 
 def appcast(path, version, build, url, signature, length, notes_path):
-    text = open(path).read()
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+    with open(notes_path, encoding="utf-8") as handle:
+        notes_text = handle.read()
     date = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
-    body = markdown_to_html(open(notes_path).read())
+    body = markdown_to_html(notes_text).replace("]]>", "]]]]><![CDATA[>")
+    esc_version = html.escape(version, quote=True)
+    esc_build = html.escape(build, quote=True)
+    esc_url = html.escape(url, quote=True)
+    esc_signature = html.escape(signature, quote=True)
+    esc_length = html.escape(length, quote=True)
     item = f"""        <item>
-            <title>Vodka {version}</title>
+            <title>Vodka {esc_version}</title>
             <pubDate>{date}</pubDate>
-            <sparkle:version>{build}</sparkle:version>
-            <sparkle:shortVersionString>{version}</sparkle:shortVersionString>
+            <sparkle:version>{esc_build}</sparkle:version>
+            <sparkle:shortVersionString>{esc_version}</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
 {body}
             ]]></description>
-            <enclosure url="{url}" sparkle:edSignature="{signature}" length="{length}" type="application/octet-stream" />
+            <enclosure url="{esc_url}" sparkle:edSignature="{esc_signature}" length="{esc_length}" type="application/octet-stream" />
         </item>
 """
     marker = "<!-- items -->\n"
     if marker not in text:
         sys.exit(f"{path} has no {marker.strip()} marker.")
-    open(path, "w").write(text.replace(marker, marker + item, 1))
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(text.replace(marker, marker + item, 1))
 
 
 if __name__ == "__main__":

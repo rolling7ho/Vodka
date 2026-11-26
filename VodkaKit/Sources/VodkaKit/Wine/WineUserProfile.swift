@@ -176,16 +176,18 @@ public enum WineUserProfile {
     /// what lands in `Temp` is scratch by definition.
     static func hasUserData(_ profile: URL) -> Bool {
         let fileManager = FileManager.default
+        let resolvedProfile = profile.resolvingSymlinksInPath()
         guard let enumerator = fileManager.enumerator(
-            at: profile,
+            at: resolvedProfile,
             includingPropertiesForKeys: [.isRegularFileKey],
             options: [.skipsHiddenFiles]
         )
         else { return false }
 
+        let baseCount = resolvedProfile.pathComponents.count
         for case let item as URL in enumerator {
-            let components = item.pathComponents.dropFirst(profile.pathComponents.count)
-            if components.contains("Temp") {
+            let components = item.resolvingSymlinksInPath().pathComponents.dropFirst(baseCount)
+            if components.contains(where: { $0.caseInsensitiveCompare("Temp") == .orderedSame }) {
                 enumerator.skipDescendants()
                 continue
             }

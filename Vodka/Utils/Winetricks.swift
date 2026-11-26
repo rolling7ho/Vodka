@@ -137,7 +137,12 @@ class Winetricks {
         let scriptURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("vodka-winetricks-\(UUID().uuidString).sh")
         try scriptContent.write(to: scriptURL, atomically: true, encoding: .utf8)
-        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
+        do {
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: scriptURL.path)
+        } catch {
+            try? FileManager.default.removeItem(at: scriptURL)
+            throw error
+        }
         TempFileTracker.shared.register(file: scriptURL)
         return scriptURL
     }
@@ -267,8 +272,10 @@ class Winetricks {
 
                 // If we have a current category, add the verb to it
                 // Verbs eg. "3m_library               3M Cloud Library (3M Company, 2015) [downloadable]"
-                let verbName = line.components(separatedBy: " ")[0]
-                let verbDescription = line.replacingOccurrences(of: "\(verbName) ", with: "")
+                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
+                let verbName = String(trimmed.prefix { !$0.isWhitespace })
+                let verbDescription = String(trimmed.dropFirst(verbName.count))
                     .trimmingCharacters(in: .whitespaces)
                 currentCategory?.verbs.append(WinetricksVerb(name: verbName, description: verbDescription))
             }

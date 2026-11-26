@@ -183,18 +183,46 @@ public class VodkaWineInstaller {
     /// install and update.
     static func install(tarball: URL, into destination: URL) throws {
         // Verify the tarball exists before modifying the destination, so a
-        // purged temp file can't leave the destination half-rebuilt.
-        guard FileManager.default.fileExists(atPath: tarball.path) else {
+        // purged temp file cannot leave the destination half-rebuilt.
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: tarball.path) else {
             throw VodkaWineInstallError.tarballNotFound
         }
 
-        let existingRuntime = destination.appending(path: "Libraries")
-        if FileManager.default.fileExists(atPath: existingRuntime.path) {
-            try FileManager.default.removeItem(at: existingRuntime)
-        }
-        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
 
-        try Tar.untar(tarBall: tarball, toURL: destination)
+        // Stage extraction inside the destination directory so that the
+        // replacement happens on the same volume and an extraction failure
+        // leaves any existing Libraries/ runtime intact.
+        let staging = destination.appending(path: ".Libraries-staging-\(UUID().uuidString)")
+        try fileManager.createDirectory(at: staging, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: staging) }
+
+        try Tar.untar(tarBall: tarball, toURL: staging)
+
+        let existingRuntime = destination.appending(path: "Libraries")
+        let stagedRuntime = staging.appending(path: "Libraries")
+        if fileManager.fileExists(atPath: stagedRuntime.path(percentEncoded: false)) {
+            if (try? fileManager.attributesOfItem(atPath: existingRuntime.path(percentEncoded: false))) != nil {
+                _ = try fileManager.replaceItemAt(existingRuntime, withItemAt: stagedRuntime)
+            } else {
+                try fileManager.moveItem(at: stagedRuntime, to: existingRuntime)
+            }
+            return
+        }
+
+        if (try? fileManager.attributesOfItem(atPath: existingRuntime.path(percentEncoded: false))) != nil {
+            try fileManager.removeItem(at: existingRuntime)
+        }
+        let entries = try fileManager.contentsOfDirectory(at: staging, includingPropertiesForKeys: nil)
+        for entry in entries {
+            let target = destination.appending(path: entry.lastPathComponent)
+            if (try? fileManager.attributesOfItem(atPath: target.path(percentEncoded: false))) != nil {
+                _ = try fileManager.replaceItemAt(target, withItemAt: entry)
+            } else {
+                try fileManager.moveItem(at: entry, to: target)
+            }
+        }
     }
 
     /// Computes the SHA-256 of a file by streaming it in chunks.
@@ -342,26 +370,15 @@ public class VodkaWineInstaller {
         var remoteVersion: SemanticVersion?
 
         if let remoteUrl = URL(string: versionPlistURL) {
-            remoteVersion = await withCheckedContinuation { continuation in
-                URLSession(configuration: .ephemeral).dataTask(with: URLRequest(url: remoteUrl)) { data, _, error in
-                    do {
-                        if error == nil, let data {
-                            let decoder = PropertyListDecoder()
-                            let remoteInfo = try decoder.decode(VodkaWineVersion.self, from: data)
-                            let remoteVersion = remoteInfo.version
-
-                            continuation.resume(returning: remoteVersion)
-                            return
-                        }
-                        if let error {
-                            logger.warning("Failed to fetch remote version: \(error.localizedDescription)")
-                        }
-                    } catch {
-                        logger.warning("Failed to decode remote version: \(error.localizedDescription)")
-                    }
-
-                    continuation.resume(returning: nil)
-                }.resume()
+            let session = URLSession(configuration: .ephemeral)
+            defer { session.finishTasksAndInvalidate() }
+            do {
+                let (data, _) = try await session.data(from: remoteUrl)
+                let decoder = PropertyListDecoder()
+                let remoteInfo = try decoder.decode(VodkaWineVersion.self, from: data)
+                remoteVersion = remoteInfo.version
+            } catch {
+                logger.warning("Failed to fetch or decode remote version: \(error.localizedDescription)")
             }
         }
 

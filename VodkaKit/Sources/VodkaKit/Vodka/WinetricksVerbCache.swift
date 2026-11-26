@@ -111,7 +111,7 @@ public struct WinetricksVerbCache: Codable, Sendable {
     public static func save(_ cache: WinetricksVerbCache, to bottleURL: URL) throws {
         let cacheURL = bottleURL.appending(path: cacheFileName)
         let data = try PropertyListEncoder().encode(cache)
-        try data.write(to: cacheURL)
+        try data.write(to: cacheURL, options: .atomic)
     }
 
     /// Reads the file attributes of the winetricks.log in the bottle.

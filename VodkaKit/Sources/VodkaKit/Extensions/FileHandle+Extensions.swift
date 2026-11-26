@@ -47,10 +47,11 @@ private final class WineLogCapRegistry: @unchecked Sendable {
 
     func write(_ data: Data, to handle: FileHandle) {
         let key = ObjectIdentifier(handle)
-        attachDeinitObserverIfNeeded(to: handle, key: key)
 
         lock.lock()
         defer { lock.unlock() }
+
+        attachDeinitObserverLockedIfNeeded(to: handle, key: key)
 
         var state = states[key] ?? State(
             bytesWritten: currentSizeBytes(for: handle),
@@ -98,13 +99,13 @@ private final class WineLogCapRegistry: @unchecked Sendable {
         states.removeValue(forKey: key)
     }
 
-    private func attachDeinitObserverIfNeeded(to handle: FileHandle, key: ObjectIdentifier) {
-        // Ensure state is cleared even if `closeWineLog()` isn't called (e.g., early returns / errors).
+    private func attachDeinitObserverLockedIfNeeded(to handle: FileHandle, key: ObjectIdentifier) {
+        // Ensure state is cleared even if `closeWineLog()` is not called (for example on early returns or errors).
         if objc_getAssociatedObject(handle, &Self.deinitObserverKey) != nil { return }
         let observer = DeinitObserver { [weak self] in
             self?.removeState(forKey: key)
         }
-        objc_setAssociatedObject(handle, &Self.deinitObserverKey, observer, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(handle, &Self.deinitObserverKey, observer, .OBJC_ASSOCIATION_RETAIN)
     }
 
     private func currentSizeBytes(for handle: FileHandle) -> Int64 {

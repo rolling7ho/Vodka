@@ -70,6 +70,7 @@ public enum SteamInstaller {
 
         do {
             let (temporary, response) = try await URLSession.shared.download(from: installerURL)
+            defer { try? FileManager.default.removeItem(at: temporary) }
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw SteamInstallError.downloadFailed("the server didn't send the installer")
             }
@@ -84,7 +85,8 @@ public enum SteamInstaller {
         let result = try await Wine.runProgram(at: setup, args: ["/S"], bottle: bottle)
         // `start /unix` hands the installer off and can return before it ends;
         // wait for the client to land, up to a few minutes.
-        for _ in 0 ..< 180 where !isInstalled(in: bottle) {
+        for _ in 0 ..< 180 {
+            if isInstalled(in: bottle) { break }
             try await Task.sleep(for: .seconds(1))
         }
         guard isInstalled(in: bottle) else {

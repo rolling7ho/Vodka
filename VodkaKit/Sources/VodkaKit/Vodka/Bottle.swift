@@ -289,7 +289,7 @@ public final class Bottle: ObservableObject, Equatable, Hashable, Identifiable, 
             )
 
             while let url = enumerator?.nextObject() as? URL {
-                guard !url.hasDirectoryPath, url.pathExtension == "exe" else { continue }
+                guard !url.hasDirectoryPath, url.pathExtension.lowercased() == "exe" else { continue }
                 // Skip ClickOnce cache executables (noisy internal artifacts)
                 guard !url.path.contains("/Apps/2.0/") else { continue }
                 // Skip known launcher helpers and crash reporters that pollute the list

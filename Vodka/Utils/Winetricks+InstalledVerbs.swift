@@ -26,6 +26,23 @@ private let logger = Logger(subsystem: Bundle.vodkaBundleIdentifier, category: "
 
 // swiftlint:disable function_body_length
 
+private final class LockedDataBuffer: @unchecked Sendable {
+    private let lock = NSLock()
+    private var data = Data()
+
+    func append(_ chunk: Data) {
+        lock.lock()
+        data.append(chunk)
+        lock.unlock()
+    }
+
+    func snapshot() -> Data {
+        lock.lock()
+        defer { lock.unlock() }
+        return data
+    }
+}
+
 extension Winetricks {
     /// Runs `winetricks list-installed` as a headless process to discover installed verbs.
     ///
@@ -59,39 +76,59 @@ extension Winetricks {
         ]
 
         let stdout = Pipe()
+        let readHandle = stdout.fileHandleForReading
+        let outputBuffer = LockedDataBuffer()
         process.standardOutput = stdout
         process.standardError = FileHandle.nullDevice
 
-        do {
-            try process.run()
-        } catch {
-            logger.error("Failed to launch winetricks list-installed: \(error.localizedDescription)")
-            return nil
-        }
-
-        // 30-second timeout
-        let timeoutTask = Task {
-            try await Task.sleep(for: .seconds(30))
-            if process.isRunning {
-                logger.warning("winetricks list-installed timed out after 30 seconds")
-                process.terminate()
+        readHandle.readabilityHandler = { handle in
+            let chunk = handle.availableData
+            if chunk.isEmpty {
+                handle.readabilityHandler = nil
+            } else {
+                outputBuffer.append(chunk)
             }
         }
 
-        process.waitUntilExit()
-        timeoutTask.cancel()
+        var timeoutTask: Task<Void, Error>?
+        let status: Int32? = await withCheckedContinuation { continuation in
+            process.terminationHandler = { finishedProcess in
+                continuation.resume(returning: finishedProcess.terminationStatus)
+            }
+            do {
+                try process.run()
+                timeoutTask = Task {
+                    try await Task.sleep(for: .seconds(30))
+                    if process.isRunning {
+                        logger.warning("winetricks list-installed timed out after 30 seconds")
+                        process.terminate()
+                    }
+                }
+            } catch {
+                process.terminationHandler = nil
+                readHandle.readabilityHandler = nil
+                logger.error("Failed to launch winetricks list-installed: \(error.localizedDescription)")
+                continuation.resume(returning: nil)
+            }
+        }
+        timeoutTask?.cancel()
+        readHandle.readabilityHandler = nil
+        if let remaining = try? readHandle.readToEnd(), !remaining.isEmpty {
+            outputBuffer.append(remaining)
+        }
+        try? readHandle.close()
 
-        guard process.terminationStatus == 0 else {
-            logger.warning(
-                "winetricks list-installed exited with status \(process.terminationStatus)"
-            )
+        guard let status else {
+            return nil
+        }
+        guard status == 0 else {
+            logger.warning("winetricks list-installed exited with status \(status)")
             return nil
         }
 
-        let data = stdout.fileHandleForReading.readDataToEndOfFile()
-        guard let output = String(data: data, encoding: .utf8) else {
-            return nil
-        }
+        let data = outputBuffer.snapshot()
+        // swiftlint:disable:next optional_data_string_conversion
+        let output = String(decoding: data, as: UTF8.self)
 
         let verbs = Set(
             output
@@ -124,9 +161,11 @@ extension Winetricks {
 
         var contents: String?
         if let data = try? Data(contentsOf: prefixLogURL) {
-            contents = String(data: data, encoding: .utf8)
+            // swiftlint:disable:next optional_data_string_conversion
+            contents = String(decoding: data, as: UTF8.self)
         } else if let data = try? Data(contentsOf: driveCLogURL) {
-            contents = String(data: data, encoding: .utf8)
+            // swiftlint:disable:next optional_data_string_conversion
+            contents = String(decoding: data, as: UTF8.self)
         }
 
         guard let logContents = contents else {

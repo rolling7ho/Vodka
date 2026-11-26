@@ -32,7 +32,7 @@ extension FileManager {
             // (.DS_Store, license text). Using `return` here would abort the
             // whole copy on the first such entry, silently leaving later DLLs
             // uninstalled.
-            guard fileURL.pathExtension == "dll" else { continue }
+            guard fileURL.pathExtension.lowercased() == "dll" else { continue }
             let originalURL = destinationDirectory.appending(path: fileURL.lastPathComponent)
             // Every launch on DXVK lands here. A copy keeps its source's size
             // and date, so a match is the same file, already in place.
@@ -63,16 +63,26 @@ extension FileManager {
     /// the destination missing (which would degrade even unrelated launches
     /// when the destination is a shared runtime file).
     func installFile(at destinationURL: URL, from sourceURL: URL) throws {
-        guard fileExists(atPath: destinationURL.path(percentEncoded: false)) else {
+        let destPath = destinationURL.path(percentEncoded: false)
+        let entryExists = (try? attributesOfItem(atPath: destPath)) != nil
+        guard entryExists else {
             try copyItem(at: sourceURL, to: destinationURL)
             return
         }
-        let tempURL = destinationURL.appendingPathExtension("vodka-tmp")
-        if fileExists(atPath: tempURL.path(percentEncoded: false)) {
-            try removeItem(at: tempURL)
+        // Remove a dangling symlink directly because replaceItemAt fails on it.
+        if !fileExists(atPath: destPath) {
+            try removeItem(at: destinationURL)
+            try copyItem(at: sourceURL, to: destinationURL)
+            return
         }
+        let tempURL = destinationURL.appendingPathExtension("vodka-tmp-\(UUID().uuidString)")
         try copyItem(at: sourceURL, to: tempURL)
-        _ = try replaceItemAt(destinationURL, withItemAt: tempURL)
+        do {
+            _ = try replaceItemAt(destinationURL, withItemAt: tempURL)
+        } catch {
+            try? removeItem(at: tempURL)
+            throw error
+        }
     }
 
     /// Installs `sourceURL` at `destinationURL` only when the destination is
@@ -92,20 +102,23 @@ extension FileManager {
     }
 
     func replaceFile(at originalURL: URL, with replacementURL: URL, makeOriginalCopy: Bool = true) throws {
-        if fileExists(atPath: originalURL.path(percentEncoded: false)) {
-            if makeOriginalCopy {
-                let copyURL = originalURL.appendingPathExtension("orig")
+        guard fileExists(atPath: originalURL.path(percentEncoded: false)) else { return }
+        if makeOriginalCopy {
+            let copyURL = originalURL.appendingPathExtension("orig")
 
-                if fileExists(atPath: copyURL.path(percentEncoded: false)) {
-                    try FileManager.default.removeItem(at: copyURL)
-                }
-
-                try FileManager.default.moveItem(at: originalURL, to: copyURL)
-            } else {
-                try FileManager.default.removeItem(at: originalURL)
+            if (try? attributesOfItem(atPath: copyURL.path(percentEncoded: false))) != nil {
+                try removeItem(at: copyURL)
             }
 
-            try FileManager.default.copyItem(at: replacementURL, to: originalURL)
+            try moveItem(at: originalURL, to: copyURL)
+            do {
+                try copyItem(at: replacementURL, to: originalURL)
+            } catch {
+                try? moveItem(at: copyURL, to: originalURL)
+                throw error
+            }
+        } else {
+            try installFile(at: originalURL, from: replacementURL)
         }
     }
 }

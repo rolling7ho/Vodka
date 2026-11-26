@@ -259,7 +259,10 @@ extension Wine {
     /// Vodka and without the environment its launch gives it.
     static func steamAutostartRemoval(bottle: Bottle) -> String {
         let key = #"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"#
-        guard WineRegistryFile.valueNames(bottleURL: bottle.url, key: key)?.contains("Steam") == true else {
+        let hasSteamEntry = WineRegistryFile.valueNames(bottleURL: bottle.url, key: key)?.contains {
+            $0.caseInsensitiveCompare("Steam") == .orderedSame
+        } ?? false
+        guard hasSteamEntry else {
             return ""
         }
         return "[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run]\n\"Steam\"=-\n\n"

@@ -45,8 +45,12 @@ public extension Wine {
         var strays: [pid_t] = []
         for pid in pids.prefix(max(found, 0)) where pid > 0 {
             var buffer = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
-            guard proc_pidpath(pid, &buffer, UInt32(buffer.count)) > 0 else { continue }
-            let path = String(cString: buffer)
+            let length = Int(proc_pidpath(pid, &buffer, UInt32(buffer.count)))
+            guard length > 0 else { continue }
+            let path = buffer.prefix(length).withUnsafeBytes { bytes in
+                // swiftlint:disable:next optional_data_string_conversion
+                String(decoding: bytes, as: UTF8.self)
+            }
             guard path.hasPrefix(engine) else { continue }
             if path.hasSuffix("/wineserver") { return 0 }
             strays.append(pid)

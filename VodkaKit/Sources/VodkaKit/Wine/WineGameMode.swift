@@ -123,7 +123,14 @@ public enum WineGameMode {
             at: layout.macOS.deletingLastPathComponent(), withIntermediateDirectories: true
         )
         try fileManager.moveItem(at: layout.unixDir, to: layout.macOS)
-        try fileManager.createSymbolicLink(atPath: layout.unixDir.path, withDestinationPath: "Wine.app/Contents/MacOS")
+        do {
+            try fileManager.createSymbolicLink(
+                atPath: layout.unixDir.path, withDestinationPath: "Wine.app/Contents/MacOS"
+            )
+        } catch {
+            try? fileManager.moveItem(at: layout.macOS, to: layout.unixDir)
+            throw error
+        }
         logger.info("Moved the Wine loader into its game bundle")
     }
 
@@ -135,7 +142,14 @@ public enum WineGameMode {
         for name in ["x86_64-unix", "x86_64-windows", "i386-windows"] {
             try? fileManager.removeItem(at: layout.macOS.appending(path: name))
         }
-        try fileManager.moveItem(at: layout.macOS, to: layout.unixDir)
+        do {
+            try fileManager.moveItem(at: layout.macOS, to: layout.unixDir)
+        } catch {
+            try? fileManager.createSymbolicLink(
+                atPath: layout.unixDir.path, withDestinationPath: "Wine.app/Contents/MacOS"
+            )
+            throw error
+        }
         try fileManager.removeItem(at: layout.bundle)
         logger.info("Moved the Wine loader out of its game bundle")
     }
@@ -210,7 +224,11 @@ public enum WineGameMode {
         process.arguments = ["-f", bundle.path(percentEncoded: false)]
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
-        try? process.run()
-        process.waitUntilExit()
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            logger.warning("Could not register the Wine game bundle: \(error.localizedDescription)")
+        }
     }
 }
