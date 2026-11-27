@@ -78,6 +78,20 @@ enum JSONValue: Codable, Sendable, Equatable {
         return value
     }
 
+    var intValue: Int? {
+        switch self {
+        case let .int(value):
+            return value
+        case let .double(value):
+            if let exact = Int(exactly: value) {
+                return exact
+            }
+            return nil
+        default:
+            return nil
+        }
+    }
+
     var stringArrayValue: [String]? {
         guard case let .array(items) = self else {
             return nil

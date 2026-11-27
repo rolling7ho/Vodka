@@ -10,6 +10,8 @@ export const IPC_CHANNELS = {
   DELETE_BOTTLE: 'gmac:delete-bottle',
   SET_BOTTLE_ICON: 'gmac:set-bottle-icon',
   REORDER_BOTTLES: 'gmac:reorder-bottles',
+  GET_HOME_SUMMARY: 'gmac:get-home-summary',
+  LAUNCH_HOME_ITEM: 'gmac:launch-home-item',
   INSTALL_ENGINE: 'gmac:install-engine',
   PICK_TOOLKIT_FILE: 'gmac:pick-toolkit-file',
   INSTALL_TOOLKIT: 'gmac:install-toolkit',
@@ -75,6 +77,50 @@ export interface LauncherSetupResult {
   launcher: string
 }
 
+export interface HomeStats {
+  totalPlaytimeSeconds: number
+  lastTwoWeeksSeconds: number
+  gamesInstalled: number
+  pcsCount: number
+}
+
+export interface HomeGameItem {
+  id: string
+  name: string
+  bottleName: string
+  bottlePath: string
+  launchKind: 'steam' | 'program'
+  steamAppId?: number | null
+  programPath?: string | null
+  totalPlaytimeSeconds: number
+  lastTwoWeeksSeconds: number
+  lastPlayedIso: string | null
+  artworkDataUrl: string | null
+}
+
+export interface HomeLauncherItem {
+  id: string
+  name: string
+  installed: boolean
+  bottleName: string | null
+  bottlePath: string | null
+  executablePath: string | null
+}
+
+export interface HomeSummary {
+  stats: HomeStats
+  continuePlaying: HomeGameItem | null
+  recentlyPlayed: HomeGameItem[]
+  launchers: HomeLauncherItem[]
+}
+
+export interface LaunchHomeItemRequest {
+  bottlePath: string
+  launchKind: 'steam' | 'program'
+  steamAppId?: number | null
+  programPath?: string | null
+}
+
 export interface GmacApi {
   getAppInfo: () => Promise<AppInfo>
   openExternalUrl: (url: string) => Promise<void>
@@ -85,6 +131,8 @@ export interface GmacApi {
   deleteBottle: (path: string) => Promise<{ deleted: boolean }>
   setBottleIcon: (path: string, icon: string) => Promise<{ path: string; icon: string }>
   reorderBottles: (paths: string[]) => Promise<{ paths: string[] }>
+  getHomeSummary: () => Promise<HomeSummary>
+  launchHomeItem: (request: LaunchHomeItemRequest) => Promise<{ launched: boolean }>
   installEngine: () => Promise<{ installed: boolean }>
   pickToolkitFile: () => Promise<string | null>
   installToolkit: (path: string) => Promise<ToolkitInstallResult>

@@ -3,8 +3,10 @@ import {
   AppInfo,
   BottleSummary,
   BridgeProgressEvent,
+  HomeSummary,
   ImportBottlesResult,
   IPC_CHANNELS,
+  LaunchHomeItemRequest,
   LauncherSetupResult,
   SystemStatus,
   ToolkitInstallResult
@@ -22,6 +24,69 @@ function emitProgress(event: BridgeProgressEvent): void {
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function defaultHomeSummary(pcsCount: number): HomeSummary {
+  return {
+    stats: {
+      totalPlaytimeSeconds: 0,
+      lastTwoWeeksSeconds: 0,
+      gamesInstalled: 0,
+      pcsCount
+    },
+    continuePlaying: null,
+    recentlyPlayed: [],
+    launchers: [
+      {
+        id: 'steam',
+        name: 'Steam',
+        installed: false,
+        bottleName: null,
+        bottlePath: null,
+        executablePath: null
+      },
+      {
+        id: 'epicGames',
+        name: 'Epic Games Store',
+        installed: false,
+        bottleName: null,
+        bottlePath: null,
+        executablePath: null
+      },
+      {
+        id: 'battleNet',
+        name: 'Battle.net',
+        installed: false,
+        bottleName: null,
+        bottlePath: null,
+        executablePath: null
+      },
+      {
+        id: 'eaApp',
+        name: 'EA App',
+        installed: false,
+        bottleName: null,
+        bottlePath: null,
+        executablePath: null
+      },
+      {
+        id: 'rockstar',
+        name: 'Rockstar Games',
+        installed: false,
+        bottleName: null,
+        bottlePath: null,
+        executablePath: null
+      },
+      {
+        id: 'ubisoft',
+        name: 'Ubisoft Connect',
+        installed: false,
+        bottleName: null,
+        bottlePath: null,
+        executablePath: null
+      }
+    ]
+  }
 }
 
 export function registerIpcHandlers(bridge: GmacBridgeClient): void {
@@ -77,6 +142,32 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
       return []
     }
   })
+
+  ipcMain.handle(IPC_CHANNELS.GET_HOME_SUMMARY, async (): Promise<HomeSummary> => {
+    if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+      return defaultHomeSummary(freshBottles.length)
+    }
+    try {
+      return await bridge.request<HomeSummary>('home.summary')
+    } catch {
+      return defaultHomeSummary(0)
+    }
+  })
+
+  ipcMain.handle(
+    IPC_CHANNELS.LAUNCH_HOME_ITEM,
+    async (_event, request: LaunchHomeItemRequest): Promise<{ launched: boolean }> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1') {
+        return { launched: true }
+      }
+      return await bridge.request<{ launched: boolean }>('home.launch', {
+        bottlePath: request.bottlePath,
+        launchKind: request.launchKind,
+        ...(request.steamAppId != null ? { steamAppId: request.steamAppId } : {}),
+        ...(request.programPath ? { programPath: request.programPath } : {})
+      })
+    }
+  )
 
   ipcMain.handle(
     IPC_CHANNELS.CREATE_BOTTLE,

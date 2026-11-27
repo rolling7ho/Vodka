@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import type { BottleSummary } from '../../../../shared/ipc'
+import type { BottleSummary, HomeGameItem, HomeLauncherItem, HomeSummary } from '../../../../shared/ipc'
 import type { PcIconId } from '../icons/PcIcons'
 import { SidebarToggleIcon } from '../icons/SidebarIcons'
 import { ChangePcIconModal, CreatePcModal, DeletePcModal } from '../sidebar/PcModals'
@@ -13,6 +13,7 @@ import {
   Sidebar,
   type SidebarDestination
 } from '../sidebar/Sidebar'
+import { HomeDashboard } from './HomeDashboard'
 
 interface HomeProps {
   onOpenOnboarding?: () => void
@@ -35,6 +36,11 @@ function destinationTitle(destination: SidebarDestination, pcs: BottleSummary[])
 
 export function Home({ onOpenOnboarding }: HomeProps) {
   const [pcs, setPcs] = useState<BottleSummary[]>([])
+  const [homeSummary, setHomeSummary] = useState<HomeSummary | null>(null)
+  const [isHomeLoading, setIsHomeLoading] = useState(true)
+  const [launchingId, setLaunchingId] = useState<string | null>(null)
+  const [settingUpLauncherId, setSettingUpLauncherId] = useState<string | null>(null)
+  const [homeError, setHomeError] = useState<string | null>(null)
   const [activeDestination, setActiveDestination] = useState<SidebarDestination>({ kind: 'home' })
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -44,16 +50,51 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   const [deleteModalPc, setDeleteModalPc] = useState<BottleSummary | null>(null)
   const dragStartWidthRef = useRef(DEFAULT_SIDEBAR_WIDTH)
 
+  const refreshHomeSummary = async () => {
+    if (!window.gmac) {
+      setIsHomeLoading(false)
+      return
+    }
+    try {
+      const summary = await window.gmac.getHomeSummary()
+      setHomeSummary(summary)
+    } catch {
+      // Keep last known summary.
+    } finally {
+      setIsHomeLoading(false)
+    }
+  }
+
+  const refreshSidebarAndHome = async () => {
+    if (!window.gmac) {
+      setIsHomeLoading(false)
+      return
+    }
+    const [loadedPcs, summary] = await Promise.all([
+      window.gmac.listBottles().catch(() => pcs),
+      window.gmac.getHomeSummary().catch(() => homeSummary)
+    ])
+    setPcs(loadedPcs)
+    if (summary) {
+      setHomeSummary(summary)
+    }
+    setIsHomeLoading(false)
+  }
+
   useEffect(() => {
     let cancelled = false
-    window.gmac
-      ?.listBottles()
-      .then((loadedPcs) => {
-        if (!cancelled) {
-          setPcs(loadedPcs)
-        }
-      })
-      .catch(() => {})
+
+    Promise.all([
+      window.gmac?.listBottles().catch(() => [] as BottleSummary[]) ?? Promise.resolve([]),
+      window.gmac?.getHomeSummary().catch(() => null) ?? Promise.resolve(null)
+    ]).then(([loadedPcs, summary]) => {
+      if (cancelled) {
+        return
+      }
+      setPcs(loadedPcs)
+      setHomeSummary(summary)
+      setIsHomeLoading(false)
+    })
 
     return () => {
       cancelled = true
@@ -112,6 +153,7 @@ export function Home({ onOpenOnboarding }: HomeProps) {
     const created = await window.gmac.createBottle(name, icon)
     setPcs((prev) => [...prev, created])
     setActiveDestination({ kind: 'pc', path: created.path })
+    void refreshHomeSummary()
   }
 
   const handleRenamePc = async (path: string, newName: string) => {
@@ -122,6 +164,7 @@ export function Home({ onOpenOnboarding }: HomeProps) {
       if (updated) {
         setPcs((prev) => prev.map((pc) => (pc.path === path ? updated : pc)))
       }
+      void refreshHomeSummary()
     } catch {
       setPcs(previousPcs)
     }
@@ -146,6 +189,7 @@ export function Home({ onOpenOnboarding }: HomeProps) {
     setActiveDestination((current) =>
       current.kind === 'pc' && current.path === pc.path ? { kind: 'home' } : current
     )
+    void refreshHomeSummary()
   }
 
   const handleReorderPcs = async (orderedPaths: string[]) => {
@@ -161,6 +205,61 @@ export function Home({ onOpenOnboarding }: HomeProps) {
       await window.gmac?.reorderBottles(orderedPaths)
     } catch {
       setPcs(previousPcs)
+    }
+  }
+
+  const handlePlayGame = async (game: HomeGameItem) => {
+    if (!window.gmac) {
+      return
+    }
+    setHomeError(null)
+    setLaunchingId(game.id)
+    try {
+      await window.gmac.launchHomeItem({
+        bottlePath: game.bottlePath,
+        launchKind: game.launchKind,
+        steamAppId: game.steamAppId ?? null,
+        programPath: game.programPath ?? null
+      })
+    } catch (err) {
+      setHomeError(err instanceof Error ? err.message : `Unable to launch ${game.name}.`)
+    } finally {
+      setLaunchingId(null)
+    }
+  }
+
+  const handleOpenLauncher = async (launcher: HomeLauncherItem) => {
+    if (!window.gmac || !launcher.bottlePath || !launcher.executablePath) {
+      return
+    }
+    setHomeError(null)
+    setLaunchingId(`launcher:${launcher.id}`)
+    try {
+      await window.gmac.launchHomeItem({
+        bottlePath: launcher.bottlePath,
+        launchKind: 'program',
+        programPath: launcher.executablePath
+      })
+    } catch (err) {
+      setHomeError(err instanceof Error ? err.message : `Unable to open ${launcher.name}.`)
+    } finally {
+      setLaunchingId(null)
+    }
+  }
+
+  const handleSetupLauncher = async (launcher: HomeLauncherItem) => {
+    if (!window.gmac) {
+      return
+    }
+    setHomeError(null)
+    setSettingUpLauncherId(launcher.id)
+    try {
+      await window.gmac.setupLauncher(launcher.id, 'automatic')
+      await refreshSidebarAndHome()
+    } catch (err) {
+      setHomeError(err instanceof Error ? err.message : `Unable to set up ${launcher.name}.`)
+    } finally {
+      setSettingUpLauncherId(null)
     }
   }
 
@@ -206,22 +305,39 @@ export function Home({ onOpenOnboarding }: HomeProps) {
       />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
-        <div className="h-11 w-full shrink-0" />
-        <main className="flex flex-1 flex-col items-center justify-center px-8 pb-12 text-center">
-          <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[#161212]">
-            {sectionTitle}
-          </h1>
-          <p className="mt-2 text-[14px] text-[#5e5454]">Section placeholder.</p>
-          {onOpenOnboarding && (
-            <button
-              type="button"
-              onClick={onOpenOnboarding}
-              className="app-no-drag mt-6 cursor-pointer rounded-full border border-[#161212]/15 bg-white px-4 py-2 text-[13px] font-medium text-[#161212] transition hover:bg-[#161212]/5"
-            >
-              Open Onboarding
-            </button>
-          )}
-        </main>
+        {activeDestination.kind === 'home' ? (
+          <HomeDashboard
+            summary={homeSummary}
+            isLoading={isHomeLoading}
+            launchingId={launchingId}
+            settingUpLauncherId={settingUpLauncherId}
+            errorMessage={homeError}
+            onPlayGame={handlePlayGame}
+            onOpenLauncher={handleOpenLauncher}
+            onSetupLauncher={handleSetupLauncher}
+            onOpenLibrary={() => setActiveDestination({ kind: 'library' })}
+            onOpenCreatePc={() => setIsCreateModalOpen(true)}
+          />
+        ) : (
+          <>
+            <div className="h-11 w-full shrink-0" />
+            <main className="flex flex-1 flex-col items-center justify-center px-8 pb-12 text-center">
+              <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[#161212]">
+                {sectionTitle}
+              </h1>
+              <p className="mt-2 text-[14px] text-[#5e5454]">Section placeholder.</p>
+              {onOpenOnboarding && (
+                <button
+                  type="button"
+                  onClick={onOpenOnboarding}
+                  className="app-no-drag mt-6 cursor-pointer rounded-full border border-[#161212]/15 bg-white px-4 py-2 text-[13px] font-medium text-[#161212] transition hover:bg-[#161212]/5"
+                >
+                  Open Onboarding
+                </button>
+              )}
+            </main>
+          </>
+        )}
       </div>
 
       <CreatePcModal

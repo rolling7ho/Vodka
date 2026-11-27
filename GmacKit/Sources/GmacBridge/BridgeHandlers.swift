@@ -52,6 +52,9 @@ struct BridgeRouter: Sendable {
         if let bottleResult = try await dispatchBottleMethod(request.method, params: params) {
             return bottleResult
         }
+        if let homeResult = try await dispatchHomeMethod(request.method, params: params) {
+            return homeResult
+        }
 
         switch request.method {
         case "ping":
@@ -90,6 +93,20 @@ struct BridgeRouter: Sendable {
             return try await setBottleIcon(params: params)
         case "bottles.reorder":
             return try await reorderBottles(params: params)
+        default:
+            return nil
+        }
+    }
+
+    private func dispatchHomeMethod(
+        _ method: String,
+        params: [String: JSONValue]
+    ) async throws -> JSONValue? {
+        switch method {
+        case "home.summary":
+            return await homeSummary()
+        case "home.launch":
+            return try await launchHomeItem(params: params)
         default:
             return nil
         }

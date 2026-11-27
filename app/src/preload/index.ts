@@ -14,6 +14,8 @@ const gmacApi: GmacApi = {
   setBottleIcon: (path: string, icon: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.SET_BOTTLE_ICON, path, icon),
   reorderBottles: (paths: string[]) => ipcRenderer.invoke(IPC_CHANNELS.REORDER_BOTTLES, paths),
+  getHomeSummary: () => ipcRenderer.invoke(IPC_CHANNELS.GET_HOME_SUMMARY),
+  launchHomeItem: (request) => ipcRenderer.invoke(IPC_CHANNELS.LAUNCH_HOME_ITEM, request),
   installEngine: () => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_ENGINE),
   pickToolkitFile: () => ipcRenderer.invoke(IPC_CHANNELS.PICK_TOOLKIT_FILE),
   installToolkit: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_TOOLKIT, path),
