@@ -7,6 +7,8 @@ export const DEFAULT_SIDEBAR_WIDTH = 232
 export const MIN_SIDEBAR_WIDTH = 180
 export const MAX_SIDEBAR_WIDTH = 340
 export const COLLAPSE_THRESHOLD = 148
+export const SIDEBAR_EXPAND_EASING = '380ms cubic-bezier(0.19, 1, 0.22, 1)'
+export const SIDEBAR_COLLAPSE_EASING = '320ms cubic-bezier(0.22, 1, 0.36, 1)'
 
 export type SidebarDestination =
   | { kind: 'home' }
@@ -48,13 +50,15 @@ export function Sidebar({
   const isHomeActive = activeDestination.kind === 'home'
   const isLibraryActive = activeDestination.kind === 'library'
   const isSettingsActive = activeDestination.kind === 'settings'
+  const panelTiming = isCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
 
   return (
     <div
       className="relative h-full shrink-0"
       style={{
         width: isCollapsed ? 0 : width,
-        transition: isResizing ? 'none' : 'width 280ms cubic-bezier(0.22, 1, 0.36, 1)'
+        willChange: isResizing ? 'auto' : 'width',
+        transition: isResizing ? 'none' : `width ${panelTiming}`
       }}
     >
       <div className="h-full w-full overflow-hidden">
@@ -62,13 +66,17 @@ export function Sidebar({
           aria-label="Main navigation"
           aria-hidden={isCollapsed}
           className={`flex h-full flex-col border-r border-[#161212]/[0.08] bg-[#F8F7F7] ${
-            isCollapsed ? 'pointer-events-none -translate-x-3 opacity-0' : 'translate-x-0 opacity-100'
+            isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100'
           }`}
           style={{
             width,
+            transform: isCollapsed ? 'translate3d(-28px, 0, 0)' : 'translate3d(0, 0, 0)',
+            willChange: isResizing ? 'auto' : 'transform, opacity',
             transition: isResizing
               ? 'none'
-              : 'opacity 220ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1)'
+              : isCollapsed
+                ? `opacity 170ms ease-in, transform ${SIDEBAR_COLLAPSE_EASING}`
+                : `opacity 260ms ease-out 55ms, transform ${SIDEBAR_EXPAND_EASING}`
           }}
         >
           <div className="flex items-center px-4 pt-12 pb-4">

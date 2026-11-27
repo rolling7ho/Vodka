@@ -6,9 +6,13 @@ import {
   DEFAULT_SIDEBAR_WIDTH,
   MAX_SIDEBAR_WIDTH,
   MIN_SIDEBAR_WIDTH,
+  SIDEBAR_COLLAPSE_EASING,
+  SIDEBAR_EXPAND_EASING,
   Sidebar,
   type SidebarDestination
 } from '../sidebar/Sidebar'
+
+const COLLAPSED_TOGGLE_X = 90
 
 interface HomeProps {
   onOpenOnboarding?: () => void
@@ -97,6 +101,8 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const sectionTitle = destinationTitle(activeDestination, pcs)
+  const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
+  const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-white text-[#161212] select-none">
@@ -108,14 +114,15 @@ export function Home({ onOpenOnboarding }: HomeProps) {
           aria-expanded={!isSidebarCollapsed}
           title={isSidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
           style={{
-            left: isSidebarCollapsed ? 78 : sidebarWidth - 39,
+            transform: `translate3d(${toggleX}px, 0, 0)`,
+            willChange: isResizing ? 'auto' : 'transform',
             transition: isResizing
               ? 'none'
-              : 'left 280ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms, color 150ms'
+              : `transform ${toggleTiming}, background-color 150ms, color 150ms`
           }}
-          className="app-no-drag absolute top-[10px] inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+          className="app-no-drag group absolute top-[10px] left-0 inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
         >
-          <SidebarToggleIcon className="h-[19px] w-[19px]" />
+          <SidebarToggleIcon className="h-[19px] w-[19px] transition-transform duration-150 group-active:scale-90" />
         </button>
       </div>
 
