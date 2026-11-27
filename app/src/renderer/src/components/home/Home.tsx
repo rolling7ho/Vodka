@@ -100,14 +100,20 @@ export function Home({ onOpenOnboarding }: HomeProps) {
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-white text-[#161212] select-none">
-      <div className="app-drag fixed inset-x-0 top-0 z-20 h-11">
+      <div className="app-drag fixed inset-x-0 top-0 z-20 h-12">
         <button
           type="button"
           onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
           aria-label={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
           aria-expanded={!isSidebarCollapsed}
           title={isSidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-          className="app-no-drag absolute top-[8px] left-[78px] inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+          style={{
+            left: isSidebarCollapsed ? 78 : sidebarWidth - 39,
+            transition: isResizing
+              ? 'none'
+              : 'left 280ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms, color 150ms'
+          }}
+          className="app-no-drag absolute top-[13px] inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
         >
           <SidebarToggleIcon className="h-[19px] w-[19px]" />
         </button>
