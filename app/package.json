@@ -6,7 +6,8 @@
   "license": "GPL-3.0-or-later",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
+    "build:bridge": "swift build --package-path ../GmacKit --product gmac-bridge",
+    "dev": "npm run build:bridge && electron-vite dev",
     "dev:fresh": "GMAC_FRESH_INSTALL=1 electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",

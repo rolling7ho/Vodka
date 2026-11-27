@@ -68,6 +68,7 @@ interface LauncherSetupStepProps {
   selectedLauncher: LauncherId
   steamAlreadyInstalled: boolean
   stage: LauncherSetupStage
+  errorMessage?: string | null
   onSelectLauncher: (launcher: LauncherId) => void
   onStartSetup: () => void
   onContinue: () => void
@@ -95,6 +96,7 @@ export function LauncherSetupStep({
   selectedLauncher,
   steamAlreadyInstalled,
   stage,
+  errorMessage,
   onSelectLauncher,
   onStartSetup,
   onContinue,
@@ -186,6 +188,15 @@ export function LauncherSetupStep({
             <SpinnerIcon className="h-4 w-4 shrink-0 text-[#007AFF]" />
           )}
           <span>{stageLabel(stage, selectedName)}</span>
+        </div>
+      ) : null}
+
+      {errorMessage ? (
+        <div
+          role="alert"
+          className="mt-4 w-full max-w-lg rounded-xl border border-red-500/20 bg-red-50/90 px-4 py-3 text-[13px] text-red-700"
+        >
+          {errorMessage}
         </div>
       ) : null}
 

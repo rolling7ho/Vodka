@@ -1,8 +1,10 @@
 import { join } from 'path'
 import { app, BrowserWindow, session, shell } from 'electron'
+import { GmacBridgeClient } from './bridge'
 import { registerIpcHandlers } from './ipc'
 
 app.setName('Gmac')
+const bridgeClient = new GmacBridgeClient()
 
 function buildContentSecurityPolicy(rendererUrl: string | undefined): string {
   if (rendererUrl) {
@@ -110,7 +112,7 @@ function createMainWindow(): BrowserWindow {
 
 void app.whenReady().then(() => {
   configureContentSecurityPolicy()
-  registerIpcHandlers()
+  registerIpcHandlers(bridgeClient)
   createMainWindow()
 
   app.on('activate', () => {
@@ -118,6 +120,10 @@ void app.whenReady().then(() => {
       createMainWindow()
     }
   })
+})
+
+app.on('before-quit', () => {
+  bridgeClient.dispose()
 })
 
 app.on('window-all-closed', () => {

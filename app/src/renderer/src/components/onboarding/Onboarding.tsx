@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import type { BridgeProgressEvent } from '../../../../shared/ipc'
 import { ArrowLeftIcon } from '../icons/ArrowLeftIcon'
 import { DirectX12Step } from './DirectX12Step'
 import { EngineSetupStep } from './EngineSetupStep'
-import { GraphicsStep } from './GraphicsStep'
 import { ImportPCsStep } from './ImportPCsStep'
 import { LauncherSetupStep } from './LauncherSetupStep'
 import { ReadyStep } from './ReadyStep'
 import type {
   ComponentInstallStatus,
   DiscoveredBottle,
-  GraphicsChoiceId,
   LauncherId,
   LauncherSetupStage,
   SlideDirection
@@ -20,7 +19,7 @@ interface OnboardingProps {
   onComplete?: () => void
 }
 
-type StepKey = 'welcome' | 'engine' | 'directx12' | 'graphics' | 'import' | 'launcher' | 'ready'
+type StepKey = 'welcome' | 'engine' | 'directx12' | 'import' | 'launcher' | 'ready'
 type RadianceColor = 'accent' | 'orange' | 'blue' | 'red' | 'green'
 
 const RADIANCE_THEMES: RadianceColor[] = ['accent', 'orange', 'blue', 'red', 'green']
@@ -29,7 +28,6 @@ const STEP_RADIANCE: Record<StepKey, { color: RadianceColor; dot: string }> = {
   welcome: { color: 'accent', dot: '#713131' },
   engine: { color: 'orange', dot: '#EA7824' },
   directx12: { color: 'blue', dot: '#007AFF' },
-  graphics: { color: 'red', dot: '#E13842' },
   import: { color: 'red', dot: '#E13842' },
   launcher: { color: 'green', dot: '#22A860' },
   ready: { color: 'accent', dot: '#713131' }
@@ -44,14 +42,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [rosettaStatus, setRosettaStatus] = useState<ComponentInstallStatus>('pending')
   const [engineStatus, setEngineStatus] = useState<ComponentInstallStatus>('pending')
   const [downloadProgress, setDownloadProgress] = useState(0)
-  const [downloadDetail, setDownloadDetail] = useState('0 MB of 459 MB')
   const [engineError, setEngineError] = useState<string | null>(null)
 
   const [toolkitInstalled, setToolkitInstalled] = useState(false)
   const [toolkitInstalling, setToolkitInstalling] = useState(false)
   const [detectedToolkitFile, setDetectedToolkitFile] = useState<string | null>(null)
-
-  const [graphicsChoice, setGraphicsChoice] = useState<GraphicsChoiceId>('automatic')
+  const [detectedToolkitPath, setDetectedToolkitPath] = useState<string | null>(null)
+  const [toolkitError, setToolkitError] = useState<string | null>(null)
 
   const [discoveredBottles, setDiscoveredBottles] = useState<DiscoveredBottle[]>([])
   const [selectedBottleIds, setSelectedBottleIds] = useState<string[]>([])
@@ -59,14 +56,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [selectedLauncher, setSelectedLauncher] = useState<LauncherId>('steam')
   const [steamAlreadyInstalled, setSteamAlreadyInstalled] = useState(false)
   const [launcherStage, setLauncherStage] = useState<LauncherSetupStage>('idle')
-
-  const timersRef = useRef<number[]>([])
+  const [launcherError, setLauncherError] = useState<string | null>(null)
 
   const steps: StepKey[] = [
     'welcome',
     'engine',
     'directx12',
-    'graphics',
     ...(discoveredBottles.length > 0 ? (['import'] as const) : []),
     'launcher',
     'ready'
@@ -77,28 +72,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const activeRadiance = STEP_RADIANCE[activeStep]
   const pulseClass = safeStepIndex % 2 === 0 ? 'animate-radiance-pulse-a' : 'animate-radiance-pulse-b'
 
-  function clearTimers(): void {
-    for (const id of timersRef.current) {
-      window.clearTimeout(id)
-    }
-    timersRef.current = []
-  }
-
-  function scheduleTimer(callback: () => void, delayMs: number): void {
-    const id = window.setTimeout(callback, delayMs)
-    timersRef.current.push(id)
-  }
-
   const syncSystemStatus = useCallback(async () => {
-    const api = window.gmac as
-      | { getSystemStatus?: () => Promise<import('../../../../shared/ipc').SystemStatus> }
-      | undefined
-    if (!api?.getSystemStatus) {
+    if (!window.gmac?.getSystemStatus) {
       return
     }
 
     try {
-      const status = await api.getSystemStatus()
+      const status = await window.gmac.getSystemStatus()
       setRosettaStatus((prev) =>
         prev === 'installing' || prev === 'installed'
           ? prev
@@ -114,10 +94,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       })
       if (status.engineInstalled) {
         setDownloadProgress(100)
-        setDownloadDetail('Installed')
       }
       setToolkitInstalled((prev) => prev || status.toolkitInstalled)
       setDetectedToolkitFile((prev) => status.detectedToolkitFile ?? prev)
+      setDetectedToolkitPath((prev) => status.detectedToolkitPath ?? prev)
       setDiscoveredBottles(status.legacyWhiskyBottles)
       setSelectedBottleIds((prev) =>
         prev.length > 0 ? prev : status.legacyWhiskyBottles.map((bottle) => bottle.id)
@@ -130,10 +110,45 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   useEffect(() => {
     void syncSystemStatus()
-    return () => {
-      clearTimers()
-    }
   }, [syncSystemStatus])
+
+  useEffect(() => {
+    if (!window.gmac?.onBridgeProgress) {
+      return
+    }
+
+    const unsubscribe = window.gmac.onBridgeProgress((event: BridgeProgressEvent) => {
+      const component = event.data.component
+      if (component === 'rosetta') {
+        const status = event.data.status
+        if (status === 'installing' || status === 'installed') {
+          setRosettaStatus(status)
+        }
+      } else if (component === 'engine') {
+        const status = event.data.status
+        if (status === 'installing' || status === 'verifying' || status === 'installed') {
+          setEngineStatus(status)
+        }
+        if (typeof event.data.progress === 'number') {
+          setDownloadProgress(event.data.progress)
+        }
+      } else if (component === 'launcher') {
+        const stage = event.data.stage
+        if (
+          stage === 'creating' ||
+          stage === 'downloading' ||
+          stage === 'installing' ||
+          stage === 'done'
+        ) {
+          setLauncherStage(stage)
+        }
+      }
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     if (activeStep !== 'directx12' || toolkitInstalled) {
@@ -157,8 +172,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     }
   }, [activeStep, toolkitInstalled, syncSystemStatus])
 
-  function startEngineInstall(): void {
-    clearTimers()
+  async function startEngineInstall(): Promise<void> {
     setEngineError(null)
     if (rosettaStatus !== 'installed') {
       setRosettaStatus('installing')
@@ -166,55 +180,53 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     if (engineStatus !== 'installed') {
       setEngineStatus('installing')
       setDownloadProgress(0)
-      setDownloadDetail('0 MB of 459 MB')
     }
 
-    scheduleTimer(() => {
+    try {
+      await window.gmac.installEngine()
       setRosettaStatus('installed')
-      if (engineStatus !== 'installed') {
-        setDownloadProgress(32)
-        setDownloadDetail('147 MB of 459 MB')
-      }
-    }, 550)
-
-    if (engineStatus !== 'installed') {
-      scheduleTimer(() => {
-        setDownloadProgress(68)
-        setDownloadDetail('312 MB of 459 MB')
-      }, 1050)
-
-      scheduleTimer(() => {
-        setDownloadProgress(100)
-        setDownloadDetail('Verifying archive (SHA-256)...')
-        setEngineStatus('verifying')
-      }, 1550)
-
-      scheduleTimer(() => {
-        setEngineStatus('installed')
-        setDownloadDetail('Installed')
-      }, 2050)
+      setEngineStatus('installed')
+      setDownloadProgress(100)
+    } catch (error) {
+      setEngineStatus('error')
+      setEngineError(error instanceof Error ? error.message : 'Engine installation failed.')
     }
   }
 
   function handleDownloadToolkit(): void {
-    const api = window.gmac as { openExternalUrl?: (url: string) => Promise<void> } | undefined
-    if (api?.openExternalUrl) {
-      void api.openExternalUrl(GPTK_DOWNLOAD_URL).catch(() => {
-        window.open(GPTK_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
-      })
-      return
-    }
-    window.open(GPTK_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
+    void window.gmac.openExternalUrl(GPTK_DOWNLOAD_URL).catch(() => {
+      window.open(GPTK_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
+    })
   }
 
-  function handleInstallToolkit(fileName: string): void {
-    clearTimers()
-    setDetectedToolkitFile(fileName)
+  async function installToolkitAtPath(toolkitPath: string): Promise<void> {
+    setToolkitError(null)
     setToolkitInstalling(true)
-    scheduleTimer(() => {
+    try {
+      const result = await window.gmac.installToolkit(toolkitPath)
+      if (result.installed) {
+        setToolkitInstalled(true)
+      } else {
+        setToolkitError(
+          'Toolkit was saved, but the installed Wine runtime does not support D3DMetal.'
+        )
+      }
+    } catch (error) {
+      setToolkitError(error instanceof Error ? error.message : 'Toolkit installation failed.')
+    } finally {
       setToolkitInstalling(false)
-      setToolkitInstalled(true)
-    }, 900)
+    }
+  }
+
+  async function handleChooseToolkitFile(): Promise<void> {
+    const chosenPath = await window.gmac.pickToolkitFile()
+    if (!chosenPath) {
+      return
+    }
+    const basename = chosenPath.split('/').pop() ?? chosenPath
+    setDetectedToolkitFile(basename)
+    setDetectedToolkitPath(chosenPath)
+    await installToolkitAtPath(chosenPath)
   }
 
   function handleToggleBottle(id: string): void {
@@ -229,28 +241,42 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     )
   }
 
+  async function handleImportSelectedBottles(): Promise<void> {
+    try {
+      await window.gmac.importLegacyBottles(selectedBottleIds)
+    } catch {
+      // Proceed to launcher step even if import encounters an error.
+    }
+    goToStep('launcher')
+  }
+
   function handleSelectLauncher(launcher: LauncherId): void {
     setSelectedLauncher(launcher)
+    setLauncherError(null)
     if (launcherStage === 'done') {
       setLauncherStage('idle')
     }
   }
 
-  function handleStartLauncherSetup(): void {
-    clearTimers()
+  async function handleStartLauncherSetup(): Promise<void> {
+    setLauncherError(null)
     setLauncherStage('creating')
-
-    scheduleTimer(() => {
-      setLauncherStage('downloading')
-    }, 700)
-
-    scheduleTimer(() => {
-      setLauncherStage('installing')
-    }, 1450)
-
-    scheduleTimer(() => {
+    try {
+      await window.gmac.setDefaultGraphics('automatic').catch(() => undefined)
+      await window.gmac.setupLauncher(selectedLauncher, 'automatic')
       setLauncherStage('done')
-    }, 2200)
+      if (selectedLauncher === 'steam') {
+        setSteamAlreadyInstalled(true)
+      }
+    } catch (error) {
+      setLauncherStage('idle')
+      setLauncherError(error instanceof Error ? error.message : 'Launcher setup failed.')
+    }
+  }
+
+  function handleFinishOnboarding(): void {
+    void window.gmac?.setDefaultGraphics?.('automatic').catch(() => undefined)
+    onComplete?.()
   }
 
   function goToStep(target: StepKey): void {
@@ -276,6 +302,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     launcherStage === 'installing'
 
   const canGoBack = safeStepIndex > 0 && !isBusy
+
+  const afterDirectX12Step: StepKey = discoveredBottles.length > 0 ? 'import' : 'launcher'
 
   return (
     <div className="onboarding-radiance relative flex h-full flex-col text-[#161212] select-none">
@@ -333,10 +361,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     rosettaStatus={rosettaStatus}
                     engineStatus={engineStatus}
                     downloadProgress={downloadProgress}
-                    downloadDetail={downloadDetail}
                     errorMessage={engineError}
-                    onInstall={startEngineInstall}
-                    onRetry={startEngineInstall}
+                    onInstall={() => {
+                      void startEngineInstall()
+                    }}
+                    onRetry={() => {
+                      void startEngineInstall()
+                    }}
                     onContinue={() => goToStep('directx12')}
                   />
                 ) : null}
@@ -348,28 +379,18 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     installed={toolkitInstalled}
                     installing={toolkitInstalling}
                     detectedFileName={detectedToolkitFile}
+                    errorMessage={toolkitError}
                     onDownloadFromApple={handleDownloadToolkit}
-                    onChooseFile={handleInstallToolkit}
+                    onChooseFile={() => {
+                      void handleChooseToolkitFile()
+                    }}
                     onInstallDetected={() => {
-                      if (detectedToolkitFile) {
-                        handleInstallToolkit(detectedToolkitFile)
+                      if (detectedToolkitPath) {
+                        void installToolkitAtPath(detectedToolkitPath)
                       }
                     }}
-                    onContinue={() => goToStep('graphics')}
-                    onSkip={() => goToStep('graphics')}
-                  />
-                ) : null}
-
-                {stepKey === 'graphics' ? (
-                  <GraphicsStep
-                    isActive={isActive}
-                    enterDirection={navDirection}
-                    selected={graphicsChoice}
-                    toolkitInstalled={toolkitInstalled}
-                    onSelect={setGraphicsChoice}
-                    onContinue={() =>
-                      goToStep(discoveredBottles.length > 0 ? 'import' : 'launcher')
-                    }
+                    onContinue={() => goToStep(afterDirectX12Step)}
+                    onSkip={() => goToStep(afterDirectX12Step)}
                   />
                 ) : null}
 
@@ -381,7 +402,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     selectedIds={selectedBottleIds}
                     onToggleBottle={handleToggleBottle}
                     onToggleAll={handleToggleAllBottles}
-                    onImportSelected={() => goToStep('launcher')}
+                    onImportSelected={() => {
+                      void handleImportSelectedBottles()
+                    }}
                     onSkip={() => goToStep('launcher')}
                   />
                 ) : null}
@@ -393,8 +416,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     selectedLauncher={selectedLauncher}
                     steamAlreadyInstalled={steamAlreadyInstalled}
                     stage={launcherStage}
+                    errorMessage={launcherError}
                     onSelectLauncher={handleSelectLauncher}
-                    onStartSetup={handleStartLauncherSetup}
+                    onStartSetup={() => {
+                      void handleStartLauncherSetup()
+                    }}
                     onContinue={() => goToStep('ready')}
                     onSkip={() => goToStep('ready')}
                   />
@@ -403,7 +429,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'ready' ? (
                   <ReadyStep
                     isActive={isActive}
-                    onPrimaryAction={() => onComplete?.()}
+                    onPrimaryAction={handleFinishOnboarding}
                   />
                 ) : null}
               </div>

@@ -92,13 +92,15 @@ function readBottleName(dirPath: string): string {
   return basename(dirPath)
 }
 
-function findNewestDownloadedToolkit(downloadsDir: string): string | null {
+function findNewestDownloadedToolkit(
+  downloadsDir: string
+): { file: string; path: string } | null {
   if (!existsSync(downloadsDir)) {
     return null
   }
 
   try {
-    let bestFile: string | null = null
+    let bestFile: { file: string; path: string } | null = null
     let bestMtime = -1
 
     for (const entry of readdirSync(downloadsDir)) {
@@ -121,7 +123,7 @@ function findNewestDownloadedToolkit(downloadsDir: string): string | null {
         const stats = statSync(fullPath)
         if (stats.isFile() && stats.mtimeMs > bestMtime) {
           bestMtime = stats.mtimeMs
-          bestFile = entry
+          bestFile = { file: entry, path: fullPath }
         }
       } catch {
         // Ignore unreadable entries.
@@ -203,14 +205,15 @@ function detectSteamInstalled(home: string, gmacRegistryPlist: string): boolean 
 
 export function getSystemStatus(): SystemStatus {
   const home = homedir()
-  const detectedToolkitFile = findNewestDownloadedToolkit(join(home, 'Downloads'))
+  const detectedToolkit = findNewestDownloadedToolkit(join(home, 'Downloads'))
 
   if (process.env.GMAC_FRESH_INSTALL === '1') {
     return {
       rosettaInstalled: false,
       engineInstalled: false,
       toolkitInstalled: false,
-      detectedToolkitFile,
+      detectedToolkitFile: detectedToolkit?.file ?? null,
+      detectedToolkitPath: detectedToolkit?.path ?? null,
       legacyWhiskyBottles: [],
       steamInstalled: false
     }
@@ -236,7 +239,8 @@ export function getSystemStatus(): SystemStatus {
     rosettaInstalled,
     engineInstalled,
     toolkitInstalled,
-    detectedToolkitFile,
+    detectedToolkitFile: detectedToolkit?.file ?? null,
+    detectedToolkitPath: detectedToolkit?.path ?? null,
     legacyWhiskyBottles,
     steamInstalled
   }

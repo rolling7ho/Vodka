@@ -13,14 +13,6 @@ export function stepParallaxClass(
   return direction === 'forward' ? `animate-parallax-right-${slot}` : `animate-parallax-left-${slot}`
 }
 
-export type GraphicsChoiceId =
-  | 'automatic'
-  | 'directX12'
-  | 'directX11'
-  | 'directX11Compatibility'
-  | 'directX9'
-  | 'openGL'
-
 export type LauncherId =
   | 'steam'
   | 'epicGames'

@@ -1,0 +1,144 @@
+//
+//  BridgeHandlers.swift
+//  GmacBridge
+//
+//  This file is part of Gmac, a fork of Whisky.
+//
+//  Gmac is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Gmac.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import Foundation
+import GmacKit
+
+struct BridgeRouter: Sendable {
+    let writer: BridgeWriter
+
+    func handle(_ request: BridgeRequest) async -> BridgeResponse {
+        do {
+            let result = try await dispatch(request)
+            return BridgeResponse(id: request.id, result: result, error: nil)
+        } catch let bridgeError as BridgeError {
+            return BridgeResponse(
+                id: request.id,
+                result: nil,
+                error: BridgeErrorPayload(
+                    code: bridgeError.code,
+                    message: bridgeError.localizedDescription
+                )
+            )
+        } catch {
+            return BridgeResponse(
+                id: request.id,
+                result: nil,
+                error: BridgeErrorPayload(
+                    code: "operation_failed",
+                    message: error.localizedDescription
+                )
+            )
+        }
+    }
+
+    private func dispatch(_ request: BridgeRequest) async throws -> JSONValue {
+        let params = request.params ?? [:]
+        switch request.method {
+        case "ping":
+            return .object(["ok": .bool(true)])
+        case "system.status":
+            return await systemStatus()
+        case "engine.install":
+            return try await installEngine(requestID: request.id)
+        case "gptk.install":
+            return try await installGPTK(params: params)
+        case "graphics.setDefault":
+            return try setDefaultGraphics(params: params)
+        case "bottles.importLegacy":
+            return try await importLegacyBottles(params: params)
+        case "launcher.setup":
+            return try await setupLauncher(requestID: request.id, params: params)
+        case "library.list":
+            return await listBottles()
+        default:
+            throw BridgeError.unknownMethod(request.method)
+        }
+    }
+
+    @MainActor
+    private func systemStatus() -> JSONValue {
+        var bottlesList = BottleData()
+        let bottles = bottlesList.loadBottles()
+        let legacyBottles = LegacyBottleImport.importableBottles(existingPaths: bottlesList.paths)
+        let toolkitFile = findNewestDownloadedToolkit()
+
+        let encodedBottles: [JSONValue] = legacyBottles.map { bottle in
+            let path = bottle.url.path(percentEncoded: false)
+            return .object([
+                "id": .string(path),
+                "name": .string(bottle.name),
+                "path": .string(path)
+            ])
+        }
+
+        return .object([
+            "rosettaInstalled": .bool(Rosetta2.isRosettaInstalled),
+            "engineInstalled": .bool(GmacWineInstaller.isGmacWineInstalled()),
+            "toolkitInstalled": .bool(GPTKImporter.isDeployed()),
+            "detectedToolkitFile": toolkitFile.map { .string($0.lastPathComponent) } ?? .null,
+            "detectedToolkitPath": toolkitFile.map { .string($0.path(percentEncoded: false)) } ?? .null,
+            "legacyWhiskyBottles": .array(encodedBottles),
+            "steamInstalled": .bool(SteamInstaller.steamBottle(in: bottles) != nil)
+        ])
+    }
+
+    private func findNewestDownloadedToolkit() -> URL? {
+        guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first,
+              let items = try? FileManager.default.contentsOfDirectory(
+                  at: downloads,
+                  includingPropertiesForKeys: [.contentModificationDateKey]
+              )
+        else {
+            return nil
+        }
+
+        let matches = items.filter { url in
+            let name = url.lastPathComponent.lowercased()
+            return url.pathExtension.lowercased() == "dmg" && (
+                name.contains("game_porting_toolkit") ||
+                    name.contains("game porting toolkit") ||
+                    name.contains("evaluation_environment") ||
+                    name.contains("evaluation environment") ||
+                    name.contains("gptk")
+            )
+        }
+
+        return matches.max { lhs, rhs in
+            let left = (try? lhs.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            let right = (try? rhs.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            return (left ?? .distantPast) < (right ?? .distantPast)
+        }
+    }
+
+    @MainActor
+    private func listBottles() -> JSONValue {
+        var bottlesList = BottleData()
+        let bottles = bottlesList.loadBottles()
+        let items: [JSONValue] = bottles.map { bottle in
+            .object([
+                "name": .string(bottle.settings.name),
+                "path": .string(bottle.url.path(percentEncoded: false)),
+                "windowsVersion": .string(bottle.settings.windowsVersion.pretty()),
+                "graphicsBackend": .string(bottle.settings.graphicsBackend.rawValue),
+                "isAvailable": .bool(bottle.isAvailable)
+            ])
+        }
+        return .array(items)
+    }
+}

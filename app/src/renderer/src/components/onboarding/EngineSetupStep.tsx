@@ -8,14 +8,13 @@ interface EngineSetupStepProps {
   rosettaStatus: ComponentInstallStatus
   engineStatus: ComponentInstallStatus
   downloadProgress: number
-  downloadDetail: string
   errorMessage?: string | null
   onInstall: () => void
   onRetry: () => void
   onContinue: () => void
 }
 
-function StatusPill({ status, activeLabel }: { status: ComponentInstallStatus; activeLabel?: string }) {
+function StatusPill({ status }: { status: ComponentInstallStatus }) {
   if (status === 'installed') {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700">
@@ -26,13 +25,10 @@ function StatusPill({ status, activeLabel }: { status: ComponentInstallStatus; a
   }
 
   if (status === 'installing' || status === 'verifying' || status === 'checking') {
-    const label =
-      activeLabel ??
-      (status === 'verifying' ? 'Verifying' : status === 'checking' ? 'Checking' : 'Installing')
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-[#007AFF]/10 px-2.5 py-1 text-xs font-medium text-[#007AFF]">
         <SpinnerIcon className="h-3.5 w-3.5" />
-        <span>{label}</span>
+        <span>Installing</span>
       </span>
     )
   }
@@ -58,7 +54,6 @@ export function EngineSetupStep({
   rosettaStatus,
   engineStatus,
   downloadProgress,
-  downloadDetail,
   errorMessage,
   onInstall,
   onRetry,
@@ -72,8 +67,8 @@ export function EngineSetupStep({
     engineStatus === 'verifying' ||
     engineStatus === 'checking'
 
-  const showProgress =
-    (engineStatus === 'installing' || engineStatus === 'verifying') && downloadProgress >= 0
+  const showProgress = engineStatus === 'installing' || engineStatus === 'verifying'
+  const clampedProgress = Math.round(Math.min(100, Math.max(0, downloadProgress)))
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
@@ -84,7 +79,7 @@ export function EngineSetupStep({
           Engine setup
         </h2>
         <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-          Gmac requires Rosetta 2 and the Gmac Windows Engine to run Windows games.
+          Gmac requires specific engines to run Windows games.
         </p>
       </div>
 
@@ -94,12 +89,7 @@ export function EngineSetupStep({
         }`}
       >
         <div className="flex items-center justify-between gap-4 py-4">
-          <div className="min-w-0">
-            <p className="text-[15px] font-medium text-[#161212]">Rosetta 2</p>
-            <p className="mt-0.5 text-[13px] text-[#5e5454]">
-              Translates x86_64 Windows instructions on Apple Silicon
-            </p>
-          </div>
+          <p className="text-[15px] font-medium text-[#161212]">Rosetta 2</p>
           <div className="shrink-0">
             <StatusPill key={isActive ? `r-${rosettaStatus}` : 'r-idle'} status={rosettaStatus} />
           </div>
@@ -107,36 +97,23 @@ export function EngineSetupStep({
 
         <div className="py-4">
           <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[15px] font-medium text-[#161212]">Gmac Windows Engine</p>
-              <p className="mt-0.5 text-[13px] text-[#5e5454]">
-                {engineStatus === 'installed'
-                  ? 'Wine runtime, DXMT, and DXVK'
-                  : 'Wine runtime, DXMT, and DXVK (~460 MB download)'}
-              </p>
-            </div>
+            <p className="text-[15px] font-medium text-[#161212]">Gmac Windows Engine</p>
             <div className="shrink-0">
-              <StatusPill
-                key={isActive ? `e-${engineStatus}` : 'e-idle'}
-                status={engineStatus}
-                activeLabel={
-                  engineStatus === 'installing' && downloadProgress < 100
-                    ? 'Downloading'
-                    : undefined
-                }
-              />
+              <StatusPill key={isActive ? `e-${engineStatus}` : 'e-idle'} status={engineStatus} />
             </div>
           </div>
 
           {showProgress ? (
-            <div className="mt-3.5">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#161212]/8">
+            <div className="mt-3.5 flex items-center gap-3">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#161212]/8">
                 <div
                   className="h-full rounded-full bg-[#007AFF] transition-all duration-200"
-                  style={{ width: `${Math.min(100, Math.max(0, downloadProgress))}%` }}
+                  style={{ width: `${clampedProgress}%` }}
                 />
               </div>
-              <p className="mt-2 font-mono text-xs text-[#5e5454]">{downloadDetail}</p>
+              <span className="w-10 text-right font-mono text-xs text-[#5e5454]">
+                {clampedProgress}%
+              </span>
             </div>
           ) : null}
         </div>
