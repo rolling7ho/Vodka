@@ -1,7 +1,13 @@
 import { join } from 'path'
 import { app, BrowserWindow, session, shell } from 'electron'
+import { AppScreen } from '../shared/ipc'
 import { GmacBridgeClient } from './bridge'
 import { registerIpcHandlers } from './ipc'
+
+function resolveInitialScreen(): AppScreen {
+  const requested = process.env.GMAC_SCREEN?.trim().toLowerCase()
+  return requested === 'home' ? 'home' : 'onboarding'
+}
 
 app.setName('Gmac')
 const bridgeClient = new GmacBridgeClient()
@@ -101,10 +107,16 @@ function createMainWindow(): BrowserWindow {
     }
   })
 
+  const initialScreen = resolveInitialScreen()
+
   if (rendererUrl) {
-    void mainWindow.loadURL(rendererUrl)
+    const targetUrl = new URL(rendererUrl)
+    targetUrl.searchParams.set('screen', initialScreen)
+    void mainWindow.loadURL(targetUrl.toString())
   } else {
-    void mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    void mainWindow.loadFile(join(__dirname, '../renderer/index.html'), {
+      query: { screen: initialScreen }
+    })
   }
 
   return mainWindow

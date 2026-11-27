@@ -8,7 +8,10 @@
   "scripts": {
     "build:bridge": "swift build --package-path ../GmacKit --product gmac-bridge",
     "dev": "npm run build:bridge && electron-vite dev",
-    "dev:fresh": "GMAC_FRESH_INSTALL=1 electron-vite dev",
+    "dev:onboarding": "GMAC_SCREEN=onboarding npm run dev",
+    "dev:onboarding:fresh": "GMAC_SCREEN=onboarding GMAC_FRESH_INSTALL=1 npm run dev",
+    "dev:home": "GMAC_SCREEN=home npm run dev",
+    "dev:fresh": "GMAC_FRESH_INSTALL=1 npm run dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",

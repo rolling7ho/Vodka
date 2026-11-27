@@ -1,3 +1,5 @@
+export type AppScreen = 'onboarding' | 'home'
+
 export const IPC_CHANNELS = {
   GET_APP_INFO: 'gmac:get-app-info',
   OPEN_EXTERNAL_URL: 'gmac:open-external-url',
