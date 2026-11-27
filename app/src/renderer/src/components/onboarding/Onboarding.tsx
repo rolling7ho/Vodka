@@ -140,11 +140,19 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       return
     }
 
+    void syncSystemStatus()
+
+    const handleFocus = () => {
+      void syncSystemStatus()
+    }
+    window.addEventListener('focus', handleFocus)
+
     const interval = window.setInterval(() => {
       void syncSystemStatus()
     }, 3000)
 
     return () => {
+      window.removeEventListener('focus', handleFocus)
       window.clearInterval(interval)
     }
   }, [activeStep, toolkitInstalled, syncSystemStatus])

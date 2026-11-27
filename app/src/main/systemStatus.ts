@@ -109,7 +109,9 @@ function findNewestDownloadedToolkit(downloadsDir: string): string | null {
       if (
         !lower.includes('game_porting_toolkit') &&
         !lower.includes('game porting toolkit') &&
-        !lower.includes('evaluation_environment')
+        !lower.includes('evaluation_environment') &&
+        !lower.includes('evaluation environment') &&
+        !lower.includes('gptk')
       ) {
         continue
       }
@@ -200,18 +202,20 @@ function detectSteamInstalled(home: string, gmacRegistryPlist: string): boolean 
 }
 
 export function getSystemStatus(): SystemStatus {
+  const home = homedir()
+  const detectedToolkitFile = findNewestDownloadedToolkit(join(home, 'Downloads'))
+
   if (process.env.GMAC_FRESH_INSTALL === '1') {
     return {
       rosettaInstalled: false,
       engineInstalled: false,
       toolkitInstalled: false,
-      detectedToolkitFile: null,
+      detectedToolkitFile,
       legacyWhiskyBottles: [],
       steamInstalled: false
     }
   }
 
-  const home = homedir()
   const librariesDir = join(home, 'Library', 'Application Support', GMAC_BUNDLE_ID, 'Libraries')
   const gmacRegistryPlist = join(home, 'Library', 'Containers', GMAC_BUNDLE_ID, 'BottleVM.plist')
 
@@ -225,7 +229,6 @@ export function getSystemStatus(): SystemStatus {
     existsSync(join(librariesDir, 'Wine', 'lib', 'wine', 'x86_64-unix', 'dxgi.so')) &&
     existsSync(join(librariesDir, 'Wine', 'lib', 'external', 'libd3dshared.dylib'))
 
-  const detectedToolkitFile = findNewestDownloadedToolkit(join(home, 'Downloads'))
   const legacyWhiskyBottles = findLegacyWhiskyBottles(home, gmacRegistryPlist)
   const steamInstalled = detectSteamInstalled(home, gmacRegistryPlist)
 
