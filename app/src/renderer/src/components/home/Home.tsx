@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import type { BottleSummary } from '../../../../shared/ipc'
+import type { PcIconId } from '../icons/PcIcons'
 import { SidebarToggleIcon } from '../icons/SidebarIcons'
+import { ChangePcIconModal, CreatePcModal, DeletePcModal } from '../sidebar/PcModals'
 import {
   COLLAPSE_THRESHOLD,
   DEFAULT_SIDEBAR_WIDTH,
@@ -12,11 +14,11 @@ import {
   type SidebarDestination
 } from '../sidebar/Sidebar'
 
-const COLLAPSED_TOGGLE_X = 90
-
 interface HomeProps {
   onOpenOnboarding?: () => void
 }
+
+const COLLAPSED_TOGGLE_X = 90
 
 function destinationTitle(destination: SidebarDestination, pcs: BottleSummary[]): string {
   switch (destination.kind) {
@@ -37,6 +39,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [iconModalPc, setIconModalPc] = useState<BottleSummary | null>(null)
+  const [deleteModalPc, setDeleteModalPc] = useState<BottleSummary | null>(null)
   const dragStartWidthRef = useRef(DEFAULT_SIDEBAR_WIDTH)
 
   useEffect(() => {
@@ -100,6 +105,65 @@ export function Home({ onOpenOnboarding }: HomeProps) {
     setIsResizing(true)
   }
 
+  const handleCreatePc = async (name: string, icon: PcIconId) => {
+    if (!window.gmac) {
+      throw new Error('Gmac IPC bridge is unavailable.')
+    }
+    const created = await window.gmac.createBottle(name, icon)
+    setPcs((prev) => [...prev, created])
+    setActiveDestination({ kind: 'pc', path: created.path })
+  }
+
+  const handleRenamePc = async (path: string, newName: string) => {
+    const previousPcs = pcs
+    setPcs((prev) => prev.map((pc) => (pc.path === path ? { ...pc, name: newName } : pc)))
+    try {
+      const updated = await window.gmac?.renameBottle(path, newName)
+      if (updated) {
+        setPcs((prev) => prev.map((pc) => (pc.path === path ? updated : pc)))
+      }
+    } catch {
+      setPcs(previousPcs)
+    }
+  }
+
+  const handleChangePcIcon = async (pc: BottleSummary, icon: PcIconId) => {
+    const previousPcs = pcs
+    setPcs((prev) => prev.map((entry) => (entry.path === pc.path ? { ...entry, icon } : entry)))
+    try {
+      await window.gmac?.setBottleIcon(pc.path, icon)
+    } catch {
+      setPcs(previousPcs)
+    }
+  }
+
+  const handleDeletePc = async (pc: BottleSummary) => {
+    if (!window.gmac) {
+      throw new Error('Gmac IPC bridge is unavailable.')
+    }
+    await window.gmac.deleteBottle(pc.path)
+    setPcs((prev) => prev.filter((entry) => entry.path !== pc.path))
+    setActiveDestination((current) =>
+      current.kind === 'pc' && current.path === pc.path ? { kind: 'home' } : current
+    )
+  }
+
+  const handleReorderPcs = async (orderedPaths: string[]) => {
+    const previousPcs = pcs
+    const byPath = new Map(pcs.map((pc) => [pc.path, pc]))
+    const reordered = orderedPaths
+      .map((entryPath) => byPath.get(entryPath))
+      .filter((entry): entry is BottleSummary => entry !== undefined)
+    if (reordered.length === pcs.length) {
+      setPcs(reordered)
+    }
+    try {
+      await window.gmac?.reorderBottles(orderedPaths)
+    } catch {
+      setPcs(previousPcs)
+    }
+  }
+
   const sectionTitle = destinationTitle(activeDestination, pcs)
   const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
   const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
@@ -134,6 +198,11 @@ export function Home({ onOpenOnboarding }: HomeProps) {
         isResizing={isResizing}
         onSelect={setActiveDestination}
         onResizeStart={handleResizeStart}
+        onOpenCreatePc={() => setIsCreateModalOpen(true)}
+        onRenamePc={handleRenamePc}
+        onRequestDeletePc={setDeleteModalPc}
+        onRequestChangeIcon={setIconModalPc}
+        onReorderPcs={handleReorderPcs}
       />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
@@ -154,6 +223,24 @@ export function Home({ onOpenOnboarding }: HomeProps) {
           )}
         </main>
       </div>
+
+      <CreatePcModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreatePc}
+      />
+
+      <ChangePcIconModal
+        pc={iconModalPc}
+        onClose={() => setIconModalPc(null)}
+        onSelectIcon={handleChangePcIcon}
+      />
+
+      <DeletePcModal
+        pc={deleteModalPc}
+        onClose={() => setDeleteModalPc(null)}
+        onConfirmDelete={handleDeletePc}
+      />
     </div>
   )
 }

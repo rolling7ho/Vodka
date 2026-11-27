@@ -5,6 +5,11 @@ export const IPC_CHANNELS = {
   OPEN_EXTERNAL_URL: 'gmac:open-external-url',
   GET_SYSTEM_STATUS: 'gmac:get-system-status',
   LIST_BOTTLES: 'gmac:list-bottles',
+  CREATE_BOTTLE: 'gmac:create-bottle',
+  RENAME_BOTTLE: 'gmac:rename-bottle',
+  DELETE_BOTTLE: 'gmac:delete-bottle',
+  SET_BOTTLE_ICON: 'gmac:set-bottle-icon',
+  REORDER_BOTTLES: 'gmac:reorder-bottles',
   INSTALL_ENGINE: 'gmac:install-engine',
   PICK_TOOLKIT_FILE: 'gmac:pick-toolkit-file',
   INSTALL_TOOLKIT: 'gmac:install-toolkit',
@@ -38,6 +43,7 @@ export interface BottleSummary {
   windowsVersion: string
   graphicsBackend: string
   isAvailable: boolean
+  icon?: string | null
 }
 
 export interface SystemStatus {
@@ -74,6 +80,11 @@ export interface GmacApi {
   openExternalUrl: (url: string) => Promise<void>
   getSystemStatus: () => Promise<SystemStatus>
   listBottles: () => Promise<BottleSummary[]>
+  createBottle: (name: string, icon?: string | null) => Promise<BottleSummary>
+  renameBottle: (path: string, name: string) => Promise<BottleSummary>
+  deleteBottle: (path: string) => Promise<{ deleted: boolean }>
+  setBottleIcon: (path: string, icon: string) => Promise<{ path: string; icon: string }>
+  reorderBottles: (paths: string[]) => Promise<{ paths: string[] }>
   installEngine: () => Promise<{ installed: boolean }>
   pickToolkitFile: () => Promise<string | null>
   installToolkit: (path: string) => Promise<ToolkitInstallResult>

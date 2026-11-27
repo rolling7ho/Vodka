@@ -49,6 +49,10 @@ struct BridgeRouter: Sendable {
 
     private func dispatch(_ request: BridgeRequest) async throws -> JSONValue {
         let params = request.params ?? [:]
+        if let bottleResult = try await dispatchBottleMethod(request.method, params: params) {
+            return bottleResult
+        }
+
         switch request.method {
         case "ping":
             return .object(["ok": .bool(true)])
@@ -60,14 +64,34 @@ struct BridgeRouter: Sendable {
             return try await installGPTK(params: params)
         case "graphics.setDefault":
             return try setDefaultGraphics(params: params)
-        case "bottles.importLegacy":
-            return try await importLegacyBottles(params: params)
         case "launcher.setup":
             return try await setupLauncher(requestID: request.id, params: params)
         case "library.list":
             return await listBottles()
         default:
             throw BridgeError.unknownMethod(request.method)
+        }
+    }
+
+    private func dispatchBottleMethod(
+        _ method: String,
+        params: [String: JSONValue]
+    ) async throws -> JSONValue? {
+        switch method {
+        case "bottles.importLegacy":
+            return try await importLegacyBottles(params: params)
+        case "bottles.create":
+            return try await createBottle(params: params)
+        case "bottles.rename":
+            return try await renameBottle(params: params)
+        case "bottles.delete":
+            return try await deleteBottle(params: params)
+        case "bottles.setIcon":
+            return try await setBottleIcon(params: params)
+        case "bottles.reorder":
+            return try await reorderBottles(params: params)
+        default:
+            return nil
         }
     }
 
@@ -130,14 +154,9 @@ struct BridgeRouter: Sendable {
     private func listBottles() -> JSONValue {
         var bottlesList = BottleData()
         let bottles = bottlesList.loadBottles()
+        let icons = loadPCIcons()
         let items: [JSONValue] = bottles.map { bottle in
-            .object([
-                "name": .string(bottle.settings.name),
-                "path": .string(bottle.url.path(percentEncoded: false)),
-                "windowsVersion": .string(bottle.settings.windowsVersion.pretty()),
-                "graphicsBackend": .string(bottle.settings.graphicsBackend.rawValue),
-                "isAvailable": .bool(bottle.isAvailable)
-            ])
+            encodeBottleSummary(bottle, icons: icons)
         }
         return .array(items)
     }

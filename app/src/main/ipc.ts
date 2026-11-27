@@ -25,6 +25,8 @@ function wait(ms: number): Promise<void> {
 }
 
 export function registerIpcHandlers(bridge: GmacBridgeClient): void {
+  let freshBottles: BottleSummary[] = []
+
   bridge.onProgress((event) => {
     emitProgress(event)
   })
@@ -63,7 +65,10 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.LIST_BOTTLES, async (): Promise<BottleSummary[]> => {
-    if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+    if (process.env.GMAC_FRESH_INSTALL === '1') {
+      return [...freshBottles]
+    }
+    if (!bridge.isAvailable()) {
       return []
     }
     try {
@@ -72,6 +77,102 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
       return []
     }
   })
+
+  ipcMain.handle(
+    IPC_CHANNELS.CREATE_BOTTLE,
+    async (_event, name: string, icon?: string | null): Promise<BottleSummary> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1') {
+        const trimmed = name.trim()
+        if (!trimmed) {
+          throw new Error('PC name is required.')
+        }
+        const created: BottleSummary = {
+          name: trimmed,
+          path: `/tmp/gmac-fresh-pc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          windowsVersion: 'Windows 10',
+          graphicsBackend: 'Recommended',
+          isAvailable: true,
+          icon: icon ?? 'pc'
+        }
+        freshBottles = [...freshBottles, created]
+        return created
+      }
+      return await bridge.request<BottleSummary>('bottles.create', {
+        name,
+        ...(icon ? { icon } : {})
+      })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.RENAME_BOTTLE,
+    async (_event, path: string, name: string): Promise<BottleSummary> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1') {
+        const trimmed = name.trim()
+        if (!trimmed) {
+          throw new Error('PC name is required.')
+        }
+        const index = freshBottles.findIndex((bottle) => bottle.path === path)
+        if (index === -1) {
+          throw new Error('PC not found.')
+        }
+        const updated = { ...freshBottles[index], name: trimmed }
+        freshBottles = freshBottles.map((bottle, idx) => (idx === index ? updated : bottle))
+        return updated
+      }
+      return await bridge.request<BottleSummary>('bottles.rename', { path, name })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.DELETE_BOTTLE,
+    async (_event, path: string): Promise<{ deleted: boolean }> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1') {
+        freshBottles = freshBottles.filter((bottle) => bottle.path !== path)
+        return { deleted: true }
+      }
+      return await bridge.request<{ deleted: boolean }>('bottles.delete', { path })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.SET_BOTTLE_ICON,
+    async (_event, path: string, icon: string): Promise<{ path: string; icon: string }> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1') {
+        freshBottles = freshBottles.map((bottle) =>
+          bottle.path === path ? { ...bottle, icon } : bottle
+        )
+        return { path, icon }
+      }
+      return await bridge.request<{ path: string; icon: string }>('bottles.setIcon', {
+        path,
+        icon
+      })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.REORDER_BOTTLES,
+    async (_event, paths: string[]): Promise<{ paths: string[] }> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1') {
+        const byPath = new Map(freshBottles.map((bottle) => [bottle.path, bottle]))
+        const reordered: BottleSummary[] = []
+        for (const entryPath of paths) {
+          const item = byPath.get(entryPath)
+          if (item) {
+            reordered.push(item)
+            byPath.delete(entryPath)
+          }
+        }
+        for (const remaining of byPath.values()) {
+          reordered.push(remaining)
+        }
+        freshBottles = reordered
+        return { paths: freshBottles.map((bottle) => bottle.path) }
+      }
+      return await bridge.request<{ paths: string[] }>('bottles.reorder', { paths })
+    }
+  )
 
   ipcMain.handle(IPC_CHANNELS.PICK_TOOLKIT_FILE, async (): Promise<string | null> => {
     const focused = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]

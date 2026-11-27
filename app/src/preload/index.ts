@@ -6,6 +6,14 @@ const gmacApi: GmacApi = {
   openExternalUrl: (url: string) => ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL_URL, url),
   getSystemStatus: () => ipcRenderer.invoke(IPC_CHANNELS.GET_SYSTEM_STATUS),
   listBottles: () => ipcRenderer.invoke(IPC_CHANNELS.LIST_BOTTLES),
+  createBottle: (name: string, icon?: string | null) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CREATE_BOTTLE, name, icon),
+  renameBottle: (path: string, name: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.RENAME_BOTTLE, path, name),
+  deleteBottle: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.DELETE_BOTTLE, path),
+  setBottleIcon: (path: string, icon: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.SET_BOTTLE_ICON, path, icon),
+  reorderBottles: (paths: string[]) => ipcRenderer.invoke(IPC_CHANNELS.REORDER_BOTTLES, paths),
   installEngine: () => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_ENGINE),
   pickToolkitFile: () => ipcRenderer.invoke(IPC_CHANNELS.PICK_TOOLKIT_FILE),
   installToolkit: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_TOOLKIT, path),
