@@ -113,7 +113,7 @@ export function Home({ onOpenOnboarding }: HomeProps) {
               ? 'none'
               : 'left 280ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms, color 150ms'
           }}
-          className="app-no-drag absolute top-[13px] inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+          className="app-no-drag absolute top-[11px] inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
         >
           <SidebarToggleIcon className="h-[19px] w-[19px]" />
         </button>
