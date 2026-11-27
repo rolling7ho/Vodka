@@ -2,20 +2,28 @@ interface IconProps {
   className?: string
 }
 
-export function CheckIcon({ className }: IconProps) {
+interface CheckIconProps extends IconProps {
+  animated?: boolean
+}
+
+export function CheckIcon({ className, animated = true }: CheckIconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.8}
+      strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
       className={className}
     >
-      <path d="M20 6 9 17l-5-5" />
+      <path
+        d="M5 13l4 4L19 7"
+        pathLength={1}
+        className={animated ? 'animate-check-write' : undefined}
+      />
     </svg>
   )
 }

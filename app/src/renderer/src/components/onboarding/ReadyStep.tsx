@@ -39,7 +39,7 @@ const TIPS = [
   }
 ]
 
-type RevealPhase = 'idle' | 'check' | 'reveal'
+type RevealPhase = 'idle' | 'draw' | 'reveal'
 
 export function ReadyStep({
   isActive,
@@ -61,22 +61,26 @@ export function ReadyStep({
       return
     }
 
-    setPhase('check')
-    const timer = window.setTimeout(() => {
+    const startDrawTimer = window.setTimeout(() => {
+      setPhase('draw')
+    }, 480)
+
+    const revealTimer = window.setTimeout(() => {
       setPhase('reveal')
-    }, 680)
+    }, 1280)
 
     return () => {
-      window.clearTimeout(timer)
+      window.clearTimeout(startDrawTimer)
+      window.clearTimeout(revealTimer)
     }
   }, [isActive])
 
   const checkPositionClass =
     phase === 'reveal'
       ? 'translate-y-0 scale-100 opacity-100'
-      : phase === 'check'
-        ? 'translate-y-[150px] scale-125 opacity-100'
-        : 'translate-y-[150px] scale-90 opacity-0'
+      : phase === 'draw'
+        ? 'translate-y-[185px] scale-[1.55] opacity-100'
+        : 'translate-y-[185px] scale-90 opacity-0'
 
   const revealContentClass =
     phase === 'reveal'
@@ -89,28 +93,27 @@ export function ReadyStep({
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
       <span
-        className={`inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 transition-all duration-650 ease-[cubic-bezier(0.22,1,0.36,1)] ${checkPositionClass}`}
+        className={`inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/12 text-emerald-600 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${checkPositionClass}`}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          className="h-6 w-6"
-        >
-          <path
-            d="M20 6 9 17l-5-5"
-            className={phase !== 'idle' ? 'animate-check-draw' : undefined}
-          />
-        </svg>
+        {phase !== 'idle' ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="h-6 w-6"
+          >
+            <path d="M5 13l4 4L19 7" pathLength={1} className="animate-check-write-hero" />
+          </svg>
+        ) : null}
       </span>
 
       <div
-        className={`flex w-full flex-col items-center transition-all duration-550 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealContentClass}`}
+        className={`flex w-full flex-col items-center transition-all duration-600 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealContentClass}`}
       >
         <h2 className="mt-4 text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
           You are ready to play

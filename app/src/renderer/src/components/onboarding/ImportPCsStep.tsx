@@ -3,6 +3,7 @@ import { CheckIcon, FolderIcon } from '../icons/OnboardingIcons'
 import type { DiscoveredBottle } from './types'
 
 interface ImportPCsStepProps {
+  isActive: boolean
   bottles: DiscoveredBottle[]
   selectedIds: string[]
   onToggleBottle: (id: string) => void
@@ -12,6 +13,7 @@ interface ImportPCsStepProps {
 }
 
 export function ImportPCsStep({
+  isActive,
   bottles,
   selectedIds,
   onToggleBottle,
@@ -23,15 +25,21 @@ export function ImportPCsStep({
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
-        Import existing PCs
-      </h2>
-      <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-        Bottles from the original Whisky app are referenced in place without copying or moving game
-        files.
-      </p>
+      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+        <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
+          Import existing PCs
+        </h2>
+        <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
+          Bottles from the original Whisky app are referenced in place without copying or moving
+          game files.
+        </p>
+      </div>
 
-      <div className="mt-7 w-full max-w-lg rounded-2xl border border-[#161212]/10 bg-white/75 p-5 shadow-xs backdrop-blur-md">
+      <div
+        className={`mt-7 w-full max-w-lg rounded-2xl border border-[#161212]/10 bg-white/75 p-5 shadow-xs backdrop-blur-md ${
+          isActive ? 'animate-step-2' : 'opacity-0'
+        }`}
+      >
         {bottles.length === 0 ? (
           <div className="flex flex-col items-center py-5 text-center">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#161212]/[0.05] text-[#5e5454]">
@@ -74,10 +82,10 @@ export function ImportPCsStep({
                       className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors ${
                         isChecked
                           ? 'bg-[#007AFF] text-white'
-                          : 'border border-[#161212]/20 bg-white text-transparent'
+                          : 'border border-[#161212]/20 bg-white'
                       }`}
                     >
-                      <CheckIcon className="h-3.5 w-3.5" />
+                      {isChecked ? <CheckIcon className="h-3.5 w-3.5" /> : null}
                     </span>
 
                     <span className="min-w-0 flex-1">
@@ -96,7 +104,7 @@ export function ImportPCsStep({
         )}
       </div>
 
-      <div className="mt-8 flex items-center gap-3">
+      <div className={`mt-8 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
         {bottles.length > 0 ? (
           <>
             <button

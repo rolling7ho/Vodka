@@ -39,34 +39,110 @@
   overflow: hidden;
 }
 
-.onboarding-radiance::before,
-.onboarding-radiance::after {
-  content: "";
+.radiance-drift-primary,
+.radiance-drift-secondary {
   position: absolute;
   inset: -14%;
   pointer-events: none;
-  z-index: 0;
   will-change: transform;
 }
 
-.onboarding-radiance::before {
-  background-image: radial-gradient(
-    ellipse 62% 54% at 48% 50%,
-    rgba(113, 49, 49, 0.13) 0%,
-    rgba(113, 49, 49, 0.065) 38%,
-    rgba(113, 49, 49, 0.02) 64%,
-    rgba(113, 49, 49, 0) 84%
-  );
+.radiance-drift-primary {
   animation: gmac-radiance-drift-primary 14s ease-in-out infinite alternate;
 }
 
-.onboarding-radiance::after {
+.radiance-drift-secondary {
+  animation: gmac-radiance-drift-secondary 18s ease-in-out infinite alternate;
+}
+
+.radiance-primary-accent {
+  background-image: radial-gradient(
+    ellipse 62% 54% at 48% 50%,
+    rgba(113, 49, 49, 0.14) 0%,
+    rgba(113, 49, 49, 0.07) 38%,
+    rgba(113, 49, 49, 0.02) 64%,
+    rgba(113, 49, 49, 0) 84%
+  );
+}
+
+.radiance-secondary-accent {
   background-image: radial-gradient(
     ellipse 48% 42% at 55% 46%,
-    rgba(168, 76, 76, 0.065) 0%,
+    rgba(168, 76, 76, 0.07) 0%,
     rgba(168, 76, 76, 0) 70%
   );
-  animation: gmac-radiance-drift-secondary 18s ease-in-out infinite alternate;
+}
+
+.radiance-primary-orange {
+  background-image: radial-gradient(
+    ellipse 62% 54% at 48% 50%,
+    rgba(234, 120, 36, 0.15) 0%,
+    rgba(234, 120, 36, 0.075) 38%,
+    rgba(234, 120, 36, 0.02) 64%,
+    rgba(234, 120, 36, 0) 84%
+  );
+}
+
+.radiance-secondary-orange {
+  background-image: radial-gradient(
+    ellipse 48% 42% at 55% 46%,
+    rgba(249, 158, 66, 0.08) 0%,
+    rgba(249, 158, 66, 0) 70%
+  );
+}
+
+.radiance-primary-blue {
+  background-image: radial-gradient(
+    ellipse 62% 54% at 48% 50%,
+    rgba(0, 122, 255, 0.14) 0%,
+    rgba(0, 122, 255, 0.07) 38%,
+    rgba(0, 122, 255, 0.02) 64%,
+    rgba(0, 122, 255, 0) 84%
+  );
+}
+
+.radiance-secondary-blue {
+  background-image: radial-gradient(
+    ellipse 48% 42% at 55% 46%,
+    rgba(90, 175, 255, 0.08) 0%,
+    rgba(90, 175, 255, 0) 70%
+  );
+}
+
+.radiance-primary-red {
+  background-image: radial-gradient(
+    ellipse 62% 54% at 48% 50%,
+    rgba(225, 56, 66, 0.14) 0%,
+    rgba(225, 56, 66, 0.07) 38%,
+    rgba(225, 56, 66, 0.02) 64%,
+    rgba(225, 56, 66, 0) 84%
+  );
+}
+
+.radiance-secondary-red {
+  background-image: radial-gradient(
+    ellipse 48% 42% at 55% 46%,
+    rgba(244, 102, 110, 0.075) 0%,
+    rgba(244, 102, 110, 0) 70%
+  );
+}
+
+.radiance-primary-green {
+  background-image: radial-gradient(
+    ellipse 62% 54% at 48% 50%,
+    rgba(34, 168, 96, 0.14) 0%,
+    rgba(34, 168, 96, 0.07) 38%,
+    rgba(34, 168, 96, 0.02) 64%,
+    rgba(34, 168, 96, 0) 84%
+  );
+}
+
+.radiance-secondary-green {
+  background-image: radial-gradient(
+    ellipse 48% 42% at 55% 46%,
+    rgba(74, 206, 134, 0.075) 0%,
+    rgba(74, 206, 134, 0) 70%
+  );
 }
 
 @keyframes gmac-radiance-drift-primary {
@@ -97,6 +173,48 @@
   }
 }
 
+@keyframes gmac-radiance-pulse-a {
+  0% {
+    transform: scale(1);
+    opacity: 0.88;
+  }
+
+  45% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes gmac-radiance-pulse-b {
+  0% {
+    transform: scale(1);
+    opacity: 0.88;
+  }
+
+  45% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-radiance-pulse-a {
+  animation: gmac-radiance-pulse-a 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-radiance-pulse-b {
+  animation: gmac-radiance-pulse-b 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes gmac-fade-up {
   from {
     opacity: 0;
@@ -117,14 +235,38 @@
   animation: gmac-fade-up 800ms cubic-bezier(0.22, 1, 0.36, 1) 620ms both;
 }
 
+@keyframes gmac-step-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-step-1 {
+  animation: gmac-step-enter 500ms cubic-bezier(0.22, 1, 0.36, 1) 140ms both;
+}
+
+.animate-step-2 {
+  animation: gmac-step-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
+}
+
+.animate-step-3 {
+  animation: gmac-step-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+}
+
 .onboarding-track {
   transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
-@keyframes gmac-check-draw {
+@keyframes gmac-check-write {
   from {
-    stroke-dashoffset: 32;
+    stroke-dashoffset: 1;
   }
 
   to {
@@ -132,21 +274,33 @@
   }
 }
 
-.animate-check-draw {
-  stroke-dasharray: 32;
-  stroke-dashoffset: 32;
-  animation: gmac-check-draw 500ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+.animate-check-write {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: gmac-check-write 360ms cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+.animate-check-write-hero {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: gmac-check-write 620ms cubic-bezier(0.33, 1, 0.68, 1) 140ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .onboarding-radiance::before,
-  .onboarding-radiance::after,
+  .radiance-drift-primary,
+  .radiance-drift-secondary,
+  .animate-radiance-pulse-a,
+  .animate-radiance-pulse-b,
   .animate-fade-up,
-  .animate-fade-up-delayed {
+  .animate-fade-up-delayed,
+  .animate-step-1,
+  .animate-step-2,
+  .animate-step-3 {
     animation: none;
   }
 
-  .animate-check-draw {
+  .animate-check-write,
+  .animate-check-write-hero {
     animation: none;
     stroke-dashoffset: 0;
   }

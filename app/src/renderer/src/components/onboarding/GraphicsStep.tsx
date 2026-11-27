@@ -61,6 +61,7 @@ export const GRAPHICS_CHOICES: GraphicsChoiceOption[] = [
 ]
 
 interface GraphicsStepProps {
+  isActive: boolean
   selected: GraphicsChoiceId
   toolkitInstalled: boolean
   onSelect: (choice: GraphicsChoiceId) => void
@@ -68,6 +69,7 @@ interface GraphicsStepProps {
 }
 
 export function GraphicsStep({
+  isActive,
   selected,
   toolkitInstalled,
   onSelect,
@@ -75,15 +77,21 @@ export function GraphicsStep({
 }: GraphicsStepProps) {
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
-        Choose your graphics
-      </h2>
-      <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-        Select how Windows games translate graphics to Apple Metal. You can change this per PC or
-        per game later.
-      </p>
+      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+        <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
+          Choose your graphics
+        </h2>
+        <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
+          Select how Windows games translate graphics to Apple Metal. You can change this per PC or
+          per game later.
+        </p>
+      </div>
 
-      <div className="mt-6 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 shadow-xs backdrop-blur-md">
+      <div
+        className={`mt-6 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 shadow-xs backdrop-blur-md ${
+          isActive ? 'animate-step-2' : 'opacity-0'
+        }`}
+      >
         {GRAPHICS_CHOICES.map((choice, index) => {
           const isSelected = selected === choice.id
           const isFirst = index === 0
@@ -130,10 +138,10 @@ export function GraphicsStep({
                   className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors ${
                     isSelected
                       ? 'bg-[#007AFF] text-white'
-                      : 'border border-[#161212]/15 bg-white/60 text-transparent'
+                      : 'border border-[#161212]/15 bg-white/60'
                   }`}
                 >
-                  <CheckIcon className="h-3 w-3" />
+                  {isSelected ? <CheckIcon className="h-3 w-3" /> : null}
                 </span>
               </button>
 
@@ -141,14 +149,14 @@ export function GraphicsStep({
                 <button
                   type="button"
                   aria-label={`Compatible games for ${choice.title}`}
-                  className="inline-flex h-7 w-7 cursor-default items-center justify-center rounded-full text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#161212] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+                  className="inline-flex h-7 w-7 cursor-default items-center justify-center rounded-full text-[#5e5454]/70 transition-colors hover:bg-[#161212]/[0.06] hover:text-[#161212] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
                 >
                   <InfoIcon className="h-4 w-4" />
                 </button>
 
                 <div
                   role="tooltip"
-                  className="pointer-events-none invisible absolute top-1/2 right-full z-30 mr-2 w-60 -translate-y-1/2 rounded-xl border border-[#161212]/10 bg-[#161212] px-3 py-2 text-[12px] leading-snug text-white opacity-0 shadow-lg transition-all duration-150 group-hover/info:visible group-hover/info:opacity-100 group-focus-within/info:visible group-focus-within/info:opacity-100"
+                  className="pointer-events-none invisible absolute top-1/2 left-full z-30 ml-3 w-52 -translate-y-1/2 rounded-xl border border-[#161212]/10 bg-[#d8d8de]/80 px-3 py-2 text-[12px] leading-snug text-[#161212] opacity-0 shadow-md backdrop-blur-md transition-all duration-150 group-hover/info:visible group-hover/info:opacity-100 group-focus-within/info:visible group-focus-within/info:opacity-100"
                 >
                   {choice.examples}
                 </div>
@@ -158,7 +166,7 @@ export function GraphicsStep({
         })}
       </div>
 
-      <div className="mt-7">
+      <div className={`mt-7 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
         <button
           type="button"
           onClick={onContinue}

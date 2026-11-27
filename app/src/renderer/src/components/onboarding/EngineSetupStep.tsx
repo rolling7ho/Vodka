@@ -3,6 +3,7 @@ import { CheckIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 import type { ComponentInstallStatus } from './types'
 
 interface EngineSetupStepProps {
+  isActive: boolean
   rosettaStatus: ComponentInstallStatus
   engineStatus: ComponentInstallStatus
   downloadProgress: number
@@ -51,6 +52,7 @@ function StatusPill({ status, activeLabel }: { status: ComponentInstallStatus; a
 }
 
 export function EngineSetupStep({
+  isActive,
   rosettaStatus,
   engineStatus,
   downloadProgress,
@@ -73,14 +75,20 @@ export function EngineSetupStep({
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
-        Engine setup
-      </h2>
-      <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-        Gmac requires Rosetta 2 and the Gmac Windows Engine to run Windows games.
-      </p>
+      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+        <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
+          Engine setup
+        </h2>
+        <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
+          Gmac requires Rosetta 2 and the Gmac Windows Engine to run Windows games.
+        </p>
+      </div>
 
-      <div className="mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 px-5 shadow-xs backdrop-blur-md">
+      <div
+        className={`mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 px-5 shadow-xs backdrop-blur-md ${
+          isActive ? 'animate-step-2' : 'opacity-0'
+        }`}
+      >
         <div className="flex items-center justify-between gap-4 py-4">
           <div className="min-w-0">
             <p className="text-[15px] font-medium text-[#161212]">Rosetta 2</p>
@@ -89,7 +97,7 @@ export function EngineSetupStep({
             </p>
           </div>
           <div className="shrink-0">
-            <StatusPill status={rosettaStatus} />
+            <StatusPill key={isActive ? `r-${rosettaStatus}` : 'r-idle'} status={rosettaStatus} />
           </div>
         </div>
 
@@ -105,6 +113,7 @@ export function EngineSetupStep({
             </div>
             <div className="shrink-0">
               <StatusPill
+                key={isActive ? `e-${engineStatus}` : 'e-idle'}
                 status={engineStatus}
                 activeLabel={
                   engineStatus === 'installing' && downloadProgress < 100
@@ -145,7 +154,7 @@ export function EngineSetupStep({
         </div>
       ) : null}
 
-      <div className="mt-8 flex items-center gap-3">
+      <div className={`mt-8 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
         {isReady ? (
           <button
             type="button"

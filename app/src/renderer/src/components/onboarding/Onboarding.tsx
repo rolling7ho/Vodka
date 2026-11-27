@@ -20,6 +20,19 @@ interface OnboardingProps {
 }
 
 type StepKey = 'welcome' | 'engine' | 'directx12' | 'graphics' | 'import' | 'launcher' | 'ready'
+type RadianceColor = 'accent' | 'orange' | 'blue' | 'red' | 'green'
+
+const RADIANCE_THEMES: RadianceColor[] = ['accent', 'orange', 'blue', 'red', 'green']
+
+const STEP_RADIANCE: Record<StepKey, { color: RadianceColor; dot: string }> = {
+  welcome: { color: 'accent', dot: '#713131' },
+  engine: { color: 'orange', dot: '#EA7824' },
+  directx12: { color: 'blue', dot: '#007AFF' },
+  graphics: { color: 'red', dot: '#E13842' },
+  import: { color: 'red', dot: '#E13842' },
+  launcher: { color: 'green', dot: '#22A860' },
+  ready: { color: 'accent', dot: '#713131' }
+}
 
 const GPTK_DOWNLOAD_URL = 'https://developer.apple.com/download/all/?q=game%20porting%20toolkit'
 
@@ -60,6 +73,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   const safeStepIndex = Math.min(stepIndex, steps.length - 1)
   const activeStep = steps[safeStepIndex]
+  const activeRadiance = STEP_RADIANCE[activeStep]
+  const pulseClass = safeStepIndex % 2 === 0 ? 'animate-radiance-pulse-a' : 'animate-radiance-pulse-b'
 
   function clearTimers(): void {
     for (const id of timersRef.current) {
@@ -250,6 +265,30 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <div className="onboarding-radiance relative flex h-full flex-col text-[#161212] select-none">
+      <div aria-hidden="true" className={`pointer-events-none absolute inset-0 z-0 ${pulseClass}`}>
+        <div className="radiance-drift-primary">
+          {RADIANCE_THEMES.map((theme) => (
+            <div
+              key={theme}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out radiance-primary-${theme} ${
+                activeRadiance.color === theme ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="radiance-drift-secondary">
+          {RADIANCE_THEMES.map((theme) => (
+            <div
+              key={theme}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out radiance-secondary-${theme} ${
+                activeRadiance.color === theme ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
       <header className="app-drag relative z-10 h-10 shrink-0" />
 
       <div className="relative z-10 flex-1 overflow-hidden">
@@ -273,6 +312,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
                 {stepKey === 'engine' ? (
                   <EngineSetupStep
+                    isActive={isActive}
                     rosettaStatus={rosettaStatus}
                     engineStatus={engineStatus}
                     downloadProgress={downloadProgress}
@@ -286,6 +326,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
                 {stepKey === 'directx12' ? (
                   <DirectX12Step
+                    isActive={isActive}
                     installed={toolkitInstalled}
                     installing={toolkitInstalling}
                     detectedFileName={detectedToolkitFile}
@@ -303,6 +344,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
                 {stepKey === 'graphics' ? (
                   <GraphicsStep
+                    isActive={isActive}
                     selected={graphicsChoice}
                     toolkitInstalled={toolkitInstalled}
                     onSelect={setGraphicsChoice}
@@ -314,6 +356,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
                 {stepKey === 'import' ? (
                   <ImportPCsStep
+                    isActive={isActive}
                     bottles={discoveredBottles}
                     selectedIds={selectedBottleIds}
                     onToggleBottle={handleToggleBottle}
@@ -325,6 +368,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
                 {stepKey === 'launcher' ? (
                   <LauncherSetupStep
+                    isActive={isActive}
                     selectedLauncher={selectedLauncher}
                     steamAlreadyInstalled={steamAlreadyInstalled}
                     stage={launcherStage}
@@ -366,8 +410,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             <span
               key={stepKey}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                isActive ? 'w-5 bg-[#713131]' : 'w-1.5 bg-[#161212]/20'
+                isActive ? 'w-5' : 'w-1.5 bg-[#161212]/20'
               }`}
+              style={isActive ? { backgroundColor: activeRadiance.dot } : undefined}
             />
           )
         })}

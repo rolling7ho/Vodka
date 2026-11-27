@@ -58,6 +58,7 @@ export function getLauncherName(id: LauncherId): string {
 }
 
 interface LauncherSetupStepProps {
+  isActive: boolean
   selectedLauncher: LauncherId
   steamAlreadyInstalled: boolean
   stage: LauncherSetupStage
@@ -83,6 +84,7 @@ function stageLabel(stage: LauncherSetupStage, launcherName: string): string {
 }
 
 export function LauncherSetupStep({
+  isActive,
   selectedLauncher,
   steamAlreadyInstalled,
   stage,
@@ -97,11 +99,19 @@ export function LauncherSetupStep({
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
+      <h2
+        className={`text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212] ${
+          isActive ? 'animate-step-1' : 'opacity-0'
+        }`}
+      >
         Set up a launcher
       </h2>
 
-      <div className="mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 shadow-xs backdrop-blur-md">
+      <div
+        className={`mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 shadow-xs backdrop-blur-md ${
+          isActive ? 'animate-step-2' : 'opacity-0'
+        }`}
+      >
         {LAUNCHER_OPTIONS.map((launcher, index) => {
           const isSelected = selectedLauncher === launcher.id
           const isInstalled = launcher.id === 'steam' && steamAlreadyInstalled
@@ -151,10 +161,10 @@ export function LauncherSetupStep({
                 className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors ${
                   isSelected
                     ? 'bg-[#007AFF] text-white'
-                    : 'border border-[#161212]/15 bg-white/60 text-transparent'
+                    : 'border border-[#161212]/15 bg-white/60'
                 }`}
               >
-                <CheckIcon className="h-3 w-3" />
+                {isSelected ? <CheckIcon className="h-3 w-3" /> : null}
               </span>
             </button>
           )
@@ -172,7 +182,7 @@ export function LauncherSetupStep({
         </div>
       ) : null}
 
-      <div className="mt-7 flex items-center gap-3">
+      <div className={`mt-7 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
         {stage === 'done' || selectedAlreadyReady ? (
           <button
             type="button"

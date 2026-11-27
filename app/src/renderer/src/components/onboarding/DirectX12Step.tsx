@@ -3,6 +3,7 @@ import { ArrowRightIcon } from '../icons/ArrowRightIcon'
 import { CheckIcon, ExternalLinkIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 
 interface DirectX12StepProps {
+  isActive: boolean
   installed: boolean
   installing: boolean
   detectedFileName: string | null
@@ -14,6 +15,7 @@ interface DirectX12StepProps {
 }
 
 export function DirectX12Step({
+  isActive,
   installed,
   installing,
   detectedFileName,
@@ -27,18 +29,24 @@ export function DirectX12Step({
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
-        DirectX 12 support
-      </h2>
-      <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-        DirectX 12 titles require Apple&apos;s Game Porting Toolkit.
-      </p>
+      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+        <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
+          DirectX 12 support
+        </h2>
+        <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
+          DirectX 12 titles require Apple&apos;s Game Porting Toolkit.
+        </p>
+      </div>
 
-      <div className="mt-7 w-full max-w-lg rounded-2xl border border-[#161212]/10 bg-white/75 p-5 shadow-xs backdrop-blur-md">
+      <div
+        className={`mt-7 w-full max-w-lg rounded-2xl border border-[#161212]/10 bg-white/75 p-5 shadow-xs backdrop-blur-md ${
+          isActive ? 'animate-step-2' : 'opacity-0'
+        }`}
+      >
         {installed ? (
           <div className="flex items-center gap-3 text-[15px] font-medium text-emerald-700">
             <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/12">
-              <CheckIcon className="h-4 w-4" />
+              <CheckIcon key={isActive ? 'dx12-check' : 'dx12-idle'} className="h-4 w-4" />
             </span>
             <span>Apple Game Porting Toolkit (D3DMetal) is installed and ready.</span>
           </div>
@@ -127,7 +135,7 @@ export function DirectX12Step({
         )}
       </div>
 
-      <div className="mt-8 flex items-center gap-3">
+      <div className={`mt-8 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
         {installed ? (
           <button
             type="button"
