@@ -71,7 +71,7 @@ export function Sidebar({
               : 'opacity 220ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1)'
           }}
         >
-          <div className="app-drag flex items-center px-4 pt-12 pb-4">
+          <div className="flex items-center px-4 pt-12 pb-4">
             <GmacWordmark className="h-[26px] w-auto shrink-0" />
           </div>
 
@@ -151,7 +151,7 @@ export function Sidebar({
           aria-valuemax={MAX_SIDEBAR_WIDTH}
           aria-valuenow={width}
           onPointerDown={onResizeStart}
-          className="app-no-drag group absolute top-0 -right-[3px] bottom-0 z-20 w-[7px] cursor-col-resize"
+          className="app-no-drag group absolute top-0 -right-[3px] bottom-0 z-30 w-[7px] cursor-col-resize"
         >
           <div
             className={`mx-auto h-full w-[2px] transition-colors duration-150 ${

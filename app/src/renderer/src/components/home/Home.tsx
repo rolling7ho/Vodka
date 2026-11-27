@@ -100,16 +100,18 @@ export function Home({ onOpenOnboarding }: HomeProps) {
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-white text-[#161212] select-none">
-      <button
-        type="button"
-        onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
-        aria-label={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
-        aria-expanded={!isSidebarCollapsed}
-        title={isSidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-        className="app-no-drag fixed top-[9px] left-[76px] z-30 inline-flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
-      >
-        <SidebarToggleIcon className="h-[16px] w-[16px]" />
-      </button>
+      <div className="app-drag fixed inset-x-0 top-0 z-20 h-10">
+        <button
+          type="button"
+          onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
+          aria-label={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+          aria-expanded={!isSidebarCollapsed}
+          title={isSidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+          className="app-no-drag absolute top-[8px] left-[78px] inline-flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+        >
+          <SidebarToggleIcon className="h-[16px] w-[16px]" />
+        </button>
+      </div>
 
       <Sidebar
         activeDestination={activeDestination}
@@ -122,7 +124,7 @@ export function Home({ onOpenOnboarding }: HomeProps) {
       />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
-        <div className="app-drag h-11 w-full shrink-0" />
+        <div className="h-11 w-full shrink-0" />
         <main className="flex flex-1 flex-col items-center justify-center px-8 pb-12 text-center">
           <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[#161212]">
             {sectionTitle}
