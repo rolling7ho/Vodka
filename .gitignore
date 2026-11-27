@@ -122,3 +122,9 @@ runtime/runtime-*/
 runtime/pkg-*/
 runtime/deps/
 runtime/.local-ci/
+
+# Electron application shell
+app/node_modules/
+app/out/
+app/dist/
+*.tsbuildinfo

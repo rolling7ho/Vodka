@@ -7,6 +7,9 @@ excluded:
   - GmacKit/.build
   - build
   - scripts/draw-icon.swift
+  - app/node_modules
+  - app/out
+  - app/dist
 
 file_header:
     severity: error
