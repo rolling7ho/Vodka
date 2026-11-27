@@ -117,79 +117,20 @@
   animation: gmac-fade-up 800ms cubic-bezier(0.22, 1, 0.36, 1) 620ms both;
 }
 
-@keyframes gmac-slide-out-left {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translate3d(-110px, 0, 0);
-  }
-}
-
-@keyframes gmac-slide-in-right {
-  from {
-    opacity: 0;
-    transform: translate3d(110px, 0, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes gmac-slide-out-right {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    opacity: 0;
-    transform: translate3d(110px, 0, 0);
-  }
-}
-
-@keyframes gmac-slide-in-left {
-  from {
-    opacity: 0;
-    transform: translate3d(-110px, 0, 0);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-.animate-slide-out-left {
-  animation: gmac-slide-out-left 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.animate-slide-in-right {
-  animation: gmac-slide-in-right 560ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
-}
-
-.animate-slide-out-right {
-  animation: gmac-slide-out-right 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.animate-slide-in-left {
-  animation: gmac-slide-in-left 560ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+.onboarding-track {
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .onboarding-radiance::before,
   .onboarding-radiance::after,
   .animate-fade-up,
-  .animate-fade-up-delayed,
-  .animate-slide-out-left,
-  .animate-slide-in-right,
-  .animate-slide-out-right,
-  .animate-slide-in-left {
+  .animate-fade-up-delayed {
     animation: none;
+  }
+
+  .onboarding-track {
+    transition: none;
   }
 }
