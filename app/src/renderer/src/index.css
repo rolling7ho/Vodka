@@ -110,11 +110,11 @@
 }
 
 .animate-fade-up {
-  animation: gmac-fade-up 950ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+  animation: gmac-fade-up 900ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
 }
 
 .animate-fade-up-delayed {
-  animation: gmac-fade-up 850ms cubic-bezier(0.22, 1, 0.36, 1) 880ms both;
+  animation: gmac-fade-up 800ms cubic-bezier(0.22, 1, 0.36, 1) 620ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {
