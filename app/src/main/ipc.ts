@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { AppInfo, IPC_CHANNELS } from '../shared/ipc'
 
 export function registerIpcHandlers(): void {
@@ -14,5 +14,13 @@ export function registerIpcHandlers(): void {
         node: process.versions.node
       }
     }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.OPEN_EXTERNAL_URL, async (_event, targetUrl: string): Promise<void> => {
+    const parsed = new URL(targetUrl)
+    if (parsed.protocol !== 'https:') {
+      throw new Error('Only HTTPS URLs may be opened externally')
+    }
+    await shell.openExternal(parsed.toString())
   })
 }
