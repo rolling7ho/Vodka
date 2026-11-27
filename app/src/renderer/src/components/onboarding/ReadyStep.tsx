@@ -9,8 +9,6 @@ import {
 
 interface ReadyStepProps {
   isActive: boolean
-  selectedLauncherName: string | null
-  launcherReady: boolean
   onPrimaryAction: () => void
 }
 
@@ -23,8 +21,7 @@ const TIPS = [
   },
   {
     title: 'First game launch builds shaders',
-    detail:
-      'A game starts slower the first time while graphics shaders compile; later launches are faster.',
+    detail: 'A game starts slower the first time while graphics shaders compile.',
     icon: (className: string) => <ClockIcon className={className} />
   },
   {
@@ -41,12 +38,7 @@ const TIPS = [
 
 type RevealPhase = 'idle' | 'draw' | 'reveal'
 
-export function ReadyStep({
-  isActive,
-  selectedLauncherName,
-  launcherReady,
-  onPrimaryAction
-}: ReadyStepProps) {
+export function ReadyStep({ isActive, onPrimaryAction }: ReadyStepProps) {
   const [phase, setPhase] = useState<RevealPhase>('idle')
 
   useEffect(() => {
@@ -86,9 +78,6 @@ export function ReadyStep({
     phase === 'reveal'
       ? 'translate-y-0 opacity-100'
       : 'pointer-events-none translate-y-4 opacity-0'
-
-  const primaryLabel =
-    launcherReady && selectedLauncherName ? `Open ${selectedLauncherName}` : 'Done'
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
@@ -145,7 +134,7 @@ export function ReadyStep({
             onClick={onPrimaryAction}
             className="app-no-drag group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-7 py-3 text-[15px] font-medium text-white transition-all duration-150 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF] active:scale-[0.98]"
           >
-            <span>{primaryLabel}</span>
+            <span>Go to Home</span>
             <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </button>
         </div>

@@ -10,7 +10,7 @@ import {
   OpenGLVulkanLogo,
   SparklesIcon
 } from '../icons/OnboardingIcons'
-import type { GraphicsChoiceId } from './types'
+import { stepParallaxClass, type GraphicsChoiceId, type SlideDirection } from './types'
 
 interface GraphicsChoiceOption {
   id: GraphicsChoiceId
@@ -62,6 +62,7 @@ export const GRAPHICS_CHOICES: GraphicsChoiceOption[] = [
 
 interface GraphicsStepProps {
   isActive: boolean
+  enterDirection: SlideDirection
   selected: GraphicsChoiceId
   toolkitInstalled: boolean
   onSelect: (choice: GraphicsChoiceId) => void
@@ -70,6 +71,7 @@ interface GraphicsStepProps {
 
 export function GraphicsStep({
   isActive,
+  enterDirection,
   selected,
   toolkitInstalled,
   onSelect,
@@ -77,7 +79,9 @@ export function GraphicsStep({
 }: GraphicsStepProps) {
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+      <div
+        className={`flex flex-col items-center ${stepParallaxClass(isActive, enterDirection, 1) ?? ''}`}
+      >
         <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
           Choose your graphics
         </h2>
@@ -89,7 +93,7 @@ export function GraphicsStep({
 
       <div
         className={`mt-6 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 shadow-xs backdrop-blur-md ${
-          isActive ? 'animate-step-2' : 'opacity-0'
+          stepParallaxClass(isActive, enterDirection, 2) ?? ''
         }`}
       >
         {GRAPHICS_CHOICES.map((choice, index) => {
@@ -166,7 +170,7 @@ export function GraphicsStep({
         })}
       </div>
 
-      <div className={`mt-7 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
+      <div className={`mt-7 ${stepParallaxClass(isActive, enterDirection, 3) ?? ''}`}>
         <button
           type="button"
           onClick={onContinue}

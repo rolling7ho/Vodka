@@ -1,9 +1,10 @@
 import { ArrowRightIcon } from '../icons/ArrowRightIcon'
 import { CheckIcon, FolderIcon } from '../icons/OnboardingIcons'
-import type { DiscoveredBottle } from './types'
+import { stepParallaxClass, type DiscoveredBottle, type SlideDirection } from './types'
 
 interface ImportPCsStepProps {
   isActive: boolean
+  enterDirection: SlideDirection
   bottles: DiscoveredBottle[]
   selectedIds: string[]
   onToggleBottle: (id: string) => void
@@ -14,6 +15,7 @@ interface ImportPCsStepProps {
 
 export function ImportPCsStep({
   isActive,
+  enterDirection,
   bottles,
   selectedIds,
   onToggleBottle,
@@ -25,7 +27,9 @@ export function ImportPCsStep({
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+      <div
+        className={`flex flex-col items-center ${stepParallaxClass(isActive, enterDirection, 1) ?? ''}`}
+      >
         <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
           Import existing PCs
         </h2>
@@ -37,7 +41,7 @@ export function ImportPCsStep({
 
       <div
         className={`mt-7 w-full max-w-lg rounded-2xl border border-[#161212]/10 bg-white/75 p-5 shadow-xs backdrop-blur-md ${
-          isActive ? 'animate-step-2' : 'opacity-0'
+          stepParallaxClass(isActive, enterDirection, 2) ?? ''
         }`}
       >
         {bottles.length === 0 ? (
@@ -104,7 +108,9 @@ export function ImportPCsStep({
         )}
       </div>
 
-      <div className={`mt-8 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
+      <div
+        className={`mt-8 flex items-center gap-3 ${stepParallaxClass(isActive, enterDirection, 3) ?? ''}`}
+      >
         {bottles.length > 0 ? (
           <>
             <button

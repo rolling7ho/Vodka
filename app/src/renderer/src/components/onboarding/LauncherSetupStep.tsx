@@ -10,7 +10,12 @@ import {
   SteamLogo,
   UbisoftLogo
 } from '../icons/OnboardingIcons'
-import type { LauncherId, LauncherSetupStage } from './types'
+import {
+  stepParallaxClass,
+  type LauncherId,
+  type LauncherSetupStage,
+  type SlideDirection
+} from './types'
 
 interface LauncherOption {
   id: LauncherId
@@ -59,6 +64,7 @@ export function getLauncherName(id: LauncherId): string {
 
 interface LauncherSetupStepProps {
   isActive: boolean
+  enterDirection: SlideDirection
   selectedLauncher: LauncherId
   steamAlreadyInstalled: boolean
   stage: LauncherSetupStage
@@ -85,6 +91,7 @@ function stageLabel(stage: LauncherSetupStage, launcherName: string): string {
 
 export function LauncherSetupStep({
   isActive,
+  enterDirection,
   selectedLauncher,
   steamAlreadyInstalled,
   stage,
@@ -101,7 +108,7 @@ export function LauncherSetupStep({
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
       <h2
         className={`text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212] ${
-          isActive ? 'animate-step-1' : 'opacity-0'
+          stepParallaxClass(isActive, enterDirection, 1) ?? ''
         }`}
       >
         Set up a launcher
@@ -109,7 +116,7 @@ export function LauncherSetupStep({
 
       <div
         className={`mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 shadow-xs backdrop-blur-md ${
-          isActive ? 'animate-step-2' : 'opacity-0'
+          stepParallaxClass(isActive, enterDirection, 2) ?? ''
         }`}
       >
         {LAUNCHER_OPTIONS.map((launcher, index) => {
@@ -182,7 +189,9 @@ export function LauncherSetupStep({
         </div>
       ) : null}
 
-      <div className={`mt-7 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
+      <div
+        className={`mt-7 flex items-center gap-3 ${stepParallaxClass(isActive, enterDirection, 3) ?? ''}`}
+      >
         {stage === 'done' || selectedAlreadyReady ? (
           <button
             type="button"

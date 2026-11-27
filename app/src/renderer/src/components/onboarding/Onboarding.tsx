@@ -4,14 +4,15 @@ import { DirectX12Step } from './DirectX12Step'
 import { EngineSetupStep } from './EngineSetupStep'
 import { GraphicsStep } from './GraphicsStep'
 import { ImportPCsStep } from './ImportPCsStep'
-import { getLauncherName, LauncherSetupStep } from './LauncherSetupStep'
+import { LauncherSetupStep } from './LauncherSetupStep'
 import { ReadyStep } from './ReadyStep'
 import type {
   ComponentInstallStatus,
   DiscoveredBottle,
   GraphicsChoiceId,
   LauncherId,
-  LauncherSetupStage
+  LauncherSetupStage,
+  SlideDirection
 } from './types'
 import { WelcomeStep } from './WelcomeStep'
 
@@ -38,6 +39,7 @@ const GPTK_DOWNLOAD_URL = 'https://developer.apple.com/download/all/?q=game%20po
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [stepIndex, setStepIndex] = useState(0)
+  const [navDirection, setNavDirection] = useState<SlideDirection>('forward')
 
   const [rosettaStatus, setRosettaStatus] = useState<ComponentInstallStatus>('pending')
   const [engineStatus, setEngineStatus] = useState<ComponentInstallStatus>('pending')
@@ -57,7 +59,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [selectedLauncher, setSelectedLauncher] = useState<LauncherId>('steam')
   const [steamAlreadyInstalled, setSteamAlreadyInstalled] = useState(false)
   const [launcherStage, setLauncherStage] = useState<LauncherSetupStage>('idle')
-  const [configuredLauncher, setConfiguredLauncher] = useState<LauncherId | null>(null)
 
   const timersRef = useRef<number[]>([])
 
@@ -225,7 +226,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   function handleStartLauncherSetup(): void {
     clearTimers()
-    const targetLauncher = selectedLauncher
     setLauncherStage('creating')
 
     scheduleTimer(() => {
@@ -238,15 +238,20 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
     scheduleTimer(() => {
       setLauncherStage('done')
-      setConfiguredLauncher(targetLauncher)
     }, 2200)
   }
 
   function goToStep(target: StepKey): void {
     const idx = steps.indexOf(target)
     if (idx !== -1) {
+      setNavDirection(idx >= safeStepIndex ? 'forward' : 'backward')
       setStepIndex(idx)
     }
+  }
+
+  function goBack(): void {
+    setNavDirection('backward')
+    setStepIndex((prev) => Math.max(0, prev - 1))
   }
 
   const isBusy =
@@ -259,9 +264,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     launcherStage === 'installing'
 
   const canGoBack = safeStepIndex > 0 && !isBusy
-
-  const activeLauncherForReady =
-    configuredLauncher ?? (steamAlreadyInstalled && selectedLauncher === 'steam' ? 'steam' : null)
 
   return (
     <div className="onboarding-radiance relative flex h-full flex-col text-[#161212] select-none">
@@ -302,7 +304,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             return (
               <div
                 key={stepKey}
-                className="flex h-full w-full shrink-0"
+                className={`onboarding-slide flex h-full w-full shrink-0 ${
+                  isActive ? 'scale-100 opacity-100' : 'scale-[0.96] opacity-0'
+                }`}
                 aria-hidden={!isActive}
                 inert={!isActive}
               >
@@ -313,6 +317,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'engine' ? (
                   <EngineSetupStep
                     isActive={isActive}
+                    enterDirection={navDirection}
                     rosettaStatus={rosettaStatus}
                     engineStatus={engineStatus}
                     downloadProgress={downloadProgress}
@@ -327,6 +332,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'directx12' ? (
                   <DirectX12Step
                     isActive={isActive}
+                    enterDirection={navDirection}
                     installed={toolkitInstalled}
                     installing={toolkitInstalling}
                     detectedFileName={detectedToolkitFile}
@@ -345,6 +351,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'graphics' ? (
                   <GraphicsStep
                     isActive={isActive}
+                    enterDirection={navDirection}
                     selected={graphicsChoice}
                     toolkitInstalled={toolkitInstalled}
                     onSelect={setGraphicsChoice}
@@ -357,6 +364,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'import' ? (
                   <ImportPCsStep
                     isActive={isActive}
+                    enterDirection={navDirection}
                     bottles={discoveredBottles}
                     selectedIds={selectedBottleIds}
                     onToggleBottle={handleToggleBottle}
@@ -369,17 +377,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'launcher' ? (
                   <LauncherSetupStep
                     isActive={isActive}
+                    enterDirection={navDirection}
                     selectedLauncher={selectedLauncher}
                     steamAlreadyInstalled={steamAlreadyInstalled}
                     stage={launcherStage}
                     onSelectLauncher={handleSelectLauncher}
                     onStartSetup={handleStartLauncherSetup}
-                    onContinue={() => {
-                      if (selectedLauncher === 'steam' && steamAlreadyInstalled) {
-                        setConfiguredLauncher('steam')
-                      }
-                      goToStep('ready')
-                    }}
+                    onContinue={() => goToStep('ready')}
                     onSkip={() => goToStep('ready')}
                   />
                 ) : null}
@@ -387,10 +391,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {stepKey === 'ready' ? (
                   <ReadyStep
                     isActive={isActive}
-                    selectedLauncherName={
-                      activeLauncherForReady ? getLauncherName(activeLauncherForReady) : null
-                    }
-                    launcherReady={activeLauncherForReady !== null}
                     onPrimaryAction={() => onComplete?.()}
                   />
                 ) : null}
@@ -424,7 +424,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         aria-hidden={!canGoBack}
         tabIndex={canGoBack ? 0 : -1}
         disabled={!canGoBack}
-        onClick={() => setStepIndex((prev) => Math.max(0, prev - 1))}
+        onClick={goBack}
         className={`app-no-drag group absolute right-6 bottom-6 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#161212]/10 bg-white/80 text-[#161212] shadow-xs backdrop-blur-md transition-all duration-200 hover:border-[#161212]/20 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF] active:scale-95 ${
           canGoBack
             ? 'cursor-pointer scale-100 opacity-100'

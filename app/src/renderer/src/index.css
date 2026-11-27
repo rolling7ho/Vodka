@@ -235,10 +235,10 @@
   animation: gmac-fade-up 800ms cubic-bezier(0.22, 1, 0.36, 1) 620ms both;
 }
 
-@keyframes gmac-step-enter {
+@keyframes gmac-parallax-from-right {
   from {
-    opacity: 0;
-    transform: translate3d(0, 14px, 0) scale(0.985);
+    opacity: 0.25;
+    transform: translate3d(34px, 8px, 0) scale(0.985);
   }
 
   to {
@@ -247,21 +247,50 @@
   }
 }
 
-.animate-step-1 {
-  animation: gmac-step-enter 500ms cubic-bezier(0.22, 1, 0.36, 1) 140ms both;
+@keyframes gmac-parallax-from-left {
+  from {
+    opacity: 0.25;
+    transform: translate3d(-34px, 8px, 0) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
-.animate-step-2 {
-  animation: gmac-step-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
+.animate-parallax-right-1 {
+  animation: gmac-parallax-from-right 540ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
 }
 
-.animate-step-3 {
-  animation: gmac-step-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+.animate-parallax-right-2 {
+  animation: gmac-parallax-from-right 580ms cubic-bezier(0.22, 1, 0.36, 1) 105ms both;
+}
+
+.animate-parallax-right-3 {
+  animation: gmac-parallax-from-right 600ms cubic-bezier(0.22, 1, 0.36, 1) 170ms both;
+}
+
+.animate-parallax-left-1 {
+  animation: gmac-parallax-from-left 540ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+}
+
+.animate-parallax-left-2 {
+  animation: gmac-parallax-from-left 580ms cubic-bezier(0.22, 1, 0.36, 1) 105ms both;
+}
+
+.animate-parallax-left-3 {
+  animation: gmac-parallax-from-left 600ms cubic-bezier(0.22, 1, 0.36, 1) 170ms both;
 }
 
 .onboarding-track {
-  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
+}
+
+.onboarding-slide {
+  transition: opacity 460ms ease, transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
 }
 
 @keyframes gmac-check-write {
@@ -293,9 +322,12 @@
   .animate-radiance-pulse-b,
   .animate-fade-up,
   .animate-fade-up-delayed,
-  .animate-step-1,
-  .animate-step-2,
-  .animate-step-3 {
+  .animate-parallax-right-1,
+  .animate-parallax-right-2,
+  .animate-parallax-right-3,
+  .animate-parallax-left-1,
+  .animate-parallax-left-2,
+  .animate-parallax-left-3 {
     animation: none;
   }
 
@@ -305,7 +337,8 @@
     stroke-dashoffset: 0;
   }
 
-  .onboarding-track {
+  .onboarding-track,
+  .onboarding-slide {
     transition: none;
   }
 }

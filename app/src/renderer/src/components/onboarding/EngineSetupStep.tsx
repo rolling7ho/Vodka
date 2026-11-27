@@ -1,9 +1,10 @@
 import { ArrowRightIcon } from '../icons/ArrowRightIcon'
 import { CheckIcon, SpinnerIcon } from '../icons/OnboardingIcons'
-import type { ComponentInstallStatus } from './types'
+import { stepParallaxClass, type ComponentInstallStatus, type SlideDirection } from './types'
 
 interface EngineSetupStepProps {
   isActive: boolean
+  enterDirection: SlideDirection
   rosettaStatus: ComponentInstallStatus
   engineStatus: ComponentInstallStatus
   downloadProgress: number
@@ -53,6 +54,7 @@ function StatusPill({ status, activeLabel }: { status: ComponentInstallStatus; a
 
 export function EngineSetupStep({
   isActive,
+  enterDirection,
   rosettaStatus,
   engineStatus,
   downloadProgress,
@@ -75,7 +77,9 @@ export function EngineSetupStep({
 
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
-      <div className={`flex flex-col items-center ${isActive ? 'animate-step-1' : 'opacity-0'}`}>
+      <div
+        className={`flex flex-col items-center ${stepParallaxClass(isActive, enterDirection, 1) ?? ''}`}
+      >
         <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
           Engine setup
         </h2>
@@ -86,7 +90,7 @@ export function EngineSetupStep({
 
       <div
         className={`mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 px-5 shadow-xs backdrop-blur-md ${
-          isActive ? 'animate-step-2' : 'opacity-0'
+          stepParallaxClass(isActive, enterDirection, 2) ?? ''
         }`}
       >
         <div className="flex items-center justify-between gap-4 py-4">
@@ -154,7 +158,9 @@ export function EngineSetupStep({
         </div>
       ) : null}
 
-      <div className={`mt-8 flex items-center gap-3 ${isActive ? 'animate-step-3' : 'opacity-0'}`}>
+      <div
+        className={`mt-8 flex items-center gap-3 ${stepParallaxClass(isActive, enterDirection, 3) ?? ''}`}
+      >
         {isReady ? (
           <button
             type="button"
