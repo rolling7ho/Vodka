@@ -100,10 +100,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     try {
       const status = await api.getSystemStatus()
       setRosettaStatus((prev) =>
-        prev === 'installing' ? prev : status.rosettaInstalled ? 'installed' : 'pending'
+        prev === 'installing' || prev === 'installed'
+          ? prev
+          : status.rosettaInstalled
+            ? 'installed'
+            : 'pending'
       )
       setEngineStatus((prev) => {
-        if (prev === 'installing' || prev === 'verifying') {
+        if (prev === 'installing' || prev === 'verifying' || prev === 'installed') {
           return prev
         }
         return status.engineInstalled ? 'installed' : 'pending'

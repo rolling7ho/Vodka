@@ -200,6 +200,17 @@ function detectSteamInstalled(home: string, gmacRegistryPlist: string): boolean 
 }
 
 export function getSystemStatus(): SystemStatus {
+  if (process.env.GMAC_FRESH_INSTALL === '1') {
+    return {
+      rosettaInstalled: false,
+      engineInstalled: false,
+      toolkitInstalled: false,
+      detectedToolkitFile: null,
+      legacyWhiskyBottles: [],
+      steamInstalled: false
+    }
+  }
+
   const home = homedir()
   const librariesDir = join(home, 'Library', 'Application Support', GMAC_BUNDLE_ID, 'Libraries')
   const gmacRegistryPlist = join(home, 'Library', 'Containers', GMAC_BUNDLE_ID, 'BottleVM.plist')
