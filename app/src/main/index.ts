@@ -53,7 +53,7 @@ function createMainWindow(): BrowserWindow {
     minHeight: 560,
     show: false,
     title: 'Gmac',
-    backgroundColor: '#111113',
+    backgroundColor: '#ffffff',
     ...(isMac
       ? {
           titleBarStyle: 'hiddenInset' as const,
