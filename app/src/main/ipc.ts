@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import {
   AppInfo,
+  BottleSummary,
   BridgeProgressEvent,
   ImportBottlesResult,
   IPC_CHANNELS,
@@ -58,6 +59,17 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
       return await bridge.request<SystemStatus>('system.status')
     } catch {
       return getSystemStatus()
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.LIST_BOTTLES, async (): Promise<BottleSummary[]> => {
+    if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+      return []
+    }
+    try {
+      return await bridge.request<BottleSummary[]>('library.list')
+    } catch {
+      return []
     }
   })
 

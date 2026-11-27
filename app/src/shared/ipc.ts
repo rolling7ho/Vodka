@@ -4,6 +4,7 @@ export const IPC_CHANNELS = {
   GET_APP_INFO: 'gmac:get-app-info',
   OPEN_EXTERNAL_URL: 'gmac:open-external-url',
   GET_SYSTEM_STATUS: 'gmac:get-system-status',
+  LIST_BOTTLES: 'gmac:list-bottles',
   INSTALL_ENGINE: 'gmac:install-engine',
   PICK_TOOLKIT_FILE: 'gmac:pick-toolkit-file',
   INSTALL_TOOLKIT: 'gmac:install-toolkit',
@@ -29,6 +30,14 @@ export interface DiscoveredBottle {
   id: string
   name: string
   path: string
+}
+
+export interface BottleSummary {
+  name: string
+  path: string
+  windowsVersion: string
+  graphicsBackend: string
+  isAvailable: boolean
 }
 
 export interface SystemStatus {
@@ -64,6 +73,7 @@ export interface GmacApi {
   getAppInfo: () => Promise<AppInfo>
   openExternalUrl: (url: string) => Promise<void>
   getSystemStatus: () => Promise<SystemStatus>
+  listBottles: () => Promise<BottleSummary[]>
   installEngine: () => Promise<{ installed: boolean }>
   pickToolkitFile: () => Promise<string | null>
   installToolkit: (path: string) => Promise<ToolkitInstallResult>

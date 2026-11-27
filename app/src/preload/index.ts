@@ -5,6 +5,7 @@ const gmacApi: GmacApi = {
   getAppInfo: () => ipcRenderer.invoke(IPC_CHANNELS.GET_APP_INFO),
   openExternalUrl: (url: string) => ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL_URL, url),
   getSystemStatus: () => ipcRenderer.invoke(IPC_CHANNELS.GET_SYSTEM_STATUS),
+  listBottles: () => ipcRenderer.invoke(IPC_CHANNELS.LIST_BOTTLES),
   installEngine: () => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_ENGINE),
   pickToolkitFile: () => ipcRenderer.invoke(IPC_CHANNELS.PICK_TOOLKIT_FILE),
   installToolkit: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_TOOLKIT, path),
