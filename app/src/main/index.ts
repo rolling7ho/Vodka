@@ -1,5 +1,6 @@
+import { existsSync } from 'fs'
 import { join } from 'path'
-import { app, BrowserWindow, session, shell } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, session, shell } from 'electron'
 import { AppScreen } from '../shared/ipc'
 import { GmacBridgeClient } from './bridge'
 import { registerIpcHandlers } from './ipc'
@@ -7,6 +8,42 @@ import { registerIpcHandlers } from './ipc'
 function resolveInitialScreen(): AppScreen {
   const requested = process.env.GMAC_SCREEN?.trim().toLowerCase()
   return requested === 'home' ? 'home' : 'onboarding'
+}
+
+function resolveAppIconPath(): string | undefined {
+  const candidates = [
+    join(__dirname, '../../resources/icon.png'),
+    join(process.resourcesPath, 'icon.png')
+  ]
+  return candidates.find((candidate) => existsSync(candidate))
+}
+
+function configureApplicationMenu(): void {
+  if (process.platform !== 'darwin') {
+    return
+  }
+
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: 'Gmac',
+      submenu: [
+        { role: 'about', label: 'About Gmac' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide', label: 'Hide Gmac' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit', label: 'Quit Gmac' }
+      ]
+    },
+    { role: 'editMenu' },
+    { role: 'viewMenu' },
+    { role: 'windowMenu' }
+  ]
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
 
 app.setName('Gmac')
@@ -49,7 +86,7 @@ function configureContentSecurityPolicy(): void {
   })
 }
 
-function createMainWindow(): BrowserWindow {
+function createMainWindow(iconPath?: string): BrowserWindow {
   const isMac = process.platform === 'darwin'
   const rendererUrl = !app.isPackaged ? process.env.ELECTRON_RENDERER_URL : undefined
   const allowedDevOrigin = rendererUrl ? new URL(rendererUrl).origin : null
@@ -62,6 +99,7 @@ function createMainWindow(): BrowserWindow {
     show: false,
     title: 'Gmac',
     backgroundColor: '#ffffff',
+    ...(iconPath ? { icon: iconPath } : {}),
     ...(isMac
       ? {
           titleBarStyle: 'hiddenInset' as const,
@@ -123,13 +161,26 @@ function createMainWindow(): BrowserWindow {
 }
 
 void app.whenReady().then(() => {
+  const iconPath = resolveAppIconPath()
+  if (process.platform === 'darwin' && iconPath) {
+    const dockIcon = nativeImage.createFromPath(iconPath)
+    if (!dockIcon.isEmpty()) {
+      app.dock?.setIcon(dockIcon)
+    }
+  }
+  app.setAboutPanelOptions({
+    applicationName: 'Gmac',
+    applicationVersion: app.getVersion(),
+    ...(iconPath ? { iconPath } : {})
+  })
+  configureApplicationMenu()
   configureContentSecurityPolicy()
   registerIpcHandlers(bridgeClient)
-  createMainWindow()
+  createMainWindow(iconPath)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow()
+      createMainWindow(iconPath)
     }
   })
 })

@@ -80,3 +80,24 @@ export function SettingsGearIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function SidebarToggleIcon({ className }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <rect width="18" height="16" x="3" y="4" rx="2.5" />
+      <line x1="9" x2="9" y1="4" y2="20" />
+      <line x1="5.75" x2="6.75" y1="8.5" y2="8.5" />
+      <line x1="5.75" x2="6.75" y1="11.5" y2="11.5" />
+    </svg>
+  )
+}

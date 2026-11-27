@@ -1,6 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import type { BottleSummary } from '../../../../shared/ipc'
-import { Sidebar, type SidebarDestination } from '../sidebar/Sidebar'
+import { SidebarToggleIcon } from '../icons/SidebarIcons'
+import {
+  COLLAPSE_THRESHOLD,
+  DEFAULT_SIDEBAR_WIDTH,
+  MAX_SIDEBAR_WIDTH,
+  MIN_SIDEBAR_WIDTH,
+  Sidebar,
+  type SidebarDestination
+} from '../sidebar/Sidebar'
 
 interface HomeProps {
   onOpenOnboarding?: () => void
@@ -22,6 +30,10 @@ function destinationTitle(destination: SidebarDestination, pcs: BottleSummary[])
 export function Home({ onOpenOnboarding }: HomeProps) {
   const [pcs, setPcs] = useState<BottleSummary[]>([])
   const [activeDestination, setActiveDestination] = useState<SidebarDestination>({ kind: 'home' })
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
+  const dragStartWidthRef = useRef(DEFAULT_SIDEBAR_WIDTH)
 
   useEffect(() => {
     let cancelled = false
@@ -39,11 +51,75 @@ export function Home({ onOpenOnboarding }: HomeProps) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isResizing) {
+      return
+    }
+
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+
+    const handlePointerMove = (event: globalThis.PointerEvent) => {
+      if (event.clientX < COLLAPSE_THRESHOLD) {
+        setIsSidebarCollapsed(true)
+        setSidebarWidth(Math.max(MIN_SIDEBAR_WIDTH, dragStartWidthRef.current))
+        setIsResizing(false)
+        return
+      }
+      const nextWidth = Math.min(
+        MAX_SIDEBAR_WIDTH,
+        Math.max(MIN_SIDEBAR_WIDTH, Math.round(event.clientX))
+      )
+      setSidebarWidth(nextWidth)
+    }
+
+    const handlePointerStop = () => {
+      setIsResizing(false)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerStop)
+    window.addEventListener('pointercancel', handlePointerStop)
+
+    return () => {
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerStop)
+      window.removeEventListener('pointercancel', handlePointerStop)
+    }
+  }, [isResizing])
+
+  const handleResizeStart = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    dragStartWidthRef.current = sidebarWidth
+    setIsResizing(true)
+  }
+
   const sectionTitle = destinationTitle(activeDestination, pcs)
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-white text-[#161212] select-none">
-      <Sidebar activeDestination={activeDestination} pcs={pcs} onSelect={setActiveDestination} />
+    <div className="relative flex h-screen w-full overflow-hidden bg-white text-[#161212] select-none">
+      <button
+        type="button"
+        onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
+        aria-label={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+        aria-expanded={!isSidebarCollapsed}
+        title={isSidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
+        className="app-no-drag fixed top-[9px] left-[76px] z-30 inline-flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+      >
+        <SidebarToggleIcon className="h-[16px] w-[16px]" />
+      </button>
+
+      <Sidebar
+        activeDestination={activeDestination}
+        pcs={pcs}
+        width={sidebarWidth}
+        isCollapsed={isSidebarCollapsed}
+        isResizing={isResizing}
+        onSelect={setActiveDestination}
+        onResizeStart={handleResizeStart}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
         <div className="app-drag h-11 w-full shrink-0" />

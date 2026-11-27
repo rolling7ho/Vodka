@@ -1,6 +1,12 @@
+import type { PointerEvent } from 'react'
 import type { BottleSummary } from '../../../../shared/ipc'
-import { GmacLogo } from '../GmacLogo'
+import { GmacWordmark } from '../GmacWordmark'
 import { HomeIcon, LibraryGridIcon, PcIcon, SettingsGearIcon } from '../icons/SidebarIcons'
+
+export const DEFAULT_SIDEBAR_WIDTH = 232
+export const MIN_SIDEBAR_WIDTH = 180
+export const MAX_SIDEBAR_WIDTH = 340
+export const COLLAPSE_THRESHOLD = 148
 
 export type SidebarDestination =
   | { kind: 'home' }
@@ -11,7 +17,11 @@ export type SidebarDestination =
 interface SidebarProps {
   activeDestination: SidebarDestination
   pcs: BottleSummary[]
+  width: number
+  isCollapsed: boolean
+  isResizing: boolean
   onSelect: (destination: SidebarDestination) => void
+  onResizeStart: (event: PointerEvent<HTMLDivElement>) => void
 }
 
 const NAV_BUTTON_BASE =
@@ -21,88 +31,135 @@ function navButtonClass(isActive: boolean, muted = false): string {
   if (isActive) {
     return `${NAV_BUTTON_BASE} bg-[#713131]/[0.09] font-medium text-[#713131]`
   }
-  return `${NAV_BUTTON_BASE} font-normal text-[#4a4242] hover:bg-[#161212]/[0.045] hover:text-[#161212]${
+  return `${NAV_BUTTON_BASE} font-normal text-[#4a4242] hover:bg-[#161212]/[0.05] hover:text-[#713131]${
     muted ? ' opacity-55' : ''
   }`
 }
 
-export function Sidebar({ activeDestination, pcs, onSelect }: SidebarProps) {
+export function Sidebar({
+  activeDestination,
+  pcs,
+  width,
+  isCollapsed,
+  isResizing,
+  onSelect,
+  onResizeStart
+}: SidebarProps) {
   const isHomeActive = activeDestination.kind === 'home'
   const isLibraryActive = activeDestination.kind === 'library'
   const isSettingsActive = activeDestination.kind === 'settings'
 
   return (
-    <aside
-      aria-label="Main navigation"
-      className="flex h-full w-[232px] shrink-0 flex-col border-r border-[#161212]/[0.08] bg-[#F8F7F7]"
+    <div
+      className="relative h-full shrink-0"
+      style={{
+        width: isCollapsed ? 0 : width,
+        transition: isResizing ? 'none' : 'width 280ms cubic-bezier(0.22, 1, 0.36, 1)'
+      }}
     >
-      <div className="app-drag flex items-center px-4 pt-12 pb-4">
-        <GmacLogo className="h-7 w-7" />
-      </div>
-
-      <nav className="space-y-0.5 px-2.5">
-        <button
-          type="button"
-          aria-current={isHomeActive ? 'page' : undefined}
-          onClick={() => onSelect({ kind: 'home' })}
-          className={navButtonClass(isHomeActive)}
+      <div className="h-full w-full overflow-hidden">
+        <aside
+          aria-label="Main navigation"
+          aria-hidden={isCollapsed}
+          className={`flex h-full flex-col border-r border-[#161212]/[0.08] bg-[#F8F7F7] ${
+            isCollapsed ? 'pointer-events-none -translate-x-3 opacity-0' : 'translate-x-0 opacity-100'
+          }`}
+          style={{
+            width,
+            transition: isResizing
+              ? 'none'
+              : 'opacity 220ms ease, transform 280ms cubic-bezier(0.22, 1, 0.36, 1)'
+          }}
         >
-          <HomeIcon className="h-[17px] w-[17px] shrink-0" />
-          <span>Home</span>
-        </button>
-
-        <button
-          type="button"
-          aria-current={isLibraryActive ? 'page' : undefined}
-          onClick={() => onSelect({ kind: 'library' })}
-          className={navButtonClass(isLibraryActive)}
-        >
-          <LibraryGridIcon className="h-[17px] w-[17px] shrink-0" />
-          <span>Library</span>
-        </button>
-      </nav>
-
-      <div className="mx-3 my-3 h-px bg-[#161212]/[0.08]" role="separator" />
-
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5">
-        <div className="px-2.5 pb-1.5 text-[11.5px] font-semibold text-[#5e5454]">PCs</div>
-
-        {pcs.length > 0 ? (
-          <div className="space-y-0.5">
-            {pcs.map((pc) => {
-              const isSelected = activeDestination.kind === 'pc' && activeDestination.path === pc.path
-              return (
-                <button
-                  key={pc.path}
-                  type="button"
-                  aria-current={isSelected ? 'page' : undefined}
-                  onClick={() => onSelect({ kind: 'pc', path: pc.path })}
-                  className={navButtonClass(isSelected, !pc.isAvailable)}
-                >
-                  <PcIcon className="h-[16px] w-[16px] shrink-0" />
-                  <span className="truncate">{pc.name}</span>
-                </button>
-              )
-            })}
+          <div className="app-drag flex items-center px-4 pt-12 pb-4">
+            <GmacWordmark className="h-[26px] w-auto shrink-0" />
           </div>
-        ) : (
-          <p className="px-2.5 py-1.5 text-[13px] text-[#5e5454]/80">Create your first PC</p>
-        )}
+
+          <nav className="space-y-0.5 px-2.5">
+            <button
+              type="button"
+              aria-current={isHomeActive ? 'page' : undefined}
+              onClick={() => onSelect({ kind: 'home' })}
+              className={navButtonClass(isHomeActive)}
+            >
+              <HomeIcon className="h-[17px] w-[17px] shrink-0" />
+              <span>Home</span>
+            </button>
+
+            <button
+              type="button"
+              aria-current={isLibraryActive ? 'page' : undefined}
+              onClick={() => onSelect({ kind: 'library' })}
+              className={navButtonClass(isLibraryActive)}
+            >
+              <LibraryGridIcon className="h-[17px] w-[17px] shrink-0" />
+              <span>Library</span>
+            </button>
+          </nav>
+
+          <div className="mx-3 my-3 h-px bg-[#161212]/[0.08]" role="separator" />
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5">
+            <div className="px-2.5 pb-1.5 text-[11.5px] font-semibold text-[#5e5454]">PCs</div>
+
+            {pcs.length > 0 ? (
+              <div className="space-y-0.5">
+                {pcs.map((pc) => {
+                  const isSelected =
+                    activeDestination.kind === 'pc' && activeDestination.path === pc.path
+                  return (
+                    <button
+                      key={pc.path}
+                      type="button"
+                      aria-current={isSelected ? 'page' : undefined}
+                      onClick={() => onSelect({ kind: 'pc', path: pc.path })}
+                      className={navButtonClass(isSelected, !pc.isAvailable)}
+                    >
+                      <PcIcon className="h-[16px] w-[16px] shrink-0" />
+                      <span className="truncate">{pc.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="px-2.5 py-1.5 text-[13px] text-[#5e5454]/80">Create your first PC</p>
+            )}
+          </div>
+
+          <div className="mx-3 my-2 h-px bg-[#161212]/[0.08]" role="separator" />
+
+          <div className="px-2.5 pt-1 pb-3">
+            <button
+              type="button"
+              aria-current={isSettingsActive ? 'page' : undefined}
+              onClick={() => onSelect({ kind: 'settings' })}
+              className={navButtonClass(isSettingsActive)}
+            >
+              <SettingsGearIcon className="h-[17px] w-[17px] shrink-0" />
+              <span>Settings</span>
+            </button>
+          </div>
+        </aside>
       </div>
 
-      <div className="mx-3 my-2 h-px bg-[#161212]/[0.08]" role="separator" />
-
-      <div className="px-2.5 pt-1 pb-3">
-        <button
-          type="button"
-          aria-current={isSettingsActive ? 'page' : undefined}
-          onClick={() => onSelect({ kind: 'settings' })}
-          className={navButtonClass(isSettingsActive)}
+      {!isCollapsed && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          aria-valuemin={MIN_SIDEBAR_WIDTH}
+          aria-valuemax={MAX_SIDEBAR_WIDTH}
+          aria-valuenow={width}
+          onPointerDown={onResizeStart}
+          className="app-no-drag group absolute top-0 -right-[3px] bottom-0 z-20 w-[7px] cursor-col-resize"
         >
-          <SettingsGearIcon className="h-[17px] w-[17px] shrink-0" />
-          <span>Settings</span>
-        </button>
-      </div>
-    </aside>
+          <div
+            className={`mx-auto h-full w-[2px] transition-colors duration-150 ${
+              isResizing ? 'bg-[#713131]' : 'bg-transparent group-hover:bg-[#713131]'
+            }`}
+          />
+        </div>
+      )}
+    </div>
   )
 }
