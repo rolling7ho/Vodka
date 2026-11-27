@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeftIcon } from '../icons/ArrowLeftIcon'
 import { DirectX12Step } from './DirectX12Step'
 import { EngineSetupStep } from './EngineSetupStep'
 import { GraphicsStep } from './GraphicsStep'
 import { ImportPCsStep } from './ImportPCsStep'
+import { getLauncherName, LauncherSetupStep } from './LauncherSetupStep'
 import { ReadyStep } from './ReadyStep'
-import { SteamSetupStep } from './SteamSetupStep'
 import type {
   ComponentInstallStatus,
   DiscoveredBottle,
   GraphicsChoiceId,
-  SteamSetupStage
+  LauncherId,
+  LauncherSetupStage
 } from './types'
 import { WelcomeStep } from './WelcomeStep'
 
@@ -18,9 +19,9 @@ interface OnboardingProps {
   onComplete?: () => void
 }
 
+type StepKey = 'welcome' | 'engine' | 'directx12' | 'graphics' | 'import' | 'launcher' | 'ready'
+
 const GPTK_DOWNLOAD_URL = 'https://developer.apple.com/download/all/?q=game%20porting%20toolkit'
-const DEFAULT_STORAGE_PATH = '~/Library/Containers/com.rolling7ho.Gmac/Bottles'
-const TOTAL_STEPS = 7
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [stepIndex, setStepIndex] = useState(0)
@@ -37,12 +38,28 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   const [graphicsChoice, setGraphicsChoice] = useState<GraphicsChoiceId>('automatic')
 
-  const [discoveredBottles] = useState<DiscoveredBottle[]>([])
+  const [discoveredBottles, setDiscoveredBottles] = useState<DiscoveredBottle[]>([])
   const [selectedBottleIds, setSelectedBottleIds] = useState<string[]>([])
 
-  const [steamStage, setSteamStage] = useState<SteamSetupStage>('idle')
+  const [selectedLauncher, setSelectedLauncher] = useState<LauncherId>('steam')
+  const [steamAlreadyInstalled, setSteamAlreadyInstalled] = useState(false)
+  const [launcherStage, setLauncherStage] = useState<LauncherSetupStage>('idle')
+  const [configuredLauncher, setConfiguredLauncher] = useState<LauncherId | null>(null)
 
   const timersRef = useRef<number[]>([])
+
+  const steps: StepKey[] = [
+    'welcome',
+    'engine',
+    'directx12',
+    'graphics',
+    ...(discoveredBottles.length > 0 ? (['import'] as const) : []),
+    'launcher',
+    'ready'
+  ]
+
+  const safeStepIndex = Math.min(stepIndex, steps.length - 1)
+  const activeStep = steps[safeStepIndex]
 
   function clearTimers(): void {
     for (const id of timersRef.current) {
@@ -56,45 +73,110 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     timersRef.current.push(id)
   }
 
+  const syncSystemStatus = useCallback(async () => {
+    const api = window.gmac as
+      | { getSystemStatus?: () => Promise<import('../../../../shared/ipc').SystemStatus> }
+      | undefined
+    if (!api?.getSystemStatus) {
+      return
+    }
+
+    try {
+      const status = await api.getSystemStatus()
+      setRosettaStatus((prev) =>
+        prev === 'installing' ? prev : status.rosettaInstalled ? 'installed' : 'pending'
+      )
+      setEngineStatus((prev) => {
+        if (prev === 'installing' || prev === 'verifying') {
+          return prev
+        }
+        return status.engineInstalled ? 'installed' : 'pending'
+      })
+      if (status.engineInstalled) {
+        setDownloadProgress(100)
+        setDownloadDetail('Installed')
+      }
+      setToolkitInstalled((prev) => prev || status.toolkitInstalled)
+      setDetectedToolkitFile((prev) => status.detectedToolkitFile ?? prev)
+      setDiscoveredBottles(status.legacyWhiskyBottles)
+      setSelectedBottleIds((prev) =>
+        prev.length > 0 ? prev : status.legacyWhiskyBottles.map((bottle) => bottle.id)
+      )
+      setSteamAlreadyInstalled(status.steamInstalled)
+    } catch {
+      // Keep default state when IPC status lookup is unavailable.
+    }
+  }, [])
+
   useEffect(() => {
+    void syncSystemStatus()
     return () => {
       clearTimers()
     }
-  }, [])
+  }, [syncSystemStatus])
+
+  useEffect(() => {
+    if (activeStep !== 'directx12' || toolkitInstalled) {
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      void syncSystemStatus()
+    }, 3000)
+
+    return () => {
+      window.clearInterval(interval)
+    }
+  }, [activeStep, toolkitInstalled, syncSystemStatus])
 
   function startEngineInstall(): void {
     clearTimers()
     setEngineError(null)
-    setRosettaStatus('installing')
-    setEngineStatus('installing')
-    setDownloadProgress(0)
-    setDownloadDetail('0 MB of 459 MB')
+    if (rosettaStatus !== 'installed') {
+      setRosettaStatus('installing')
+    }
+    if (engineStatus !== 'installed') {
+      setEngineStatus('installing')
+      setDownloadProgress(0)
+      setDownloadDetail('0 MB of 459 MB')
+    }
 
     scheduleTimer(() => {
       setRosettaStatus('installed')
-      setDownloadProgress(32)
-      setDownloadDetail('147 MB of 459 MB')
+      if (engineStatus !== 'installed') {
+        setDownloadProgress(32)
+        setDownloadDetail('147 MB of 459 MB')
+      }
     }, 550)
 
-    scheduleTimer(() => {
-      setDownloadProgress(68)
-      setDownloadDetail('312 MB of 459 MB')
-    }, 1050)
+    if (engineStatus !== 'installed') {
+      scheduleTimer(() => {
+        setDownloadProgress(68)
+        setDownloadDetail('312 MB of 459 MB')
+      }, 1050)
 
-    scheduleTimer(() => {
-      setDownloadProgress(100)
-      setDownloadDetail('Verifying archive (SHA-256)...')
-      setEngineStatus('verifying')
-    }, 1550)
+      scheduleTimer(() => {
+        setDownloadProgress(100)
+        setDownloadDetail('Verifying archive (SHA-256)...')
+        setEngineStatus('verifying')
+      }, 1550)
 
-    scheduleTimer(() => {
-      setEngineStatus('installed')
-      setDownloadDetail('Installed')
-    }, 2050)
+      scheduleTimer(() => {
+        setEngineStatus('installed')
+        setDownloadDetail('Installed')
+      }, 2050)
+    }
   }
 
   function handleDownloadToolkit(): void {
-    void window.gmac.openExternalUrl(GPTK_DOWNLOAD_URL)
+    const api = window.gmac as { openExternalUrl?: (url: string) => Promise<void> } | undefined
+    if (api?.openExternalUrl) {
+      void api.openExternalUrl(GPTK_DOWNLOAD_URL).catch(() => {
+        window.open(GPTK_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
+      })
+      return
+    }
+    window.open(GPTK_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
   }
 
   function handleInstallToolkit(fileName: string): void {
@@ -119,21 +201,37 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     )
   }
 
-  function handleStartSteamSetup(): void {
+  function handleSelectLauncher(launcher: LauncherId): void {
+    setSelectedLauncher(launcher)
+    if (launcherStage === 'done') {
+      setLauncherStage('idle')
+    }
+  }
+
+  function handleStartLauncherSetup(): void {
     clearTimers()
-    setSteamStage('creating')
+    const targetLauncher = selectedLauncher
+    setLauncherStage('creating')
 
     scheduleTimer(() => {
-      setSteamStage('downloading')
+      setLauncherStage('downloading')
     }, 700)
 
     scheduleTimer(() => {
-      setSteamStage('installing')
+      setLauncherStage('installing')
     }, 1450)
 
     scheduleTimer(() => {
-      setSteamStage('done')
+      setLauncherStage('done')
+      setConfiguredLauncher(targetLauncher)
     }, 2200)
+  }
+
+  function goToStep(target: StepKey): void {
+    const idx = steps.indexOf(target)
+    if (idx !== -1) {
+      setStepIndex(idx)
+    }
   }
 
   const isBusy =
@@ -141,11 +239,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     engineStatus === 'installing' ||
     engineStatus === 'verifying' ||
     toolkitInstalling ||
-    steamStage === 'creating' ||
-    steamStage === 'downloading' ||
-    steamStage === 'installing'
+    launcherStage === 'creating' ||
+    launcherStage === 'downloading' ||
+    launcherStage === 'installing'
 
-  const canGoBack = stepIndex > 0 && !isBusy
+  const canGoBack = safeStepIndex > 0 && !isBusy
+
+  const activeLauncherForReady =
+    configuredLauncher ?? (steamAlreadyInstalled && selectedLauncher === 'steam' ? 'steam' : null)
 
   return (
     <div className="onboarding-radiance relative flex h-full flex-col text-[#161212] select-none">
@@ -154,130 +255,123 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       <div className="relative z-10 flex-1 overflow-hidden">
         <div
           className="onboarding-track flex h-full w-full"
-          style={{ transform: `translate3d(-${stepIndex * 100}%, 0, 0)` }}
+          style={{ transform: `translate3d(-${safeStepIndex * 100}%, 0, 0)` }}
         >
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 0}
-            inert={stepIndex !== 0}
-          >
-            <WelcomeStep onStart={() => setStepIndex(1)} />
-          </div>
+          {steps.map((stepKey, index) => {
+            const isActive = safeStepIndex === index
 
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 1}
-            inert={stepIndex !== 1}
-          >
-            <EngineSetupStep
-              rosettaStatus={rosettaStatus}
-              engineStatus={engineStatus}
-              downloadProgress={downloadProgress}
-              downloadDetail={downloadDetail}
-              errorMessage={engineError}
-              onInstall={startEngineInstall}
-              onRetry={startEngineInstall}
-              onContinue={() => setStepIndex(2)}
-            />
-          </div>
-
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 2}
-            inert={stepIndex !== 2}
-          >
-            <DirectX12Step
-              installed={toolkitInstalled}
-              installing={toolkitInstalling}
-              detectedFileName={detectedToolkitFile}
-              onDownloadFromApple={handleDownloadToolkit}
-              onChooseFile={handleInstallToolkit}
-              onInstallDetected={() => {
-                if (detectedToolkitFile) {
-                  handleInstallToolkit(detectedToolkitFile)
-                }
-              }}
-              onContinue={() => setStepIndex(3)}
-              onSkip={() => setStepIndex(3)}
-            />
-          </div>
-
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 3}
-            inert={stepIndex !== 3}
-          >
-            <GraphicsStep
-              selected={graphicsChoice}
-              toolkitInstalled={toolkitInstalled}
-              onSelect={setGraphicsChoice}
-              onContinue={() => setStepIndex(4)}
-            />
-          </div>
-
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 4}
-            inert={stepIndex !== 4}
-          >
-            <ImportPCsStep
-              bottles={discoveredBottles}
-              selectedIds={selectedBottleIds}
-              onToggleBottle={handleToggleBottle}
-              onToggleAll={handleToggleAllBottles}
-              onImportSelected={() => setStepIndex(5)}
-              onSkip={() => setStepIndex(5)}
-            />
-          </div>
-
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 5}
-            inert={stepIndex !== 5}
-          >
-            <SteamSetupStep
-              storagePath={DEFAULT_STORAGE_PATH}
-              stage={steamStage}
-              onStartSetup={handleStartSteamSetup}
-              onContinue={() => setStepIndex(6)}
-              onSkip={() => setStepIndex(6)}
-            />
-          </div>
-
-          <div
-            className="flex h-full w-full shrink-0"
-            aria-hidden={stepIndex !== 6}
-            inert={stepIndex !== 6}
-          >
-            <ReadyStep
-              steamInstalled={steamStage === 'done'}
-              graphicsChoice={graphicsChoice}
-              onOpenSteam={() => onComplete?.()}
-              onFinish={() => onComplete?.()}
-            />
-          </div>
-        </div>
-      </div>
-
-      {stepIndex > 0 ? (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2"
-        >
-          {Array.from({ length: TOTAL_STEPS - 1 }, (_, index) => {
-            const targetStep = index + 1
-            const isActive = stepIndex === targetStep
             return (
-              <span
-                key={targetStep}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  isActive ? 'w-5 bg-[#713131]' : 'w-1.5 bg-[#161212]/20'
-                }`}
-              />
+              <div
+                key={stepKey}
+                className="flex h-full w-full shrink-0"
+                aria-hidden={!isActive}
+                inert={!isActive}
+              >
+                {stepKey === 'welcome' ? (
+                  <WelcomeStep onStart={() => goToStep('engine')} />
+                ) : null}
+
+                {stepKey === 'engine' ? (
+                  <EngineSetupStep
+                    rosettaStatus={rosettaStatus}
+                    engineStatus={engineStatus}
+                    downloadProgress={downloadProgress}
+                    downloadDetail={downloadDetail}
+                    errorMessage={engineError}
+                    onInstall={startEngineInstall}
+                    onRetry={startEngineInstall}
+                    onContinue={() => goToStep('directx12')}
+                  />
+                ) : null}
+
+                {stepKey === 'directx12' ? (
+                  <DirectX12Step
+                    installed={toolkitInstalled}
+                    installing={toolkitInstalling}
+                    detectedFileName={detectedToolkitFile}
+                    onDownloadFromApple={handleDownloadToolkit}
+                    onChooseFile={handleInstallToolkit}
+                    onInstallDetected={() => {
+                      if (detectedToolkitFile) {
+                        handleInstallToolkit(detectedToolkitFile)
+                      }
+                    }}
+                    onContinue={() => goToStep('graphics')}
+                    onSkip={() => goToStep('graphics')}
+                  />
+                ) : null}
+
+                {stepKey === 'graphics' ? (
+                  <GraphicsStep
+                    selected={graphicsChoice}
+                    toolkitInstalled={toolkitInstalled}
+                    onSelect={setGraphicsChoice}
+                    onContinue={() =>
+                      goToStep(discoveredBottles.length > 0 ? 'import' : 'launcher')
+                    }
+                  />
+                ) : null}
+
+                {stepKey === 'import' ? (
+                  <ImportPCsStep
+                    bottles={discoveredBottles}
+                    selectedIds={selectedBottleIds}
+                    onToggleBottle={handleToggleBottle}
+                    onToggleAll={handleToggleAllBottles}
+                    onImportSelected={() => goToStep('launcher')}
+                    onSkip={() => goToStep('launcher')}
+                  />
+                ) : null}
+
+                {stepKey === 'launcher' ? (
+                  <LauncherSetupStep
+                    selectedLauncher={selectedLauncher}
+                    steamAlreadyInstalled={steamAlreadyInstalled}
+                    stage={launcherStage}
+                    onSelectLauncher={handleSelectLauncher}
+                    onStartSetup={handleStartLauncherSetup}
+                    onContinue={() => {
+                      if (selectedLauncher === 'steam' && steamAlreadyInstalled) {
+                        setConfiguredLauncher('steam')
+                      }
+                      goToStep('ready')
+                    }}
+                    onSkip={() => goToStep('ready')}
+                  />
+                ) : null}
+
+                {stepKey === 'ready' ? (
+                  <ReadyStep
+                    isActive={isActive}
+                    selectedLauncherName={
+                      activeLauncherForReady ? getLauncherName(activeLauncherForReady) : null
+                    }
+                    launcherReady={activeLauncherForReady !== null}
+                    onPrimaryAction={() => onComplete?.()}
+                  />
+                ) : null}
+              </div>
             )
           })}
         </div>
-      ) : null}
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2"
+      >
+        {steps.map((stepKey, index) => {
+          const isActive = safeStepIndex === index
+          return (
+            <span
+              key={stepKey}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                isActive ? 'w-5 bg-[#713131]' : 'w-1.5 bg-[#161212]/20'
+              }`}
+            />
+          )
+        })}
+      </div>
 
       <button
         type="button"

@@ -31,8 +31,7 @@ export function DirectX12Step({
         DirectX 12 support
       </h2>
       <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-        DirectX 11 and older games work out of the box. DirectX 12 titles use Apple&apos;s free
-        Game Porting Toolkit.
+        DirectX 12 titles require Apple&apos;s Game Porting Toolkit.
       </p>
 
       <div className="mt-7 w-full max-w-lg rounded-2xl border border-[#161212]/10 bg-white/75 p-5 shadow-xs backdrop-blur-md">
@@ -46,9 +45,11 @@ export function DirectX12Step({
         ) : (
           <>
             <p className="text-[14px] leading-relaxed text-[#5e5454]">
-              Sign in with your Apple Account, download the Game Porting Toolkit disk image
-              (<span className="font-mono text-[#161212]">.dmg</span>), and Gmac will detect it in
-              Downloads or let you select it below.
+              Sign in with an Apple Account, and download the Game Porting Toolkit disk image (
+              <code className="rounded bg-[#161212]/[0.06] px-1.5 py-0.5 font-mono text-[12.5px] text-[#161212]">
+                .dmg
+              </code>
+              ).
             </p>
 
             <div className="mt-4 flex items-center gap-2 rounded-xl bg-[#161212]/[0.035] px-3.5 py-2.5 text-[13px] text-[#5e5454]">
@@ -66,7 +67,13 @@ export function DirectX12Step({
                   </span>
                 </>
               ) : (
-                <span>Watching ~/Downloads for a Game Porting Toolkit disk image</span>
+                <span>
+                  Gmac will detect a Game Porting Toolkit disk image in{' '}
+                  <code className="rounded bg-[#161212]/[0.06] px-1.5 py-0.5 font-mono text-[12px] text-[#161212]">
+                    ~/Downloads
+                  </code>{' '}
+                  automatically.
+                </span>
               )}
             </div>
 
@@ -76,8 +83,9 @@ export function DirectX12Step({
                   type="button"
                   disabled={installing}
                   onClick={onInstallDetected}
-                  className="app-no-drag inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#161212]/[0.07] px-4 py-2 text-[13px] font-medium text-[#161212] transition-colors hover:bg-[#161212]/12 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="app-no-drag inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#0066D6] disabled:cursor-not-allowed disabled:opacity-60"
                 >
+                  {installing ? <SpinnerIcon className="h-3.5 w-3.5" /> : null}
                   <span>Install {detectedFileName}</span>
                 </button>
               ) : (
@@ -85,7 +93,7 @@ export function DirectX12Step({
                   type="button"
                   disabled={installing}
                   onClick={onDownloadFromApple}
-                  className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#161212]/[0.07] px-4 py-2 text-[13px] font-medium text-[#161212] transition-colors hover:bg-[#161212]/12 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#007AFF] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#0066D6] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <span>Download from Apple</span>
                   <ExternalLinkIcon className="h-3.5 w-3.5" />
@@ -130,37 +138,14 @@ export function DirectX12Step({
             <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </button>
         ) : (
-          <>
-            <button
-              type="button"
-              disabled={installing}
-              onClick={detectedFileName ? onInstallDetected : onDownloadFromApple}
-              className="app-no-drag inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-7 py-3 text-[15px] font-medium text-white transition-all duration-150 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {installing ? (
-                <>
-                  <SpinnerIcon className="h-4 w-4" />
-                  <span>Installing...</span>
-                </>
-              ) : detectedFileName ? (
-                <span>Install Toolkit</span>
-              ) : (
-                <>
-                  <span>Download from Apple</span>
-                  <ExternalLinkIcon className="h-4 w-4" />
-                </>
-              )}
-            </button>
-
-            <button
-              type="button"
-              disabled={installing}
-              onClick={onSkip}
-              className="app-no-drag cursor-pointer rounded-full px-5 py-3 text-[14px] font-medium text-[#5e5454] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#161212] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Skip for now
-            </button>
-          </>
+          <button
+            type="button"
+            disabled={installing}
+            onClick={onSkip}
+            className="app-no-drag cursor-pointer rounded-full px-5 py-3 text-[14px] font-medium text-[#5e5454] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#161212] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Skip for now
+          </button>
         )}
       </div>
     </main>

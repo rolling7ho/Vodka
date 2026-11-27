@@ -122,12 +122,33 @@
   will-change: transform;
 }
 
+@keyframes gmac-check-draw {
+  from {
+    stroke-dashoffset: 32;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-check-draw {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+  animation: gmac-check-draw 500ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .onboarding-radiance::before,
   .onboarding-radiance::after,
   .animate-fade-up,
   .animate-fade-up-delayed {
     animation: none;
+  }
+
+  .animate-check-draw {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 
   .onboarding-track {

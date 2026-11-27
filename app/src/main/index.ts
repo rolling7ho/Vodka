@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { app, BrowserWindow, session } from 'electron'
+import { app, BrowserWindow, session, shell } from 'electron'
 import { registerIpcHandlers } from './ipc'
 
 app.setName('Gmac')
@@ -72,7 +72,15 @@ function createMainWindow(): BrowserWindow {
     mainWindow.show()
   })
 
-  mainWindow.webContents.setWindowOpenHandler(() => {
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol === 'https:') {
+        void shell.openExternal(parsed.toString())
+      }
+    } catch {
+      // Ignore malformed popup URLs.
+    }
     return { action: 'deny' }
   })
 

@@ -77,7 +77,7 @@ export function EngineSetupStep({
         Engine setup
       </h2>
       <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
-        Gmac requires Rosetta 2 and the Gmac Windows Engine (~460 MB) to run Windows games.
+        Gmac requires Rosetta 2 and the Gmac Windows Engine to run Windows games.
       </p>
 
       <div className="mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 px-5 shadow-xs backdrop-blur-md">
@@ -98,7 +98,9 @@ export function EngineSetupStep({
             <div className="min-w-0">
               <p className="text-[15px] font-medium text-[#161212]">Gmac Windows Engine</p>
               <p className="mt-0.5 text-[13px] text-[#5e5454]">
-                Wine runtime, DXMT, and DXVK (~460 MB download)
+                {engineStatus === 'installed'
+                  ? 'Wine runtime, DXMT, and DXVK'
+                  : 'Wine runtime, DXMT, and DXVK (~460 MB download)'}
               </p>
             </div>
             <div className="shrink-0">

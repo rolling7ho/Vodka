@@ -1,5 +1,6 @@
 import { app, ipcMain, shell } from 'electron'
-import { AppInfo, IPC_CHANNELS } from '../shared/ipc'
+import { AppInfo, IPC_CHANNELS, SystemStatus } from '../shared/ipc'
+import { getSystemStatus } from './systemStatus'
 
 export function registerIpcHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.GET_APP_INFO, (): AppInfo => {
@@ -14,6 +15,10 @@ export function registerIpcHandlers(): void {
         node: process.versions.node
       }
     }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.GET_SYSTEM_STATUS, (): SystemStatus => {
+    return getSystemStatus()
   })
 
   ipcMain.handle(IPC_CHANNELS.OPEN_EXTERNAL_URL, async (_event, targetUrl: string): Promise<void> => {

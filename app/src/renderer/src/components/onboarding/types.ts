@@ -1,3 +1,5 @@
+export type { DiscoveredBottle } from '../../../../shared/ipc'
+
 export type GraphicsChoiceId =
   | 'automatic'
   | 'directX12'
@@ -6,11 +8,13 @@ export type GraphicsChoiceId =
   | 'directX9'
   | 'openGL'
 
-export interface DiscoveredBottle {
-  id: string
-  name: string
-  path: string
-}
+export type LauncherId =
+  | 'steam'
+  | 'epicGames'
+  | 'battleNet'
+  | 'eaApp'
+  | 'rockstar'
+  | 'ubisoft'
 
 export type ComponentInstallStatus =
   | 'pending'
@@ -20,4 +24,4 @@ export type ComponentInstallStatus =
   | 'verifying'
   | 'error'
 
-export type SteamSetupStage = 'idle' | 'creating' | 'downloading' | 'installing' | 'done'
+export type LauncherSetupStage = 'idle' | 'creating' | 'downloading' | 'installing' | 'done'
