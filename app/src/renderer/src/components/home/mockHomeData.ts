@@ -8,6 +8,10 @@ function hoursAgoIso(hours: number): string {
   return new Date(Date.now() - hours * 3600 * 1000).toISOString()
 }
 
+function daysAgoIso(days: number): string {
+  return new Date(Date.now() - days * 86_400 * 1000).toISOString()
+}
+
 const ART_CYBERPUNK = svgToDataUrl(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430" fill="none">
   <defs>
@@ -40,6 +44,17 @@ const ART_CYBERPUNK = svgToDataUrl(`
 </svg>
 `)
 
+const LOGO_CYBERPUNK = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 92" fill="none">
+  <g transform="skewX(-12)">
+    <text x="36" y="54" fill="#FDE047" font-family="Impact, 'Arial Black', sans-serif" font-size="40" font-weight="900" letter-spacing="1.5">CYBERPUNK</text>
+    <text x="38" y="52" stroke="#22D3EE" stroke-width="1.2" fill="none" font-family="Impact, 'Arial Black', sans-serif" font-size="40" font-weight="900" letter-spacing="1.5" opacity="0.7">CYBERPUNK</text>
+  </g>
+  <rect x="202" y="61" width="96" height="22" rx="3" fill="#22D3EE" fill-opacity="0.18" stroke="#22D3EE" stroke-width="1.4"/>
+  <text x="250" y="77" text-anchor="middle" fill="#22D3EE" font-family="monospace" font-size="15" font-weight="700" letter-spacing="4">2077</text>
+</svg>
+`)
+
 const ART_ELDEN_RING = svgToDataUrl(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
   <defs>
@@ -61,6 +76,16 @@ const ART_ELDEN_RING = svgToDataUrl(`
   <circle cx="338" cy="130" r="24" stroke="#FCD34D" stroke-width="1.5" opacity="0.5"/>
   <path d="M0 305 Q160 255 315 292 T640 272 L640 360 L0 360 Z" fill="#18130F"/>
   <path d="M0 330 Q210 295 420 322 T640 315 L640 360 L0 360 Z" fill="#0D0A08"/>
+</svg>
+`)
+
+const LOGO_ELDEN_RING = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 68" fill="none">
+  <circle cx="24" cy="34" r="13" stroke="#FCD34D" stroke-width="1.8" opacity="0.9"/>
+  <circle cx="32" cy="34" r="9" stroke="#FDE68A" stroke-width="1.4" opacity="0.75"/>
+  <line x1="28" y1="14" x2="28" y2="54" stroke="#FCD34D" stroke-width="1.6"/>
+  <text x="52" y="42" fill="#FEF3C7" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="600" letter-spacing="4.5">ELDEN RING</text>
+  <line x1="52" y1="49" x2="296" y2="49" stroke="#F59E0B" stroke-width="1" opacity="0.55"/>
 </svg>
 `)
 
@@ -86,6 +111,14 @@ const ART_BALDURS_GATE = svgToDataUrl(`
 </svg>
 `)
 
+const LOGO_BALDURS_GATE = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none">
+  <text x="10" y="34" fill="#FDE68A" font-family="Georgia, 'Times New Roman', serif" font-size="23" font-weight="700" letter-spacing="2.5">BALDUR'S GATE</text>
+  <text x="12" y="56" fill="#F87171" font-family="Georgia, 'Times New Roman', serif" font-size="15" font-weight="700" letter-spacing="6">III</text>
+  <line x1="48" y1="51" x2="215" y2="51" stroke="#FBBF24" stroke-opacity="0.5" stroke-width="1.2"/>
+</svg>
+`)
+
 const ART_HADES = svgToDataUrl(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
   <defs>
@@ -108,6 +141,14 @@ const ART_HADES = svgToDataUrl(`
 </svg>
 `)
 
+const LOGO_HADES = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 66" fill="none">
+  <path d="M22 14 L32 32 L22 50 L12 32 Z" fill="#34D399" stroke="#FCD34D" stroke-width="1.6"/>
+  <text x="44" y="42" fill="#ECFDF5" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="800" letter-spacing="4">HADES</text>
+  <text x="190" y="42" fill="#FCD34D" font-family="Georgia, 'Times New Roman', serif" font-size="28" font-weight="800" letter-spacing="2">II</text>
+</svg>
+`)
+
 const ART_RDR2 = svgToDataUrl(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
   <defs>
@@ -121,6 +162,14 @@ const ART_RDR2 = svgToDataUrl(`
   <circle cx="430" cy="212" r="88" fill="#FEF3C7" opacity="0.88"/>
   <path d="M0 245 L110 218 L185 232 L265 182 L322 182 L365 224 L485 204 L575 232 L640 215 L640 360 L0 360 Z" fill="#2A0B0A"/>
   <path d="M0 292 L195 270 L390 288 L640 268 L640 360 L0 360 Z" fill="#140505"/>
+</svg>
+`)
+
+const LOGO_RDR2 = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 74" fill="none">
+  <rect x="6" y="8" width="212" height="24" rx="2" fill="#140505" fill-opacity="0.72"/>
+  <text x="14" y="25" fill="#FEF3C7" font-family="Georgia, 'Times New Roman', serif" font-size="16" font-weight="800" letter-spacing="2.8">RED DEAD</text>
+  <text x="10" y="54" fill="#FFFFFF" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="800" letter-spacing="1.6">REDEMPTION II</text>
 </svg>
 `)
 
@@ -138,6 +187,16 @@ const ART_FORZA = svgToDataUrl(`
   <path d="M0 232 L160 198 L275 226 L445 190 L640 225 L640 360 L0 360 Z" fill="#1E1428"/>
   <path d="M295 235 L110 360 L530 360 L345 235 Z" fill="#110C1A"/>
   <path d="M320 242 L320 360" stroke="#FDE047" stroke-width="3" stroke-dasharray="16 14"/>
+</svg>
+`)
+
+const LOGO_FORZA = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" fill="none">
+  <g transform="skewX(-14)">
+    <text x="20" y="34" fill="#FFFFFF" font-family="Impact, 'Arial Black', sans-serif" font-size="26" font-weight="900" letter-spacing="3">FORZA</text>
+    <rect x="20" y="42" width="168" height="20" rx="2" fill="#F43F5E"/>
+    <text x="28" y="57" fill="#FFFFFF" font-family="sans-serif" font-size="13" font-weight="800" letter-spacing="3.5">HORIZON 5</text>
+  </g>
 </svg>
 `)
 
@@ -161,6 +220,13 @@ const ART_HOLLOW_KNIGHT = svgToDataUrl(`
   <ellipse cx="309" cy="172" rx="5.5" ry="9" fill="#090D16"/>
   <ellipse cx="331" cy="172" rx="5.5" ry="9" fill="#090D16"/>
   <path d="M0 288 Q160 250 320 278 T640 270 L640 360 L0 360 Z" fill="#05070D"/>
+</svg>
+`)
+
+const LOGO_HOLLOW_KNIGHT = svgToDataUrl(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 70" fill="none">
+  <text x="10" y="34" fill="#F8FAFC" font-family="Georgia, 'Times New Roman', serif" font-size="23" font-weight="600" letter-spacing="3.5">HOLLOW</text>
+  <text x="10" y="56" fill="#BAE6FD" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="600" letter-spacing="5.5">KNIGHT</text>
 </svg>
 `)
 
@@ -196,7 +262,34 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
     totalPlaytimeSeconds: Math.round(142.8 * 3600),
     lastTwoWeeksSeconds: Math.round(11.4 * 3600),
     gamesInstalled: 14,
-    pcsCount: 3
+    pcsCount: 3,
+    hoursHistory: [
+      { date: daysAgoIso(30), value: 94.2 },
+      { date: daysAgoIso(25), value: 101.6 },
+      { date: daysAgoIso(20), value: 112.4 },
+      { date: daysAgoIso(15), value: 121.0 },
+      { date: daysAgoIso(10), value: 130.5 },
+      { date: daysAgoIso(5), value: 137.9 },
+      { date: daysAgoIso(0), value: 142.8 }
+    ],
+    recentHoursHistory: [
+      { date: daysAgoIso(12), value: 1.1 },
+      { date: daysAgoIso(10), value: 1.9 },
+      { date: daysAgoIso(8), value: 1.4 },
+      { date: daysAgoIso(6), value: 2.3 },
+      { date: daysAgoIso(4), value: 1.7 },
+      { date: daysAgoIso(2), value: 1.2 },
+      { date: daysAgoIso(0), value: 1.8 }
+    ],
+    gamesHistory: [
+      { date: daysAgoIso(30), value: 6 },
+      { date: daysAgoIso(25), value: 7 },
+      { date: daysAgoIso(20), value: 9 },
+      { date: daysAgoIso(15), value: 10 },
+      { date: daysAgoIso(10), value: 12 },
+      { date: daysAgoIso(5), value: 13 },
+      { date: daysAgoIso(0), value: 14 }
+    ]
   },
   continuePlaying: {
     id: 'mock:cyberpunk-2077',
@@ -209,7 +302,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
     totalPlaytimeSeconds: Math.round(48.6 * 3600),
     lastTwoWeeksSeconds: Math.round(6.2 * 3600),
     lastPlayedIso: hoursAgoIso(2),
-    artworkDataUrl: ART_CYBERPUNK
+    artworkDataUrl: ART_CYBERPUNK,
+    logoDataUrl: LOGO_CYBERPUNK
   },
   recentlyPlayed: [
     {
@@ -223,7 +317,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(39.2 * 3600),
       lastTwoWeeksSeconds: Math.round(3.1 * 3600),
       lastPlayedIso: hoursAgoIso(26),
-      artworkDataUrl: ART_ELDEN_RING
+      artworkDataUrl: ART_ELDEN_RING,
+      logoDataUrl: LOGO_ELDEN_RING
     },
     {
       id: 'mock:baldurs-gate-3',
@@ -236,7 +331,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(27.4 * 3600),
       lastTwoWeeksSeconds: Math.round(1.4 * 3600),
       lastPlayedIso: hoursAgoIso(52),
-      artworkDataUrl: ART_BALDURS_GATE
+      artworkDataUrl: ART_BALDURS_GATE,
+      logoDataUrl: LOGO_BALDURS_GATE
     },
     {
       id: 'mock:hades-2',
@@ -249,7 +345,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(14.8 * 3600),
       lastTwoWeeksSeconds: Math.round(0.7 * 3600),
       lastPlayedIso: hoursAgoIso(96),
-      artworkDataUrl: ART_HADES
+      artworkDataUrl: ART_HADES,
+      logoDataUrl: LOGO_HADES
     },
     {
       id: 'mock:rdr2',
@@ -262,7 +359,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(8.3 * 3600),
       lastTwoWeeksSeconds: 0,
       lastPlayedIso: hoursAgoIso(144),
-      artworkDataUrl: ART_RDR2
+      artworkDataUrl: ART_RDR2,
+      logoDataUrl: LOGO_RDR2
     },
     {
       id: 'mock:forza-horizon-5',
@@ -275,7 +373,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(3.1 * 3600),
       lastTwoWeeksSeconds: 0,
       lastPlayedIso: hoursAgoIso(216),
-      artworkDataUrl: ART_FORZA
+      artworkDataUrl: ART_FORZA,
+      logoDataUrl: LOGO_FORZA
     },
     {
       id: 'mock:hollow-knight',
@@ -288,7 +387,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(1.4 * 3600),
       lastTwoWeeksSeconds: 0,
       lastPlayedIso: hoursAgoIso(288),
-      artworkDataUrl: ART_HOLLOW_KNIGHT
+      artworkDataUrl: ART_HOLLOW_KNIGHT,
+      logoDataUrl: LOGO_HOLLOW_KNIGHT
     }
   ],
   launchers: [

@@ -9,7 +9,7 @@ import {
 } from 'react'
 import type { BottleSummary } from '../../../../shared/ipc'
 import { GmacWordmark } from '../GmacWordmark'
-import { PcGlyph } from '../icons/PcIcons'
+import { PcGlyph, type PcIconId } from '../icons/PcIcons'
 import { HomeIcon, LibraryGridIcon, PlusIcon, SettingsGearIcon } from '../icons/SidebarIcons'
 import { PcContextMenu } from './PcModals'
 
@@ -38,6 +38,7 @@ interface SidebarProps {
   onRenamePc: (path: string, newName: string) => Promise<void>
   onRequestDeletePc: (pc: BottleSummary) => void
   onRequestChangeIcon: (pc: BottleSummary) => void
+  onSelectPcIcon: (pc: BottleSummary, icon: PcIconId) => Promise<void>
   onReorderPcs: (orderedPaths: string[]) => Promise<void>
 }
 
@@ -98,6 +99,7 @@ export function Sidebar({
   onRenamePc,
   onRequestDeletePc,
   onRequestChangeIcon,
+  onSelectPcIcon,
   onReorderPcs
 }: SidebarProps) {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
@@ -402,6 +404,7 @@ export function Sidebar({
           onClose={() => setContextMenu(null)}
           onRename={startInlineRename}
           onChangeIcon={onRequestChangeIcon}
+          onSelectIcon={(targetPc, icon) => void onSelectPcIcon(targetPc, icon)}
           onDelete={onRequestDeletePc}
         />
       )}

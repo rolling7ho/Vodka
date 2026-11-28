@@ -1,5 +1,5 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import type { HomeGameItem, HomeLauncherItem, HomeSummary } from '../../../../shared/ipc'
+import { useEffect, useId, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import type { HomeGameItem, HomeLauncherItem, HomeSummary, StatPoint } from '../../../../shared/ipc'
 import {
   BattleNetLogo,
   ClockIcon,
@@ -17,12 +17,11 @@ interface HomeDashboardProps {
   summary: HomeSummary | null
   isLoading: boolean
   visitKey: number
-  isMockPreview: boolean
   launchingId: string | null
   settingUpLauncherId: string | null
   errorMessage: string | null
-  onToggleMockPreview: () => void
   onPlayGame: (game: HomeGameItem) => void
+  onOpenGameDetail: (game: HomeGameItem) => void
   onOpenLauncher: (launcher: HomeLauncherItem) => void
   onSetupLauncher: (launcher: HomeLauncherItem) => void
   onOpenLibrary: () => void
@@ -32,10 +31,11 @@ interface HomeDashboardProps {
 function useCountUp(
   target: number,
   triggerKey: number,
-  options?: { durationMs?: number; delayMs?: number }
+  options?: { durationMs?: number; delayMs?: number; power?: number }
 ): number {
-  const durationMs = options?.durationMs ?? 780
+  const durationMs = options?.durationMs ?? 1450
   const delayMs = options?.delayMs ?? 0
+  const power = options?.power ?? 5.2
   const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
@@ -60,7 +60,7 @@ function useCountUp(
           startTimestamp = now
         }
         const progress = Math.min(1, (now - startTimestamp) / durationMs)
-        const eased = 1 - Math.pow(1 - progress, 4)
+        const eased = 1 - Math.pow(1 - progress, power)
         setDisplayValue(target * eased)
 
         if (progress < 1) {
@@ -79,7 +79,7 @@ function useCountUp(
         window.cancelAnimationFrame(frameId)
       }
     }
-  }, [target, triggerKey, durationMs, delayMs])
+  }, [target, triggerKey, durationMs, delayMs, power])
 
   return displayValue
 }
@@ -99,22 +99,22 @@ function splitPlaytime(seconds: number): { value: number; unit: 'hrs' | 'min'; d
   }
 }
 
-function formatCardPlaytime(seconds: number): string {
+function formatRecentPlaytime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) {
-    return '0 hrs'
+    return '0 hrs played'
   }
   if (seconds < 60) {
-    return '< 1 min'
+    return '< 1 min played'
   }
   const minutes = Math.round(seconds / 60)
   if (minutes < 60) {
-    return `${minutes} min`
+    return `${minutes} min played`
   }
   const hours = seconds / 3600
   if (hours < 100) {
-    return `${hours.toFixed(1)} hrs`
+    return `${hours.toFixed(1)} hrs played`
   }
-  return `${Math.round(hours)} hrs`
+  return `${Math.round(hours)} hrs played`
 }
 
 function formatRelativeDate(iso: string | null): string {
@@ -146,6 +146,96 @@ function formatRelativeDate(iso: string | null): string {
   }
   return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(
     new Date(timestamp)
+  )
+}
+
+function StatSparkline({ points }: { points: StatPoint[] }) {
+  const gradientId = useId().replace(/:/g, '')
+  const width = 220
+  const height = 42
+  const padX = 2
+  const padTop = 6
+  const padBottom = 5
+
+  const hasNonZero = points.some((point) => point.value > 0)
+  if (points.length < 2 || !hasNonZero) {
+    return (
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        className="mt-3 h-[38px] w-full overflow-visible"
+      >
+        <path
+          d={`M ${padX} ${height - padBottom} L ${width - padX} ${height - padBottom}`}
+          fill="none"
+          stroke="#713131"
+          strokeOpacity="0.22"
+          strokeWidth={1.6}
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    )
+  }
+
+  const minVal = Math.min(...points.map((point) => point.value))
+  const maxVal = Math.max(...points.map((point) => point.value))
+  const range = maxVal - minVal || 1
+  const usableWidth = width - padX * 2
+  const usableHeight = height - padTop - padBottom
+
+  const coords = points.map((point, index) => {
+    const x = padX + (index / (points.length - 1)) * usableWidth
+    const normalized = (point.value - minVal) / range
+    const y = padTop + (1 - normalized) * usableHeight
+    return { x, y }
+  })
+
+  let linePath = `M ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)}`
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p0 = coords[Math.max(0, i - 1)]
+    const p1 = coords[i]
+    const p2 = coords[i + 1]
+    const p3 = coords[Math.min(coords.length - 1, i + 2)]
+
+    const cp1x = p1.x + (p2.x - p0.x) / 6
+    const cp1y = p1.y + (p2.y - p0.y) / 6
+    const cp2x = p2.x - (p3.x - p1.x) / 6
+    const cp2y = p2.y - (p3.y - p1.y) / 6
+
+    linePath += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`
+  }
+
+  const last = coords[coords.length - 1]
+  const areaPath = `${linePath} L ${last.x.toFixed(1)} ${height} L ${coords[0].x.toFixed(1)} ${height} Z`
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className="mt-3 h-[38px] w-full overflow-visible"
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#713131" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#713131" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#${gradientId})`} />
+      <path
+        d={linePath}
+        fill="none"
+        stroke="#713131"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        pathLength={1}
+        vectorEffect="non-scaling-stroke"
+        className="animate-sparkline-draw"
+      />
+    </svg>
   )
 }
 
@@ -200,27 +290,26 @@ function RecentActivityIcon({ className }: { className?: string }) {
   )
 }
 
-function pcCountLabel(count: number): string {
-  if (count <= 0) {
-    return 'No PCs yet'
-  }
-  return count === 1 ? 'Across 1 PC' : `Across ${count} PCs`
-}
-
 function staggerStyle(delayMs: number): CSSProperties {
   return { '--stagger-delay': `${delayMs}ms` } as CSSProperties
+}
+
+function handleCardKeyDown(event: KeyboardEvent<HTMLElement>, onOpen: () => void) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    onOpen()
+  }
 }
 
 export function HomeDashboard({
   summary,
   isLoading,
   visitKey,
-  isMockPreview,
   launchingId,
   settingUpLauncherId,
   errorMessage,
-  onToggleMockPreview,
   onPlayGame,
+  onOpenGameDetail,
   onOpenLauncher,
   onSetupLauncher,
   onOpenLibrary,
@@ -230,23 +319,29 @@ export function HomeDashboard({
     totalPlaytimeSeconds: 0,
     lastTwoWeeksSeconds: 0,
     gamesInstalled: 0,
-    pcsCount: 0
+    pcsCount: 0,
+    hoursHistory: [],
+    recentHoursHistory: [],
+    gamesHistory: []
   }
 
   const totalPlaytimeMetric = splitPlaytime(stats.totalPlaytimeSeconds)
   const recentPlaytimeMetric = splitPlaytime(stats.lastTwoWeeksSeconds)
 
   const animatedTotal = useCountUp(totalPlaytimeMetric.value, visitKey, {
-    durationMs: 820,
-    delayMs: 40
+    durationMs: 1450,
+    delayMs: 40,
+    power: 5.2
   })
   const animatedRecent = useCountUp(recentPlaytimeMetric.value, visitKey, {
-    durationMs: 780,
-    delayMs: 110
+    durationMs: 1380,
+    delayMs: 110,
+    power: 5.2
   })
   const animatedGames = useCountUp(stats.gamesInstalled, visitKey, {
-    durationMs: 700,
-    delayMs: 180
+    durationMs: 1250,
+    delayMs: 180,
+    power: 4.5
   })
 
   const continuePlaying = summary?.continuePlaying ?? null
@@ -257,32 +352,8 @@ export function HomeDashboard({
 
   return (
     <div className="flex-1 overflow-y-auto bg-white">
-      <div
-        key={visitKey}
-        className="mx-auto w-full max-w-[1040px] px-9 pt-12 pb-14"
-      >
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-[28px] font-bold tracking-[-0.035em] text-[#161212]">Home</h1>
-
-          <button
-            type="button"
-            onClick={onToggleMockPreview}
-            aria-pressed={isMockPreview}
-            className={`app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors ${
-              isMockPreview
-                ? 'border-[#713131]/25 bg-[#713131]/[0.09] text-[#713131]'
-                : 'border-[#161212]/[0.1] bg-[#FAF9F8] text-[#5e5454] hover:border-[#713131]/20 hover:text-[#713131]'
-            }`}
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                isMockPreview ? 'bg-[#713131]' : 'bg-[#5e5454]/45'
-              }`}
-              aria-hidden="true"
-            />
-            <span>Mock UI</span>
-          </button>
-        </div>
+      <div key={visitKey} className="mx-auto w-full max-w-[1040px] px-9 pt-12 pb-14">
+        <h1 className="text-[28px] font-bold tracking-[-0.035em] text-[#161212]">Home</h1>
 
         {errorMessage && (
           <div
@@ -299,7 +370,7 @@ export function HomeDashboard({
         >
           <div
             style={staggerStyle(0)}
-            className="animate-home-rise rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-6 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors duration-200 hover:border-[#713131]/20"
+            className="animate-home-rise rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-6 pt-5 pb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors duration-200 hover:border-[#713131]/20"
           >
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-[#5e5454]">Hours Played</span>
@@ -319,12 +390,12 @@ export function HomeDashboard({
                 </span>
               )}
             </div>
-            <p className="mt-2.5 text-[12px] text-[#6d6262]">Lifetime playtime</p>
+            <StatSparkline points={stats.hoursHistory} />
           </div>
 
           <div
             style={staggerStyle(55)}
-            className="animate-home-rise rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-6 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors duration-200 hover:border-[#713131]/20"
+            className="animate-home-rise rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-6 pt-5 pb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors duration-200 hover:border-[#713131]/20"
           >
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-[#5e5454]">Last 2 Weeks</span>
@@ -344,12 +415,12 @@ export function HomeDashboard({
                 </span>
               )}
             </div>
-            <p className="mt-2.5 text-[12px] text-[#6d6262]">Recent activity</p>
+            <StatSparkline points={stats.recentHoursHistory} />
           </div>
 
           <div
             style={staggerStyle(110)}
-            className="animate-home-rise rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-6 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors duration-200 hover:border-[#713131]/20"
+            className="animate-home-rise rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-6 pt-5 pb-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-colors duration-200 hover:border-[#713131]/20"
           >
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-[#5e5454]">Games Installed</span>
@@ -363,7 +434,7 @@ export function HomeDashboard({
                 <span className="text-[15px] font-medium text-[#6d6262]">titles</span>
               )}
             </div>
-            <p className="mt-2.5 text-[12px] text-[#6d6262]">{pcCountLabel(stats.pcsCount)}</p>
+            <StatSparkline points={stats.gamesHistory} />
           </div>
         </section>
 
@@ -377,50 +448,60 @@ export function HomeDashboard({
           </h2>
 
           {continuePlaying ? (
-            <div className="group relative flex min-h-[248px] flex-col justify-end overflow-hidden rounded-[20px] border border-[#161212]/[0.08] bg-[#241515] p-7 text-white shadow-[0_12px_32px_rgba(22,18,18,0.08)]">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label={`View details for ${continuePlaying.name}`}
+              onClick={() => onOpenGameDetail(continuePlaying)}
+              onKeyDown={(event) =>
+                handleCardKeyDown(event, () => onOpenGameDetail(continuePlaying))
+              }
+              className="app-no-drag group relative min-h-[248px] cursor-pointer overflow-hidden rounded-[20px] border border-[#161212]/[0.08] bg-[#241515] shadow-[0_12px_32px_rgba(22,18,18,0.08)] transition-all duration-200 hover:shadow-[0_16px_38px_rgba(22,18,18,0.14)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF]"
+            >
               {continuePlaying.artworkDataUrl ? (
                 <>
                   <img
                     src={continuePlaying.artworkDataUrl}
                     alt=""
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#120D0D]/92 via-[#161212]/48 to-[#161212]/15" />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#120D0D]/80 via-[#120D0D]/30 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#120D0D]/72 via-[#161212]/22 to-[#120D0D]/55" />
                 </>
               ) : (
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#241515] via-[#5a2828] to-[#713131]" />
               )}
 
-              <div className="relative z-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-                <div className="min-w-0">
-                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/12 px-2.5 py-0.5 text-[11.5px] font-medium text-white backdrop-blur-xs">
-                    {continuePlaying.bottleName}
-                  </span>
-                  <h3 className="mt-2.5 truncate text-[32px] leading-tight font-bold tracking-[-0.035em] text-white">
+              <div className="pointer-events-none absolute top-6 right-7 z-10 flex justify-end">
+                {continuePlaying.logoDataUrl ? (
+                  <img
+                    src={continuePlaying.logoDataUrl}
+                    alt={continuePlaying.name}
+                    className="max-h-[76px] max-w-[300px] object-contain object-right drop-shadow-[0_4px_14px_rgba(0,0,0,0.45)]"
+                  />
+                ) : (
+                  <span className="max-w-[280px] truncate text-right text-[28px] leading-tight font-extrabold tracking-[-0.03em] text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
                     {continuePlaying.name}
-                  </h3>
-                  <p className="mt-1 text-[13px] text-white/80 tabular-nums">
-                    {formatCardPlaytime(continuePlaying.totalPlaytimeSeconds)} played &middot;{' '}
-                    {formatRelativeDate(continuePlaying.lastPlayedIso)}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  disabled={launchingId !== null}
-                  onClick={() => onPlayGame(continuePlaying)}
-                  className="app-no-drag inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-6 py-2.5 text-[14px] font-medium text-white shadow-sm transition-all duration-150 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {launchingId === continuePlaying.id ? (
-                    <SpinnerIcon className="h-4 w-4" />
-                  ) : (
-                    <PlayTriangleIcon className="h-4 w-4" />
-                  )}
-                  <span>{launchingId === continuePlaying.id ? 'Launching...' : 'Play'}</span>
-                </button>
+                  </span>
+                )}
               </div>
+
+              <button
+                type="button"
+                disabled={launchingId !== null}
+                aria-label={`Play ${continuePlaying.name}`}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onPlayGame(continuePlaying)
+                }}
+                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#007AFF] text-white shadow-[0_6px_18px_rgba(0,122,255,0.42)] transition-all duration-150 hover:scale-105 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {launchingId === continuePlaying.id ? (
+                  <SpinnerIcon className="h-5 w-5" />
+                ) : (
+                  <PlayTriangleIcon className="h-5 w-5 translate-x-[1px]" />
+                )}
+              </button>
             </div>
           ) : (
             <div className="flex min-h-[196px] flex-col justify-between gap-5 rounded-[20px] border border-[#161212]/[0.075] bg-gradient-to-br from-[#FAF9F8] via-[#FAF8F8] to-[#F3EAEA]/55 p-7 sm:flex-row sm:items-center">
@@ -492,48 +573,63 @@ export function HomeDashboard({
                 return (
                   <div
                     key={game.id}
-                    className="group overflow-hidden rounded-2xl border border-[#161212]/[0.075] bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#713131]/25 hover:shadow-[0_10px_24px_rgba(22,18,18,0.06)]"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${game.name}`}
+                    onClick={() => onOpenGameDetail(game)}
+                    onKeyDown={(event) => handleCardKeyDown(event, () => onOpenGameDetail(game))}
+                    className="app-no-drag group relative aspect-video cursor-pointer overflow-hidden rounded-2xl border border-[#161212]/[0.08] bg-[#1C1414] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#713131]/30 hover:shadow-[0_12px_28px_rgba(22,18,18,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF]"
                   >
-                    <div className="relative aspect-video w-full overflow-hidden bg-[#ECE6E6]">
-                      {game.artworkDataUrl ? (
-                        <>
-                          <img
-                            src={game.artworkDataUrl}
-                            alt={game.name}
-                            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.035]"
-                          />
-                          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/45 to-transparent" />
-                        </>
+                    {game.artworkDataUrl ? (
+                      <img
+                        src={game.artworkDataUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#2B1B1B] to-[#4A2525] text-white/30">
+                        <GameControllerIcon className="h-9 w-9" />
+                      </div>
+                    )}
+
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/52 via-transparent to-black/72" />
+
+                    <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 max-w-[180px]">
+                      {game.logoDataUrl ? (
+                        <img
+                          src={game.logoDataUrl}
+                          alt={game.name}
+                          className="max-h-9 max-w-full object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+                        />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#F4EEEE] to-[#E6DADA] text-[#713131]/55">
-                          <GameControllerIcon className="h-8 w-8" />
-                        </div>
+                        <span className="block truncate text-[15px] leading-tight font-bold tracking-[-0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)]">
+                          {game.name}
+                        </span>
                       )}
-
-                      <button
-                        type="button"
-                        disabled={launchingId !== null}
-                        aria-label={`Play ${game.name}`}
-                        onClick={() => onPlayGame(game)}
-                        className="app-no-drag absolute right-2.5 bottom-2.5 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#007AFF] text-white opacity-95 shadow-sm transition-all duration-150 group-hover:scale-105 hover:bg-[#0066D6] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {isLaunching ? (
-                          <SpinnerIcon className="h-4 w-4" />
-                        ) : (
-                          <PlayTriangleIcon className="h-4 w-4 translate-x-[0.5px]" />
-                        )}
-                      </button>
                     </div>
 
-                    <div className="px-4 py-3">
-                      <div className="truncate text-[13.5px] font-semibold tracking-[-0.01em] text-[#161212]">
-                        {game.name}
-                      </div>
-                      <div className="mt-1 flex items-center justify-between gap-2 text-[12px] text-[#6d6262] tabular-nums">
-                        <span className="truncate">{formatCardPlaytime(game.totalPlaytimeSeconds)}</span>
-                        <span className="shrink-0">{formatRelativeDate(game.lastPlayedIso)}</span>
-                      </div>
+                    <div className="pointer-events-none absolute right-14 bottom-3.5 left-3.5 z-10 truncate text-[11.5px] font-medium text-white/75 tabular-nums">
+                      {formatRecentPlaytime(game.totalPlaytimeSeconds)} &middot;{' '}
+                      {formatRelativeDate(game.lastPlayedIso)}
                     </div>
+
+                    <button
+                      type="button"
+                      disabled={launchingId !== null}
+                      aria-label={`Play ${game.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onPlayGame(game)
+                      }}
+                      className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#007AFF] text-white shadow-sm transition-all duration-150 hover:scale-105 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isLaunching ? (
+                        <SpinnerIcon className="h-4 w-4" />
+                      ) : (
+                        <PlayTriangleIcon className="h-4 w-4 translate-x-[0.5px]" />
+                      )}
+                    </button>
                   </div>
                 )
               })}
@@ -546,15 +642,14 @@ export function HomeDashboard({
         </section>
 
         <section
-          aria-label="Launchers quick access"
+          aria-label="Launchers"
           style={staggerStyle(260)}
           className="animate-home-rise mt-9"
         >
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex items-center">
             <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-[#5e5454]">
               Launchers
             </h2>
-            <span className="text-[12px] text-[#6d6262]">Quick access</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">

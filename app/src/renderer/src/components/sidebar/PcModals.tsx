@@ -1,8 +1,26 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import type { BottleSummary } from '../../../../shared/ipc'
 import { PC_ICON_OPTIONS, PcGlyph, type PcIconId } from '../icons/PcIcons'
 import { SpinnerIcon } from '../icons/OnboardingIcons'
 import { PencilIcon, SparklesIcon, TrashIcon } from '../icons/SidebarIcons'
+
+interface Point {
+  x: number
+  y: number
+}
+
+function triangleSign(p1: Point, p2: Point, p3: Point): number {
+  return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
+}
+
+function isPointInTriangle(pt: Point, a: Point, b: Point, c: Point): boolean {
+  const d1 = triangleSign(pt, a, b)
+  const d2 = triangleSign(pt, b, c)
+  const d3 = triangleSign(pt, c, a)
+  const hasNeg = d1 < 0 || d2 < 0 || d3 < 0
+  const hasPos = d1 > 0 || d2 > 0 || d3 > 0
+  return !(hasNeg && hasPos)
+}
 
 interface PcContextMenuProps {
   pc: BottleSummary
@@ -11,6 +29,7 @@ interface PcContextMenuProps {
   onClose: () => void
   onRename: (pc: BottleSummary) => void
   onChangeIcon: (pc: BottleSummary) => void
+  onSelectIcon: (pc: BottleSummary, icon: PcIconId) => void
   onDelete: (pc: BottleSummary) => void
 }
 
@@ -21,86 +40,255 @@ export function PcContextMenu({
   onClose,
   onRename,
   onChangeIcon,
+  onSelectIcon,
   onDelete
 }: PcContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
-  const left = Math.min(x, window.innerWidth - 196)
+  const submenuRef = useRef<HTMLDivElement>(null)
+  const closeTimerRef = useRef<number | null>(null)
+  const submenuDismissTimerRef = useRef<number | null>(null)
+  const safetyOriginRef = useRef<Point | null>(null)
+
+  const [isClosing, setIsClosing] = useState(false)
+  const [isIconSubmenuOpen, setIsIconSubmenuOpen] = useState(false)
+  const [isSubmenuClosing, setIsSubmenuClosing] = useState(false)
+
+  const menuWidth = 176
+  const left = Math.min(x, window.innerWidth - menuWidth - 16)
   const top = Math.min(y, window.innerHeight - 156)
+  const openLeftward = left + menuWidth + 196 > window.innerWidth
+  const submenuLeft = openLeftward ? Math.max(8, left - 188) : left + menuWidth + 6
+  const submenuTop = Math.min(Math.max(8, top + 28), window.innerHeight - 166)
+
+  const triggerClose = useCallback(() => {
+    if (closeTimerRef.current !== null) {
+      return
+    }
+    setIsClosing(true)
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null
+      onClose()
+    }, 135)
+  }, [onClose])
+
+  const openSubmenu = () => {
+    if (submenuDismissTimerRef.current !== null) {
+      window.clearTimeout(submenuDismissTimerRef.current)
+      submenuDismissTimerRef.current = null
+    }
+    setIsSubmenuClosing(false)
+    setIsIconSubmenuOpen(true)
+  }
+
+  const closeSubmenu = useCallback(() => {
+    if (!isIconSubmenuOpen || submenuDismissTimerRef.current !== null) {
+      return
+    }
+    setIsSubmenuClosing(true)
+    submenuDismissTimerRef.current = window.setTimeout(() => {
+      submenuDismissTimerRef.current = null
+      setIsIconSubmenuOpen(false)
+      setIsSubmenuClosing(false)
+    }, 130)
+  }, [isIconSubmenuOpen])
 
   useEffect(() => {
-    const handlePointerDown = (event: PointerEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClose()
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+      if (submenuDismissTimerRef.current !== null) {
+        window.clearTimeout(submenuDismissTimerRef.current)
       }
     }
+  }, [])
+
+  useEffect(() => {
+    const handlePointerDown = (event: globalThis.PointerEvent) => {
+      const target = event.target as Node
+      const insideMenu = menuRef.current?.contains(target) ?? false
+      const insideSubmenu = submenuRef.current?.contains(target) ?? false
+      if (!insideMenu && !insideSubmenu) {
+        triggerClose()
+      }
+    }
+
+    const handlePointerMove = (event: globalThis.PointerEvent) => {
+      const point = { x: event.clientX, y: event.clientY }
+      const previous = safetyOriginRef.current
+      safetyOriginRef.current = point
+
+      if (!isIconSubmenuOpen || !submenuRef.current || !previous) {
+        return
+      }
+      const subRect = submenuRef.current.getBoundingClientRect()
+      const nearEdgeX = openLeftward ? subRect.right + 8 : subRect.left - 8
+      const cornerTop = { x: nearEdgeX, y: subRect.top - 10 }
+      const cornerBottom = { x: nearEdgeX, y: subRect.bottom + 10 }
+
+      if (
+        !isPointInTriangle(point, previous, cornerTop, cornerBottom) &&
+        !(menuRef.current?.contains(event.target as Node) ?? false) &&
+        !submenuRef.current.contains(event.target as Node)
+      ) {
+        closeSubmenu()
+      }
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose()
+        triggerClose()
       }
     }
 
     window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('scroll', onClose, true)
-    window.addEventListener('blur', onClose)
+    window.addEventListener('scroll', triggerClose, true)
+    window.addEventListener('blur', triggerClose)
 
     return () => {
       window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('scroll', onClose, true)
-      window.removeEventListener('blur', onClose)
+      window.removeEventListener('scroll', triggerClose, true)
+      window.removeEventListener('blur', triggerClose)
     }
-  }, [onClose])
+  }, [triggerClose, isIconSubmenuOpen, openLeftward, closeSubmenu])
+
+  const handleHoverOtherRow = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!isIconSubmenuOpen || !submenuRef.current) {
+      return
+    }
+    const point = { x: event.clientX, y: event.clientY }
+    const origin = safetyOriginRef.current ?? point
+    const subRect = submenuRef.current.getBoundingClientRect()
+    const nearEdgeX = openLeftward ? subRect.right + 8 : subRect.left - 8
+    const cornerTop = { x: nearEdgeX, y: subRect.top - 12 }
+    const cornerBottom = { x: nearEdgeX, y: subRect.bottom + 12 }
+
+    if (isPointInTriangle(point, origin, cornerTop, cornerBottom)) {
+      if (submenuDismissTimerRef.current !== null) {
+        window.clearTimeout(submenuDismissTimerRef.current)
+      }
+      submenuDismissTimerRef.current = window.setTimeout(() => {
+        submenuDismissTimerRef.current = null
+        closeSubmenu()
+      }, 220)
+      return
+    }
+
+    closeSubmenu()
+  }
+
+  const currentIcon = pc.icon ?? 'pc'
 
   return (
-    <div
-      ref={menuRef}
-      role="menu"
-      aria-label={`Actions for ${pc.name}`}
-      style={{ left, top }}
-      className="app-no-drag fixed z-50 w-44 rounded-xl border border-[#161212]/[0.1] bg-white p-1 shadow-[0_10px_28px_rgba(22,18,18,0.14)]"
-    >
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          onClose()
-          onRename(pc)
-        }}
-        className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-normal text-[#161212] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#713131]"
+    <>
+      <div
+        ref={menuRef}
+        role="menu"
+        aria-label={`Actions for ${pc.name}`}
+        style={{ left, top }}
+        className={`app-no-drag fixed z-50 w-44 rounded-xl border border-[#161212]/[0.1] bg-white p-1 shadow-[0_12px_32px_rgba(22,18,18,0.14)] ${
+          isClosing ? 'animate-context-out pointer-events-none' : 'animate-context-in'
+        }`}
       >
-        <PencilIcon className="h-[14px] w-[14px] shrink-0" />
-        <span>Rename</span>
-      </button>
+        <button
+          type="button"
+          role="menuitem"
+          onPointerEnter={handleHoverOtherRow}
+          onClick={() => {
+            triggerClose()
+            onRename(pc)
+          }}
+          className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-normal text-[#161212] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#713131]"
+        >
+          <PencilIcon className="h-[14px] w-[14px] shrink-0" />
+          <span>Rename</span>
+        </button>
 
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          onClose()
-          onChangeIcon(pc)
-        }}
-        className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-normal text-[#161212] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#713131]"
-      >
-        <SparklesIcon className="h-[14px] w-[14px] shrink-0" />
-        <span>Change Icon</span>
-      </button>
+        <button
+          type="button"
+          role="menuitem"
+          aria-haspopup="menu"
+          aria-expanded={isIconSubmenuOpen}
+          onPointerEnter={openSubmenu}
+          onClick={() => {
+            triggerClose()
+            onChangeIcon(pc)
+          }}
+          className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[13px] transition-colors ${
+            isIconSubmenuOpen
+              ? 'bg-[#713131]/[0.08] font-medium text-[#713131]'
+              : 'font-normal text-[#161212] hover:bg-[#161212]/[0.05] hover:text-[#713131]'
+          }`}
+        >
+          <span className="flex items-center gap-2.5">
+            <SparklesIcon className="h-[14px] w-[14px] shrink-0" />
+            <span>Change Icon</span>
+          </span>
+          <span className="text-[11px] opacity-60">&rsaquo;</span>
+        </button>
 
-      <div className="my-1 h-px bg-[#161212]/[0.08]" role="separator" />
+        <div className="my-1 h-px bg-[#161212]/[0.08]" role="separator" />
 
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          onClose()
-          onDelete(pc)
-        }}
-        className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-normal text-red-600 transition-colors hover:bg-red-500/[0.08]"
-      >
-        <TrashIcon className="h-[14px] w-[14px] shrink-0" />
-        <span>Delete</span>
-      </button>
-    </div>
+        <button
+          type="button"
+          role="menuitem"
+          onPointerEnter={handleHoverOtherRow}
+          onClick={() => {
+            triggerClose()
+            onDelete(pc)
+          }}
+          className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] font-normal text-red-600 transition-colors hover:bg-red-500/[0.08]"
+        >
+          <TrashIcon className="h-[14px] w-[14px] shrink-0" />
+          <span>Delete</span>
+        </button>
+      </div>
+
+      {isIconSubmenuOpen && (
+        <div
+          ref={submenuRef}
+          role="menu"
+          aria-label={`Choose icon for ${pc.name}`}
+          onPointerEnter={openSubmenu}
+          style={{ left: submenuLeft, top: submenuTop }}
+          className={`app-no-drag fixed z-50 w-[182px] rounded-xl border border-[#161212]/[0.1] bg-white p-2 shadow-[0_12px_32px_rgba(22,18,18,0.16)] ${
+            isSubmenuClosing || isClosing
+              ? 'animate-context-out pointer-events-none'
+              : 'animate-context-in'
+          }`}
+        >
+          <div className="grid grid-cols-4 gap-1.5">
+            {PC_ICON_OPTIONS.map((option) => {
+              const isSelected = currentIcon === option.id
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="menuitem"
+                  aria-label={option.label}
+                  title={option.label}
+                  onClick={() => {
+                    onSelectIcon(pc, option.id)
+                    triggerClose()
+                  }}
+                  className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors ${
+                    isSelected
+                      ? 'bg-[#713131]/[0.12] text-[#713131] ring-1 ring-[#713131]/30'
+                      : 'text-[#4a4242] hover:bg-[#161212]/[0.05] hover:text-[#713131]'
+                  }`}
+                >
+                  <PcGlyph icon={option.id} className="h-[16px] w-[16px]" />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -126,7 +314,12 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
     setIsCreating(false)
     setErrorMessage(null)
     requestAnimationFrame(() => inputRef.current?.focus())
+  }, [isOpen])
 
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isCreating) {
         onClose()
@@ -134,7 +327,7 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen])
+  }, [isOpen, isCreating, onClose])
 
   if (!isOpen) {
     return null
@@ -365,7 +558,12 @@ export function DeletePcModal({ pc, onClose, onConfirmDelete }: DeletePcModalPro
     setIsDeleting(false)
     setErrorMessage(null)
     requestAnimationFrame(() => inputRef.current?.focus())
+  }, [pc])
 
+  useEffect(() => {
+    if (!pc) {
+      return
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isDeleting) {
         onClose()
@@ -373,7 +571,7 @@ export function DeletePcModal({ pc, onClose, onConfirmDelete }: DeletePcModalPro
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [pc])
+  }, [pc, isDeleting, onClose])
 
   if (!pc) {
     return null

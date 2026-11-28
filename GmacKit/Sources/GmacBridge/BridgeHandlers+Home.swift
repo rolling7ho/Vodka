@@ -29,39 +29,10 @@ private struct BottleScanContext {
     let bottleURL: URL
     let bottleName: String
     let bottlePath: String
+    let steamRoot: URL?
     let steamGames: [Int: SteamGame]
     let steamPlaytime: [Int: SteamPlaytime]
     let appIDByName: [String: Int]
-}
-
-private struct HomeGameRecord: Sendable {
-    let id: String
-    let name: String
-    let bottleName: String
-    let bottlePath: String
-    let launchKind: String
-    let steamAppId: Int?
-    let programPath: String?
-    let totalPlaytimeSeconds: TimeInterval
-    let lastTwoWeeksSeconds: TimeInterval
-    let lastPlayed: Date?
-    let artworkDataUrl: String?
-
-    func toJSON() -> JSONValue {
-        .object([
-            "id": .string(id),
-            "name": .string(name),
-            "bottleName": .string(bottleName),
-            "bottlePath": .string(bottlePath),
-            "launchKind": .string(launchKind),
-            "steamAppId": steamAppId.map { .int($0) } ?? .null,
-            "programPath": programPath.map { .string($0) } ?? .null,
-            "totalPlaytimeSeconds": .double(totalPlaytimeSeconds),
-            "lastTwoWeeksSeconds": .double(lastTwoWeeksSeconds),
-            "lastPlayedIso": lastPlayed.map { .string($0.ISO8601Format()) } ?? .null,
-            "artworkDataUrl": artworkDataUrl.map { .string($0) } ?? .null
-        ])
-    }
 }
 
 private struct LauncherDescriptor {
@@ -81,6 +52,9 @@ private struct HomeAggregation: Sendable {
     let lastTwoWeeksSeconds: TimeInterval
     let gamesInstalled: Int
     let pcsCount: Int
+    let hoursHistory: [StatPointRecord]
+    let recentHoursHistory: [StatPointRecord]
+    let gamesHistory: [StatPointRecord]
     let continuePlaying: HomeGameRecord?
     let recentlyPlayed: [HomeGameRecord]
     let launchers: [String: DetectedLauncherInfo]
@@ -121,7 +95,10 @@ extension BridgeRouter {
                 "totalPlaytimeSeconds": .double(aggregation.totalPlaytimeSeconds),
                 "lastTwoWeeksSeconds": .double(aggregation.lastTwoWeeksSeconds),
                 "gamesInstalled": .int(aggregation.gamesInstalled),
-                "pcsCount": .int(aggregation.pcsCount)
+                "pcsCount": .int(aggregation.pcsCount),
+                "hoursHistory": .array(aggregation.hoursHistory.map { $0.toJSON() }),
+                "recentHoursHistory": .array(aggregation.recentHoursHistory.map { $0.toJSON() }),
+                "gamesHistory": .array(aggregation.gamesHistory.map { $0.toJSON() })
             ]),
             "continuePlaying": aggregation.continuePlaying?.toJSON() ?? .null,
             "recentlyPlayed": .array(aggregation.recentlyPlayed.map { $0.toJSON() }),
@@ -192,6 +169,15 @@ extension BridgeRouter {
             lastTwoWeeksSeconds: twoWeekSeconds,
             gamesInstalled: sortedGames.count,
             pcsCount: inputs.count,
+            hoursHistory: buildCumulativeHistory(
+                games: sortedGames,
+                totalHours: totalSeconds / 3600
+            ),
+            recentHoursHistory: buildRecentHistory(
+                games: sortedGames,
+                twoWeekHours: twoWeekSeconds / 3600
+            ),
+            gamesHistory: buildGamesHistory(totalGames: sortedGames.count),
             continuePlaying: heroGame,
             recentlyPlayed: recentGames,
             launchers: detectedLaunchers
@@ -212,11 +198,11 @@ extension BridgeRouter {
             steamGames.values.map { ($0.name.lowercased(), $0.appId) },
             uniquingKeysWith: { first, _ in first }
         )
-
         let context = BottleScanContext(
             bottleURL: input.url,
             bottleName: input.name,
             bottlePath: bottlePath,
+            steamRoot: steamRoot,
             steamGames: steamGames,
             steamPlaytime: steamPlaytime,
             appIDByName: appIDByName
@@ -226,7 +212,15 @@ extension BridgeRouter {
         let games = entries.filter { !$0.isLauncher }.map { entry in
             buildGameRecord(entry: entry, context: context)
         }
+        let launchers = scanLaunchers(input: input, bottlePath: bottlePath, steamRoot: steamRoot)
+        return (games, launchers)
+    }
 
+    private static func scanLaunchers(
+        input: BottleHomeInput,
+        bottlePath: String,
+        steamRoot: URL?
+    ) -> [String: DetectedLauncherInfo] {
         var launchers: [String: DetectedLauncherInfo] = [:]
         if let steamRoot {
             let steamExe = steamRoot.appending(path: "steam.exe").path(percentEncoded: false)
@@ -250,8 +244,7 @@ extension BridgeRouter {
                 )
             }
         }
-
-        return (games, launchers)
+        return launchers
     }
 
     private static func buildGameRecord(
@@ -288,6 +281,9 @@ extension BridgeRouter {
         let lastPlayed = [steam?.lastPlayed, program?.lastPlayed, game?.manifest.lastPlayed]
             .compactMap { $0 }
             .max()
+        let logoURL = resolvedAppID.flatMap { appID in
+            context.steamRoot.flatMap { findSteamLogoURL(appID: appID, steamRoot: $0) }
+        }
 
         return HomeGameRecord(
             id: entry.id,
@@ -300,8 +296,31 @@ extension BridgeRouter {
             totalPlaytimeSeconds: total,
             lastTwoWeeksSeconds: lastTwoWeeks,
             lastPlayed: lastPlayed,
-            artworkDataUrl: encodeArtworkDataURL(entry.artworkURL)
+            artworkDataUrl: encodeArtworkDataURL(entry.artworkURL),
+            logoDataUrl: encodeArtworkDataURL(logoURL)
         )
+    }
+
+    private static func findSteamLogoURL(appID: Int, steamRoot: URL) -> URL? {
+        let cache = steamRoot.appending(path: "appcache").appending(path: "librarycache")
+        let appFolder = cache.appending(path: "\(appID)")
+        let walked = FileManager.default.enumerator(
+            at: appFolder,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )?.compactMap { $0 as? URL } ?? []
+
+        if let nestedLogo = walked.first(where: {
+            $0.lastPathComponent == "logo.png" || $0.lastPathComponent == "\(appID)_logo.png"
+        }) {
+            return nestedLogo
+        }
+
+        let flatLogo = cache.appending(path: "\(appID)_logo.png")
+        if FileManager.default.fileExists(atPath: flatLogo.path(percentEncoded: false)) {
+            return flatLogo
+        }
+        return nil
     }
 
     private static func compareGamesForHome(_ lhs: HomeGameRecord, _ rhs: HomeGameRecord) -> Bool {

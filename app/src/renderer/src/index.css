@@ -365,6 +365,56 @@
   animation: gmac-home-rise 460ms cubic-bezier(0.19, 1, 0.22, 1) var(--stagger-delay, 0ms) both;
 }
 
+@keyframes gmac-sparkline-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-sparkline-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: gmac-sparkline-draw 920ms cubic-bezier(0.19, 1, 0.22, 1) 120ms both;
+}
+
+@keyframes gmac-context-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translate3d(0, -3px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes gmac-context-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.96) translate3d(0, -2px, 0);
+  }
+}
+
+.animate-context-in {
+  transform-origin: top left;
+  animation: gmac-context-in 160ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.animate-context-out {
+  transform-origin: top left;
+  animation: gmac-context-out 130ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .radiance-drift-primary,
   .radiance-drift-secondary,
@@ -380,7 +430,10 @@
   .animate-parallax-left-3,
   .animate-onboarding-exit,
   .animate-home-enter,
-  .animate-home-rise {
+  .animate-home-rise,
+  .animate-sparkline-draw,
+  .animate-context-in,
+  .animate-context-out {
     animation: none;
   }
 

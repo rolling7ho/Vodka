@@ -32,7 +32,10 @@ function defaultHomeSummary(pcsCount: number): HomeSummary {
       totalPlaytimeSeconds: 0,
       lastTwoWeeksSeconds: 0,
       gamesInstalled: 0,
-      pcsCount
+      pcsCount,
+      hoursHistory: [],
+      recentHoursHistory: [],
+      gamesHistory: []
     },
     continuePlaying: null,
     recentlyPlayed: [],

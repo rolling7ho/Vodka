@@ -13,6 +13,7 @@ import {
   Sidebar,
   type SidebarDestination
 } from '../sidebar/Sidebar'
+import { GameDetail } from './GameDetail'
 import { HomeDashboard } from './HomeDashboard'
 import { MOCK_HOME_SUMMARY, MOCK_PCS } from './mockHomeData'
 
@@ -44,8 +45,9 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   const [pcs, setPcs] = useState<BottleSummary[]>([])
   const [homeSummary, setHomeSummary] = useState<HomeSummary | null>(null)
   const [isHomeLoading, setIsHomeLoading] = useState(true)
-  const [isMockPreview, setIsMockPreview] = useState(resolveInitialMockMode)
+  const [isMockMode] = useState(resolveInitialMockMode)
   const [homeVisitKey, setHomeVisitKey] = useState(() => (enteredFromOnboarding ? 2 : 1))
+  const [selectedGame, setSelectedGame] = useState<HomeGameItem | null>(null)
   const [launchingId, setLaunchingId] = useState<string | null>(null)
   const [settingUpLauncherId, setSettingUpLauncherId] = useState<string | null>(null)
   const [homeError, setHomeError] = useState<string | null>(null)
@@ -159,6 +161,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   }
 
   const handleSelectDestination = (next: SidebarDestination) => {
+    setSelectedGame(null)
     setActiveDestination((current) => {
       if (next.kind === 'home' && current.kind !== 'home') {
         setHomeVisitKey((key) => key + 1)
@@ -167,9 +170,8 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
     })
   }
 
-  const handleToggleMockPreview = () => {
-    setIsMockPreview((prev) => !prev)
-    setHomeError(null)
+  const handleCloseGameDetail = () => {
+    setSelectedGame(null)
     setHomeVisitKey((key) => key + 1)
   }
 
@@ -195,12 +197,13 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
     }
     const created = await window.gmac.createBottle(name, icon)
     setPcs((prev) => [...prev, created])
+    setSelectedGame(null)
     setActiveDestination({ kind: 'pc', path: created.path })
     void refreshHomeSummary()
   }
 
   const handleRenamePc = async (path: string, newName: string) => {
-    if (isMockPreview) {
+    if (isMockMode) {
       return
     }
     const previousPcs = pcs
@@ -217,7 +220,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   }
 
   const handleChangePcIcon = async (pc: BottleSummary, icon: PcIconId) => {
-    if (isMockPreview) {
+    if (isMockMode) {
       return
     }
     const previousPcs = pcs
@@ -230,7 +233,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   }
 
   const handleDeletePc = async (pc: BottleSummary) => {
-    if (isMockPreview) {
+    if (isMockMode) {
       return
     }
     if (!window.gmac) {
@@ -245,7 +248,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   }
 
   const handleReorderPcs = async (orderedPaths: string[]) => {
-    if (isMockPreview) {
+    if (isMockMode) {
       return
     }
     const previousPcs = pcs
@@ -265,7 +268,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
 
   const handlePlayGame = async (game: HomeGameItem) => {
     setHomeError(null)
-    if (isMockPreview) {
+    if (isMockMode) {
       runMockTransientFeedback(game.id, 'launch')
       return
     }
@@ -289,7 +292,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
 
   const handleOpenLauncher = async (launcher: HomeLauncherItem) => {
     setHomeError(null)
-    if (isMockPreview) {
+    if (isMockMode) {
       runMockTransientFeedback(`launcher:${launcher.id}`, 'launch')
       return
     }
@@ -312,7 +315,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
 
   const handleSetupLauncher = async (launcher: HomeLauncherItem) => {
     setHomeError(null)
-    if (isMockPreview) {
+    if (isMockMode) {
       runMockTransientFeedback(launcher.id, 'setup')
       return
     }
@@ -330,8 +333,8 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
     }
   }
 
-  const displayedPcs = isMockPreview ? MOCK_PCS : pcs
-  const displayedSummary = isMockPreview ? MOCK_HOME_SUMMARY : homeSummary
+  const displayedPcs = isMockMode ? MOCK_PCS : pcs
+  const displayedSummary = isMockMode ? MOCK_HOME_SUMMARY : homeSummary
   const sectionTitle = destinationTitle(activeDestination, displayedPcs)
   const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
   const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
@@ -370,26 +373,37 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
         onRenamePc={handleRenamePc}
         onRequestDeletePc={setDeleteModalPc}
         onRequestChangeIcon={setIconModalPc}
+        onSelectPcIcon={handleChangePcIcon}
         onReorderPcs={handleReorderPcs}
       />
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
         {activeDestination.kind === 'home' ? (
-          <HomeDashboard
-            summary={displayedSummary}
-            isLoading={isHomeLoading}
-            visitKey={homeVisitKey}
-            isMockPreview={isMockPreview}
-            launchingId={launchingId}
-            settingUpLauncherId={settingUpLauncherId}
-            errorMessage={homeError}
-            onToggleMockPreview={handleToggleMockPreview}
-            onPlayGame={handlePlayGame}
-            onOpenLauncher={handleOpenLauncher}
-            onSetupLauncher={handleSetupLauncher}
-            onOpenLibrary={() => handleSelectDestination({ kind: 'library' })}
-            onOpenCreatePc={() => setIsCreateModalOpen(true)}
-          />
+          selectedGame ? (
+            <GameDetail
+              game={selectedGame}
+              isLaunching={launchingId === selectedGame.id}
+              errorMessage={homeError}
+              onBack={handleCloseGameDetail}
+              onPlay={handlePlayGame}
+              onOpenPc={(bottlePath) => handleSelectDestination({ kind: 'pc', path: bottlePath })}
+            />
+          ) : (
+            <HomeDashboard
+              summary={displayedSummary}
+              isLoading={isHomeLoading}
+              visitKey={homeVisitKey}
+              launchingId={launchingId}
+              settingUpLauncherId={settingUpLauncherId}
+              errorMessage={homeError}
+              onPlayGame={handlePlayGame}
+              onOpenGameDetail={setSelectedGame}
+              onOpenLauncher={handleOpenLauncher}
+              onSetupLauncher={handleSetupLauncher}
+              onOpenLibrary={() => handleSelectDestination({ kind: 'library' })}
+              onOpenCreatePc={() => setIsCreateModalOpen(true)}
+            />
+          )
         ) : (
           <>
             <div className="h-11 w-full shrink-0" />

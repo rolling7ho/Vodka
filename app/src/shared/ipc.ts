@@ -77,11 +77,19 @@ export interface LauncherSetupResult {
   launcher: string
 }
 
+export interface StatPoint {
+  date: string
+  value: number
+}
+
 export interface HomeStats {
   totalPlaytimeSeconds: number
   lastTwoWeeksSeconds: number
   gamesInstalled: number
   pcsCount: number
+  hoursHistory: StatPoint[]
+  recentHoursHistory: StatPoint[]
+  gamesHistory: StatPoint[]
 }
 
 export interface HomeGameItem {
@@ -96,6 +104,7 @@ export interface HomeGameItem {
   lastTwoWeeksSeconds: number
   lastPlayedIso: string | null
   artworkDataUrl: string | null
+  logoDataUrl: string | null
 }
 
 export interface HomeLauncherItem {
