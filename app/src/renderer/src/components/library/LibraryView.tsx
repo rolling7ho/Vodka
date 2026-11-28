@@ -376,7 +376,7 @@ export function LibraryView({
               <div
                 ref={shelfRef}
                 onScroll={clearHoverImmediately}
-                className="flex gap-4 overflow-x-auto pt-1 pb-3"
+                className="-mx-2 flex gap-4 overflow-x-auto px-2 pt-1 pb-7 -mb-4"
               >
                 {featuredRecent && (
                   <div className="shrink-0">
@@ -525,18 +525,28 @@ export function LibraryView({
                     <span className="text-[11px] font-semibold tracking-[0.05em] text-[#5e5454]/80 uppercase">
                       Sort By
                     </span>
-                    <div className="relative">
-                      <select
-                        aria-label="Sort games"
-                        value={sortMode}
-                        onChange={(event) => setSortMode(event.target.value as LibrarySortMode)}
-                        className="app-no-drag cursor-pointer appearance-none rounded-lg bg-[#FAF9F8] py-1.5 pr-7 pl-3 text-[12.5px] font-medium text-[#161212] transition-colors hover:bg-[#F3EFEF] focus:outline-2 focus:outline-[#713131]/50"
-                      >
-                        <option value="alphabetical">Alphabetical</option>
-                        <option value="recent">Recently Played</option>
-                        <option value="hours">Hours Played</option>
-                      </select>
-                      <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-2 h-3.5 w-3.5 -translate-y-1/2 text-[#5e5454]" />
+                    <div className="inline-flex rounded-lg bg-[#FAF9F8] p-0.5 ring-1 ring-[#161212]/[0.05]">
+                      {(
+                        [
+                          { id: 'alphabetical', label: 'Alphabetical' },
+                          { id: 'recent', label: 'Recently Played' },
+                          { id: 'hours', label: 'Hours Played' }
+                        ] as const
+                      ).map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          aria-pressed={sortMode === option.id}
+                          onClick={() => setSortMode(option.id)}
+                          className={`app-no-drag cursor-pointer rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors ${
+                            sortMode === option.id
+                              ? 'bg-white text-[#161212] shadow-xs'
+                              : 'text-[#5e5454] hover:text-[#161212]'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>

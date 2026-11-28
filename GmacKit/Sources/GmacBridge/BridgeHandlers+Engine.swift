@@ -228,7 +228,7 @@ extension BridgeRouter {
     }
 
     private static func formatMegabytes(_ bytes: Int64) -> String {
-        let megabytes = Double(bytes) / (1024.0 * 1024.0)
+        let megabytes = Double(bytes) / (1_024.0 * 1_024.0)
         return String(format: "%.0f MB", megabytes)
     }
 }

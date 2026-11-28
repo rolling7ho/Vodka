@@ -9,7 +9,10 @@ export function WelcomeStep({ onStart }: WelcomeStepProps) {
   return (
     <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-10">
       <div className="animate-fade-up">
-        <h1 className="flex items-baseline justify-center gap-3 text-[42px] leading-none font-semibold tracking-[-0.03em] text-[#161212]">
+        <h1
+          aria-label="Welcome to Gmac"
+          className="flex items-baseline justify-center gap-3 text-[42px] leading-none font-semibold tracking-[-0.03em] text-[#161212]"
+        >
           <span>Welcome to</span>
           <GmacWordmark className="h-[46px] w-auto translate-y-[5px]" />
         </h1>

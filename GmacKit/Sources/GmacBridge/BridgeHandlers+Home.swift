@@ -71,7 +71,7 @@ extension BridgeRouter {
         LauncherDescriptor(id: "ubisoft", name: "Ubisoft Connect", launcherType: .ubisoft)
     ]
 
-    private static let maxArtworkBytes = 512 * 1024
+    private static let maxArtworkBytes = 512 * 1_024
 
     @MainActor
     func homeSummary() async -> JSONValue {
@@ -173,11 +173,11 @@ extension BridgeRouter {
             pcsCount: inputs.count,
             hoursHistory: buildCumulativeHistory(
                 games: sortedGames,
-                totalHours: totalSeconds / 3600
+                totalHours: totalSeconds / 3_600
             ),
             recentHoursHistory: buildRecentHistory(
                 games: sortedGames,
-                twoWeekHours: twoWeekSeconds / 3600
+                twoWeekHours: twoWeekSeconds / 3_600
             ),
             gamesHistory: buildGamesHistory(totalGames: sortedGames.count),
             continuePlaying: heroGame,

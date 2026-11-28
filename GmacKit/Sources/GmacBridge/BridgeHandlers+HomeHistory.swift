@@ -80,7 +80,7 @@ extension BridgeRouter {
                     guard let played = game.lastPlayed else { return false }
                     return played <= date
                 }
-                .reduce(0) { $0 + $1.totalPlaytimeSeconds / 3600 }
+                .reduce(0) { $0 + $1.totalPlaytimeSeconds / 3_600 }
             let value = idx == dayOffsets.count - 1 ? totalHours : max(baseline, matchedHours)
             return StatPointRecord(date: date.ISO8601Format(), value: value)
         }
@@ -107,7 +107,7 @@ extension BridgeRouter {
                     guard let played = game.lastPlayed else { return false }
                     return played >= bucketStart && played <= bucketEnd
                 }
-                .reduce(0) { $0 + $1.lastTwoWeeksSeconds / 3600 }
+                .reduce(0) { $0 + $1.lastTwoWeeksSeconds / 3_600 }
             let smoothFallback = twoWeekHours * (0.08 + Double(idx % 3) * 0.05)
             return StatPointRecord(
                 date: bucketEnd.ISO8601Format(),

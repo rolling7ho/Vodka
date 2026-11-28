@@ -158,7 +158,8 @@ extension BridgeRouter {
         var bottlesList = BottleData()
         guard let existingURL = bottlesList.paths.first(where: {
             Self.canonicalBottlePath($0) == targetCanonical
-        }) else {
+        })
+        else {
             throw BridgeError.operationFailed("PC not found.")
         }
 

@@ -562,23 +562,23 @@ export function PcPage({
         {activeTab === 'overview' && (
           <div className="mt-6 space-y-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl bg-[#FAF9F8] px-5 py-4">
+              <div className="min-w-0 rounded-2xl bg-[#FAF9F8] px-5 py-4">
                 <div className="text-[12px] font-medium text-[#5e5454]">Games Installed</div>
-                <div className="mt-2 text-[26px] font-bold tracking-[-0.03em] text-[#161212] tabular-nums">
+                <div className="mt-2 truncate text-[24px] font-bold tracking-[-0.03em] text-[#161212] tabular-nums">
                   {pcGames.length}
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-[#FAF9F8] px-5 py-4">
+              <div className="min-w-0 rounded-2xl bg-[#FAF9F8] px-5 py-4">
                 <div className="text-[12px] font-medium text-[#5e5454]">Total Playtime</div>
-                <div className="mt-2 text-[26px] font-bold tracking-[-0.03em] text-[#161212] tabular-nums">
+                <div className="mt-2 truncate text-[24px] font-bold tracking-[-0.03em] text-[#161212] tabular-nums">
                   {formatTotalPlaytime(totalPlaytimeSeconds)}
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-[#FAF9F8] px-5 py-4">
+              <div className="min-w-0 rounded-2xl bg-[#FAF9F8] px-5 py-4">
                 <div className="text-[12px] font-medium text-[#5e5454]">Graphics Backend</div>
-                <div className="mt-2 text-[22px] font-bold tracking-[-0.025em] text-[#161212]">
+                <div className="mt-2 truncate text-[17px] font-bold tracking-[-0.02em] text-[#161212] xl:text-[19px]">
                   {formatBackendLabel(config.graphicsBackend)}
                 </div>
               </div>
@@ -612,7 +612,7 @@ export function PcPage({
             {pcLaunchers.length > 0 && (
               <section aria-label="Installed launchers on this PC">
                 <h2 className="mb-3 text-[13.5px] font-semibold text-[#161212]">Launchers</h2>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {pcLaunchers.map((launcher) => {
                     const isBusy = launchingId === `launcher:${launcher.id}`
                     return (

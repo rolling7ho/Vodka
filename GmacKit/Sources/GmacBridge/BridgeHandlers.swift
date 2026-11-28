@@ -82,19 +82,19 @@ struct BridgeRouter: Sendable {
     ) async throws -> JSONValue? {
         switch method {
         case "bottles.importLegacy":
-            return try await importLegacyBottles(params: params)
+            try await importLegacyBottles(params: params)
         case "bottles.create":
-            return try await createBottle(params: params)
+            try await createBottle(params: params)
         case "bottles.rename":
-            return try await renameBottle(params: params)
+            try await renameBottle(params: params)
         case "bottles.delete":
-            return try await deleteBottle(params: params)
+            try await deleteBottle(params: params)
         case "bottles.setIcon":
-            return try await setBottleIcon(params: params)
+            try await setBottleIcon(params: params)
         case "bottles.reorder":
-            return try await reorderBottles(params: params)
+            try await reorderBottles(params: params)
         default:
-            return nil
+            nil
         }
     }
 
@@ -104,11 +104,11 @@ struct BridgeRouter: Sendable {
     ) async throws -> JSONValue? {
         switch method {
         case "home.summary":
-            return await homeSummary()
+            await homeSummary()
         case "home.launch":
-            return try await launchHomeItem(params: params)
+            try await launchHomeItem(params: params)
         default:
-            return nil
+            nil
         }
     }
 

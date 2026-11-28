@@ -103,14 +103,13 @@ extension BridgeRouter {
 
         var bottlesList = BottleData()
         let existingBottles = bottlesList.loadBottles()
-        let bottle: Bottle
-
-        if launcherType == .steam, let existingSteam = SteamInstaller.steamBottle(in: existingBottles) {
-            bottle = existingSteam
+        let bottle: Bottle = if launcherType == .steam,
+                                let existingSteam = SteamInstaller.steamBottle(in: existingBottles) {
+            existingSteam
         } else if let named = existingBottles.first(where: { $0.settings.name == launcherType.displayName }) {
-            bottle = named
+            named
         } else {
-            bottle = try await createLauncherBottle(
+            try await createLauncherBottle(
                 name: launcherType.displayName,
                 graphicsChoice: graphicsChoice,
                 registry: &bottlesList

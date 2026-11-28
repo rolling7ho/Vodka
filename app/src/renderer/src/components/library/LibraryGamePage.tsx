@@ -402,8 +402,8 @@ export function LibraryGamePage({
           })}
         </nav>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="space-y-6 md:col-span-2">
             {activeTab === 'overview' && (
               <div>
                 <h2 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">

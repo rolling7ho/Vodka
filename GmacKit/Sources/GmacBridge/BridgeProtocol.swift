@@ -163,7 +163,7 @@ final class BridgeWriter: @unchecked Sendable {
         writeLine(BridgeEvent(event: "progress", id: id, data: .object(data)))
     }
 
-    private func writeLine<T: Encodable>(_ payload: T) {
+    private func writeLine(_ payload: some Encodable) {
         lock.lock()
         defer { lock.unlock() }
         guard let encoded = try? encoder.encode(payload) else {

@@ -462,7 +462,11 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
               ? 'none'
               : `transform ${toggleTiming}, background-color 150ms, color 150ms`
           }}
-          className="app-no-drag group absolute top-[10px] left-0 inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#713131]/60"
+          className={`app-no-drag group absolute top-[10px] left-0 inline-flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#713131]/60 ${
+            isSidebarCollapsed
+              ? 'bg-white/88 shadow-[0_1px_6px_rgba(22,18,18,0.1)] ring-1 ring-[#161212]/[0.07] backdrop-blur-md hover:bg-white'
+              : 'hover:bg-[#161212]/[0.06]'
+          }`}
         >
           <SidebarToggleIcon className="h-[19px] w-[19px] transition-transform duration-150 group-active:scale-90" />
         </button>

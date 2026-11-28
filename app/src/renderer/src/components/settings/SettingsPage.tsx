@@ -94,7 +94,7 @@ function ToggleRow({ label, description, checked, onToggle }: ToggleRowProps) {
 function StatusBadge({ installed }: { installed: boolean }) {
   return (
     <span
-      className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-medium ${
+      className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11.5px] font-medium ${
         installed
           ? 'bg-emerald-500/10 text-emerald-700'
           : 'bg-[#161212]/[0.06] text-[#5e5454]'
@@ -589,7 +589,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                 </h2>
                 <div className="mt-3 divide-y divide-[#161212]/[0.06]">
                   <div className="flex items-center justify-between gap-4 py-3 first:pt-0">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="text-[13.5px] font-medium text-[#161212]">Rosetta 2</div>
                       <div className="mt-0.5 text-[12px] text-[#5e5454]">
                         macOS x86_64 instruction translation required by Windows titles.
@@ -599,7 +599,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                   </div>
 
                   <div className="flex items-center justify-between gap-4 py-3">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="text-[13.5px] font-medium text-[#161212]">
                         Gmac Windows Engine
                       </div>
@@ -607,14 +607,14 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                         Core compatibility runtime powering every Windows PC.
                       </div>
                     </div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex shrink-0 items-center gap-2.5">
                       <StatusBadge installed={systemStatus?.engineInstalled ?? false} />
                       {!systemStatus?.engineInstalled && (
                         <button
                           type="button"
                           disabled={isInstallingEngine}
                           onClick={() => void handleInstallEngine()}
-                          className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#713131] px-3.5 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-[#5E2828] disabled:cursor-not-allowed disabled:opacity-55"
+                          className="app-no-drag inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl bg-[#713131] px-3.5 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-[#5E2828] disabled:cursor-not-allowed disabled:opacity-55"
                         >
                           {isInstallingEngine && <SpinnerIcon className="h-3.5 w-3.5" />}
                           <span>{isInstallingEngine ? 'Installing...' : 'Install Engine'}</span>
@@ -623,8 +623,8 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-4 pt-3">
-                    <div>
+                  <div className="flex items-center justify-between gap-4 pt-3">
+                    <div className="min-w-0 flex-1">
                       <div className="text-[13.5px] font-medium text-[#161212]">
                         Apple Game Porting Toolkit (DirectX 12)
                       </div>
@@ -634,13 +634,13 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                           : 'Required for DirectX 12 titles via Apple D3DMetal.'}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex shrink-0 items-center gap-2.5">
                       <StatusBadge installed={systemStatus?.toolkitInstalled ?? false} />
                       <button
                         type="button"
                         disabled={isInstallingToolkit}
                         onClick={() => void handleImportToolkit()}
-                        className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:bg-[#F3EFEF] disabled:cursor-not-allowed disabled:opacity-55"
+                        className="app-no-drag inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:bg-[#F3EFEF] disabled:cursor-not-allowed disabled:opacity-55"
                       >
                         {isInstallingToolkit && <SpinnerIcon className="h-3.5 w-3.5" />}
                         <span>
