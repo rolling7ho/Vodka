@@ -25,13 +25,12 @@ extension BridgeRouter {
         let query = params["query"]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let steamAppID = params["steamAppId"]?.intValue
 
-        let filtered: [GameDBEntry]
-        if let steamAppID {
-            filtered = allEntries.filter { $0.steamAppId == steamAppID }
+        let filtered: [GameDBEntry] = if let steamAppID {
+            allEntries.filter { $0.steamAppId == steamAppID }
         } else if !query.isEmpty {
-            filtered = GameMatcher.searchEntries(query, in: allEntries)
+            GameMatcher.searchEntries(query, in: allEntries)
         } else {
-            filtered = allEntries
+            allEntries
         }
 
         return .object([

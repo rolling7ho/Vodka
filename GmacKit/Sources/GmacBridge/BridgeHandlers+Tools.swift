@@ -27,7 +27,7 @@ extension BridgeRouter {
         guard running else {
             return .object(["running": .bool(false), "processes": .array([])])
         }
-        let processes = (try? await Wine.listProcesses(for: bottle)) ?? []
+        let processes = await (try? Wine.listProcesses(for: bottle)) ?? []
         let encoded = processes.map { proc in
             JSONValue.object([
                 "imageName": .string(proc.imageName),
@@ -117,13 +117,7 @@ extension BridgeRouter {
             return .object(["available": .bool(false), "categories": .array([])])
         }
 
-        let installedSet: Set<String>
-        if let rawPath = params["path"]?.stringValue, !rawPath.isEmpty,
-           let cache = WinetricksVerbCache.load(from: URL(filePath: rawPath)) {
-            installedSet = cache.installedVerbs
-        } else {
-            installedSet = []
-        }
+        let installedSet = Self.installedWinetricksVerbs(for: params["path"]?.stringValue)
 
         let categories = Self.parseVerbsText(rawText, installedSet: installedSet)
         return .object([
@@ -201,6 +195,13 @@ extension BridgeRouter {
             let output = String(data: data, encoding: .utf8) ?? ""
             return (process.terminationStatus, String(output.suffix(12_000)))
         }.value
+    }
+
+    private static func installedWinetricksVerbs(for rawPath: String?) -> Set<String> {
+        guard let rawPath, !rawPath.isEmpty else {
+            return []
+        }
+        return WinetricksVerbCache.load(from: URL(filePath: rawPath))?.installedVerbs ?? []
     }
 
     private static func encodePins(_ pins: [PinnedProgram]) -> JSONValue {

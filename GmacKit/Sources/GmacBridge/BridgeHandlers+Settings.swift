@@ -207,11 +207,11 @@ extension BridgeRouter {
 
     private static func parseAppcastFirstItem(xml: String) -> AppcastFeedItem {
         guard let itemStart = xml.range(of: "<item>"),
-              let itemEnd = xml.range(of: "</item>", range: itemStart.upperBound..<xml.endIndex)
+              let itemEnd = xml.range(of: "</item>", range: itemStart.upperBound ..< xml.endIndex)
         else {
             return AppcastFeedItem(version: nil, title: nil, url: nil)
         }
-        let itemSlice = String(xml[itemStart.upperBound..<itemEnd.lowerBound])
+        let itemSlice = String(xml[itemStart.upperBound ..< itemEnd.lowerBound])
         let version = extractXMLTag("sparkle:shortVersionString", in: itemSlice)
         let title = extractXMLTag("title", in: itemSlice)
         let url = extractEnclosureURL(in: itemSlice)
@@ -220,28 +220,28 @@ extension BridgeRouter {
 
     private static func extractXMLTag(_ tag: String, in content: String) -> String? {
         guard let open = content.range(of: "<\(tag)>"),
-              let close = content.range(of: "</\(tag)>", range: open.upperBound..<content.endIndex)
+              let close = content.range(of: "</\(tag)>", range: open.upperBound ..< content.endIndex)
         else {
             return nil
         }
-        return String(content[open.upperBound..<close.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        return String(content[open.upperBound ..< close.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private static func extractEnclosureURL(in content: String) -> String? {
         guard let encRange = content.range(of: "<enclosure"),
-              let urlKey = content.range(of: "url=\"", range: encRange.upperBound..<content.endIndex),
-              let urlEnd = content.range(of: "\"", range: urlKey.upperBound..<content.endIndex)
+              let urlKey = content.range(of: "url=\"", range: encRange.upperBound ..< content.endIndex),
+              let urlEnd = content.range(of: "\"", range: urlKey.upperBound ..< content.endIndex)
         else {
             return nil
         }
-        return String(content[urlKey.upperBound..<urlEnd.lowerBound])
+        return String(content[urlKey.upperBound ..< urlEnd.lowerBound])
     }
 
     private static func isVersion(_ candidate: String, newerThan current: String) -> Bool {
         let lhs = candidate.split(separator: ".").compactMap { Int($0) }
         let rhs = current.split(separator: ".").compactMap { Int($0) }
         let count = max(lhs.count, rhs.count)
-        for index in 0..<count {
+        for index in 0 ..< count {
             let left = index < lhs.count ? lhs[index] : 0
             let right = index < rhs.count ? rhs[index] : 0
             if left != right {
