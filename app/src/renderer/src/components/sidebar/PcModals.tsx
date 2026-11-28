@@ -310,6 +310,13 @@ interface CreatePcModalProps {
   onCreate: (name: string, icon: PcIconId) => Promise<void>
 }
 
+const CREATE_PC_PRESETS: Array<{ name: string; icon: PcIconId }> = [
+  { name: 'Gaming PC', icon: 'gamepad' },
+  { name: 'Steam', icon: 'steam' },
+  { name: 'Indie Vault', icon: 'star' },
+  { name: 'Sandbox', icon: 'terminal' }
+]
+
 export function CreatePcModal({
   isOpen,
   initialName = '',
@@ -352,6 +359,8 @@ export function CreatePcModal({
   }
 
   const trimmedName = name.trim()
+  const selectedIconLabel =
+    PC_ICON_OPTIONS.find((option) => option.id === selectedIcon)?.label ?? 'Desktop'
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -372,7 +381,7 @@ export function CreatePcModal({
 
   return (
     <div
-      className="app-no-drag fixed inset-0 z-50 flex items-center justify-center bg-black/25 px-4 backdrop-blur-[2px]"
+      className="app-no-drag fixed inset-0 z-50 flex items-center justify-center bg-[#161212]/28 px-4 backdrop-blur-[4px]"
       onClick={() => {
         if (!isCreating) {
           onClose()
@@ -383,15 +392,55 @@ export function CreatePcModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-pc-title"
-        className="w-full max-w-md rounded-2xl border border-[#161212]/[0.08] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
+        className="animate-context-in w-full max-w-[460px] rounded-[22px] bg-white p-6 shadow-[0_24px_64px_rgba(22,18,18,0.22)] ring-1 ring-[#161212]/[0.06]"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 id="create-pc-title" className="text-[18px] font-semibold text-[#161212]">
+        <h2 id="create-pc-title" className="text-[19px] font-bold tracking-[-0.025em] text-[#161212]">
           Create a PC
         </h2>
         <p className="mt-1 text-[13px] text-[#5e5454]">
-          Choose a name and icon for your new Windows PC.
+          Set up a dedicated Windows environment for your games or launchers.
         </p>
+
+        <div className="mt-4 flex items-center gap-3.5 rounded-2xl bg-[#FAF9F8] px-4 py-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#713131]/[0.1] text-[#713131]">
+            <PcGlyph icon={selectedIcon} className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-[14.5px] font-semibold text-[#161212]">
+              {trimmedName || 'New Windows PC'}
+            </div>
+            <div className="mt-0.5 text-[12px] text-[#5e5454]">
+              Windows 10 &middot; Automatic graphics
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+          {CREATE_PC_PRESETS.map((preset) => {
+            const isActivePreset =
+              trimmedName === preset.name && selectedIcon === preset.icon
+            return (
+              <button
+                key={preset.name}
+                type="button"
+                disabled={isCreating}
+                onClick={() => {
+                  setName(preset.name)
+                  setSelectedIcon(preset.icon)
+                }}
+                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition-colors disabled:opacity-50 ${
+                  isActivePreset
+                    ? 'bg-[#713131]/[0.1] text-[#713131]'
+                    : 'bg-[#FAF9F8] text-[#4a4242] hover:bg-[#F3EFEF] hover:text-[#161212]'
+                }`}
+              >
+                <PcGlyph icon={preset.icon} className="h-3.5 w-3.5 shrink-0" />
+                <span>{preset.name}</span>
+              </button>
+            )
+          })}
+        </div>
 
         <form onSubmit={(event) => void handleSubmit(event)} className="mt-4 space-y-4">
           <div>
@@ -409,13 +458,16 @@ export function CreatePcModal({
               onChange={(event) => setName(event.target.value)}
               disabled={isCreating}
               placeholder="Gaming PC"
-              className="mt-1.5 w-full rounded-xl border border-[#161212]/12 bg-white px-3.5 py-2 text-[14px] text-[#161212] placeholder-[#5e5454]/45 focus:border-[#713131] focus:outline-none disabled:opacity-60"
+              className="mt-1.5 w-full rounded-xl bg-[#FAF9F8] px-3.5 py-2.5 text-[14px] text-[#161212] placeholder-[#5e5454]/45 ring-1 ring-[#161212]/[0.08] transition-colors focus:bg-white focus:ring-2 focus:ring-[#713131]/35 focus:outline-none disabled:opacity-60"
             />
           </div>
 
           <div>
-            <div className="text-[12.5px] font-medium text-[#4a4242]">Icon</div>
-            <div className="mt-1.5 grid grid-cols-6 gap-1.5">
+            <div className="flex items-center justify-between text-[12.5px]">
+              <span className="font-medium text-[#4a4242]">Icon</span>
+              <span className="font-medium text-[#5e5454]">{selectedIconLabel}</span>
+            </div>
+            <div className="mt-1.5 grid grid-cols-6 gap-1 rounded-2xl bg-[#FAF9F8] p-2">
               {PC_ICON_OPTIONS.map((option) => {
                 const isSelected = selectedIcon === option.id
                 return (
@@ -427,10 +479,10 @@ export function CreatePcModal({
                     aria-pressed={isSelected}
                     title={option.label}
                     onClick={() => setSelectedIcon(option.id)}
-                    className={`flex h-10 cursor-pointer items-center justify-center rounded-xl border transition-colors ${
+                    className={`flex h-10 cursor-pointer items-center justify-center rounded-xl transition-all ${
                       isSelected
-                        ? 'border-[#713131]/35 bg-[#713131]/[0.1] text-[#713131]'
-                        : 'border-[#161212]/[0.07] bg-white text-[#4a4242] hover:bg-[#161212]/[0.04] hover:text-[#713131]'
+                        ? 'bg-white text-[#713131] shadow-xs ring-1 ring-[#713131]/25'
+                        : 'text-[#4a4242] hover:bg-white/70 hover:text-[#713131]'
                     }`}
                   >
                     <PcGlyph icon={option.id} className="h-[17px] w-[17px]" />
@@ -454,14 +506,14 @@ export function CreatePcModal({
               type="button"
               disabled={isCreating}
               onClick={onClose}
-              className="cursor-pointer rounded-full px-4 py-2 text-[13.5px] font-medium text-[#5e5454] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#161212] disabled:opacity-50"
+              className="cursor-pointer rounded-xl px-4 py-2 text-[13.5px] font-medium text-[#5e5454] transition-colors hover:bg-[#161212]/[0.05] hover:text-[#161212] disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!trimmedName || isCreating}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#713131] px-5 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-[#5E2828] disabled:cursor-not-allowed disabled:opacity-45"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#713131] px-5 py-2 text-[13.5px] font-semibold text-white transition-colors hover:bg-[#5E2828] disabled:cursor-not-allowed disabled:opacity-45"
             >
               {isCreating && <SpinnerIcon className="h-3.5 w-3.5" />}
               <span>{isCreating ? 'Creating...' : 'Create PC'}</span>

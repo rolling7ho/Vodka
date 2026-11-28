@@ -252,3 +252,17 @@ export function SearchIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function PlayTriangleIcon({ className }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M8.2 6.08a1.1 1.1 0 0 1 1.66-.95l9.16 5.92a1.1 1.1 0 0 1 0 1.9l-9.16 5.92A1.1 1.1 0 0 1 8.2 17.92V6.08Z" />
+    </svg>
+  )
+}

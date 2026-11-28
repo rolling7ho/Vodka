@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import type { HomeGameItem } from '../../../../shared/ipc'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
-import { ChevronDownIcon, PlusIcon, SearchIcon } from '../icons/SidebarIcons'
+import { ChevronDownIcon, PlayTriangleIcon, PlusIcon, SearchIcon } from '../icons/SidebarIcons'
 import { formatHoverPlaytime, GameHoverCard } from './GameHoverCard'
 
 interface LibraryViewProps {
@@ -18,20 +18,6 @@ type LibrarySortMode = 'alphabetical' | 'recent' | 'hours'
 interface HoveredCardState {
   game: HomeGameItem
   rect: DOMRect
-}
-
-function PlayTriangleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M7.5 5.6a1 1 0 0 1 1.52-.85l10 6.4a1 1 0 0 1 0 1.7l-10 6.4A1 1 0 0 1 7.5 18.4V5.6Z" />
-    </svg>
-  )
 }
 
 function compareByRecent(lhs: HomeGameItem, rhs: HomeGameItem): number {
@@ -299,12 +285,12 @@ export function LibraryView({
                           disabled={launchingId !== null}
                           aria-label={`Play ${featuredRecent.name}`}
                           onClick={(event) => handleFeaturedPlayClick(event, featuredRecent)}
-                          className="app-no-drag relative z-10 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#713131] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-150 hover:bg-[#5E2828] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="app-no-drag relative z-10 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1D4E89] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-150 hover:bg-[#163D6B] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {launchingId === featuredRecent.id ? (
                             <SpinnerIcon className="h-4 w-4" />
                           ) : (
-                            <PlayTriangleIcon className="h-4 w-4 translate-x-[0.5px]" />
+                            <PlayTriangleIcon className="h-4 w-4" />
                           )}
                         </button>
 

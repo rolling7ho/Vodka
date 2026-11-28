@@ -1,8 +1,9 @@
-import { useEffect, useId, useState, type CSSProperties } from 'react'
-import type { HomeGameItem, HomeLauncherItem, HomeSummary, StatPoint } from '../../../../shared/ipc'
+import { useEffect, useState, type CSSProperties } from 'react'
+import type { HomeGameItem, HomeLauncherItem, HomeSummary } from '../../../../shared/ipc'
 import { LauncherBrandImage } from '../icons/LauncherLogos'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
-import { PlusIcon } from '../icons/SidebarIcons'
+import { PlayTriangleIcon, PlusIcon } from '../icons/SidebarIcons'
+import { StatSparkline } from '../shared/StatSparkline'
 
 interface HomeDashboardProps {
   summary: HomeSummary | null
@@ -20,11 +21,11 @@ interface HomeDashboardProps {
 function useCountUp(
   target: number,
   triggerKey: number,
-  options?: { durationMs?: number; delayMs?: number; power?: number }
+  options?: { durationMs?: number; delayMs?: number; decay?: number }
 ): number {
-  const durationMs = options?.durationMs ?? 2400
+  const durationMs = options?.durationMs ?? 1450
   const delayMs = options?.delayMs ?? 0
-  const power = options?.power ?? 6.5
+  const decay = options?.decay ?? 9
   const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
@@ -42,6 +43,7 @@ function useCountUp(
     setDisplayValue(0)
     let frameId: number | null = null
     let startTimestamp: number | null = null
+    const denom = 1 - Math.pow(2, -decay)
 
     const delayTimer = window.setTimeout(() => {
       const tick = (now: number) => {
@@ -49,7 +51,7 @@ function useCountUp(
           startTimestamp = now
         }
         const progress = Math.min(1, (now - startTimestamp) / durationMs)
-        const eased = 1 - Math.pow(1 - progress, power)
+        const eased = progress >= 1 ? 1 : (1 - Math.pow(2, -decay * progress)) / denom
         setDisplayValue(target * eased)
 
         if (progress < 1) {
@@ -68,7 +70,7 @@ function useCountUp(
         window.cancelAnimationFrame(frameId)
       }
     }
-  }, [target, triggerKey, durationMs, delayMs, power])
+  }, [target, triggerKey, durationMs, delayMs, decay])
 
   return displayValue
 }
@@ -138,112 +140,6 @@ function formatRelativeDate(iso: string | null): string {
   )
 }
 
-function clampCoord(val: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, val))
-}
-
-function StatSparkline({ points }: { points: StatPoint[] }) {
-  const gradientId = useId().replace(/:/g, '')
-  const width = 240
-  const height = 46
-  const padX = 4
-  const padTop = 7
-  const padBottom = 6
-  const baseY = height - padBottom
-
-  const hasNonZero = points.some((point) => point.value > 0)
-  if (points.length < 2 || !hasNonZero) {
-    return (
-      <div className="mt-3.5 h-[42px] w-full">
-        <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full overflow-visible" aria-hidden="true">
-          <path
-            d={`M ${padX} ${baseY} L ${width - padX} ${baseY}`}
-            fill="none"
-            stroke="#713131"
-            strokeOpacity="0.18"
-            strokeWidth={1.75}
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-    )
-  }
-
-  const minVal = Math.min(...points.map((point) => point.value))
-  const maxVal = Math.max(...points.map((point) => point.value))
-  const range = maxVal - minVal || 1
-  const usableWidth = width - padX * 2
-  const usableHeight = height - padTop - padBottom
-
-  const coords = points.map((point, index) => {
-    const x = padX + (index / (points.length - 1)) * usableWidth
-    const normalized = (point.value - minVal) / range
-    const y = padTop + (1 - normalized) * usableHeight
-    return { x, y }
-  })
-
-  let linePath = `M ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)}`
-  for (let i = 0; i < coords.length - 1; i++) {
-    const p0 = coords[Math.max(0, i - 1)]
-    const p1 = coords[i]
-    const p2 = coords[i + 1]
-    const p3 = coords[Math.min(coords.length - 1, i + 2)]
-
-    const cp1x = p1.x + (p2.x - p0.x) / 6
-    const cp1y = clampCoord(p1.y + (p2.y - p0.y) / 6, padTop, baseY)
-    const cp2x = p2.x - (p3.x - p1.x) / 6
-    const cp2y = clampCoord(p2.y - (p3.y - p1.y) / 6, padTop, baseY)
-
-    linePath += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`
-  }
-
-  const last = coords[coords.length - 1]
-  const areaPath = `${linePath} L ${last.x.toFixed(1)} ${height} L ${coords[0].x.toFixed(1)} ${height} Z`
-
-  return (
-    <div className="animate-sparkline-reveal mt-3.5 h-[42px] w-full">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        className="h-full w-full overflow-visible"
-      >
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#713131" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#713131" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={areaPath} fill={`url(#${gradientId})`} />
-        <path
-          d={linePath}
-          fill="none"
-          stroke="#713131"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-        <circle cx={last.x} cy={last.y} r="3" fill="#713131" />
-      </svg>
-    </div>
-  )
-}
-
-function PlayTriangleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M7.5 5.6a1 1 0 0 1 1.52-.85l10 6.4a1 1 0 0 1 0 1.7l-10 6.4A1 1 0 0 1 7.5 18.4V5.6Z" />
-    </svg>
-  )
-}
-
 function staggerStyle(delayMs: number): CSSProperties {
   return { '--stagger-delay': `${delayMs}ms` } as CSSProperties
 }
@@ -274,19 +170,19 @@ export function HomeDashboard({
   const recentPlaytimeMetric = splitPlaytime(stats.lastTwoWeeksSeconds)
 
   const animatedTotal = useCountUp(totalPlaytimeMetric.value, visitKey, {
-    durationMs: 2500,
-    delayMs: 40,
-    power: 6.5
+    durationMs: 1450,
+    delayMs: 30,
+    decay: 9
   })
   const animatedRecent = useCountUp(recentPlaytimeMetric.value, visitKey, {
-    durationMs: 2350,
-    delayMs: 110,
-    power: 6.5
+    durationMs: 1350,
+    delayMs: 90,
+    decay: 8.5
   })
   const animatedGames = useCountUp(stats.gamesInstalled, visitKey, {
-    durationMs: 2100,
-    delayMs: 180,
-    power: 3.6
+    durationMs: 1150,
+    delayMs: 150,
+    decay: 6
   })
 
   const continuePlaying = summary?.continuePlaying ?? null
@@ -418,12 +314,12 @@ export function HomeDashboard({
                 disabled={launchingId !== null}
                 aria-label={`Play ${continuePlaying.name}`}
                 onClick={() => onPlayGame(continuePlaying)}
-                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl bg-[#161212]/78 text-white shadow-[0_8px_24px_rgba(0,0,0,0.38)] ring-1 ring-white/22 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#161212]/94 hover:ring-white/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#1D4E89] text-white shadow-[0_8px_22px_rgba(16,42,76,0.38)] ring-1 ring-white/18 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#163D6B] hover:ring-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {launchingId === continuePlaying.id ? (
                   <SpinnerIcon className="h-5 w-5" />
                 ) : (
-                  <PlayTriangleIcon className="h-5 w-5 translate-x-[1px]" />
+                  <PlayTriangleIcon className="h-5 w-5" />
                 )}
               </button>
 
@@ -543,12 +439,12 @@ export function HomeDashboard({
                       disabled={launchingId !== null}
                       aria-label={`Play ${game.name}`}
                       onClick={() => onPlayGame(game)}
-                      className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-[#161212]/78 text-white shadow-[0_4px_14px_rgba(0,0,0,0.34)] ring-1 ring-white/22 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#161212]/94 hover:ring-white/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#1D4E89] text-white shadow-[0_6px_16px_rgba(16,42,76,0.36)] ring-1 ring-white/18 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#163D6B] hover:ring-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isLaunching ? (
                         <SpinnerIcon className="h-4 w-4" />
                       ) : (
-                        <PlayTriangleIcon className="h-4 w-4 translate-x-[0.5px]" />
+                        <PlayTriangleIcon className="h-4 w-4" />
                       )}
                     </button>
                   </div>

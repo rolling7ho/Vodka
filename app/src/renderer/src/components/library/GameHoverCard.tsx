@@ -49,10 +49,10 @@ export function GameHoverCard({ game, anchorRect }: GameHoverCardProps) {
     <div
       role="tooltip"
       style={{ left, top, width: CARD_WIDTH }}
-      className="animate-context-in pointer-events-none fixed z-50 overflow-hidden rounded-2xl bg-[#1A1616] text-white shadow-[0_22px_50px_rgba(22,18,18,0.34)] ring-1 ring-white/12"
+      className="animate-context-in pointer-events-none fixed z-50 overflow-hidden rounded-2xl bg-transparent text-white shadow-[0_22px_50px_rgba(22,18,18,0.3)] ring-1 ring-white/22"
     >
-      <div className="bg-[#251F1F] px-4 py-3">
-        <div className="truncate text-[15.5px] font-bold tracking-[-0.015em] text-white">
+      <div className="border-b border-white/12 bg-[#1A1616]/52 px-4 py-3 backdrop-blur-2xl backdrop-saturate-150">
+        <div className="truncate text-[15.5px] font-bold tracking-[-0.015em] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">
           {game.name}
         </div>
       </div>
@@ -68,34 +68,21 @@ export function GameHoverCard({ game, anchorRect }: GameHoverCardProps) {
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-[#2B1B1B] to-[#522828]" />
         )}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#191515] to-transparent" />
       </div>
 
-      <div className="relative overflow-hidden bg-[#191515] px-4 pt-2.5 pb-4">
-        {previewImage && (
-          <img
-            src={previewImage}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 h-full w-full scale-125 object-cover opacity-25 blur-xl"
-          />
-        )}
-        <div className="pointer-events-none absolute inset-0 bg-[#191515]/82 backdrop-blur-md" />
+      <div className="border-t border-white/12 bg-[#1A1616]/54 px-4 pt-3 pb-4 backdrop-blur-2xl backdrop-saturate-150">
+        <div className="truncate text-[14.5px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+          {game.bottleName}
+        </div>
 
-        <div className="relative z-10">
-          <div className="truncate text-[14.5px] font-semibold text-white">
-            {game.bottleName}
-          </div>
-
-          <div className="mt-3 text-[10.5px] font-semibold tracking-[0.06em] text-white/55 uppercase">
-            Time Played
-          </div>
-          <div className="mt-1 text-[12.5px] text-white/82 tabular-nums">
-            Last two weeks: {formatHoverPlaytime(game.lastTwoWeeksSeconds)}
-          </div>
-          <div className="mt-0.5 text-[12.5px] text-white/82 tabular-nums">
-            Total: {formatHoverPlaytime(game.totalPlaytimeSeconds)}
-          </div>
+        <div className="mt-3 text-[10.5px] font-semibold tracking-[0.06em] text-white/65 uppercase">
+          Time Played
+        </div>
+        <div className="mt-1 text-[12.5px] text-white/88 tabular-nums drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+          Last two weeks: {formatHoverPlaytime(game.lastTwoWeeksSeconds)}
+        </div>
+        <div className="mt-0.5 text-[12.5px] text-white/88 tabular-nums drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+          Total: {formatHoverPlaytime(game.totalPlaytimeSeconds)}
         </div>
       </div>
     </div>

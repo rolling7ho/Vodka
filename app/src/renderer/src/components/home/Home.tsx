@@ -13,8 +13,8 @@ import {
   Sidebar,
   type SidebarDestination
 } from '../sidebar/Sidebar'
+import { LibraryGamePage } from '../library/LibraryGamePage'
 import { LibraryView } from '../library/LibraryView'
-import { GameDetail } from './GameDetail'
 import { HomeDashboard } from './HomeDashboard'
 import { MOCK_HOME_SUMMARY } from './mockHomeData'
 
@@ -393,12 +393,11 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
           />
         ) : activeDestination.kind === 'game' ? (
           activeGame ? (
-            <GameDetail
+            <LibraryGamePage
               key={activeGame.id}
               game={activeGame}
               isLaunching={launchingId === activeGame.id}
               errorMessage={homeError}
-              onBack={() => handleSelectDestination({ kind: 'library' })}
               onPlay={handlePlayGame}
               onOpenPc={(bottlePath) => handleSelectDestination({ kind: 'pc', path: bottlePath })}
             />

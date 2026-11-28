@@ -1,14 +1,13 @@
-import { useState } from 'react'
-import type { HomeGameItem } from '../../../../shared/ipc'
-import { ArrowLeftIcon } from '../icons/ArrowLeftIcon'
-import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
-import { HeartIcon, InfoIcon, PcIcon, SettingsGearIcon } from '../icons/SidebarIcons'
+import { useMemo, useState } from 'react'
+import type { HomeGameItem, StatPoint } from '../../../../shared/ipc'
+import { SpinnerIcon } from '../icons/OnboardingIcons'
+import { HeartIcon, InfoIcon, PcIcon, PlayTriangleIcon, SettingsGearIcon } from '../icons/SidebarIcons'
+import { StatSparkline } from '../shared/StatSparkline'
 
-interface GameDetailProps {
+interface LibraryGamePageProps {
   game: HomeGameItem
   isLaunching: boolean
   errorMessage: string | null
-  onBack: () => void
   onPlay: (game: HomeGameItem) => void
   onOpenPc: (bottlePath: string) => void
 }
@@ -55,35 +54,47 @@ function formatLastPlayed(iso: string | null): string {
   }).format(new Date(timestamp))
 }
 
-function PlayTriangleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M7.5 5.6a1 1 0 0 1 1.52-.85l10 6.4a1 1 0 0 1 0 1.7l-10 6.4A1 1 0 0 1 7.5 18.4V5.6Z" />
-    </svg>
-  )
+function buildGamePlaytimeHistory(game: HomeGameItem): StatPoint[] {
+  const totalHours = Math.max(0, game.totalPlaytimeSeconds / 3600)
+  const dayOffsets = [-30, -24, -18, -12, -7, -3, 0]
+  const now = Date.now()
+
+  if (totalHours <= 0) {
+    return dayOffsets.map((offset) => ({
+      date: new Date(now + offset * 86_400_000).toISOString(),
+      value: 0
+    }))
+  }
+
+  const recentHours = Math.min(totalHours, Math.max(0, game.lastTwoWeeksSeconds / 3600))
+  const preRecentHours = Math.max(totalHours * 0.35, totalHours - recentHours)
+  const fractions = [
+    preRecentHours * 0.45,
+    preRecentHours * 0.62,
+    preRecentHours * 0.82,
+    preRecentHours,
+    preRecentHours + recentHours * 0.32,
+    preRecentHours + recentHours * 0.68,
+    totalHours
+  ]
+
+  return dayOffsets.map((offset, index) => ({
+    date: new Date(now + offset * 86_400_000).toISOString(),
+    value: Number(fractions[index].toFixed(2))
+  }))
 }
 
-export function GameDetail({
+export function LibraryGamePage({
   game,
   isLaunching,
   errorMessage,
-  onBack,
   onPlay,
   onOpenPc
-}: GameDetailProps) {
+}: LibraryGamePageProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('overview')
   const [isFavorite, setIsFavorite] = useState(false)
 
-  const recentSharePercent =
-    game.totalPlaytimeSeconds > 0
-      ? Math.min(100, Math.round((game.lastTwoWeeksSeconds / game.totalPlaytimeSeconds) * 100))
-      : 0
+  const playtimeHistory = useMemo(() => buildGamePlaytimeHistory(game), [game])
 
   return (
     <div className="flex-1 overflow-y-auto bg-white">
@@ -101,15 +112,6 @@ export function GameDetail({
         ) : (
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#241515] via-[#5a2828] to-[#713131]" />
         )}
-
-        <button
-          type="button"
-          onClick={onBack}
-          className="app-no-drag group absolute top-14 left-6 z-10 inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#161212]/58 px-3.5 py-1.5 text-[12.5px] font-medium text-white/92 ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-[#161212]/80"
-        >
-          <ArrowLeftIcon className="h-3.5 w-3.5 transition-transform duration-150 group-hover:-translate-x-0.5" />
-          <span>Library</span>
-        </button>
 
         <div className="relative z-10 flex w-full max-w-[780px] items-center justify-center px-9 pt-12 pb-6">
           {game.logoDataUrl ? (
@@ -133,7 +135,7 @@ export function GameDetail({
               type="button"
               disabled={isLaunching}
               onClick={() => onPlay(game)}
-              className="app-no-drag inline-flex cursor-pointer items-center gap-2.5 rounded-xl bg-[#713131] px-8 py-2.5 text-[14.5px] font-semibold text-white shadow-[0_6px_16px_rgba(113,49,49,0.22)] transition-all duration-150 hover:bg-[#5E2828] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="app-no-drag inline-flex cursor-pointer items-center gap-2.5 rounded-xl bg-[#1D4E89] px-8 py-2.5 text-[14.5px] font-semibold text-white shadow-[0_6px_16px_rgba(29,78,137,0.28)] transition-all duration-150 hover:bg-[#163D6B] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLaunching ? (
                 <SpinnerIcon className="h-4 w-4" />
@@ -273,53 +275,27 @@ export function GameDetail({
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             {activeTab === 'overview' && (
-              <>
-                <div className="rounded-2xl bg-[#FAF9F8] p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 text-[14px] font-semibold text-[#161212]">
-                        <GameControllerIcon className="h-4 w-4 text-[#713131]" />
-                        <span>Ready in {game.bottleName}</span>
-                      </div>
-                      <p className="mt-1.5 text-[13px] leading-relaxed text-[#5e5454]">
-                        {game.launchKind === 'steam'
-                          ? 'Managed through Steam with automatic Metal and DirectX graphics routing enabled for Apple Silicon.'
-                          : 'Configured as a Windows executable with automatic Metal and DirectX graphics routing enabled.'}
-                      </p>
+              <div>
+                <h2 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
+                  Activity
+                </h2>
+                <div className="mt-2.5 space-y-3">
+                  <div className="rounded-2xl bg-[#FAF9F8] px-5 py-4">
+                    <div className="text-[11.5px] font-semibold text-[#713131] uppercase">
+                      {formatLastPlayed(game.lastPlayedIso)}
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => onOpenPc(game.bottlePath)}
-                      className="app-no-drag shrink-0 cursor-pointer rounded-xl bg-white px-3.5 py-2 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:text-[#713131]"
-                    >
-                      Open {game.bottleName}
-                    </button>
+                    <div className="mt-1 text-[13.5px] font-semibold text-[#161212]">
+                      {game.lastTwoWeeksSeconds > 0
+                        ? `Played ${formatDetailPlaytime(game.lastTwoWeeksSeconds)} over the last two weeks`
+                        : 'No sessions recorded in the last two weeks'}
+                    </div>
+                    <p className="mt-0.5 text-[12.5px] text-[#5e5454] tabular-nums">
+                      Lifetime playtime across this PC reaches{' '}
+                      {formatDetailPlaytime(game.totalPlaytimeSeconds)}.
+                    </p>
                   </div>
                 </div>
-
-                <div>
-                  <h2 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
-                    Activity
-                  </h2>
-                  <div className="mt-2.5 space-y-3">
-                    <div className="rounded-2xl bg-[#FAF9F8] px-5 py-4">
-                      <div className="text-[11.5px] font-semibold text-[#713131] uppercase">
-                        {formatLastPlayed(game.lastPlayedIso)}
-                      </div>
-                      <div className="mt-1 text-[13.5px] font-semibold text-[#161212]">
-                        {game.lastTwoWeeksSeconds > 0
-                          ? `Played ${formatDetailPlaytime(game.lastTwoWeeksSeconds)} over the last two weeks`
-                          : 'No sessions recorded in the last two weeks'}
-                      </div>
-                      <p className="mt-0.5 text-[12.5px] text-[#5e5454] tabular-nums">
-                        Lifetime playtime across this PC reaches{' '}
-                        {formatDetailPlaytime(game.totalPlaytimeSeconds)}.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </>
+              </div>
             )}
 
             {activeTab === 'compatibility' && (
@@ -419,20 +395,10 @@ export function GameDetail({
               <div className="text-[11px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
                 Playtime
               </div>
-              <div className="mt-2.5 flex items-baseline justify-between text-[13px]">
-                <span className="font-semibold text-[#161212] tabular-nums">
-                  {formatDetailPlaytime(game.totalPlaytimeSeconds)} total
-                </span>
-                <span className="text-[12px] text-[#5e5454] tabular-nums">
-                  {recentSharePercent}% recent
-                </span>
+              <div className="mt-2.5 text-[16px] font-bold tracking-[-0.02em] text-[#161212] tabular-nums">
+                {formatDetailPlaytime(game.totalPlaytimeSeconds)} total
               </div>
-              <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-[#161212]/[0.08]">
-                <div
-                  className="h-full rounded-full bg-[#713131] transition-all duration-300"
-                  style={{ width: `${Math.max(recentSharePercent, game.lastTwoWeeksSeconds > 0 ? 6 : 0)}%` }}
-                />
-              </div>
+              <StatSparkline points={playtimeHistory} className="mt-3 h-[54px] w-full" />
               <div className="mt-2 text-[12px] text-[#5e5454] tabular-nums">
                 Last two weeks: {formatDetailPlaytime(game.lastTwoWeeksSeconds)}
               </div>
