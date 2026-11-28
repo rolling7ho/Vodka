@@ -307,6 +307,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <div className="onboarding-radiance relative flex h-full flex-col text-[#161212] select-none">
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
       <div aria-hidden="true" className={`pointer-events-none absolute inset-0 z-0 ${pulseClass}`}>
         <div className="radiance-drift-primary">
           {RADIANCE_THEMES.map((theme) => (
@@ -333,7 +336,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
       <header className="app-drag relative z-10 h-10 shrink-0" />
 
-      <div className="relative z-10 flex-1 overflow-hidden">
+      <div
+        id="main-content"
+        tabIndex={-1}
+        className="relative z-10 flex-1 overflow-hidden focus:outline-none"
+      >
         <div
           className="onboarding-track flex h-full w-full"
           style={{ transform: `translate3d(-${safeStepIndex * 100}%, 0, 0)` }}

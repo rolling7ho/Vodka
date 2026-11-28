@@ -448,6 +448,9 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-white text-[#161212] select-none">
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
       <div className="app-drag fixed inset-x-0 top-0 z-20 h-12">
         <button
           type="button"
@@ -489,7 +492,11 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
         onReorderPcs={handleReorderPcs}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col bg-white">
+      <div
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-w-0 flex-1 flex-col bg-white focus:outline-none"
+      >
         {activeDestination.kind === 'home' ? (
           <HomeDashboard
             summary={displayedSummary}

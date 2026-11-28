@@ -1,13 +1,30 @@
 import { existsSync } from 'fs'
 import { join } from 'path'
-import { app, BrowserWindow, Menu, nativeImage, session, shell } from 'electron'
-import { AppScreen } from '../shared/ipc'
+import { app, BrowserWindow, Menu, nativeImage, nativeTheme, session, shell } from 'electron'
+import { AppScreen, BottleSummary, SystemStatus } from '../shared/ipc'
 import { GmacBridgeClient } from './bridge'
 import { registerIpcHandlers } from './ipc'
 
-function resolveInitialScreen(): AppScreen {
+async function resolveInitialScreen(bridge: GmacBridgeClient): Promise<AppScreen> {
   const requested = process.env.GMAC_SCREEN?.trim().toLowerCase()
-  return requested === 'home' ? 'home' : 'onboarding'
+  if (requested === 'home' || requested === 'onboarding') {
+    return requested
+  }
+  if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+    return 'onboarding'
+  }
+  try {
+    const [status, bottles] = await Promise.all([
+      bridge.request<SystemStatus>('system.status'),
+      bridge.request<BottleSummary[]>('library.list')
+    ])
+    if (status.engineInstalled || bottles.length > 0) {
+      return 'home'
+    }
+  } catch {
+    // Fall back to onboarding when system status cannot be probed.
+  }
+  return 'onboarding'
 }
 
 function resolveAppIconPath(): string | undefined {
@@ -86,10 +103,11 @@ function configureContentSecurityPolicy(): void {
   })
 }
 
-function createMainWindow(iconPath?: string): BrowserWindow {
+async function createMainWindow(iconPath?: string): Promise<BrowserWindow> {
   const isMac = process.platform === 'darwin'
   const rendererUrl = !app.isPackaged ? process.env.ELECTRON_RENDERER_URL : undefined
   const allowedDevOrigin = rendererUrl ? new URL(rendererUrl).origin : null
+  const initialScreen = await resolveInitialScreen(bridgeClient)
 
   const mainWindow = new BrowserWindow({
     width: 1120,
@@ -98,7 +116,7 @@ function createMainWindow(iconPath?: string): BrowserWindow {
     minHeight: 560,
     show: false,
     title: 'Gmac',
-    backgroundColor: '#ffffff',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#121010' : '#ffffff',
     ...(iconPath ? { icon: iconPath } : {}),
     ...(isMac
       ? {
@@ -145,7 +163,6 @@ function createMainWindow(iconPath?: string): BrowserWindow {
     }
   })
 
-  const initialScreen = resolveInitialScreen()
   const mockUi = process.env.GMAC_MOCK_UI === '1'
 
   if (rendererUrl) {
@@ -180,11 +197,11 @@ void app.whenReady().then(() => {
   configureApplicationMenu()
   configureContentSecurityPolicy()
   registerIpcHandlers(bridgeClient)
-  createMainWindow(iconPath)
+  void createMainWindow(iconPath)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow(iconPath)
+      void createMainWindow(iconPath)
     }
   })
 })

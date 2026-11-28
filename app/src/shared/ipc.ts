@@ -12,6 +12,14 @@ export const IPC_CHANNELS = {
   REORDER_BOTTLES: 'gmac:reorder-bottles',
   GET_HOME_SUMMARY: 'gmac:get-home-summary',
   LAUNCH_HOME_ITEM: 'gmac:launch-home-item',
+  GET_BOTTLE_CONFIG: 'gmac:get-bottle-config',
+  UPDATE_BOTTLE_CONFIG: 'gmac:update-bottle-config',
+  GET_GAME_SETTINGS: 'gmac:get-game-settings',
+  UPDATE_GAME_SETTINGS: 'gmac:update-game-settings',
+  GET_APP_SETTINGS: 'gmac:get-app-settings',
+  UPDATE_APP_SETTINGS: 'gmac:update-app-settings',
+  CLEAR_SHADER_CACHES: 'gmac:clear-shader-caches',
+  SET_THEME_PREFERENCE: 'gmac:set-theme-preference',
   INSTALL_ENGINE: 'gmac:install-engine',
   PICK_TOOLKIT_FILE: 'gmac:pick-toolkit-file',
   PICK_EXECUTABLE_FILE: 'gmac:pick-executable-file',
@@ -135,6 +143,59 @@ export interface LaunchHomeItemRequest {
   programPath?: string | null
 }
 
+export type ThemePreference = 'system' | 'light' | 'dark'
+
+export interface BottleConfig {
+  windowsVersion: 'Windows 11' | 'Windows 10' | 'Windows 8.1' | 'Windows 7'
+  enhancedSync: 'msync' | 'esync' | 'off'
+  avxEnabled: boolean
+  graphicsBackend: 'recommended' | 'd3dMetal' | 'dxmt' | 'dxvk' | 'wined3d'
+  metalHud: boolean
+  dxrEnabled: boolean
+  shaderCacheEnabled: boolean
+  retinaMode: boolean
+  virtualDesktop: boolean
+  virtualDesktopResolution: '1920x1080' | '2560x1440' | '3840x2160'
+  controllerCompatMode: boolean
+}
+
+export interface GameSettingsData {
+  graphicsBackend: 'inherit' | 'recommended' | 'd3dMetal' | 'dxmt' | 'dxvk' | 'wined3d'
+  metal4Enabled: boolean
+  shaderCacheEnabled: boolean
+  metalHud: boolean
+  launchArguments: string
+  locale: string
+  enhancedSync: 'inherit' | 'msync' | 'esync' | 'off'
+  virtualDesktop: boolean
+  virtualDesktopResolution: '1920x1080' | '2560x1440' | '3840x2160'
+  controllerCompatMode: boolean
+}
+
+export interface GameSettingsTarget {
+  bottlePath: string
+  launchKind: 'steam' | 'program'
+  steamAppId?: number | null
+  programPath?: string | null
+}
+
+export interface AppSettingsData {
+  openAtLogin: boolean
+  askBeforeQuitting: boolean
+  showMenuBarExtra: boolean
+  preferredTerminal: 'terminal' | 'iterm' | 'ghostty' | 'warp'
+  defaultWinVersion: 'Windows 11' | 'Windows 10' | 'Windows 8.1' | 'Windows 7'
+  defaultPcsLocation: string
+  logsFolder: string
+  openSteamAtLaunch: boolean
+  gameModeEnabled: boolean
+  fitBelowNotch: boolean
+  defaultGraphicsBackend: 'recommended' | 'd3dMetal' | 'dxmt' | 'dxvk' | 'wined3d'
+  logRetentionDays: 1 | 7 | 30 | 0
+  autoCheckAppUpdates: boolean
+  autoCheckEngineUpdates: boolean
+}
+
 export interface GmacApi {
   getAppInfo: () => Promise<AppInfo>
   openExternalUrl: (url: string) => Promise<void>
@@ -145,6 +206,17 @@ export interface GmacApi {
   deleteBottle: (path: string) => Promise<{ deleted: boolean }>
   setBottleIcon: (path: string, icon: string) => Promise<{ path: string; icon: string }>
   reorderBottles: (paths: string[]) => Promise<{ paths: string[] }>
+  getBottleConfig: (path: string) => Promise<BottleConfig>
+  updateBottleConfig: (path: string, patch: Partial<BottleConfig>) => Promise<BottleConfig>
+  getGameSettings: (target: GameSettingsTarget) => Promise<GameSettingsData>
+  updateGameSettings: (
+    target: GameSettingsTarget,
+    patch: Partial<GameSettingsData> & { reset?: boolean }
+  ) => Promise<GameSettingsData>
+  getAppSettings: () => Promise<AppSettingsData>
+  updateAppSettings: (patch: Partial<AppSettingsData>) => Promise<AppSettingsData>
+  clearShaderCaches: () => Promise<{ cleared: boolean }>
+  setThemePreference: (theme: ThemePreference) => Promise<{ theme: ThemePreference }>
   getHomeSummary: () => Promise<HomeSummary>
   launchHomeItem: (request: LaunchHomeItemRequest) => Promise<{ launched: boolean }>
   installEngine: () => Promise<{ installed: boolean }>

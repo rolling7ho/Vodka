@@ -14,6 +14,16 @@ const gmacApi: GmacApi = {
   setBottleIcon: (path: string, icon: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.SET_BOTTLE_ICON, path, icon),
   reorderBottles: (paths: string[]) => ipcRenderer.invoke(IPC_CHANNELS.REORDER_BOTTLES, paths),
+  getBottleConfig: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.GET_BOTTLE_CONFIG, path),
+  updateBottleConfig: (path, patch) =>
+    ipcRenderer.invoke(IPC_CHANNELS.UPDATE_BOTTLE_CONFIG, path, patch),
+  getGameSettings: (target) => ipcRenderer.invoke(IPC_CHANNELS.GET_GAME_SETTINGS, target),
+  updateGameSettings: (target, patch) =>
+    ipcRenderer.invoke(IPC_CHANNELS.UPDATE_GAME_SETTINGS, target, patch),
+  getAppSettings: () => ipcRenderer.invoke(IPC_CHANNELS.GET_APP_SETTINGS),
+  updateAppSettings: (patch) => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_APP_SETTINGS, patch),
+  clearShaderCaches: () => ipcRenderer.invoke(IPC_CHANNELS.CLEAR_SHADER_CACHES),
+  setThemePreference: (theme) => ipcRenderer.invoke(IPC_CHANNELS.SET_THEME_PREFERENCE, theme),
   getHomeSummary: () => ipcRenderer.invoke(IPC_CHANNELS.GET_HOME_SUMMARY),
   launchHomeItem: (request) => ipcRenderer.invoke(IPC_CHANNELS.LAUNCH_HOME_ITEM, request),
   installEngine: () => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_ENGINE),

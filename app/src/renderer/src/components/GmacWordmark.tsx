@@ -35,7 +35,7 @@ export function GmacWordmark({ className }: GmacWordmarkProps) {
           strokeLinejoin="round"
         />
       </g>
-      <g stroke="#161212" strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke="currentColor" strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 94 36 L 94 76 M 94 53 A 17 17 0 0 1 128 53 L 128 76 M 128 53 A 17 17 0 0 1 162 53 L 162 76" />
         <circle cx="200" cy="56" r="20" />
         <path d="M 220 36 L 220 76" />

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { AppInfo, SystemStatus } from '../../../../shared/ipc'
+import type { AppInfo, AppSettingsData, SystemStatus, ThemePreference } from '../../../../shared/ipc'
+import { getThemePreference, setThemePreference } from '../../theme'
 import { SpinnerIcon } from '../icons/OnboardingIcons'
 import { ExternalLinkIcon, FolderOpenIcon, SettingsGearIcon } from '../icons/SidebarIcons'
 
@@ -8,35 +9,18 @@ interface SettingsPageProps {
   onResetFavorites?: () => void
 }
 
-type SettingsTab = 'general' | 'gaming' | 'graphics' | 'storage' | 'updates'
-
-interface AppSettingsState {
-  openAtLogin: boolean
-  askBeforeQuitting: boolean
-  showMenuBarExtra: boolean
-  preferredTerminal: 'terminal' | 'iterm' | 'ghostty' | 'warp'
-  defaultWinVersion: 'Windows 11' | 'Windows 10' | 'Windows 8.1' | 'Windows 7'
-  defaultPcsLocation: string
-  openSteamAtLaunch: boolean
-  gameModeEnabled: boolean
-  fitBelowNotch: boolean
-  defaultGraphicsBackend: 'recommended' | 'd3dMetal' | 'dxmt' | 'dxvk' | 'wined3d'
-  logRetentionDays: 1 | 7 | 30 | 0
-  autoCheckAppUpdates: boolean
-  autoCheckEngineUpdates: boolean
-}
-
 const APP_SETTINGS_KEY = 'gmac.appSettings'
-const DEFAULT_PCS_LOCATION = '~/Library/Containers/com.gmac.app/Bottles'
-const DEFAULT_LOGS_LOCATION = '~/Library/Logs/Gmac'
+const DEFAULT_PCS_LOCATION = '~/Library/Containers/com.rolling7ho.Gmac/Bottles'
+const DEFAULT_LOGS_LOCATION = '~/Library/Logs/com.rolling7ho.Gmac'
 
-const DEFAULT_APP_SETTINGS: AppSettingsState = {
+const DEFAULT_APP_SETTINGS: AppSettingsData = {
   openAtLogin: false,
   askBeforeQuitting: true,
   showMenuBarExtra: false,
   preferredTerminal: 'terminal',
   defaultWinVersion: 'Windows 10',
   defaultPcsLocation: DEFAULT_PCS_LOCATION,
+  logsFolder: DEFAULT_LOGS_LOCATION,
   openSteamAtLaunch: false,
   gameModeEnabled: true,
   fitBelowNotch: false,
@@ -46,13 +30,13 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
   autoCheckEngineUpdates: true
 }
 
-function loadAppSettings(): AppSettingsState {
+function loadAppSettings(): AppSettingsData {
   try {
     const raw = window.localStorage.getItem(APP_SETTINGS_KEY)
     if (!raw) {
       return { ...DEFAULT_APP_SETTINGS }
     }
-    return { ...DEFAULT_APP_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettingsState>) }
+    return { ...DEFAULT_APP_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettingsData>) }
   } catch {
     return { ...DEFAULT_APP_SETTINGS }
   }
@@ -105,9 +89,12 @@ function StatusBadge({ installed }: { installed: boolean }) {
   )
 }
 
+type SettingsTab = 'general' | 'gaming' | 'graphics' | 'storage' | 'updates'
+
 export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general')
-  const [settings, setSettings] = useState<AppSettingsState>(loadAppSettings)
+  const [themePref, setThemePref] = useState<ThemePreference>(getThemePreference)
+  const [settings, setSettings] = useState<AppSettingsData>(loadAppSettings)
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null)
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null)
   const [isInstallingEngine, setIsInstallingEngine] = useState(false)
@@ -136,8 +123,9 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
     let cancelled = false
     Promise.all([
       window.gmac?.getSystemStatus().catch(() => null) ?? Promise.resolve(null),
-      window.gmac?.getAppInfo().catch(() => null) ?? Promise.resolve(null)
-    ]).then(([status, info]) => {
+      window.gmac?.getAppInfo().catch(() => null) ?? Promise.resolve(null),
+      window.gmac?.getAppSettings().catch(() => null) ?? Promise.resolve(null)
+    ]).then(([status, info, loadedSettings]) => {
       if (cancelled) {
         return
       }
@@ -146,6 +134,9 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
       }
       if (info) {
         setAppInfo(info)
+      }
+      if (loadedSettings) {
+        setSettings(loadedSettings)
       }
     })
 
@@ -182,7 +173,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
     }, 2600)
   }
 
-  const updateSettings = (patch: Partial<AppSettingsState>) => {
+  const updateSettings = (patch: Partial<AppSettingsData>) => {
     setSettings((previous) => {
       const next = { ...previous, ...patch }
       try {
@@ -192,6 +183,15 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
       }
       return next
     })
+    void window.gmac?.updateAppSettings(patch).catch(() => {
+      // Keep optimistic local settings.
+    })
+    showSavedBadge()
+  }
+
+  const handleThemeChange = (pref: ThemePreference) => {
+    setThemePref(pref)
+    setThemePreference(pref)
     showSavedBadge()
   }
 
@@ -222,7 +222,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
   }
 
   const handleGraphicsBackendChange = async (
-    value: AppSettingsState['defaultGraphicsBackend']
+    value: AppSettingsData['defaultGraphicsBackend']
   ) => {
     updateSettings({ defaultGraphicsBackend: value })
     try {
@@ -276,9 +276,15 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
     }
   }
 
-  const handleConfirmClearShaders = () => {
+  const handleConfirmClearShaders = async () => {
     setConfirmClearShaders(false)
-    showTransientNotice('Shader cache clear requested for installed PCs.')
+    setStatusError(null)
+    try {
+      await window.gmac?.clearShaderCaches()
+      showTransientNotice('Shader caches cleared for installed PCs.')
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : 'Unable to clear shader caches.')
+    }
   }
 
   const handleConfirmResetPrefs = () => {
@@ -387,6 +393,43 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
             <>
               <div className="rounded-2xl bg-[#FAF9F8] p-5">
                 <h2 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
+                  Appearance
+                </h2>
+                <div className="mt-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                  <div>
+                    <div className="text-[13.5px] font-medium text-[#161212]">Theme</div>
+                    <div className="mt-0.5 text-[12px] text-[#5e5454]">
+                      Follow macOS appearance or choose light or dark mode.
+                    </div>
+                  </div>
+                  <div className="inline-flex shrink-0 rounded-xl bg-white p-1 ring-1 ring-[#161212]/[0.08]">
+                    {(
+                      [
+                        { id: 'system', label: 'System' },
+                        { id: 'light', label: 'Light' },
+                        { id: 'dark', label: 'Dark' }
+                      ] as const
+                    ).map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        aria-pressed={themePref === option.id}
+                        onClick={() => handleThemeChange(option.id)}
+                        className={`app-no-drag cursor-pointer rounded-lg px-3 py-1 text-[12px] font-medium transition-colors ${
+                          themePref === option.id
+                            ? 'bg-[#713131] text-white'
+                            : 'text-[#5e5454] hover:text-[#161212]'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-[#FAF9F8] p-5">
+                <h2 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
                   Startup &amp; Shell
                 </h2>
                 <div className="mt-3 divide-y divide-[#161212]/[0.06]">
@@ -431,7 +474,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                       onChange={(event) =>
                         updateSettings({
                           preferredTerminal: event.target
-                            .value as AppSettingsState['preferredTerminal']
+                            .value as AppSettingsData['preferredTerminal']
                         })
                       }
                       className="app-no-drag cursor-pointer rounded-xl bg-white px-3 py-2 text-[13px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
@@ -468,7 +511,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                       onChange={(event) =>
                         updateSettings({
                           defaultWinVersion: event.target
-                            .value as AppSettingsState['defaultWinVersion']
+                            .value as AppSettingsData['defaultWinVersion']
                         })
                       }
                       className="app-no-drag cursor-pointer rounded-xl bg-white px-3 py-2 text-[13px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
@@ -565,7 +608,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                     value={settings.defaultGraphicsBackend}
                     onChange={(event) =>
                       void handleGraphicsBackendChange(
-                        event.target.value as AppSettingsState['defaultGraphicsBackend']
+                        event.target.value as AppSettingsData['defaultGraphicsBackend']
                       )
                     }
                     className="app-no-drag cursor-pointer rounded-xl bg-white px-3 py-2 text-[13px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
@@ -703,7 +746,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                         updateSettings({
                           logRetentionDays: Number(
                             event.target.value
-                          ) as AppSettingsState['logRetentionDays']
+                          ) as AppSettingsData['logRetentionDays']
                         })
                       }
                       className="app-no-drag cursor-pointer rounded-xl bg-white px-3 py-2 text-[13px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
@@ -737,12 +780,12 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                       <div className="min-w-0">
                         <div className="text-[13.5px] font-medium text-[#161212]">Logs Folder</div>
                         <div className="mt-0.5 truncate font-mono text-[12px] text-[#5e5454]">
-                          {DEFAULT_LOGS_LOCATION}
+                          {settings.logsFolder}
                         </div>
                       </div>
                       <button
                         type="button"
-                        onClick={() => void handleShowInFinder(DEFAULT_LOGS_LOCATION)}
+                        onClick={() => void handleShowInFinder(settings.logsFolder)}
                         className="app-no-drag inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:bg-[#F3EFEF]"
                       >
                         <FolderOpenIcon className="h-3.5 w-3.5" />
@@ -902,7 +945,7 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
               </button>
               <button
                 type="button"
-                onClick={handleConfirmClearShaders}
+                onClick={() => void handleConfirmClearShaders()}
                 className="cursor-pointer rounded-xl bg-red-600 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-red-700"
               >
                 Stop PCs and Clear

@@ -49,11 +49,8 @@ struct BridgeRouter: Sendable {
 
     private func dispatch(_ request: BridgeRequest) async throws -> JSONValue {
         let params = request.params ?? [:]
-        if let bottleResult = try await dispatchBottleMethod(request.method, params: params) {
-            return bottleResult
-        }
-        if let homeResult = try await dispatchHomeMethod(request.method, params: params) {
-            return homeResult
+        if let domainResult = try await dispatchDomainMethod(request.method, params: params) {
+            return domainResult
         }
 
         switch request.method {
@@ -74,6 +71,19 @@ struct BridgeRouter: Sendable {
         default:
             throw BridgeError.unknownMethod(request.method)
         }
+    }
+
+    private func dispatchDomainMethod(
+        _ method: String,
+        params: [String: JSONValue]
+    ) async throws -> JSONValue? {
+        if let bottleResult = try await dispatchBottleMethod(method, params: params) {
+            return bottleResult
+        }
+        if let homeResult = try await dispatchHomeMethod(method, params: params) {
+            return homeResult
+        }
+        return try await dispatchConfigMethod(method, params: params)
     }
 
     private func dispatchBottleMethod(
@@ -107,6 +117,30 @@ struct BridgeRouter: Sendable {
             await homeSummary()
         case "home.launch":
             try await launchHomeItem(params: params)
+        default:
+            nil
+        }
+    }
+
+    private func dispatchConfigMethod(
+        _ method: String,
+        params: [String: JSONValue]
+    ) async throws -> JSONValue? {
+        switch method {
+        case "bottles.getConfig":
+            try await getBottleConfig(params: params)
+        case "bottles.updateConfig":
+            try await updateBottleConfig(params: params)
+        case "games.getSettings":
+            try await getGameSettings(params: params)
+        case "games.updateSettings":
+            try await updateGameSettings(params: params)
+        case "settings.get":
+            getAppSettings()
+        case "settings.update":
+            updateAppSettings(params: params)
+        case "settings.clearShaderCaches":
+            await clearShaderCaches()
         default:
             nil
         }

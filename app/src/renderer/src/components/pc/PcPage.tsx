@@ -179,7 +179,26 @@ export function PcPage({
     setIsRenaming(false)
     setSearchQuery('')
     setActionNotice(null)
-  }, [pc])
+
+    if (!isManagedPc || !window.gmac) {
+      return
+    }
+    let cancelled = false
+    void window.gmac
+      .getBottleConfig(pc.path)
+      .then((loaded) => {
+        if (!cancelled) {
+          setConfig(loaded)
+        }
+      })
+      .catch(() => {
+        // Fall back to cached local config.
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [pc, isManagedPc])
 
   useEffect(() => {
     if (!isRenaming) {
@@ -247,6 +266,11 @@ export function PcPage({
       }
       return next
     })
+    if (isManagedPc && window.gmac) {
+      void window.gmac.updateBottleConfig(pc.path, patch).catch(() => {
+        // Ignore bridge persistence error in offline/fresh mode.
+      })
+    }
     setSavedNoticeVisible(true)
     if (savedTimerRef.current !== null) {
       window.clearTimeout(savedTimerRef.current)
@@ -319,6 +343,11 @@ export function PcPage({
       window.localStorage.removeItem(`gmac.pcConfig.${pc.path}`)
     } catch {
       // Ignore storage errors.
+    }
+    if (isManagedPc && window.gmac) {
+      void window.gmac.updateBottleConfig(pc.path, fresh).catch(() => {
+        // Ignore bridge persistence error.
+      })
     }
     showTransientNotice('PC configuration restored to defaults.')
   }

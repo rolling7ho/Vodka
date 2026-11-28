@@ -17,6 +17,7 @@
     "dev:home:mock": "GMAC_SCREEN=home GMAC_FRESH_INSTALL=1 GMAC_MOCK_UI=1 npm run dev",
     "dev:fresh": "GMAC_FRESH_INSTALL=1 npm run dev",
     "build": "electron-vite build",
+    "package:local": "bash scripts/install-local.sh",
     "start": "electron-vite preview",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",

@@ -190,7 +190,31 @@ export function LibraryGamePage({
   useEffect(() => {
     setSettings(loadGameSettings(game.id))
     setSavedNoticeVisible(false)
-  }, [game.id])
+
+    if (!window.gmac || game.id.startsWith('mock:')) {
+      return
+    }
+    let cancelled = false
+    void window.gmac
+      .getGameSettings({
+        bottlePath: game.bottlePath,
+        launchKind: game.launchKind,
+        steamAppId: game.steamAppId ?? null,
+        programPath: game.programPath ?? null
+      })
+      .then((loaded) => {
+        if (!cancelled) {
+          setSettings(loaded)
+        }
+      })
+      .catch(() => {
+        // Fall back to local cache.
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [game.id, game.bottlePath, game.launchKind, game.steamAppId, game.programPath])
 
   useEffect(() => {
     return () => {
@@ -210,6 +234,21 @@ export function LibraryGamePage({
       }
       return next
     })
+    if (window.gmac && !game.id.startsWith('mock:')) {
+      void window.gmac
+        .updateGameSettings(
+          {
+            bottlePath: game.bottlePath,
+            launchKind: game.launchKind,
+            steamAppId: game.steamAppId ?? null,
+            programPath: game.programPath ?? null
+          },
+          patch
+        )
+        .catch(() => {
+          // Keep optimistic local state.
+        })
+    }
     setSavedNoticeVisible(true)
     if (savedTimerRef.current !== null) {
       window.clearTimeout(savedTimerRef.current)
@@ -227,6 +266,21 @@ export function LibraryGamePage({
       window.localStorage.removeItem(`gmac.gameSettings.${game.id}`)
     } catch {
       // Ignore storage errors.
+    }
+    if (window.gmac && !game.id.startsWith('mock:')) {
+      void window.gmac
+        .updateGameSettings(
+          {
+            bottlePath: game.bottlePath,
+            launchKind: game.launchKind,
+            steamAppId: game.steamAppId ?? null,
+            programPath: game.programPath ?? null
+          },
+          { reset: true }
+        )
+        .catch(() => {
+          // Ignore bridge error.
+        })
     }
     setSavedNoticeVisible(true)
     if (savedTimerRef.current !== null) {

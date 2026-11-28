@@ -1,15 +1,21 @@
-import { existsSync } from 'fs'
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { existsSync, statSync } from 'fs'
+import { join } from 'path'
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } from 'electron'
 import {
   AppInfo,
+  AppSettingsData,
+  BottleConfig,
   BottleSummary,
   BridgeProgressEvent,
+  GameSettingsData,
+  GameSettingsTarget,
   HomeSummary,
   ImportBottlesResult,
   IPC_CHANNELS,
   LaunchHomeItemRequest,
   LauncherSetupResult,
   SystemStatus,
+  ThemePreference,
   ToolkitInstallResult
 } from '../shared/ipc'
 import { GmacBridgeClient } from './bridge'
@@ -94,8 +100,68 @@ function defaultHomeSummary(pcsCount: number): HomeSummary {
   }
 }
 
+function defaultBottleConfig(): BottleConfig {
+  return {
+    windowsVersion: 'Windows 10',
+    enhancedSync: 'msync',
+    avxEnabled: true,
+    graphicsBackend: 'recommended',
+    metalHud: false,
+    dxrEnabled: true,
+    shaderCacheEnabled: true,
+    retinaMode: false,
+    virtualDesktop: false,
+    virtualDesktopResolution: '1920x1080',
+    controllerCompatMode: false
+  }
+}
+
+function defaultGameSettings(): GameSettingsData {
+  return {
+    graphicsBackend: 'inherit',
+    metal4Enabled: true,
+    shaderCacheEnabled: true,
+    metalHud: false,
+    launchArguments: '',
+    locale: 'auto',
+    enhancedSync: 'inherit',
+    virtualDesktop: false,
+    virtualDesktopResolution: '1920x1080',
+    controllerCompatMode: false
+  }
+}
+
+function defaultAppSettings(): AppSettingsData {
+  return {
+    openAtLogin: process.platform === 'darwin' ? app.getLoginItemSettings().openAtLogin : false,
+    askBeforeQuitting: true,
+    showMenuBarExtra: false,
+    preferredTerminal: 'terminal',
+    defaultWinVersion: 'Windows 10',
+    defaultPcsLocation: '~/Library/Containers/com.rolling7ho.Gmac/Bottles',
+    logsFolder: '~/Library/Logs/com.rolling7ho.Gmac',
+    openSteamAtLaunch: false,
+    gameModeEnabled: true,
+    fitBelowNotch: false,
+    defaultGraphicsBackend: 'recommended',
+    logRetentionDays: 7,
+    autoCheckAppUpdates: true,
+    autoCheckEngineUpdates: true
+  }
+}
+
+function expandHomePath(targetPath: string): string {
+  if (targetPath.startsWith('~/')) {
+    return join(app.getPath('home'), targetPath.slice(2))
+  }
+  return targetPath
+}
+
 export function registerIpcHandlers(bridge: GmacBridgeClient): void {
   let freshBottles: BottleSummary[] = []
+  let freshAppSettings: AppSettingsData = defaultAppSettings()
+  const freshBottleConfigs = new Map<string, BottleConfig>()
+  const freshGameSettings = new Map<string, GameSettingsData>()
 
   bridge.onProgress((event) => {
     emitProgress(event)
@@ -270,6 +336,127 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
     }
   )
 
+  ipcMain.handle(
+    IPC_CHANNELS.GET_BOTTLE_CONFIG,
+    async (_event, bottlePath: string): Promise<BottleConfig> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+        return freshBottleConfigs.get(bottlePath) ?? defaultBottleConfig()
+      }
+      return await bridge.request<BottleConfig>('bottles.getConfig', { path: bottlePath })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.UPDATE_BOTTLE_CONFIG,
+    async (_event, bottlePath: string, patch: Partial<BottleConfig>): Promise<BottleConfig> => {
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+        const current = freshBottleConfigs.get(bottlePath) ?? defaultBottleConfig()
+        const updated = { ...current, ...patch }
+        freshBottleConfigs.set(bottlePath, updated)
+        return updated
+      }
+      return await bridge.request<BottleConfig>('bottles.updateConfig', {
+        path: bottlePath,
+        ...patch
+      })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.GET_GAME_SETTINGS,
+    async (_event, target: GameSettingsTarget): Promise<GameSettingsData> => {
+      const key = `${target.bottlePath}:${target.launchKind}:${String(target.steamAppId ?? target.programPath ?? '')}`
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+        return freshGameSettings.get(key) ?? defaultGameSettings()
+      }
+      return await bridge.request<GameSettingsData>('games.getSettings', {
+        bottlePath: target.bottlePath,
+        launchKind: target.launchKind,
+        ...(target.steamAppId != null ? { steamAppId: target.steamAppId } : {}),
+        ...(target.programPath ? { programPath: target.programPath } : {})
+      })
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.UPDATE_GAME_SETTINGS,
+    async (
+      _event,
+      target: GameSettingsTarget,
+      patch: Partial<GameSettingsData> & { reset?: boolean }
+    ): Promise<GameSettingsData> => {
+      const key = `${target.bottlePath}:${target.launchKind}:${String(target.steamAppId ?? target.programPath ?? '')}`
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+        const updated = patch.reset
+          ? defaultGameSettings()
+          : { ...(freshGameSettings.get(key) ?? defaultGameSettings()), ...patch }
+        freshGameSettings.set(key, updated)
+        return updated
+      }
+      return await bridge.request<GameSettingsData>('games.updateSettings', {
+        bottlePath: target.bottlePath,
+        launchKind: target.launchKind,
+        ...(target.steamAppId != null ? { steamAppId: target.steamAppId } : {}),
+        ...(target.programPath ? { programPath: target.programPath } : {}),
+        ...patch
+      })
+    }
+  )
+
+  ipcMain.handle(IPC_CHANNELS.GET_APP_SETTINGS, async (): Promise<AppSettingsData> => {
+    const loginItem =
+      process.platform === 'darwin' ? app.getLoginItemSettings().openAtLogin : false
+    if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+      return { ...freshAppSettings, openAtLogin: loginItem }
+    }
+    try {
+      const bridgeSettings = await bridge.request<Omit<AppSettingsData, 'openAtLogin'>>(
+        'settings.get'
+      )
+      return { ...bridgeSettings, openAtLogin: loginItem }
+    } catch {
+      return { ...defaultAppSettings(), openAtLogin: loginItem }
+    }
+  })
+
+  ipcMain.handle(
+    IPC_CHANNELS.UPDATE_APP_SETTINGS,
+    async (_event, patch: Partial<AppSettingsData>): Promise<AppSettingsData> => {
+      if (typeof patch.openAtLogin === 'boolean' && process.platform === 'darwin') {
+        app.setLoginItemSettings({ openAtLogin: patch.openAtLogin })
+      }
+      const openAtLogin =
+        process.platform === 'darwin' ? app.getLoginItemSettings().openAtLogin : false
+
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+        freshAppSettings = { ...freshAppSettings, ...patch, openAtLogin }
+        return freshAppSettings
+      }
+
+      const { openAtLogin: _ignoredLogin, logsFolder: _ignoredLogs, ...bridgePatch } = patch
+      const updated = await bridge.request<Omit<AppSettingsData, 'openAtLogin'>>(
+        'settings.update',
+        bridgePatch
+      )
+      return { ...updated, openAtLogin }
+    }
+  )
+
+  ipcMain.handle(IPC_CHANNELS.CLEAR_SHADER_CACHES, async (): Promise<{ cleared: boolean }> => {
+    if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
+      return { cleared: true }
+    }
+    return await bridge.request<{ cleared: boolean }>('settings.clearShaderCaches')
+  })
+
+  ipcMain.handle(
+    IPC_CHANNELS.SET_THEME_PREFERENCE,
+    (_event, theme: ThemePreference): { theme: ThemePreference } => {
+      nativeTheme.themeSource = theme
+      return { theme }
+    }
+  )
+
   ipcMain.handle(IPC_CHANNELS.PICK_TOOLKIT_FILE, async (): Promise<string | null> => {
     const focused = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
     const options: Electron.OpenDialogOptions = {
@@ -332,11 +519,16 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
 
   ipcMain.handle(
     IPC_CHANNELS.SHOW_IN_FINDER,
-    (_event, targetPath: string): { opened: boolean } => {
-      if (process.env.GMAC_FRESH_INSTALL === '1' || !targetPath || !existsSync(targetPath)) {
+    async (_event, targetPath: string): Promise<{ opened: boolean }> => {
+      const resolved = expandHomePath(targetPath)
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !resolved || !existsSync(resolved)) {
         return { opened: false }
       }
-      shell.showItemInFolder(targetPath)
+      if (statSync(resolved).isDirectory()) {
+        const err = await shell.openPath(resolved)
+        return { opened: err === '' }
+      }
+      shell.showItemInFolder(resolved)
       return { opened: true }
     }
   )

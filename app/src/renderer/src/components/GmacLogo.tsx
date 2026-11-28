@@ -5,7 +5,7 @@ interface GmacLogoProps {
 export function GmacLogo({ className }: GmacLogoProps) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
+      
       viewBox="56 56 288 288"
       fill="none"
       role="img"

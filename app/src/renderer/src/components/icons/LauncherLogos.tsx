@@ -6,13 +6,13 @@ import steamLogo from '../../assets/launchers/steam.png'
 import ubisoftLogo from '../../assets/launchers/ubisoft.png'
 import { GameControllerIcon } from './OnboardingIcons'
 
-const LAUNCHER_LOGOS: Record<string, { src: string; alt: string }> = {
+const LAUNCHER_LOGOS: Record<string, { src: string; alt: string; darkInvert?: boolean }> = {
   steam: { src: steamLogo, alt: 'Steam' },
   epicGames: { src: epicLogo, alt: 'Epic Games Store' },
   battleNet: { src: battlenetLogo, alt: 'Battle.net' },
   eaApp: { src: eaLogo, alt: 'EA App' },
   rockstar: { src: rockstarLogo, alt: 'Rockstar Games' },
-  ubisoft: { src: ubisoftLogo, alt: 'Ubisoft Connect' }
+  ubisoft: { src: ubisoftLogo, alt: 'Ubisoft Connect', darkInvert: true }
 }
 
 interface LauncherBrandImageProps {
@@ -26,13 +26,20 @@ export function LauncherBrandImage({ id, className }: LauncherBrandImageProps) {
     return <GameControllerIcon className={className} />
   }
 
+  const imageClasses = [
+    className ?? 'h-5 w-5 object-contain',
+    entry.darkInvert ? 'dark-invert-logo' : ''
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
     <img
       src={entry.src}
       alt=""
       aria-hidden="true"
       draggable={false}
-      className={className ?? 'h-5 w-5 object-contain'}
+      className={imageClasses}
     />
   )
 }
