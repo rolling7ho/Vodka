@@ -57,6 +57,7 @@ private struct HomeAggregation: Sendable {
     let gamesHistory: [StatPointRecord]
     let continuePlaying: HomeGameRecord?
     let recentlyPlayed: [HomeGameRecord]
+    let allGames: [HomeGameRecord]
     let launchers: [String: DetectedLauncherInfo]
 }
 
@@ -102,6 +103,7 @@ extension BridgeRouter {
             ]),
             "continuePlaying": aggregation.continuePlaying?.toJSON() ?? .null,
             "recentlyPlayed": .array(aggregation.recentlyPlayed.map { $0.toJSON() }),
+            "allGames": .array(aggregation.allGames.map { $0.toJSON() }),
             "launchers": .array(launcherEntries)
         ])
     }
@@ -180,6 +182,7 @@ extension BridgeRouter {
             gamesHistory: buildGamesHistory(totalGames: sortedGames.count),
             continuePlaying: heroGame,
             recentlyPlayed: recentGames,
+            allGames: sortedGames,
             launchers: detectedLaunchers
         )
     }
@@ -281,6 +284,9 @@ extension BridgeRouter {
         let lastPlayed = [steam?.lastPlayed, program?.lastPlayed, game?.manifest.lastPlayed]
             .compactMap { $0 }
             .max()
+        let portraitURL = resolvedAppID.flatMap { appID in
+            context.steamRoot.flatMap { SteamLibrarySource.iconArtworkURL(appID: appID, steamRoot: $0) }
+        }
         let logoURL = resolvedAppID.flatMap { appID in
             context.steamRoot.flatMap { findSteamLogoURL(appID: appID, steamRoot: $0) }
         }
@@ -297,6 +303,7 @@ extension BridgeRouter {
             lastTwoWeeksSeconds: lastTwoWeeks,
             lastPlayed: lastPlayed,
             artworkDataUrl: encodeArtworkDataURL(entry.artworkURL),
+            portraitArtworkDataUrl: encodeArtworkDataURL(portraitURL),
             logoDataUrl: encodeArtworkDataURL(logoURL)
         )
     }

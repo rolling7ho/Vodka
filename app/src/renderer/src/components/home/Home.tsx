@@ -13,6 +13,7 @@ import {
   Sidebar,
   type SidebarDestination
 } from '../sidebar/Sidebar'
+import { LibraryView } from '../library/LibraryView'
 import { GameDetail } from './GameDetail'
 import { HomeDashboard } from './HomeDashboard'
 import { MOCK_HOME_SUMMARY } from './mockHomeData'
@@ -47,12 +48,18 @@ function launcherToPcIcon(id: string): PcIconId {
   }
 }
 
-function destinationTitle(destination: SidebarDestination, pcs: BottleSummary[]): string {
+function destinationTitle(
+  destination: SidebarDestination,
+  pcs: BottleSummary[],
+  games: HomeGameItem[]
+): string {
   switch (destination.kind) {
     case 'home':
       return 'Home'
     case 'library':
       return 'Library'
+    case 'game':
+      return games.find((game) => game.id === destination.gameId)?.name ?? 'Game'
     case 'settings':
       return 'Settings'
     case 'pc':
@@ -66,7 +73,6 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   const [isHomeLoading, setIsHomeLoading] = useState(true)
   const [isMockMode] = useState(resolveInitialMockMode)
   const [homeVisitKey, setHomeVisitKey] = useState(() => (enteredFromOnboarding ? 2 : 1))
-  const [selectedGame, setSelectedGame] = useState<HomeGameItem | null>(null)
   const [launchingId, setLaunchingId] = useState<string | null>(null)
   const [homeError, setHomeError] = useState<string | null>(null)
   const [activeDestination, setActiveDestination] = useState<SidebarDestination>({ kind: 'home' })
@@ -167,18 +173,12 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   }
 
   const handleSelectDestination = (next: SidebarDestination) => {
-    setSelectedGame(null)
     setActiveDestination((current) => {
       if (next.kind === 'home' && current.kind !== 'home') {
         setHomeVisitKey((key) => key + 1)
       }
       return next
     })
-  }
-
-  const handleCloseGameDetail = () => {
-    setSelectedGame(null)
-    setHomeVisitKey((key) => key + 1)
   }
 
   const openCreatePcModal = (defaults?: { name: string; icon: PcIconId }) => {
@@ -203,7 +203,6 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
     }
     const created = await window.gmac.createBottle(name, icon)
     setPcs((prev) => [...prev, created])
-    setSelectedGame(null)
     setActiveDestination({ kind: 'pc', path: created.path })
     void refreshHomeSummary()
   }
@@ -315,7 +314,18 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   }
 
   const displayedSummary = isMockMode ? MOCK_HOME_SUMMARY : homeSummary
-  const sectionTitle = destinationTitle(activeDestination, pcs)
+  const allGames =
+    displayedSummary?.allGames && displayedSummary.allGames.length > 0
+      ? displayedSummary.allGames
+      : [
+          ...(displayedSummary?.continuePlaying ? [displayedSummary.continuePlaying] : []),
+          ...(displayedSummary?.recentlyPlayed ?? [])
+        ]
+  const activeGame =
+    activeDestination.kind === 'game'
+      ? allGames.find((game) => game.id === activeDestination.gameId) ?? null
+      : null
+  const sectionTitle = destinationTitle(activeDestination, pcs, allGames)
   const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
   const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
 
@@ -344,6 +354,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
       <Sidebar
         activeDestination={activeDestination}
         pcs={pcs}
+        games={allGames}
         width={sidebarWidth}
         isCollapsed={isSidebarCollapsed}
         isResizing={isResizing}
@@ -359,27 +370,45 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
 
       <div className="flex min-w-0 flex-1 flex-col bg-white">
         {activeDestination.kind === 'home' ? (
-          selectedGame ? (
+          <HomeDashboard
+            summary={displayedSummary}
+            isLoading={isHomeLoading}
+            visitKey={homeVisitKey}
+            launchingId={launchingId}
+            errorMessage={homeError}
+            onPlayGame={handlePlayGame}
+            onOpenLauncher={handleOpenLauncher}
+            onSetupLauncher={handleSetupLauncher}
+            onOpenLibrary={() => handleSelectDestination({ kind: 'library' })}
+            onOpenCreatePc={() => openCreatePcModal()}
+          />
+        ) : activeDestination.kind === 'library' ? (
+          <LibraryView
+            games={allGames}
+            launchingId={launchingId}
+            errorMessage={homeError}
+            onSelectGame={(gameId) => handleSelectDestination({ kind: 'game', gameId })}
+            onPlayGame={handlePlayGame}
+            onOpenCreatePc={() => openCreatePcModal()}
+          />
+        ) : activeDestination.kind === 'game' ? (
+          activeGame ? (
             <GameDetail
-              game={selectedGame}
-              isLaunching={launchingId === selectedGame.id}
+              key={activeGame.id}
+              game={activeGame}
+              isLaunching={launchingId === activeGame.id}
               errorMessage={homeError}
-              onBack={handleCloseGameDetail}
+              onBack={() => handleSelectDestination({ kind: 'library' })}
               onPlay={handlePlayGame}
               onOpenPc={(bottlePath) => handleSelectDestination({ kind: 'pc', path: bottlePath })}
             />
           ) : (
-            <HomeDashboard
-              summary={displayedSummary}
-              isLoading={isHomeLoading}
-              visitKey={homeVisitKey}
+            <LibraryView
+              games={allGames}
               launchingId={launchingId}
               errorMessage={homeError}
+              onSelectGame={(gameId) => handleSelectDestination({ kind: 'game', gameId })}
               onPlayGame={handlePlayGame}
-              onOpenGameDetail={setSelectedGame}
-              onOpenLauncher={handleOpenLauncher}
-              onSetupLauncher={handleSetupLauncher}
-              onOpenLibrary={() => handleSelectDestination({ kind: 'library' })}
               onOpenCreatePc={() => openCreatePcModal()}
             />
           )

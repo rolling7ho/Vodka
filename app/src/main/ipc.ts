@@ -39,6 +39,7 @@ function defaultHomeSummary(pcsCount: number): HomeSummary {
     },
     continuePlaying: null,
     recentlyPlayed: [],
+    allGames: [],
     launchers: [
       {
         id: 'steam',

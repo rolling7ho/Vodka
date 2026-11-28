@@ -104,6 +104,7 @@ export interface HomeGameItem {
   lastTwoWeeksSeconds: number
   lastPlayedIso: string | null
   artworkDataUrl: string | null
+  portraitArtworkDataUrl: string | null
   logoDataUrl: string | null
 }
 
@@ -120,6 +121,7 @@ export interface HomeSummary {
   stats: HomeStats
   continuePlaying: HomeGameItem | null
   recentlyPlayed: HomeGameItem[]
+  allGames: HomeGameItem[]
   launchers: HomeLauncherItem[]
 }
 

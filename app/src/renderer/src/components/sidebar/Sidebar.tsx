@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type DragEvent,
@@ -7,10 +8,17 @@ import {
   type MouseEvent,
   type PointerEvent
 } from 'react'
-import type { BottleSummary } from '../../../../shared/ipc'
+import type { BottleSummary, HomeGameItem } from '../../../../shared/ipc'
 import { GmacWordmark } from '../GmacWordmark'
+import { GameControllerIcon } from '../icons/OnboardingIcons'
 import { PcGlyph, type PcIconId } from '../icons/PcIcons'
-import { HomeIcon, LibraryGridIcon, PlusIcon, SettingsGearIcon } from '../icons/SidebarIcons'
+import {
+  ChevronDownIcon,
+  HomeIcon,
+  LibraryGridIcon,
+  PlusIcon,
+  SettingsGearIcon
+} from '../icons/SidebarIcons'
 import { PcContextMenu } from './PcModals'
 
 export const DEFAULT_SIDEBAR_WIDTH = 232
@@ -23,12 +31,14 @@ export const SIDEBAR_COLLAPSE_EASING = '320ms cubic-bezier(0.22, 1, 0.36, 1)'
 export type SidebarDestination =
   | { kind: 'home' }
   | { kind: 'library' }
+  | { kind: 'game'; gameId: string }
   | { kind: 'pc'; path: string }
   | { kind: 'settings' }
 
 interface SidebarProps {
   activeDestination: SidebarDestination
   pcs: BottleSummary[]
+  games: HomeGameItem[]
   width: number
   isCollapsed: boolean
   isResizing: boolean
@@ -91,6 +101,7 @@ function computeReorderedPaths(
 export function Sidebar({
   activeDestination,
   pcs,
+  games,
   width,
   isCollapsed,
   isResizing,
@@ -103,6 +114,7 @@ export function Sidebar({
   onSelectPcIcon,
   onReorderPcs
 }: SidebarProps) {
+  const [isLibraryExpanded, setIsLibraryExpanded] = useState(true)
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
   const [renamingPath, setRenamingPath] = useState<string | null>(null)
   const [renameDraft, setRenameDraft] = useState('')
@@ -110,6 +122,11 @@ export function Sidebar({
   const [dropTarget, setDropTarget] = useState<DropTargetState | null>(null)
   const renameInputRef = useRef<HTMLInputElement>(null)
   const contextMenuSeqRef = useRef(0)
+
+  const sortedGames = useMemo(
+    () => [...games].sort((a, b) => a.name.localeCompare(b.name)),
+    [games]
+  )
 
   useEffect(() => {
     if (!renamingPath) {
@@ -248,43 +265,132 @@ export function Sidebar({
             <GmacWordmark className="h-[26px] w-auto shrink-0" />
           </div>
 
-          <nav className="space-y-0.5 px-2.5">
-            <button
-              type="button"
-              aria-current={isHomeActive ? 'page' : undefined}
-              onClick={() => onSelect({ kind: 'home' })}
-              className={navButtonClass(isHomeActive)}
-            >
-              <HomeIcon className="h-[17px] w-[17px] shrink-0" />
-              <span>Home</span>
-            </button>
-
-            <button
-              type="button"
-              aria-current={isLibraryActive ? 'page' : undefined}
-              onClick={() => onSelect({ kind: 'library' })}
-              className={navButtonClass(isLibraryActive)}
-            >
-              <LibraryGridIcon className="h-[17px] w-[17px] shrink-0" />
-              <span>Library</span>
-            </button>
-          </nav>
-
-          <div className="mx-3 my-3 h-px bg-[#161212]/[0.08]" role="separator" />
-
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2.5">
-            <div className="flex items-center justify-between px-2.5 pb-1.5">
-              <span className="text-[11.5px] font-semibold text-[#5e5454]">PCs</span>
+            <nav className="space-y-0.5">
               <button
                 type="button"
-                onClick={onOpenCreatePc}
-                aria-label="Create PC"
-                title="Create PC"
-                className="app-no-drag inline-flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#713131]/60"
+                aria-current={isHomeActive ? 'page' : undefined}
+                onClick={() => onSelect({ kind: 'home' })}
+                className={navButtonClass(isHomeActive)}
               >
-                <PlusIcon className="h-[14px] w-[14px]" />
+                <HomeIcon className="h-[17px] w-[17px] shrink-0" />
+                <span>Home</span>
               </button>
-            </div>
+
+              <div>
+                <div
+                  className={`flex items-center rounded-lg transition-colors ${
+                    isLibraryActive
+                      ? 'bg-[#713131]/[0.09] text-[#713131]'
+                      : 'text-[#4a4242] hover:bg-[#161212]/[0.05] hover:text-[#713131]'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    aria-current={isLibraryActive ? 'page' : undefined}
+                    onClick={() => onSelect({ kind: 'library' })}
+                    className={`app-no-drag flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-l-lg py-2 pr-1 pl-2.5 text-left text-[13.5px] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#713131]/60 ${
+                      isLibraryActive ? 'font-medium' : 'font-normal'
+                    }`}
+                  >
+                    <LibraryGridIcon className="h-[17px] w-[17px] shrink-0" />
+                    <span className="truncate">Library</span>
+                    {sortedGames.length > 0 && (
+                      <span
+                        className={`ml-auto text-[11px] tabular-nums ${
+                          isLibraryActive ? 'text-[#713131]/75' : 'text-[#5e5454]/70'
+                        }`}
+                      >
+                        {sortedGames.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-expanded={isLibraryExpanded}
+                    aria-label="Toggle library games"
+                    onClick={() => setIsLibraryExpanded((expanded) => !expanded)}
+                    className="app-no-drag inline-flex h-[32px] w-[28px] shrink-0 cursor-pointer items-center justify-center rounded-r-lg opacity-75 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#713131]/60"
+                  >
+                    <ChevronDownIcon
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                        isLibraryExpanded ? 'rotate-0' : '-rotate-90'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${
+                    isLibraryExpanded
+                      ? 'grid-rows-[1fr] opacity-100'
+                      : 'pointer-events-none grid-rows-[0fr] opacity-0'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="mt-0.5 ml-[18px] space-y-0.5 border-l border-[#161212]/[0.08] py-0.5 pl-2">
+                      {sortedGames.length > 0 ? (
+                        sortedGames.map((game) => {
+                          const isGameSelected =
+                            activeDestination.kind === 'game' &&
+                            activeDestination.gameId === game.id
+                          const thumbSrc = game.portraitArtworkDataUrl ?? game.artworkDataUrl
+
+                          return (
+                            <button
+                              key={game.id}
+                              type="button"
+                              aria-current={isGameSelected ? 'page' : undefined}
+                              onClick={() => onSelect({ kind: 'game', gameId: game.id })}
+                              className={`app-no-drag flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#713131]/60 ${
+                                isGameSelected
+                                  ? 'bg-[#713131]/[0.09] font-medium text-[#713131]'
+                                  : 'font-normal text-[#4a4242] hover:bg-[#161212]/[0.05] hover:text-[#713131]'
+                              }`}
+                            >
+                              {thumbSrc ? (
+                                <img
+                                  src={thumbSrc}
+                                  alt=""
+                                  aria-hidden="true"
+                                  className="h-[18px] w-[18px] shrink-0 rounded-[4px] object-cover ring-1 ring-black/10"
+                                />
+                              ) : (
+                                <span className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] bg-[#161212]/[0.06] text-[#5e5454]">
+                                  <GameControllerIcon className="h-3 w-3" />
+                                </span>
+                              )}
+                              <span className="truncate">{game.name}</span>
+                            </button>
+                          )
+                        })
+                      ) : (
+                        <div className="px-2 py-1 text-[12px] text-[#5e5454]/75">
+                          No games installed
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </nav>
+
+            <div className="mx-0.5 my-3 h-px shrink-0 bg-[#161212]/[0.08]" role="separator" />
+
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between px-2.5 pb-1.5">
+                <span className="text-[11.5px] font-semibold text-[#5e5454]">PCs</span>
+                <button
+                  type="button"
+                  onClick={onOpenCreatePc}
+                  aria-label="Create PC"
+                  title="Create PC"
+                  className="app-no-drag inline-flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#713131]/60"
+                >
+                  <PlusIcon className="h-[14px] w-[14px]" />
+                </button>
+              </div>
 
             {pcs.length > 0 ? (
               <div className="space-y-0.5">
@@ -364,6 +470,7 @@ export function Sidebar({
                 Create your first PC
               </button>
             )}
+            </div>
           </div>
 
           <div className="mx-3 my-2 h-px bg-[#161212]/[0.08]" role="separator" />

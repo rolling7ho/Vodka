@@ -42,6 +42,7 @@ struct HomeGameRecord: Sendable {
     let lastTwoWeeksSeconds: TimeInterval
     let lastPlayed: Date?
     let artworkDataUrl: String?
+    let portraitArtworkDataUrl: String?
     let logoDataUrl: String?
 
     func toJSON() -> JSONValue {
@@ -57,6 +58,7 @@ struct HomeGameRecord: Sendable {
             "lastTwoWeeksSeconds": .double(lastTwoWeeksSeconds),
             "lastPlayedIso": lastPlayed.map { .string($0.ISO8601Format()) } ?? .null,
             "artworkDataUrl": artworkDataUrl.map { .string($0) } ?? .null,
+            "portraitArtworkDataUrl": portraitArtworkDataUrl.map { .string($0) } ?? .null,
             "logoDataUrl": logoDataUrl.map { .string($0) } ?? .null
         ])
     }

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type CSSProperties, type KeyboardEvent } from 'react'
+import { useEffect, useId, useState, type CSSProperties } from 'react'
 import type { HomeGameItem, HomeLauncherItem, HomeSummary, StatPoint } from '../../../../shared/ipc'
 import { LauncherBrandImage } from '../icons/LauncherLogos'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
@@ -11,7 +11,6 @@ interface HomeDashboardProps {
   launchingId: string | null
   errorMessage: string | null
   onPlayGame: (game: HomeGameItem) => void
-  onOpenGameDetail: (game: HomeGameItem) => void
   onOpenLauncher: (launcher: HomeLauncherItem) => void
   onSetupLauncher: (launcher: HomeLauncherItem) => void
   onOpenLibrary: () => void
@@ -249,13 +248,6 @@ function staggerStyle(delayMs: number): CSSProperties {
   return { '--stagger-delay': `${delayMs}ms` } as CSSProperties
 }
 
-function handleCardKeyDown(event: KeyboardEvent<HTMLElement>, onOpen: () => void) {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    onOpen()
-  }
-}
-
 export function HomeDashboard({
   summary,
   isLoading,
@@ -263,7 +255,6 @@ export function HomeDashboard({
   launchingId,
   errorMessage,
   onPlayGame,
-  onOpenGameDetail,
   onOpenLauncher,
   onSetupLauncher,
   onOpenLibrary,
@@ -393,16 +384,7 @@ export function HomeDashboard({
           </h2>
 
           {continuePlaying ? (
-            <div
-              role="button"
-              tabIndex={0}
-              aria-label={`View details for ${continuePlaying.name}`}
-              onClick={() => onOpenGameDetail(continuePlaying)}
-              onKeyDown={(event) =>
-                handleCardKeyDown(event, () => onOpenGameDetail(continuePlaying))
-              }
-              className="app-no-drag group relative min-h-[256px] cursor-pointer overflow-hidden rounded-[20px] bg-[#241515] shadow-[0_14px_34px_rgba(22,18,18,0.1)] transition-all duration-200 hover:shadow-[0_18px_40px_rgba(22,18,18,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
-            >
+            <div className="app-no-drag group relative min-h-[256px] overflow-hidden rounded-[20px] bg-[#241515] shadow-[0_14px_34px_rgba(22,18,18,0.1)] transition-all duration-200 hover:shadow-[0_18px_40px_rgba(22,18,18,0.15)]">
               {continuePlaying.artworkDataUrl ? (
                 <>
                   <img
@@ -417,7 +399,7 @@ export function HomeDashboard({
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#241515] via-[#5a2828] to-[#713131]" />
               )}
 
-              <div className="pointer-events-none absolute top-5 right-6 z-10 flex justify-end">
+              <div className="pointer-events-none absolute top-1 right-6 z-10 flex justify-end">
                 {continuePlaying.logoDataUrl ? (
                   <img
                     src={continuePlaying.logoDataUrl}
@@ -435,11 +417,8 @@ export function HomeDashboard({
                 type="button"
                 disabled={launchingId !== null}
                 aria-label={`Play ${continuePlaying.name}`}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onPlayGame(continuePlaying)
-                }}
-                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/92 text-[#713131] shadow-[0_8px_24px_rgba(0,0,0,0.32)] ring-1 ring-white/45 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-white hover:shadow-[0_12px_28px_rgba(0,0,0,0.4)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => onPlayGame(continuePlaying)}
+                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl bg-[#161212]/78 text-white shadow-[0_8px_24px_rgba(0,0,0,0.38)] ring-1 ring-white/22 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#161212]/94 hover:ring-white/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {launchingId === continuePlaying.id ? (
                   <SpinnerIcon className="h-5 w-5" />
@@ -523,19 +502,14 @@ export function HomeDashboard({
                 return (
                   <div
                     key={game.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for ${game.name}`}
-                    onClick={() => onOpenGameDetail(game)}
-                    onKeyDown={(event) => handleCardKeyDown(event, () => onOpenGameDetail(game))}
-                    className="app-no-drag group relative aspect-video cursor-pointer overflow-hidden rounded-2xl bg-[#1C1414] shadow-[0_6px_18px_rgba(22,18,18,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(22,18,18,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
+                    className="app-no-drag group relative aspect-video overflow-hidden rounded-2xl bg-[#1C1414] shadow-[0_6px_18px_rgba(22,18,18,0.08)] transition-shadow duration-200 hover:shadow-[0_12px_26px_rgba(22,18,18,0.14)]"
                   >
                     {game.artworkDataUrl ? (
                       <img
                         src={game.artworkDataUrl}
                         alt=""
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                        className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                       />
                     ) : (
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#2B1B1B] to-[#4A2525] text-white/30">
@@ -568,11 +542,8 @@ export function HomeDashboard({
                       type="button"
                       disabled={launchingId !== null}
                       aria-label={`Play ${game.name}`}
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        onPlayGame(game)
-                      }}
-                      className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[#713131] shadow-[0_4px_14px_rgba(0,0,0,0.28)] ring-1 ring-white/35 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => onPlayGame(game)}
+                      className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-[#161212]/78 text-white shadow-[0_4px_14px_rgba(0,0,0,0.34)] ring-1 ring-white/22 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#161212]/94 hover:ring-white/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isLaunching ? (
                         <SpinnerIcon className="h-4 w-4" />
