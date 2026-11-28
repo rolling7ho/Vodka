@@ -45,6 +45,21 @@ fi
 cp "$BRIDGE_BIN" "$TMP_APP/Contents/Resources/gmac-bridge"
 chmod +x "$TMP_APP/Contents/Resources/gmac-bridge"
 
+BRIDGE_DIR="$(dirname "$BRIDGE_BIN")"
+if [ -d "$BRIDGE_DIR/GmacKit_GmacKit.bundle" ]; then
+  cp -R "$BRIDGE_DIR/GmacKit_GmacKit.bundle" "$TMP_APP/Contents/Resources/GmacKit_GmacKit.bundle"
+fi
+
+if [ -d "$REPO_ROOT/Libraries" ]; then
+  mkdir -p "$TMP_APP/Contents/Resources/Libraries"
+  for asset in winetricks cabextract verbs.txt; do
+    if [ -f "$REPO_ROOT/Libraries/$asset" ]; then
+      cp "$REPO_ROOT/Libraries/$asset" "$TMP_APP/Contents/Resources/Libraries/$asset"
+    fi
+  done
+  chmod +x "$TMP_APP/Contents/Resources/Libraries/winetricks" "$TMP_APP/Contents/Resources/Libraries/cabextract" 2>/dev/null || true
+fi
+
 mv "$TMP_APP/Contents/MacOS/Electron" "$TMP_APP/Contents/MacOS/Gmac"
 
 PLIST="$TMP_APP/Contents/Info.plist"

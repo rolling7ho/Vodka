@@ -126,37 +126,9 @@ extension BridgeRouter {
 
         switch launchKind {
         case "steam":
-            guard let appID = params["steamAppId"]?.intValue else {
-                throw BridgeError.invalidParams("Missing Steam app ID.")
-            }
-            try SteamLauncher.launch(appId: appID, bottle: bottle)
-            return .object(["launched": .bool(true)])
+            return try launchSteamHomeItem(params: params, bottle: bottle)
         case "program":
-            guard let programPath = params["programPath"]?.stringValue, !programPath.isEmpty
-            else {
-                throw BridgeError.invalidParams("Missing executable path.")
-            }
-            let programURL = URL(filePath: programPath)
-            guard FileManager.default.fileExists(atPath: programURL.path(percentEncoded: false))
-            else {
-                throw BridgeError.operationFailed("Executable does not exist on disk.")
-            }
-            let program = Program(url: programURL, bottle: bottle)
-            let args = program.settings.arguments.split(separator: " ").map(String.init)
-            let env = program.generateEnvironment()
-            let overrides = program.settings.overrides
-            let programSettings = program.settings
-            Task { @MainActor in
-                _ = try? await Wine.runProgram(
-                    at: programURL,
-                    args: args,
-                    bottle: bottle,
-                    environment: env,
-                    programOverrides: overrides,
-                    programSettings: programSettings
-                )
-            }
-            return .object(["launched": .bool(true)])
+            return try launchProgramHomeItem(params: params, bottle: bottle)
         default:
             throw BridgeError.invalidParams("Unsupported launch kind: \(launchKind)")
         }

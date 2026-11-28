@@ -3,6 +3,7 @@ import type { HomeGameItem, StatPoint } from '../../../../shared/ipc'
 import { SpinnerIcon } from '../icons/OnboardingIcons'
 import { HeartIcon, PcIcon, PlayTriangleIcon, SettingsGearIcon } from '../icons/SidebarIcons'
 import { StatSparkline } from '../shared/StatSparkline'
+import { GameDbPresetCard } from './GameDbPresetCard'
 
 interface LibraryGamePageProps {
   game: HomeGameItem
@@ -480,6 +481,7 @@ export function LibraryGamePage({
                     </p>
                   </div>
                 </div>
+                <GameDbPresetCard game={game} />
               </div>
             )}
 

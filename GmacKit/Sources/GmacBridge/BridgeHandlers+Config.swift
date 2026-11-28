@@ -23,21 +23,41 @@ extension BridgeRouter {
     @MainActor
     func getBottleConfig(params: [String: JSONValue]) throws -> JSONValue {
         let bottle = try resolveBottleForConfig(path: params["path"]?.stringValue)
-        return Self.encodeBottleConfig(bottle.settings)
+        return Self.encodeBottleConfig(bottle)
     }
 
     @MainActor
     func updateBottleConfig(params: [String: JSONValue]) async throws -> JSONValue {
         let bottle = try resolveBottleForConfig(path: params["path"]?.stringValue)
         let previousWinVersion = bottle.settings.windowsVersion
+        let previousAudio = (
+            bottle.settings.audioDriver,
+            bottle.settings.audioLatencyPreset,
+            bottle.settings.outputDeviceMode,
+            bottle.settings.pinnedDeviceName
+        )
 
         applyBottleConfigPatch(params: params, to: &bottle.settings)
+        applyExtendedBottleConfigPatch(params: params, to: &bottle.settings)
 
         if bottle.settings.windowsVersion != previousWinVersion {
             _ = try? await Wine.changeWinVersion(bottle: bottle, win: bottle.settings.windowsVersion)
         }
+        if let requestedDPI = params["dpi"]?.intValue {
+            let clampedDPI = min(480, max(72, requestedDPI))
+            _ = try? await Wine.changeDpiResolution(bottle: bottle, dpi: clampedDPI)
+        }
+        let currentAudio = (
+            bottle.settings.audioDriver,
+            bottle.settings.audioLatencyPreset,
+            bottle.settings.outputDeviceMode,
+            bottle.settings.pinnedDeviceName
+        )
         bottle.saveBottleSettings()
-        return Self.encodeBottleConfig(bottle.settings)
+        if currentAudio != previousAudio {
+            await Wine.syncAudioRegistry(bottle: bottle)
+        }
+        return Self.encodeBottleConfig(bottle)
     }
 
     @MainActor
@@ -61,7 +81,7 @@ extension BridgeRouter {
     }
 
     @MainActor
-    private func resolveBottleForConfig(path rawPath: String?) throws -> Bottle {
+    func resolveBottleForConfig(path rawPath: String?) throws -> Bottle {
         guard let rawPath, !rawPath.isEmpty else {
             throw BridgeError.invalidParams("Missing PC path.")
         }
@@ -205,8 +225,8 @@ extension BridgeRouter {
         }
     }
 
-    private static func encodeBottleConfig(_ settings: BottleSettings) -> JSONValue {
-        .object([
+    static func encodeBottleSettingsDictionary(_ settings: BottleSettings) -> [String: JSONValue] {
+        [
             "windowsVersion": .string(settings.windowsVersion.pretty()),
             "enhancedSync": .string(encodeEnhancedSync(settings.enhancedSync)),
             "avxEnabled": .bool(settings.avxEnabled),
@@ -217,8 +237,16 @@ extension BridgeRouter {
             "retinaMode": .bool(settings.nativeResolution),
             "virtualDesktop": .bool(settings.virtualDesktopEnabled),
             "virtualDesktopResolution": .string(encodeResolutionPreset(settings.resolutionPreset)),
-            "controllerCompatMode": .bool(settings.controllerCompatibilityMode)
-        ])
+            "controllerCompatMode": .bool(settings.controllerCompatibilityMode),
+            "dxvk": .bool(settings.dxvk),
+            "dxvkAsync": .bool(settings.dxvkAsync),
+            "dxvkHud": .string(encodeDXVKHud(settings.dxvkHud)),
+            "dllOverrides": .array(encodeDLLOverrides(settings.dllOverrides)),
+            "audioDriver": .string(settings.audioDriver.rawValue),
+            "audioLatencyPreset": .string(settings.audioLatencyPreset.rawValue),
+            "outputDeviceMode": .string(settings.outputDeviceMode.rawValue),
+            "pinnedDeviceName": settings.pinnedDeviceName.map { .string($0) } ?? .null
+        ]
     }
 
     private static func encodeGameSettings(_ settings: ProgramSettings) -> JSONValue {

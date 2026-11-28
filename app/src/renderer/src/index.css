@@ -181,8 +181,22 @@ html.dark .divide-\[\#161212\]\/\[0\.06\] > :not(:last-child) {
 }
 
 html.dark .placeholder-\[\#5e5454\]\/45::placeholder,
+html.dark .placeholder-\[\#5e5454\]\/55::placeholder,
 html.dark .placeholder\:text-\[\#5e5454\]\/65::placeholder {
   color: rgba(245, 242, 242, 0.38);
+}
+
+html.dark .text-emerald-700 {
+  color: #6ee7b7;
+}
+
+html.dark .text-amber-700 {
+  color: #fcd34d;
+}
+
+html.dark .text-red-700,
+html.dark .text-red-600 {
+  color: #fca5a5;
 }
 
 html.dark [role="dialog"],

@@ -106,6 +106,20 @@ enum JSONValue: Codable, Sendable, Equatable {
         }
         return items.compactMap(\.stringValue)
     }
+
+    var arrayValue: [JSONValue]? {
+        guard case let .array(items) = self else {
+            return nil
+        }
+        return items
+    }
+
+    var objectValue: [String: JSONValue]? {
+        guard case let .object(dict) = self else {
+            return nil
+        }
+        return dict
+    }
 }
 
 struct BridgeRequest: Decodable, Sendable {

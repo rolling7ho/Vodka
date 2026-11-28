@@ -4,6 +4,7 @@ import { app, BrowserWindow, Menu, nativeImage, nativeTheme, session, shell } fr
 import { AppScreen, BottleSummary, SystemStatus } from '../shared/ipc'
 import { GmacBridgeClient } from './bridge'
 import { registerIpcHandlers } from './ipc'
+import { checkUpdatesAndBroadcast, initializeAppRuntime } from './runtime'
 
 async function resolveInitialScreen(bridge: GmacBridgeClient): Promise<AppScreen> {
   const requested = process.env.GMAC_SCREEN?.trim().toLowerCase()
@@ -45,6 +46,12 @@ function configureApplicationMenu(): void {
       label: 'Gmac',
       submenu: [
         { role: 'about', label: 'About Gmac' },
+        {
+          label: 'Check for Updates...',
+          click: () => {
+            void checkUpdatesAndBroadcast()
+          }
+        },
         { type: 'separator' },
         { role: 'services' },
         { type: 'separator' },
@@ -197,17 +204,22 @@ void app.whenReady().then(() => {
   configureApplicationMenu()
   configureContentSecurityPolicy()
   registerIpcHandlers(bridgeClient)
+  const showOrCreateWindow = () => {
+    const existing = BrowserWindow.getAllWindows()[0]
+    if (existing && !existing.isDestroyed()) {
+      if (existing.isMinimized()) existing.restore()
+      existing.show()
+      existing.focus()
+      return
+    }
+    void createMainWindow(iconPath)
+  }
+  initializeAppRuntime(bridgeClient, showOrCreateWindow, iconPath)
   void createMainWindow(iconPath)
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      void createMainWindow(iconPath)
-    }
+    showOrCreateWindow()
   })
-})
-
-app.on('before-quit', () => {
-  bridgeClient.dispose()
 })
 
 app.on('window-all-closed', () => {

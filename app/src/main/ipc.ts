@@ -19,6 +19,8 @@ import {
   ToolkitInstallResult
 } from '../shared/ipc'
 import { GmacBridgeClient } from './bridge'
+import { registerSupportIpcHandlers } from './ipcSupport'
+import { syncRuntimeSettings } from './runtime'
 import { getSystemStatus } from './systemStatus'
 
 function emitProgress(event: BridgeProgressEvent): void {
@@ -112,7 +114,16 @@ function defaultBottleConfig(): BottleConfig {
     retinaMode: false,
     virtualDesktop: false,
     virtualDesktopResolution: '1920x1080',
-    controllerCompatMode: false
+    controllerCompatMode: false,
+    dxvk: false,
+    dxvkAsync: true,
+    dxvkHud: 'off',
+    dpi: 96,
+    dllOverrides: [],
+    audioDriver: 'auto',
+    audioLatencyPreset: 'defaultPreset',
+    outputDeviceMode: 'followSystem',
+    pinnedDeviceName: null
   }
 }
 
@@ -158,6 +169,7 @@ function expandHomePath(targetPath: string): string {
 }
 
 export function registerIpcHandlers(bridge: GmacBridgeClient): void {
+  registerSupportIpcHandlers(bridge)
   let freshBottles: BottleSummary[] = []
   let freshAppSettings: AppSettingsData = defaultAppSettings()
   const freshBottleConfigs = new Map<string, BottleConfig>()
@@ -430,6 +442,7 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
 
       if (process.env.GMAC_FRESH_INSTALL === '1' || !bridge.isAvailable()) {
         freshAppSettings = { ...freshAppSettings, ...patch, openAtLogin }
+        syncRuntimeSettings(freshAppSettings, bridge)
         return freshAppSettings
       }
 
@@ -438,6 +451,7 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
         'settings.update',
         bridgePatch
       )
+      syncRuntimeSettings(updated, bridge)
       return { ...updated, openAtLogin }
     }
   )

@@ -33,6 +33,7 @@ export type SidebarDestination =
   | { kind: 'library' }
   | { kind: 'game'; gameId: string }
   | { kind: 'pc'; path: string }
+  | { kind: 'tools' }
   | { kind: 'settings' }
 
 interface SidebarProps {
@@ -140,6 +141,7 @@ export function Sidebar({
 
   const isHomeActive = activeDestination.kind === 'home'
   const isLibraryActive = activeDestination.kind === 'library'
+  const isToolsActive = activeDestination.kind === 'tools'
   const isSettingsActive = activeDestination.kind === 'settings'
   const panelTiming = isCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
 
@@ -475,7 +477,27 @@ export function Sidebar({
 
           <div className="mx-3 my-2 h-px bg-[#161212]/[0.08]" role="separator" />
 
-          <div className="px-2.5 pt-1 pb-3">
+          <div className="space-y-0.5 px-2.5 pt-1 pb-3">
+            <button
+              type="button"
+              aria-current={isToolsActive ? 'page' : undefined}
+              onClick={() => onSelect({ kind: 'tools' })}
+              className={navButtonClass(isToolsActive)}
+            >
+              <svg
+                className="h-[17px] w-[17px] shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+              </svg>
+              <span>Tools</span>
+            </button>
             <button
               type="button"
               aria-current={isSettingsActive ? 'page' : undefined}

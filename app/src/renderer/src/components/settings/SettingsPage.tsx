@@ -1,8 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import type { AppInfo, AppSettingsData, SystemStatus, ThemePreference } from '../../../../shared/ipc'
+import type {
+  AppInfo,
+  AppSettingsData,
+  AudioStatusResult,
+  SystemStatus,
+  ThemePreference,
+  UpdateCheckResult
+} from '../../../../shared/ipc'
 import { getThemePreference, setThemePreference } from '../../theme'
 import { SpinnerIcon } from '../icons/OnboardingIcons'
 import { ExternalLinkIcon, FolderOpenIcon, SettingsGearIcon } from '../icons/SidebarIcons'
+import { WhiskyMigrationModal } from './WhiskyMigrationModal'
 
 interface SettingsPageProps {
   onOpenOnboarding?: () => void
@@ -104,6 +112,10 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
   const [confirmClearShaders, setConfirmClearShaders] = useState(false)
   const [confirmResetPrefs, setConfirmResetPrefs] = useState(false)
   const [savedNoticeVisible, setSavedNoticeVisible] = useState(false)
+  const [audioStatus, setAudioStatus] = useState<AudioStatusResult | null>(null)
+  const [updateStatus, setUpdateStatus] = useState<UpdateCheckResult | null>(null)
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false)
+  const [showWhiskyModal, setShowWhiskyModal] = useState(false)
 
   const savedTimerRef = useRef<number | null>(null)
   const noticeTimerRef = useRef<number | null>(null)
@@ -124,8 +136,9 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
     Promise.all([
       window.gmac?.getSystemStatus().catch(() => null) ?? Promise.resolve(null),
       window.gmac?.getAppInfo().catch(() => null) ?? Promise.resolve(null),
-      window.gmac?.getAppSettings().catch(() => null) ?? Promise.resolve(null)
-    ]).then(([status, info, loadedSettings]) => {
+      window.gmac?.getAppSettings().catch(() => null) ?? Promise.resolve(null),
+      window.gmac?.getAudioStatus().catch(() => null) ?? Promise.resolve(null)
+    ]).then(([status, info, loadedSettings, audio]) => {
       if (cancelled) {
         return
       }
@@ -138,10 +151,18 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
       if (loadedSettings) {
         setSettings(loadedSettings)
       }
+      if (audio) {
+        setAudioStatus(audio)
+      }
+    })
+
+    const unsubscribeUpdates = window.gmac?.onUpdateStatus((status) => {
+      setUpdateStatus(status)
     })
 
     return () => {
       cancelled = true
+      unsubscribeUpdates?.()
       if (savedTimerRef.current !== null) {
         window.clearTimeout(savedTimerRef.current)
       }
@@ -621,6 +642,35 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                   </select>
                 </div>
               </div>
+
+              <div className="rounded-2xl bg-[#FAF9F8] p-5">
+                <h2 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
+                  macOS Audio Status
+                </h2>
+                {audioStatus?.defaultDevice ? (
+                  <div className="mt-3 space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[13px]">
+                      <span className="font-medium text-[#161212]">
+                        Default Output: {audioStatus.defaultDevice.name}
+                      </span>
+                      <span className="text-[12px] text-[#5e5454] tabular-nums">
+                        {audioStatus.defaultDevice.transportType} &middot;{' '}
+                        {Math.round(audioStatus.defaultDevice.sampleRate / 1000)} kHz &middot;{' '}
+                        {audioStatus.defaultDevice.outputChannelCount} ch
+                      </span>
+                    </div>
+                    {audioStatus.devices.length > 1 && (
+                      <div className="text-[12px] text-[#5e5454]">
+                        {audioStatus.devices.length} output devices detected on this Mac. Configure per-PC device pinning under PC Configuration &gt; Audio.
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-2 text-[12.5px] text-[#5e5454]">
+                    Unable to query CoreAudio output devices.
+                  </div>
+                )}
+              </div>
             </>
           )}
 
@@ -817,6 +867,26 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                     </button>
                   </div>
 
+                  <div className="flex items-center justify-between gap-4 py-3">
+                    <div>
+                      <div className="text-[13.5px] font-medium text-[#161212]">
+                        Migrate from Original Whisky
+                      </div>
+                      <div className="mt-0.5 text-[12px] text-[#5e5454]">
+                        {systemStatus && systemStatus.legacyWhiskyBottles.length > 0
+                          ? `${systemStatus.legacyWhiskyBottles.length} unimported Whisky bottle(s) detected.`
+                          : 'Import existing Whisky containers into Gmac in place.'}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowWhiskyModal(true)}
+                      className="app-no-drag shrink-0 cursor-pointer rounded-xl bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:bg-[#F3EFEF]"
+                    >
+                      Migrate...
+                    </button>
+                  </div>
+
                   <div className="flex items-center justify-between gap-4 pt-3">
                     <div>
                       <div className="text-[13.5px] font-medium text-[#161212]">
@@ -875,15 +945,77 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
                       Version {appInfo?.version ?? '0.1.0'} &middot; macOS ({appInfo?.arch ?? 'arm64'})
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleOpenGitHub()}
-                    className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:text-[#713131]"
-                  >
-                    <span>View on GitHub</span>
-                    <ExternalLinkIcon className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={isCheckingUpdates}
+                      onClick={() => {
+                        setIsCheckingUpdates(true)
+                        void window.gmac
+                          ?.checkUpdates()
+                          .then((res) => {
+                            setUpdateStatus(res)
+                            if (!res.appUpdateAvailable && !res.engineUpdateAvailable) {
+                              showTransientNotice('Gmac and Wine engine are up to date.')
+                            }
+                          })
+                          .finally(() => setIsCheckingUpdates(false))
+                      }}
+                      className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#713131] px-3.5 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-[#5E2828] disabled:opacity-55"
+                    >
+                      {isCheckingUpdates && <SpinnerIcon className="h-3.5 w-3.5" />}
+                      <span>{isCheckingUpdates ? 'Checking...' : 'Check for Updates'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleOpenGitHub()}
+                      className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:text-[#713131]"
+                    >
+                      <span>View on GitHub</span>
+                      <ExternalLinkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
+
+                {updateStatus && (
+                  <div className="mt-4 space-y-2 rounded-xl bg-white p-3.5 text-[12.5px] ring-1 ring-[#161212]/[0.06]">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-medium text-[#161212]">
+                        {updateStatus.appUpdateAvailable
+                          ? `App update available: ${updateStatus.appReleaseTitle ?? updateStatus.latestAppVersion}`
+                          : `App is up to date (${updateStatus.currentAppVersion})`}
+                      </span>
+                      {updateStatus.appUpdateAvailable && updateStatus.appReleaseUrl && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void window.gmac?.openExternalUrl(updateStatus.appReleaseUrl!)
+                          }
+                          className="app-no-drag cursor-pointer font-semibold text-[#713131] underline"
+                        >
+                          Download Release
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-[#5e5454]">
+                      <span>
+                        Engine:{' '}
+                        {updateStatus.engineUpdateAvailable
+                          ? `Update available (${updateStatus.currentEngineVersion ?? 'none'} -> ${updateStatus.latestEngineVersion})`
+                          : `Up to date (${updateStatus.currentEngineVersion ?? updateStatus.latestEngineVersion})`}
+                      </span>
+                      {updateStatus.engineUpdateAvailable && (
+                        <button
+                          type="button"
+                          onClick={() => void handleInstallEngine()}
+                          className="app-no-drag cursor-pointer font-semibold text-[#713131] underline"
+                        >
+                          Update Engine
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {appInfo && (
                   <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-[#161212]/[0.06] pt-4 text-[12.5px]">
@@ -991,6 +1123,17 @@ export function SettingsPage({ onOpenOnboarding, onResetFavorites }: SettingsPag
             </div>
           </div>
         </div>
+      )}
+
+      {showWhiskyModal && (
+        <WhiskyMigrationModal
+          bottles={systemStatus?.legacyWhiskyBottles ?? []}
+          onClose={() => setShowWhiskyModal(false)}
+          onImported={(count) => {
+            showTransientNotice(`Imported ${count} PC(s) from Whisky.`)
+            void refreshSystemStatus()
+          }}
+        />
       )}
     </div>
   )

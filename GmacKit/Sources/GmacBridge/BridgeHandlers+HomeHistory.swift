@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import GmacKit
 
 struct StatPointRecord: Sendable {
     let date: String
@@ -130,5 +131,57 @@ extension BridgeRouter {
                 : Double(max(1, Int((Double(totalGames) * ratio).rounded())))
             return StatPointRecord(date: date.ISO8601Format(), value: stepped)
         }
+    }
+
+    @MainActor
+    func launchSteamHomeItem(params: [String: JSONValue], bottle: Bottle) throws -> JSONValue {
+        guard let appID = params["steamAppId"]?.intValue else {
+            throw BridgeError.invalidParams("Missing Steam app ID.")
+        }
+        let steamGame = SteamLibrary.enumerate(bottleURL: bottle.url).first { $0.appId == appID }
+        let primaryExe = steamGame.flatMap { SteamLibrary.executableURLs(under: $0.installURL).first }
+        let savedSettings = primaryExe.flatMap { Program.persistedSettings(for: $0, bottleURL: bottle.url) }
+        let extraArgs = savedSettings?.arguments.split(separator: " ").map(String.init) ?? []
+        var extraEnv = savedSettings?.environment ?? [:]
+        if let locale = savedSettings?.locale, locale != .auto {
+            extraEnv["LC_ALL"] = locale.rawValue
+        }
+        try SteamLauncher.launch(
+            appId: appID,
+            bottle: bottle,
+            installURL: steamGame?.installURL,
+            additionalArgs: extraArgs,
+            additionalEnvironment: extraEnv
+        )
+        return .object(["launched": .bool(true)])
+    }
+
+    @MainActor
+    func launchProgramHomeItem(params: [String: JSONValue], bottle: Bottle) throws -> JSONValue {
+        guard let programPath = params["programPath"]?.stringValue, !programPath.isEmpty
+        else {
+            throw BridgeError.invalidParams("Missing executable path.")
+        }
+        let programURL = URL(filePath: programPath)
+        guard FileManager.default.fileExists(atPath: programURL.path(percentEncoded: false))
+        else {
+            throw BridgeError.operationFailed("Executable does not exist on disk.")
+        }
+        let program = Program(url: programURL, bottle: bottle)
+        let args = program.settings.arguments.split(separator: " ").map(String.init)
+        let env = program.generateEnvironment()
+        let overrides = program.settings.overrides
+        let programSettings = program.settings
+        Task { @MainActor in
+            _ = try? await Wine.runProgram(
+                at: programURL,
+                args: args,
+                bottle: bottle,
+                environment: env,
+                programOverrides: overrides,
+                programSettings: programSettings
+            )
+        }
+        return .object(["launched": .bool(true)])
     }
 }

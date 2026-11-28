@@ -17,6 +17,7 @@ import { LibraryGamePage } from '../library/LibraryGamePage'
 import { LibraryView } from '../library/LibraryView'
 import { PcPage } from '../pc/PcPage'
 import { SettingsPage } from '../settings/SettingsPage'
+import { ToolsPage } from '../tools/ToolsPage'
 import { HomeDashboard } from './HomeDashboard'
 import { MOCK_HOME_SUMMARY } from './mockHomeData'
 
@@ -560,6 +561,8 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
             onRenamePc={handleRenamePc}
             onRequestDeletePc={setDeleteModalPc}
           />
+        ) : activeDestination.kind === 'tools' ? (
+          <ToolsPage pcs={pcs} />
         ) : activeDestination.kind === 'settings' ? (
           <SettingsPage
             onOpenOnboarding={onOpenOnboarding}

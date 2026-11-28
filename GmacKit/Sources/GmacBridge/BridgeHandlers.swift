@@ -83,7 +83,13 @@ struct BridgeRouter: Sendable {
         if let homeResult = try await dispatchHomeMethod(method, params: params) {
             return homeResult
         }
-        return try await dispatchConfigMethod(method, params: params)
+        if let configResult = try await dispatchConfigMethod(method, params: params) {
+            return configResult
+        }
+        if let toolsResult = try await dispatchToolsMethod(method, params: params) {
+            return toolsResult
+        }
+        return try await dispatchSupportMethod(method, params: params)
     }
 
     private func dispatchBottleMethod(
@@ -103,6 +109,10 @@ struct BridgeRouter: Sendable {
             try await setBottleIcon(params: params)
         case "bottles.reorder":
             try await reorderBottles(params: params)
+        case "bottles.runningSummary":
+            await runningBottlesSummary()
+        case "bottles.killAll":
+            await killAllBottles()
         default:
             nil
         }
@@ -141,6 +151,10 @@ struct BridgeRouter: Sendable {
             updateAppSettings(params: params)
         case "settings.clearShaderCaches":
             await clearShaderCaches()
+        case "settings.pruneLogs":
+            pruneLogs()
+        case "settings.checkUpdates":
+            await checkUpdates(params: params)
         default:
             nil
         }

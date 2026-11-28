@@ -20,7 +20,7 @@ import Foundation
 import GmacKit
 
 extension BridgeRouter {
-    private static var bridgeLogsFolder: URL {
+    static var bridgeLogsFolder: URL {
         FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)[0]
             .appending(path: "Logs")
             .appending(path: Bundle.gmacBundleIdentifier)
@@ -109,6 +109,146 @@ extension BridgeRouter {
         }
 
         return .object(["cleared": .bool(true)])
+    }
+
+    func pruneLogs() -> JSONValue {
+        let defaults = UserDefaults.standard
+        let retentionDays = defaults.object(forKey: "logRetentionDays") as? Int ?? 7
+        guard retentionDays > 0 else {
+            return .object(["deletedCount": .int(0)])
+        }
+
+        let cutoffDate = Date.now.addingTimeInterval(-TimeInterval(retentionDays) * 86_400)
+        let folder = Self.bridgeLogsFolder
+        let items = (try? FileManager.default.contentsOfDirectory(
+            at: folder,
+            includingPropertiesForKeys: [.contentModificationDateKey, .isRegularFileKey]
+        )) ?? []
+
+        var deletedCount = 0
+        for item in items {
+            let values = try? item.resourceValues(forKeys: [.contentModificationDateKey, .isRegularFileKey])
+            if values?.isRegularFile == true, let modified = values?.contentModificationDate, modified < cutoffDate {
+                if (try? FileManager.default.removeItem(at: item)) != nil {
+                    deletedCount += 1
+                }
+            }
+        }
+        return .object(["deletedCount": .int(deletedCount)])
+    }
+
+    func checkUpdates(params: [String: JSONValue]) async -> JSONValue {
+        let currentAppVersion = params["currentAppVersion"]?.stringValue ?? "0.1.0"
+        let (engineNeedsUpdate, latestEngineSemver) = await GmacWineInstaller.shouldUpdateGmacWine()
+        let currentEngineVersion = GmacWineInstaller.gmacWineVersion()?.description
+        let latestEngineVersion = latestEngineSemver.description
+
+        let feedURL = URL(string: "https://rolling7ho.github.io/gmac/appcast.xml")
+        var latestAppVersion: String?
+        var appReleaseTitle: String?
+        var appReleaseURL: String?
+
+        if let feedURL,
+           let (data, _) = try? await URLSession.shared.data(from: feedURL),
+           let xml = String(data: data, encoding: .utf8) {
+            let parsed = Self.parseAppcastFirstItem(xml: xml)
+            latestAppVersion = parsed.version
+            appReleaseTitle = parsed.title
+            appReleaseURL = parsed.url
+        }
+
+        let appUpdateAvailable = latestAppVersion.map {
+            Self.isVersion($0, newerThan: currentAppVersion)
+        } ?? false
+
+        return .object([
+            "appUpdateAvailable": .bool(appUpdateAvailable),
+            "currentAppVersion": .string(currentAppVersion),
+            "latestAppVersion": latestAppVersion.map { .string($0) } ?? .null,
+            "appReleaseTitle": appReleaseTitle.map { .string($0) } ?? .null,
+            "appReleaseUrl": appReleaseURL.map { .string($0) } ?? .null,
+            "engineUpdateAvailable": .bool(engineNeedsUpdate),
+            "currentEngineVersion": currentEngineVersion.map { .string($0) } ?? .null,
+            "latestEngineVersion": .string(latestEngineVersion)
+        ])
+    }
+
+    @MainActor
+    func runningBottlesSummary() async -> JSONValue {
+        var bottlesList = BottleData()
+        let bottles = bottlesList.loadBottles().filter(\.isAvailable)
+        var runningNames: [String] = []
+        for bottle in bottles where await Wine.isWineserverRunning(for: bottle) {
+            runningNames.append(bottle.settings.name)
+        }
+        return .object([
+            "runningCount": .int(runningNames.count),
+            "runningBottles": .array(runningNames.map { .string($0) })
+        ])
+    }
+
+    @MainActor
+    func killAllBottles() -> JSONValue {
+        var bottlesList = BottleData()
+        let bottles = bottlesList.loadBottles().filter(\.isAvailable)
+        var stoppedCount = 0
+        for bottle in bottles {
+            Wine.killBottle(bottle: bottle)
+            stoppedCount += 1
+        }
+        return .object(["stoppedCount": .int(stoppedCount)])
+    }
+
+    private struct AppcastFeedItem {
+        let version: String?
+        let title: String?
+        let url: String?
+    }
+
+    private static func parseAppcastFirstItem(xml: String) -> AppcastFeedItem {
+        guard let itemStart = xml.range(of: "<item>"),
+              let itemEnd = xml.range(of: "</item>", range: itemStart.upperBound..<xml.endIndex)
+        else {
+            return AppcastFeedItem(version: nil, title: nil, url: nil)
+        }
+        let itemSlice = String(xml[itemStart.upperBound..<itemEnd.lowerBound])
+        let version = extractXMLTag("sparkle:shortVersionString", in: itemSlice)
+        let title = extractXMLTag("title", in: itemSlice)
+        let url = extractEnclosureURL(in: itemSlice)
+        return AppcastFeedItem(version: version, title: title, url: url)
+    }
+
+    private static func extractXMLTag(_ tag: String, in content: String) -> String? {
+        guard let open = content.range(of: "<\(tag)>"),
+              let close = content.range(of: "</\(tag)>", range: open.upperBound..<content.endIndex)
+        else {
+            return nil
+        }
+        return String(content[open.upperBound..<close.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func extractEnclosureURL(in content: String) -> String? {
+        guard let encRange = content.range(of: "<enclosure"),
+              let urlKey = content.range(of: "url=\"", range: encRange.upperBound..<content.endIndex),
+              let urlEnd = content.range(of: "\"", range: urlKey.upperBound..<content.endIndex)
+        else {
+            return nil
+        }
+        return String(content[urlKey.upperBound..<urlEnd.lowerBound])
+    }
+
+    private static func isVersion(_ candidate: String, newerThan current: String) -> Bool {
+        let lhs = candidate.split(separator: ".").compactMap { Int($0) }
+        let rhs = current.split(separator: ".").compactMap { Int($0) }
+        let count = max(lhs.count, rhs.count)
+        for index in 0..<count {
+            let left = index < lhs.count ? lhs[index] : 0
+            let right = index < rhs.count ? rhs[index] : 0
+            if left != right {
+                return left > right
+            }
+        }
+        return false
     }
 
     private func encodeAppSettings() -> JSONValue {

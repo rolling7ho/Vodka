@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { BridgeProgressEvent, GmacApi, IPC_CHANNELS } from '../shared/ipc'
+import { BridgeProgressEvent, GmacApi, IPC_CHANNELS, UpdateCheckResult } from '../shared/ipc'
 
 const gmacApi: GmacApi = {
   getAppInfo: () => ipcRenderer.invoke(IPC_CHANNELS.GET_APP_INFO),
@@ -46,7 +46,48 @@ const gmacApi: GmacApi = {
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.BRIDGE_PROGRESS, wrapped)
     }
-  }
+  },
+  checkUpdates: () => ipcRenderer.invoke(IPC_CHANNELS.CHECK_UPDATES),
+  onUpdateStatus: (listener: (status: UpdateCheckResult) => void) => {
+    const wrapped = (_event: Electron.IpcRendererEvent, status: UpdateCheckResult) => {
+      listener(status)
+    }
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_STATUS, wrapped)
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_STATUS, wrapped)
+    }
+  },
+  listBottleProcesses: (path) => ipcRenderer.invoke(IPC_CHANNELS.LIST_BOTTLE_PROCESSES, path),
+  killBottleProcess: (path, pid, force) =>
+    ipcRenderer.invoke(IPC_CHANNELS.KILL_BOTTLE_PROCESS, path, pid, force),
+  killBottle: (path) => ipcRenderer.invoke(IPC_CHANNELS.KILL_BOTTLE, path),
+  listBottlePins: (path) => ipcRenderer.invoke(IPC_CHANNELS.LIST_BOTTLE_PINS, path),
+  addBottlePin: (path, programPath, name) =>
+    ipcRenderer.invoke(IPC_CHANNELS.ADD_BOTTLE_PIN, path, programPath, name),
+  removeBottlePin: (path, programPath) =>
+    ipcRenderer.invoke(IPC_CHANNELS.REMOVE_BOTTLE_PIN, path, programPath),
+  listWinetricksVerbs: (path) => ipcRenderer.invoke(IPC_CHANNELS.LIST_WINETRICKS_VERBS, path),
+  runWinetricksVerb: (path, verb) =>
+    ipcRenderer.invoke(IPC_CHANNELS.RUN_WINETRICKS_VERB, path, verb),
+  getAudioStatus: (bottlePath) => ipcRenderer.invoke(IPC_CHANNELS.GET_AUDIO_STATUS, bottlePath),
+  runAudioTest: (bottlePath) => ipcRenderer.invoke(IPC_CHANNELS.RUN_AUDIO_TEST, bottlePath),
+  troubleshootAudio: (bottlePath, symptom) =>
+    ipcRenderer.invoke(IPC_CHANNELS.TROUBLESHOOT_AUDIO, bottlePath, symptom),
+  applyAudioFix: (bottlePath, fixId) =>
+    ipcRenderer.invoke(IPC_CHANNELS.APPLY_AUDIO_FIX, bottlePath, fixId),
+  listLogs: () => ipcRenderer.invoke(IPC_CHANNELS.LIST_LOGS),
+  readLogFile: (path) => ipcRenderer.invoke(IPC_CHANNELS.READ_LOG_FILE, path),
+  analyzeDiagnostics: (input) => ipcRenderer.invoke(IPC_CHANNELS.ANALYZE_DIAGNOSTICS, input),
+  exportDiagnosticsReport: (bottlePath) =>
+    ipcRenderer.invoke(IPC_CHANNELS.EXPORT_DIAGNOSTICS_REPORT, bottlePath),
+  listTroubleshootCategories: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.LIST_TROUBLESHOOT_CATEGORIES),
+  runTroubleshootFlow: (input) => ipcRenderer.invoke(IPC_CHANNELS.RUN_TROUBLESHOOT_FLOW, input),
+  applyTroubleshootFix: (input) => ipcRenderer.invoke(IPC_CHANNELS.APPLY_TROUBLESHOOT_FIX, input),
+  undoTroubleshootFix: (input) => ipcRenderer.invoke(IPC_CHANNELS.UNDO_TROUBLESHOOT_FIX, input),
+  listGameDb: (input) => ipcRenderer.invoke(IPC_CHANNELS.LIST_GAMEDB, input),
+  previewGameDb: (input) => ipcRenderer.invoke(IPC_CHANNELS.PREVIEW_GAMEDB, input),
+  applyGameDb: (input) => ipcRenderer.invoke(IPC_CHANNELS.APPLY_GAMEDB, input)
 }
 
 contextBridge.exposeInMainWorld('gmac', gmacApi)

@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import type { BottleSummary, HomeGameItem, HomeLauncherItem } from '../../../../shared/ipc'
+import type {
+  BottleConfig,
+  BottleSummary,
+  HomeGameItem,
+  HomeLauncherItem
+} from '../../../../shared/ipc'
 import { LauncherBrandImage } from '../icons/LauncherLogos'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 import { PcGlyph } from '../icons/PcIcons'
@@ -11,6 +16,11 @@ import {
   SearchIcon,
   TrashIcon
 } from '../icons/SidebarIcons'
+import { AudioConfigCard } from './AudioConfigCard'
+import { DllOverridesEditor } from './DllOverridesEditor'
+import { PinsPanel } from './PinsPanel'
+import { ProcessesPanel } from './ProcessesPanel'
+import { WinetricksPanel } from './WinetricksPanel'
 
 interface PcPageProps {
   pc: BottleSummary
@@ -28,21 +38,9 @@ interface PcPageProps {
   onRequestDeletePc: (pc: BottleSummary) => void
 }
 
-type PcTab = 'overview' | 'configuration' | 'games'
+type PcTab = 'overview' | 'configuration' | 'processes' | 'winetricks' | 'pins' | 'games'
 
-interface PcConfigState {
-  windowsVersion: 'Windows 11' | 'Windows 10' | 'Windows 8.1' | 'Windows 7'
-  enhancedSync: 'msync' | 'esync' | 'off'
-  avxEnabled: boolean
-  graphicsBackend: 'recommended' | 'd3dMetal' | 'dxmt' | 'dxvk' | 'wined3d'
-  metalHud: boolean
-  dxrEnabled: boolean
-  shaderCacheEnabled: boolean
-  retinaMode: boolean
-  virtualDesktop: boolean
-  virtualDesktopResolution: '1920x1080' | '2560x1440' | '3840x2160'
-  controllerCompatMode: boolean
-}
+type PcConfigState = BottleConfig
 
 function buildDefaultPcConfig(pc: BottleSummary): PcConfigState {
   const validBackends = ['recommended', 'd3dMetal', 'dxmt', 'dxvk', 'wined3d'] as const
@@ -66,7 +64,16 @@ function buildDefaultPcConfig(pc: BottleSummary): PcConfigState {
     retinaMode: false,
     virtualDesktop: false,
     virtualDesktopResolution: '1920x1080',
-    controllerCompatMode: false
+    controllerCompatMode: false,
+    dxvk: false,
+    dxvkAsync: true,
+    dxvkHud: 'off',
+    dpi: 96,
+    dllOverrides: [],
+    audioDriver: 'auto',
+    audioLatencyPreset: 'defaultPreset',
+    outputDeviceMode: 'followSystem',
+    pinnedDeviceName: null
   }
 }
 
@@ -558,12 +565,15 @@ export function PcPage({
 
         <nav
           aria-label="PC sections"
-          className="mt-6 flex items-center gap-6 border-b border-[#161212]/[0.07]"
+          className="mt-6 flex flex-wrap items-center gap-6 border-b border-[#161212]/[0.07]"
         >
           {(
             [
               { id: 'overview', label: 'Overview' },
               { id: 'configuration', label: 'Configuration' },
+              { id: 'processes', label: 'Processes' },
+              { id: 'winetricks', label: 'Winetricks' },
+              { id: 'pins', label: 'Pins' },
               { id: 'games', label: `Games (${pcGames.length})` }
             ] as const
           ).map((tab) => {
@@ -874,6 +884,40 @@ export function PcPage({
                     checked={config.shaderCacheEnabled}
                     onToggle={() => updateConfig({ shaderCacheEnabled: !config.shaderCacheEnabled })}
                   />
+                  <ConfigSwitchRow
+                    label="Enable DXVK Translation"
+                    description="Route Direct3D 10/11 calls through DXVK + MoltenVK instead of DXMT."
+                    checked={config.dxvk}
+                    onToggle={() => updateConfig({ dxvk: !config.dxvk })}
+                  />
+                  {config.dxvk && (
+                    <div className="space-y-3 py-3">
+                      <ConfigSwitchRow
+                        label="DXVK Async Shaders"
+                        description="Compile shaders asynchronously to minimize in-game stutter."
+                        checked={config.dxvkAsync}
+                        onToggle={() => updateConfig({ dxvkAsync: !config.dxvkAsync })}
+                      />
+                      <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-3.5 py-2.5 ring-1 ring-[#161212]/[0.06]">
+                        <span className="text-[12.5px] font-medium text-[#4a4242]">DXVK HUD</span>
+                        <select
+                          aria-label="DXVK HUD overlay"
+                          value={config.dxvkHud}
+                          onChange={(event) =>
+                            updateConfig({
+                              dxvkHud: event.target.value as PcConfigState['dxvkHud']
+                            })
+                          }
+                          className="app-no-drag cursor-pointer rounded-lg bg-[#FAF9F8] px-2.5 py-1 text-[12.5px] font-medium text-[#161212] focus:outline-none"
+                        >
+                          <option value="off">Off</option>
+                          <option value="fps">FPS Only</option>
+                          <option value="partial">Partial</option>
+                          <option value="full">Full Diagnostics</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -889,6 +933,43 @@ export function PcPage({
                   checked={config.retinaMode}
                   onToggle={() => updateConfig({ retinaMode: !config.retinaMode })}
                 />
+
+                <div className="flex flex-wrap items-center justify-between gap-4 py-3">
+                  <div>
+                    <label htmlFor="pc-dpi-input" className="text-[13.5px] font-medium text-[#161212]">
+                      Windows DPI Scaling
+                    </label>
+                    <div className="mt-0.5 text-[12px] text-[#5e5454]">
+                      Adjust LogPixels scaling for small fonts or ultra-high-res screens (96 standard).
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min={72}
+                      max={384}
+                      step={24}
+                      aria-label="Windows DPI slider"
+                      value={config.dpi}
+                      onChange={(event) => updateConfig({ dpi: Number(event.target.value) })}
+                      className="app-no-drag w-28 accent-[#713131]"
+                    />
+                    <input
+                      id="pc-dpi-input"
+                      type="number"
+                      min={72}
+                      max={480}
+                      value={config.dpi}
+                      onChange={(event) => {
+                        const val = Number(event.target.value)
+                        if (Number.isFinite(val) && val >= 72 && val <= 480) {
+                          updateConfig({ dpi: val })
+                        }
+                      }}
+                      className="app-no-drag w-16 rounded-lg bg-white px-2.5 py-1 text-center text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] tabular-nums focus:outline-none"
+                    />
+                  </div>
+                </div>
 
                 <div className="py-3">
                   <ConfigSwitchRow
@@ -931,6 +1012,26 @@ export function PcPage({
                 />
               </div>
             </div>
+
+            <AudioConfigCard
+              bottlePath={pc.path}
+              isManagedPc={isManagedPc}
+              config={config}
+              onUpdate={updateConfig}
+              onExternalConfigUpdate={(next) => {
+                setConfig(next)
+                try {
+                  window.localStorage.setItem(`gmac.pcConfig.${pc.path}`, JSON.stringify(next))
+                } catch {
+                  // Ignore storage errors cleanly.
+                }
+              }}
+            />
+
+            <DllOverridesEditor
+              entries={config.dllOverrides}
+              onChange={(dllOverrides) => updateConfig({ dllOverrides })}
+            />
 
             <div className="rounded-2xl bg-[#FAF9F8] p-5">
               <h3 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
@@ -978,6 +1079,18 @@ export function PcPage({
               )}
             </div>
           </div>
+        )}
+
+        {activeTab === 'processes' && (
+          <ProcessesPanel bottlePath={pc.path} bottleName={pc.name} isManagedPc={isManagedPc} />
+        )}
+
+        {activeTab === 'winetricks' && (
+          <WinetricksPanel bottlePath={pc.path} isManagedPc={isManagedPc} />
+        )}
+
+        {activeTab === 'pins' && (
+          <PinsPanel pc={pc} isManagedPc={isManagedPc} onRunExecutable={onRunExecutable} />
         )}
 
         {activeTab === 'games' && (

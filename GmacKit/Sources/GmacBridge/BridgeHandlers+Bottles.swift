@@ -80,7 +80,14 @@ extension BridgeRouter {
             throw BridgeError.operationFailed("Gmac Windows Engine must be installed first.")
         }
 
-        let newBottleURL = BottleData.defaultBottleDir.appending(path: UUID().uuidString)
+        let defaults = UserDefaults.standard
+        let baseDir = defaults.url(forKey: "defaultBottleLocation") ?? BottleData.defaultBottleDir
+        let winRaw = defaults.string(forKey: "defaultWinVersion") ?? WinVersion.win10.rawValue
+        let defaultWin = WinVersion(rawValue: winRaw) ?? .win10
+        let backendRaw = defaults.string(forKey: "defaultGraphicsBackend") ?? GraphicsBackend.recommended.rawValue
+        let defaultBackend = GraphicsBackend(rawValue: backendRaw) ?? .recommended
+
+        let newBottleURL = baseDir.appending(path: UUID().uuidString)
         try FileManager.default.createDirectory(
             at: newBottleURL,
             withIntermediateDirectories: true,
@@ -89,11 +96,11 @@ extension BridgeRouter {
 
         do {
             let bottle = Bottle(bottleUrl: newBottleURL, inFlight: true)
-            bottle.settings.windowsVersion = .win10
+            bottle.settings.windowsVersion = defaultWin
             bottle.settings.name = trimmedName
-            bottle.settings.graphicsBackend = .recommended
+            bottle.settings.graphicsBackend = defaultBackend
 
-            try await Wine.changeWinVersion(bottle: bottle, win: .win10)
+            try await Wine.changeWinVersion(bottle: bottle, win: defaultWin)
             let wineVer = try await Wine.wineVersion()
             bottle.settings.wineVersion = SemanticVersion(wineVer) ?? SemanticVersion(0, 0, 0)
 
