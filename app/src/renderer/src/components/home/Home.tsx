@@ -14,12 +14,18 @@ import {
   type SidebarDestination
 } from '../sidebar/Sidebar'
 import { HomeDashboard } from './HomeDashboard'
+import { MOCK_HOME_SUMMARY, MOCK_PCS } from './mockHomeData'
 
 interface HomeProps {
+  enteredFromOnboarding?: boolean
   onOpenOnboarding?: () => void
 }
 
 const COLLAPSED_TOGGLE_X = 90
+
+function resolveInitialMockMode(): boolean {
+  return new URLSearchParams(window.location.search).get('mock') === '1'
+}
 
 function destinationTitle(destination: SidebarDestination, pcs: BottleSummary[]): string {
   switch (destination.kind) {
@@ -34,10 +40,12 @@ function destinationTitle(destination: SidebarDestination, pcs: BottleSummary[])
   }
 }
 
-export function Home({ onOpenOnboarding }: HomeProps) {
+export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomeProps) {
   const [pcs, setPcs] = useState<BottleSummary[]>([])
   const [homeSummary, setHomeSummary] = useState<HomeSummary | null>(null)
   const [isHomeLoading, setIsHomeLoading] = useState(true)
+  const [isMockPreview, setIsMockPreview] = useState(resolveInitialMockMode)
+  const [homeVisitKey, setHomeVisitKey] = useState(() => (enteredFromOnboarding ? 2 : 1))
   const [launchingId, setLaunchingId] = useState<string | null>(null)
   const [settingUpLauncherId, setSettingUpLauncherId] = useState<string | null>(null)
   const [homeError, setHomeError] = useState<string | null>(null)
@@ -49,6 +57,7 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   const [iconModalPc, setIconModalPc] = useState<BottleSummary | null>(null)
   const [deleteModalPc, setDeleteModalPc] = useState<BottleSummary | null>(null)
   const dragStartWidthRef = useRef(DEFAULT_SIDEBAR_WIDTH)
+  const mockActionTimerRef = useRef<number | null>(null)
 
   const refreshHomeSummary = async () => {
     if (!window.gmac) {
@@ -98,6 +107,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
 
     return () => {
       cancelled = true
+      if (mockActionTimerRef.current !== null) {
+        window.clearTimeout(mockActionTimerRef.current)
+      }
     }
   }, [])
 
@@ -146,6 +158,37 @@ export function Home({ onOpenOnboarding }: HomeProps) {
     setIsResizing(true)
   }
 
+  const handleSelectDestination = (next: SidebarDestination) => {
+    setActiveDestination((current) => {
+      if (next.kind === 'home' && current.kind !== 'home') {
+        setHomeVisitKey((key) => key + 1)
+      }
+      return next
+    })
+  }
+
+  const handleToggleMockPreview = () => {
+    setIsMockPreview((prev) => !prev)
+    setHomeError(null)
+    setHomeVisitKey((key) => key + 1)
+  }
+
+  const runMockTransientFeedback = (id: string, kind: 'launch' | 'setup') => {
+    if (mockActionTimerRef.current !== null) {
+      window.clearTimeout(mockActionTimerRef.current)
+    }
+    if (kind === 'launch') {
+      setLaunchingId(id)
+    } else {
+      setSettingUpLauncherId(id)
+    }
+    mockActionTimerRef.current = window.setTimeout(() => {
+      setLaunchingId(null)
+      setSettingUpLauncherId(null)
+      mockActionTimerRef.current = null
+    }, 700)
+  }
+
   const handleCreatePc = async (name: string, icon: PcIconId) => {
     if (!window.gmac) {
       throw new Error('Gmac IPC bridge is unavailable.')
@@ -157,6 +200,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handleRenamePc = async (path: string, newName: string) => {
+    if (isMockPreview) {
+      return
+    }
     const previousPcs = pcs
     setPcs((prev) => prev.map((pc) => (pc.path === path ? { ...pc, name: newName } : pc)))
     try {
@@ -171,6 +217,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handleChangePcIcon = async (pc: BottleSummary, icon: PcIconId) => {
+    if (isMockPreview) {
+      return
+    }
     const previousPcs = pcs
     setPcs((prev) => prev.map((entry) => (entry.path === pc.path ? { ...entry, icon } : entry)))
     try {
@@ -181,6 +230,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handleDeletePc = async (pc: BottleSummary) => {
+    if (isMockPreview) {
+      return
+    }
     if (!window.gmac) {
       throw new Error('Gmac IPC bridge is unavailable.')
     }
@@ -193,6 +245,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handleReorderPcs = async (orderedPaths: string[]) => {
+    if (isMockPreview) {
+      return
+    }
     const previousPcs = pcs
     const byPath = new Map(pcs.map((pc) => [pc.path, pc]))
     const reordered = orderedPaths
@@ -209,10 +264,14 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handlePlayGame = async (game: HomeGameItem) => {
+    setHomeError(null)
+    if (isMockPreview) {
+      runMockTransientFeedback(game.id, 'launch')
+      return
+    }
     if (!window.gmac) {
       return
     }
-    setHomeError(null)
     setLaunchingId(game.id)
     try {
       await window.gmac.launchHomeItem({
@@ -229,10 +288,14 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handleOpenLauncher = async (launcher: HomeLauncherItem) => {
+    setHomeError(null)
+    if (isMockPreview) {
+      runMockTransientFeedback(`launcher:${launcher.id}`, 'launch')
+      return
+    }
     if (!window.gmac || !launcher.bottlePath || !launcher.executablePath) {
       return
     }
-    setHomeError(null)
     setLaunchingId(`launcher:${launcher.id}`)
     try {
       await window.gmac.launchHomeItem({
@@ -248,10 +311,14 @@ export function Home({ onOpenOnboarding }: HomeProps) {
   }
 
   const handleSetupLauncher = async (launcher: HomeLauncherItem) => {
+    setHomeError(null)
+    if (isMockPreview) {
+      runMockTransientFeedback(launcher.id, 'setup')
+      return
+    }
     if (!window.gmac) {
       return
     }
-    setHomeError(null)
     setSettingUpLauncherId(launcher.id)
     try {
       await window.gmac.setupLauncher(launcher.id, 'automatic')
@@ -263,7 +330,9 @@ export function Home({ onOpenOnboarding }: HomeProps) {
     }
   }
 
-  const sectionTitle = destinationTitle(activeDestination, pcs)
+  const displayedPcs = isMockPreview ? MOCK_PCS : pcs
+  const displayedSummary = isMockPreview ? MOCK_HOME_SUMMARY : homeSummary
+  const sectionTitle = destinationTitle(activeDestination, displayedPcs)
   const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
   const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
 
@@ -291,11 +360,11 @@ export function Home({ onOpenOnboarding }: HomeProps) {
 
       <Sidebar
         activeDestination={activeDestination}
-        pcs={pcs}
+        pcs={displayedPcs}
         width={sidebarWidth}
         isCollapsed={isSidebarCollapsed}
         isResizing={isResizing}
-        onSelect={setActiveDestination}
+        onSelect={handleSelectDestination}
         onResizeStart={handleResizeStart}
         onOpenCreatePc={() => setIsCreateModalOpen(true)}
         onRenamePc={handleRenamePc}
@@ -307,15 +376,18 @@ export function Home({ onOpenOnboarding }: HomeProps) {
       <div className="flex min-w-0 flex-1 flex-col bg-white">
         {activeDestination.kind === 'home' ? (
           <HomeDashboard
-            summary={homeSummary}
+            summary={displayedSummary}
             isLoading={isHomeLoading}
+            visitKey={homeVisitKey}
+            isMockPreview={isMockPreview}
             launchingId={launchingId}
             settingUpLauncherId={settingUpLauncherId}
             errorMessage={homeError}
+            onToggleMockPreview={handleToggleMockPreview}
             onPlayGame={handlePlayGame}
             onOpenLauncher={handleOpenLauncher}
             onSetupLauncher={handleSetupLauncher}
-            onOpenLibrary={() => setActiveDestination({ kind: 'library' })}
+            onOpenLibrary={() => handleSelectDestination({ kind: 'library' })}
             onOpenCreatePc={() => setIsCreateModalOpen(true)}
           />
         ) : (

@@ -146,14 +146,18 @@ function createMainWindow(iconPath?: string): BrowserWindow {
   })
 
   const initialScreen = resolveInitialScreen()
+  const mockUi = process.env.GMAC_MOCK_UI === '1'
 
   if (rendererUrl) {
     const targetUrl = new URL(rendererUrl)
     targetUrl.searchParams.set('screen', initialScreen)
+    if (mockUi) {
+      targetUrl.searchParams.set('mock', '1')
+    }
     void mainWindow.loadURL(targetUrl.toString())
   } else {
     void mainWindow.loadFile(join(__dirname, '../renderer/index.html'), {
-      query: { screen: initialScreen }
+      query: { screen: initialScreen, ...(mockUi ? { mock: '1' } : {}) }
     })
   }
 
