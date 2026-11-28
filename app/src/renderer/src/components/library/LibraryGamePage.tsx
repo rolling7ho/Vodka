@@ -1,18 +1,74 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { HomeGameItem, StatPoint } from '../../../../shared/ipc'
 import { SpinnerIcon } from '../icons/OnboardingIcons'
-import { HeartIcon, InfoIcon, PcIcon, PlayTriangleIcon, SettingsGearIcon } from '../icons/SidebarIcons'
+import { HeartIcon, PcIcon, PlayTriangleIcon, SettingsGearIcon } from '../icons/SidebarIcons'
 import { StatSparkline } from '../shared/StatSparkline'
 
 interface LibraryGamePageProps {
   game: HomeGameItem
+  isFavorite: boolean
   isLaunching: boolean
   errorMessage: string | null
+  onToggleFavorite: () => void
   onPlay: (game: HomeGameItem) => void
   onOpenPc: (bottlePath: string) => void
 }
 
-type DetailTab = 'overview' | 'compatibility' | 'pc'
+type DetailTab = 'overview' | 'settings' | 'pc'
+
+type GameGraphicsBackend = 'inherit' | 'recommended' | 'd3dMetal' | 'dxmt' | 'dxvk' | 'wined3d'
+type EnhancedSyncMode = 'inherit' | 'msync' | 'esync' | 'off'
+
+interface GameSettingsState {
+  graphicsBackend: GameGraphicsBackend
+  metal4Enabled: boolean
+  shaderCacheEnabled: boolean
+  metalHud: boolean
+  launchArguments: string
+  locale: string
+  enhancedSync: EnhancedSyncMode
+  virtualDesktop: boolean
+  virtualDesktopResolution: '1920x1080' | '2560x1440' | '3840x2160'
+  controllerCompatMode: boolean
+}
+
+const DEFAULT_GAME_SETTINGS: GameSettingsState = {
+  graphicsBackend: 'inherit',
+  metal4Enabled: true,
+  shaderCacheEnabled: true,
+  metalHud: false,
+  launchArguments: '',
+  locale: 'auto',
+  enhancedSync: 'inherit',
+  virtualDesktop: false,
+  virtualDesktopResolution: '1920x1080',
+  controllerCompatMode: false
+}
+
+const LOCALE_OPTIONS = [
+  { value: 'auto', label: 'System Default' },
+  { value: 'en_US', label: 'English' },
+  { value: 'ja_JP', label: 'Japanese' },
+  { value: 'ko_KR', label: 'Korean' },
+  { value: 'zh_CN', label: 'Simplified Chinese' },
+  { value: 'zh_TW', label: 'Traditional Chinese' },
+  { value: 'de_DE', label: 'German' },
+  { value: 'fr_FR', label: 'French' },
+  { value: 'es_ES', label: 'Spanish' }
+] as const
+
+function loadGameSettings(gameId: string): GameSettingsState {
+  try {
+    const raw = window.localStorage.getItem(`gmac.gameSettings.${gameId}`)
+    if (!raw) {
+      return { ...DEFAULT_GAME_SETTINGS }
+    }
+    const parsed = JSON.parse(raw) as Partial<GameSettingsState>
+    return { ...DEFAULT_GAME_SETTINGS, ...parsed }
+  } catch {
+    return { ...DEFAULT_GAME_SETTINGS }
+  }
+}
 
 function formatDetailPlaytime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) {
@@ -84,15 +140,103 @@ function buildGamePlaytimeHistory(game: HomeGameItem): StatPoint[] {
   }))
 }
 
+interface SettingToggleRowProps {
+  label: string
+  description: string
+  checked: boolean
+  onToggle: () => void
+}
+
+function SettingToggleRow({ label, description, checked, onToggle }: SettingToggleRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+      <div className="min-w-0">
+        <div className="text-[13.5px] font-medium text-[#161212]">{label}</div>
+        <div className="mt-0.5 text-[12px] text-[#5e5454]">{description}</div>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={onToggle}
+        className={`app-no-drag relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60 ${
+          checked ? 'bg-[#713131]' : 'bg-[#161212]/16'
+        }`}
+      >
+        <span
+          className={`h-5 w-5 rounded-full bg-white shadow-xs transition-transform duration-150 ${
+            checked ? 'translate-x-5' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
+  )
+}
+
 export function LibraryGamePage({
   game,
+  isFavorite,
   isLaunching,
   errorMessage,
+  onToggleFavorite,
   onPlay,
   onOpenPc
 }: LibraryGamePageProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('overview')
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [settings, setSettings] = useState<GameSettingsState>(() => loadGameSettings(game.id))
+  const [savedNoticeVisible, setSavedNoticeVisible] = useState(false)
+  const savedTimerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    setSettings(loadGameSettings(game.id))
+    setSavedNoticeVisible(false)
+  }, [game.id])
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current !== null) {
+        window.clearTimeout(savedTimerRef.current)
+      }
+    }
+  }, [])
+
+  const updateSettings = (patch: Partial<GameSettingsState>) => {
+    setSettings((previous) => {
+      const next = { ...previous, ...patch }
+      try {
+        window.localStorage.setItem(`gmac.gameSettings.${game.id}`, JSON.stringify(next))
+      } catch {
+        // Ignore storage quota errors in restricted modes.
+      }
+      return next
+    })
+    setSavedNoticeVisible(true)
+    if (savedTimerRef.current !== null) {
+      window.clearTimeout(savedTimerRef.current)
+    }
+    savedTimerRef.current = window.setTimeout(() => {
+      savedTimerRef.current = null
+      setSavedNoticeVisible(false)
+    }, 1500)
+  }
+
+  const resetSettings = () => {
+    const fresh = { ...DEFAULT_GAME_SETTINGS }
+    setSettings(fresh)
+    try {
+      window.localStorage.removeItem(`gmac.gameSettings.${game.id}`)
+    } catch {
+      // Ignore storage errors.
+    }
+    setSavedNoticeVisible(true)
+    if (savedTimerRef.current !== null) {
+      window.clearTimeout(savedTimerRef.current)
+    }
+    savedTimerRef.current = window.setTimeout(() => {
+      savedTimerRef.current = null
+      setSavedNoticeVisible(false)
+    }, 1500)
+  }
 
   const playtimeHistory = useMemo(() => buildGamePlaytimeHistory(game), [game])
 
@@ -135,7 +279,7 @@ export function LibraryGamePage({
               type="button"
               disabled={isLaunching}
               onClick={() => onPlay(game)}
-              className="app-no-drag inline-flex cursor-pointer items-center gap-2.5 rounded-xl bg-[#1D4E89] px-8 py-2.5 text-[14.5px] font-semibold text-white shadow-[0_6px_16px_rgba(29,78,137,0.28)] transition-all duration-150 hover:bg-[#163D6B] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="app-no-drag inline-flex cursor-pointer items-center gap-2.5 rounded-xl bg-[#007AFF] px-8 py-2.5 text-[14.5px] font-semibold text-white shadow-[0_6px_16px_rgba(0,122,255,0.3)] transition-all duration-150 hover:bg-[#0066D6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLaunching ? (
                 <SpinnerIcon className="h-4 w-4" />
@@ -164,15 +308,6 @@ export function LibraryGamePage({
                 </div>
               </div>
 
-              <div>
-                <div className="text-[10.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
-                  Last 2 Weeks
-                </div>
-                <div className="mt-0.5 font-semibold text-[#161212] tabular-nums">
-                  {formatDetailPlaytime(game.lastTwoWeeksSeconds)}
-                </div>
-              </div>
-
               <button
                 type="button"
                 onClick={() => onOpenPc(game.bottlePath)}
@@ -191,29 +326,24 @@ export function LibraryGamePage({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label="Graphics and compatibility settings"
-              title="Graphics and compatibility"
-              onClick={() => setActiveTab('compatibility')}
-              className="app-no-drag inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-[#161212]/[0.05] text-[#4a4242] transition-colors hover:bg-[#161212]/[0.1] hover:text-[#161212]"
+              aria-label="Game settings"
+              title="Game settings"
+              aria-pressed={activeTab === 'settings'}
+              onClick={() => setActiveTab((tab) => (tab === 'settings' ? 'overview' : 'settings'))}
+              className={`app-no-drag inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors ${
+                activeTab === 'settings'
+                  ? 'bg-[#713131]/[0.12] text-[#713131]'
+                  : 'bg-[#161212]/[0.05] text-[#4a4242] hover:bg-[#161212]/[0.1] hover:text-[#161212]'
+              }`}
             >
               <SettingsGearIcon className="h-[17px] w-[17px]" />
             </button>
 
             <button
               type="button"
-              aria-label="PC details"
-              title="PC details"
-              onClick={() => setActiveTab('pc')}
-              className="app-no-drag inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-[#161212]/[0.05] text-[#4a4242] transition-colors hover:bg-[#161212]/[0.1] hover:text-[#161212]"
-            >
-              <InfoIcon className="h-[17px] w-[17px]" />
-            </button>
-
-            <button
-              type="button"
               aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               aria-pressed={isFavorite}
-              onClick={() => setIsFavorite((prev) => !prev)}
+              onClick={onToggleFavorite}
               className={`app-no-drag inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors ${
                 isFavorite
                   ? 'bg-[#713131]/[0.12] text-[#713131]'
@@ -247,7 +377,7 @@ export function LibraryGamePage({
           {(
             [
               { id: 'overview', label: 'Overview' },
-              { id: 'compatibility', label: 'Graphics & Compatibility' },
+              { id: 'settings', label: 'Settings' },
               { id: 'pc', label: 'PC Details' }
             ] as const
           ).map((tab) => {
@@ -285,44 +415,244 @@ export function LibraryGamePage({
                       {formatLastPlayed(game.lastPlayedIso)}
                     </div>
                     <div className="mt-1 text-[13.5px] font-semibold text-[#161212]">
-                      {game.lastTwoWeeksSeconds > 0
-                        ? `Played ${formatDetailPlaytime(game.lastTwoWeeksSeconds)} over the last two weeks`
-                        : 'No sessions recorded in the last two weeks'}
+                      {game.totalPlaytimeSeconds > 0
+                        ? `Played ${formatDetailPlaytime(game.totalPlaytimeSeconds)} total on ${game.bottleName}`
+                        : `Installed on ${game.bottleName} with no recorded sessions yet`}
                     </div>
-                    <p className="mt-0.5 text-[12.5px] text-[#5e5454] tabular-nums">
-                      Lifetime playtime across this PC reaches{' '}
-                      {formatDetailPlaytime(game.totalPlaytimeSeconds)}.
+                    <p className="mt-0.5 text-[12.5px] text-[#5e5454]">
+                      {game.launchKind === 'steam'
+                        ? 'Launched through Steam inside this PC.'
+                        : 'Launched directly as a Windows executable.'}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {activeTab === 'compatibility' && (
-              <div className="rounded-2xl bg-[#FAF9F8] p-6">
-                <h2 className="text-[14px] font-semibold text-[#161212]">
-                  Graphics &amp; Compatibility
-                </h2>
-                <dl className="mt-4 grid grid-cols-1 gap-4 text-[13px] sm:grid-cols-2">
+            {activeTab === 'settings' && (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between gap-3">
                   <div>
-                    <dt className="text-[#5e5454]">Graphics Routing</dt>
-                    <dd className="mt-1 font-medium text-[#161212]">Automatic</dd>
+                    <h2 className="text-[15px] font-semibold text-[#161212]">Game Settings</h2>
+                    <p className="mt-0.5 text-[12.5px] text-[#5e5454]">
+                      Override PC defaults when launching {game.name}.
+                    </p>
                   </div>
-                  <div>
-                    <dt className="text-[#5e5454]">Launcher Runtime</dt>
-                    <dd className="mt-1 font-medium text-[#161212]">
-                      {game.launchKind === 'steam' ? 'Steam Client' : 'Direct Executable'}
-                    </dd>
+                  <div className="flex items-center gap-2.5">
+                    {savedNoticeVisible && (
+                      <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11.5px] font-medium text-emerald-700">
+                        Saved
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={resetSettings}
+                      className="app-no-drag cursor-pointer rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#161212]"
+                    >
+                      Reset to PC Defaults
+                    </button>
                   </div>
-                  <div>
-                    <dt className="text-[#5e5454]">Apple Silicon Translation</dt>
-                    <dd className="mt-1 font-medium text-[#161212]">Rosetta 2 + GPTK</dd>
+                </div>
+
+                <div className="rounded-2xl bg-[#FAF9F8] p-5">
+                  <h3 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
+                    Graphics &amp; Rendering
+                  </h3>
+                  <div className="mt-4 space-y-4">
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                      <div>
+                        <label
+                          htmlFor="game-graphics-backend"
+                          className="text-[13.5px] font-medium text-[#161212]"
+                        >
+                          Graphics Backend
+                        </label>
+                        <div className="mt-0.5 text-[12px] text-[#5e5454]">
+                          Choose which DirectX translation layer this title uses.
+                        </div>
+                      </div>
+                      <select
+                        id="game-graphics-backend"
+                        value={settings.graphicsBackend}
+                        onChange={(event) =>
+                          updateSettings({
+                            graphicsBackend: event.target.value as GameGraphicsBackend
+                          })
+                        }
+                        className="app-no-drag cursor-pointer rounded-xl bg-white px-3 py-2 text-[13px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
+                      >
+                        <option value="inherit">Inherit from PC</option>
+                        <option value="recommended">Automatic</option>
+                        <option value="d3dMetal">D3DMetal</option>
+                        <option value="dxmt">DXMT</option>
+                        <option value="dxvk">DXVK</option>
+                        <option value="wined3d">WineD3D</option>
+                      </select>
+                    </div>
+
+                    <div className="divide-y divide-[#161212]/[0.06] border-t border-[#161212]/[0.06] pt-3">
+                      <SettingToggleRow
+                        label="Metal 4 (DirectX 12)"
+                        description="Use Metal 4 command encoding for D3D12 titles when supported."
+                        checked={settings.metal4Enabled}
+                        onToggle={() =>
+                          updateSettings({ metal4Enabled: !settings.metal4Enabled })
+                        }
+                      />
+                      <SettingToggleRow
+                        label="Shader Cache"
+                        description="Keep compiled shaders on disk to reduce in-game stutter."
+                        checked={settings.shaderCacheEnabled}
+                        onToggle={() =>
+                          updateSettings({ shaderCacheEnabled: !settings.shaderCacheEnabled })
+                        }
+                      />
+                      <SettingToggleRow
+                        label="Metal Performance HUD"
+                        description="Show live FPS and GPU timing overlay while playing."
+                        checked={settings.metalHud}
+                        onToggle={() => updateSettings({ metalHud: !settings.metalHud })}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <dt className="text-[#5e5454]">Windows Target</dt>
-                    <dd className="mt-1 font-medium text-[#161212]">Windows 10 (64-bit)</dd>
+                </div>
+
+                <div className="rounded-2xl bg-[#FAF9F8] p-5">
+                  <h3 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
+                    Launch Options &amp; Environment
+                  </h3>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <label
+                        htmlFor="game-launch-args"
+                        className="block text-[13.5px] font-medium text-[#161212]"
+                      >
+                        Launch Arguments
+                      </label>
+                      <input
+                        id="game-launch-args"
+                        type="text"
+                        value={settings.launchArguments}
+                        onChange={(event) =>
+                          updateSettings({ launchArguments: event.target.value })
+                        }
+                        placeholder="e.g. -windowed -skipintro"
+                        className="app-no-drag mt-1.5 w-full rounded-xl bg-white px-3.5 py-2 text-[13px] text-[#161212] placeholder-[#5e5454]/45 ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                      <div>
+                        <label
+                          htmlFor="game-locale"
+                          className="text-[13.5px] font-medium text-[#161212]"
+                        >
+                          Windows Locale
+                        </label>
+                        <div className="mt-0.5 text-[12px] text-[#5e5454]">
+                          Locale reported to the game for text and save encoding.
+                        </div>
+                      </div>
+                      <select
+                        id="game-locale"
+                        value={settings.locale}
+                        onChange={(event) => updateSettings({ locale: event.target.value })}
+                        className="app-no-drag cursor-pointer rounded-xl bg-white px-3 py-2 text-[13px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] focus:ring-2 focus:ring-[#713131]/35 focus:outline-none"
+                      >
+                        {LOCALE_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                      <div>
+                        <div className="text-[13.5px] font-medium text-[#161212]">Enhanced Sync</div>
+                        <div className="mt-0.5 text-[12px] text-[#5e5454]">
+                          Thread synchronization method used by the compatibility runtime.
+                        </div>
+                      </div>
+                      <div className="inline-flex rounded-xl bg-white p-1 ring-1 ring-[#161212]/[0.08]">
+                        {(
+                          [
+                            { id: 'inherit', label: 'Inherit' },
+                            { id: 'msync', label: 'MSync' },
+                            { id: 'esync', label: 'ESync' },
+                            { id: 'off', label: 'Off' }
+                          ] as const
+                        ).map((mode) => (
+                          <button
+                            key={mode.id}
+                            type="button"
+                            onClick={() => updateSettings({ enhancedSync: mode.id })}
+                            className={`app-no-drag cursor-pointer rounded-lg px-2.5 py-1 text-[12px] font-medium transition-colors ${
+                              settings.enhancedSync === mode.id
+                                ? 'bg-[#713131] text-white'
+                                : 'text-[#5e5454] hover:text-[#161212]'
+                            }`}
+                          >
+                            {mode.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </dl>
+                </div>
+
+                <div className="rounded-2xl bg-[#FAF9F8] p-5">
+                  <h3 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
+                    Display &amp; Controller
+                  </h3>
+                  <div className="mt-3 divide-y divide-[#161212]/[0.06]">
+                    <div className="pb-3">
+                      <SettingToggleRow
+                        label="Virtual Desktop"
+                        description="Run this game inside a fixed-size Windows desktop window."
+                        checked={settings.virtualDesktop}
+                        onToggle={() =>
+                          updateSettings({ virtualDesktop: !settings.virtualDesktop })
+                        }
+                      />
+                      {settings.virtualDesktop && (
+                        <div className="mt-2.5 flex items-center justify-between gap-4 rounded-xl bg-white px-3.5 py-2.5 ring-1 ring-[#161212]/[0.06]">
+                          <span className="text-[12.5px] font-medium text-[#4a4242]">
+                            Desktop Resolution
+                          </span>
+                          <select
+                            aria-label="Desktop resolution"
+                            value={settings.virtualDesktopResolution}
+                            onChange={(event) =>
+                              updateSettings({
+                                virtualDesktopResolution: event.target
+                                  .value as GameSettingsState['virtualDesktopResolution']
+                              })
+                            }
+                            className="app-no-drag cursor-pointer rounded-lg bg-[#FAF9F8] px-2.5 py-1 text-[12.5px] font-medium text-[#161212] focus:outline-none"
+                          >
+                            <option value="1920x1080">1920 x 1080</option>
+                            <option value="2560x1440">2560 x 1440</option>
+                            <option value="3840x2160">3840 x 2160</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-3">
+                      <SettingToggleRow
+                        label="Controller Compatibility Mode"
+                        description="Force legacy XInput mapping if native controller buttons behave unexpectedly."
+                        checked={settings.controllerCompatMode}
+                        onToggle={() =>
+                          updateSettings({
+                            controllerCompatMode: !settings.controllerCompatMode
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -399,9 +729,6 @@ export function LibraryGamePage({
                 {formatDetailPlaytime(game.totalPlaytimeSeconds)} total
               </div>
               <StatSparkline points={playtimeHistory} className="mt-3 h-[54px] w-full" />
-              <div className="mt-2 text-[12px] text-[#5e5454] tabular-nums">
-                Last two weeks: {formatDetailPlaytime(game.lastTwoWeeksSeconds)}
-              </div>
             </div>
           </div>
         </div>

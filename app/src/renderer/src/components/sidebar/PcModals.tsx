@@ -310,13 +310,6 @@ interface CreatePcModalProps {
   onCreate: (name: string, icon: PcIconId) => Promise<void>
 }
 
-const CREATE_PC_PRESETS: Array<{ name: string; icon: PcIconId }> = [
-  { name: 'Gaming PC', icon: 'gamepad' },
-  { name: 'Steam', icon: 'steam' },
-  { name: 'Indie Vault', icon: 'star' },
-  { name: 'Sandbox', icon: 'terminal' }
-]
-
 export function CreatePcModal({
   isOpen,
   initialName = '',
@@ -359,8 +352,6 @@ export function CreatePcModal({
   }
 
   const trimmedName = name.trim()
-  const selectedIconLabel =
-    PC_ICON_OPTIONS.find((option) => option.id === selectedIcon)?.label ?? 'Desktop'
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -398,49 +389,6 @@ export function CreatePcModal({
         <h2 id="create-pc-title" className="text-[19px] font-bold tracking-[-0.025em] text-[#161212]">
           Create a PC
         </h2>
-        <p className="mt-1 text-[13px] text-[#5e5454]">
-          Set up a dedicated Windows environment for your games or launchers.
-        </p>
-
-        <div className="mt-4 flex items-center gap-3.5 rounded-2xl bg-[#FAF9F8] px-4 py-3.5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#713131]/[0.1] text-[#713131]">
-            <PcGlyph icon={selectedIcon} className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <div className="truncate text-[14.5px] font-semibold text-[#161212]">
-              {trimmedName || 'New Windows PC'}
-            </div>
-            <div className="mt-0.5 text-[12px] text-[#5e5454]">
-              Windows 10 &middot; Automatic graphics
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
-          {CREATE_PC_PRESETS.map((preset) => {
-            const isActivePreset =
-              trimmedName === preset.name && selectedIcon === preset.icon
-            return (
-              <button
-                key={preset.name}
-                type="button"
-                disabled={isCreating}
-                onClick={() => {
-                  setName(preset.name)
-                  setSelectedIcon(preset.icon)
-                }}
-                className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition-colors disabled:opacity-50 ${
-                  isActivePreset
-                    ? 'bg-[#713131]/[0.1] text-[#713131]'
-                    : 'bg-[#FAF9F8] text-[#4a4242] hover:bg-[#F3EFEF] hover:text-[#161212]'
-                }`}
-              >
-                <PcGlyph icon={preset.icon} className="h-3.5 w-3.5 shrink-0" />
-                <span>{preset.name}</span>
-              </button>
-            )
-          })}
-        </div>
 
         <form onSubmit={(event) => void handleSubmit(event)} className="mt-4 space-y-4">
           <div>
@@ -463,10 +411,7 @@ export function CreatePcModal({
           </div>
 
           <div>
-            <div className="flex items-center justify-between text-[12.5px]">
-              <span className="font-medium text-[#4a4242]">Icon</span>
-              <span className="font-medium text-[#5e5454]">{selectedIconLabel}</span>
-            </div>
+            <div className="text-[12.5px] font-medium text-[#4a4242]">Icon</div>
             <div className="mt-1.5 grid grid-cols-6 gap-1 rounded-2xl bg-[#FAF9F8] p-2">
               {PC_ICON_OPTIONS.map((option) => {
                 const isSelected = selectedIcon === option.id

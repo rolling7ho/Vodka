@@ -415,6 +415,34 @@
   animation: gmac-context-out 130ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+@keyframes gmac-glass-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gmac-glass-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-glass-in {
+  animation: gmac-glass-in 150ms ease-out both;
+}
+
+.animate-glass-out {
+  animation: gmac-glass-out 120ms ease-in forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .radiance-drift-primary,
   .radiance-drift-secondary,
@@ -433,7 +461,9 @@
   .animate-home-rise,
   .animate-sparkline-reveal,
   .animate-context-in,
-  .animate-context-out {
+  .animate-context-out,
+  .animate-glass-in,
+  .animate-glass-out {
     animation: none;
   }
 

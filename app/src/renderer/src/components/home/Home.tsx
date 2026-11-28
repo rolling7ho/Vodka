@@ -15,6 +15,7 @@ import {
 } from '../sidebar/Sidebar'
 import { LibraryGamePage } from '../library/LibraryGamePage'
 import { LibraryView } from '../library/LibraryView'
+import { PcPage } from '../pc/PcPage'
 import { HomeDashboard } from './HomeDashboard'
 import { MOCK_HOME_SUMMARY } from './mockHomeData'
 
@@ -27,6 +28,21 @@ const COLLAPSED_TOGGLE_X = 90
 
 function resolveInitialMockMode(): boolean {
   return new URLSearchParams(window.location.search).get('mock') === '1'
+}
+
+const FAVORITE_GAMES_STORAGE_KEY = 'gmac.favoriteGameIds'
+
+function loadFavoriteGameIds(): string[] {
+  try {
+    const raw = window.localStorage.getItem(FAVORITE_GAMES_STORAGE_KEY)
+    if (!raw) {
+      return []
+    }
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string') : []
+  } catch {
+    return []
+  }
 }
 
 function launcherToPcIcon(id: string): PcIconId {
@@ -75,6 +91,7 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
   const [homeVisitKey, setHomeVisitKey] = useState(() => (enteredFromOnboarding ? 2 : 1))
   const [launchingId, setLaunchingId] = useState<string | null>(null)
   const [homeError, setHomeError] = useState<string | null>(null)
+  const [favoriteGameIds, setFavoriteGameIds] = useState<string[]>(loadFavoriteGameIds)
   const [activeDestination, setActiveDestination] = useState<SidebarDestination>({ kind: 'home' })
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -313,6 +330,20 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
     })
   }
 
+  const handleToggleFavorite = (gameId: string) => {
+    setFavoriteGameIds((previous) => {
+      const next = previous.includes(gameId)
+        ? previous.filter((id) => id !== gameId)
+        : [...previous, gameId]
+      try {
+        window.localStorage.setItem(FAVORITE_GAMES_STORAGE_KEY, JSON.stringify(next))
+      } catch {
+        // Ignore storage errors.
+      }
+      return next
+    })
+  }
+
   const displayedSummary = isMockMode ? MOCK_HOME_SUMMARY : homeSummary
   const allGames =
     displayedSummary?.allGames && displayedSummary.allGames.length > 0
@@ -321,10 +352,37 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
           ...(displayedSummary?.continuePlaying ? [displayedSummary.continuePlaying] : []),
           ...(displayedSummary?.recentlyPlayed ?? [])
         ]
+  const favoriteGames = allGames.filter((game) => favoriteGameIds.includes(game.id))
   const activeGame =
     activeDestination.kind === 'game'
       ? allGames.find((game) => game.id === activeDestination.gameId) ?? null
       : null
+  const managedPc =
+    activeDestination.kind === 'pc'
+      ? pcs.find((pc) => pc.path === activeDestination.path) ?? null
+      : null
+  const fallbackPc: BottleSummary | null =
+    activeDestination.kind === 'pc' && !managedPc
+      ? (() => {
+          const matchingGame = allGames.find((game) => game.bottlePath === activeDestination.path)
+          const matchingLauncher = (displayedSummary?.launchers ?? []).find(
+            (launcher) => launcher.bottlePath === activeDestination.path
+          )
+          const fallbackName = matchingGame?.bottleName ?? matchingLauncher?.bottleName
+          if (!fallbackName) {
+            return null
+          }
+          return {
+            name: fallbackName,
+            path: activeDestination.path,
+            windowsVersion: 'Windows 10',
+            graphicsBackend: 'recommended',
+            isAvailable: true,
+            icon: 'pc'
+          }
+        })()
+      : null
+  const resolvedPc = managedPc ?? fallbackPc
   const sectionTitle = destinationTitle(activeDestination, pcs, allGames)
   const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
   const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
@@ -372,11 +430,13 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
         {activeDestination.kind === 'home' ? (
           <HomeDashboard
             summary={displayedSummary}
+            favoriteGames={favoriteGames}
             isLoading={isHomeLoading}
             visitKey={homeVisitKey}
             launchingId={launchingId}
             errorMessage={homeError}
             onPlayGame={handlePlayGame}
+            onOpenGame={(gameId) => handleSelectDestination({ kind: 'game', gameId })}
             onOpenLauncher={handleOpenLauncher}
             onSetupLauncher={handleSetupLauncher}
             onOpenLibrary={() => handleSelectDestination({ kind: 'library' })}
@@ -396,8 +456,10 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
             <LibraryGamePage
               key={activeGame.id}
               game={activeGame}
+              isFavorite={favoriteGameIds.includes(activeGame.id)}
               isLaunching={launchingId === activeGame.id}
               errorMessage={homeError}
+              onToggleFavorite={() => handleToggleFavorite(activeGame.id)}
               onPlay={handlePlayGame}
               onOpenPc={(bottlePath) => handleSelectDestination({ kind: 'pc', path: bottlePath })}
             />
@@ -411,6 +473,22 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
               onOpenCreatePc={() => openCreatePcModal()}
             />
           )
+        ) : activeDestination.kind === 'pc' && resolvedPc ? (
+          <PcPage
+            key={resolvedPc.path}
+            pc={resolvedPc}
+            games={allGames}
+            launchers={displayedSummary?.launchers ?? []}
+            launchingId={launchingId}
+            errorMessage={homeError}
+            isManagedPc={managedPc !== null}
+            onPlayGame={handlePlayGame}
+            onOpenGame={(gameId) => handleSelectDestination({ kind: 'game', gameId })}
+            onOpenLauncher={handleOpenLauncher}
+            onRequestChangeIcon={setIconModalPc}
+            onRenamePc={handleRenamePc}
+            onRequestDeletePc={setDeleteModalPc}
+          />
         ) : (
           <>
             <div className="h-11 w-full shrink-0" />

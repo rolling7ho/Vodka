@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import type { HomeGameItem } from '../../../../shared/ipc'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 import { ChevronDownIcon, PlayTriangleIcon, PlusIcon, SearchIcon } from '../icons/SidebarIcons'
-import { formatHoverPlaytime, GameHoverCard } from './GameHoverCard'
+import {
+  computeHoverCardPosition,
+  formatHoverPlaytime,
+  GameHoverCard
+} from './GameHoverCard'
 
 interface LibraryViewProps {
   games: HomeGameItem[]
@@ -18,6 +22,24 @@ type LibrarySortMode = 'alphabetical' | 'recent' | 'hours'
 interface HoveredCardState {
   game: HomeGameItem
   rect: DOMRect
+}
+
+interface Point {
+  x: number
+  y: number
+}
+
+function triangleSign(p1: Point, p2: Point, p3: Point): number {
+  return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
+}
+
+function isPointInTriangle(pt: Point, a: Point, b: Point, c: Point): boolean {
+  const d1 = triangleSign(pt, a, b)
+  const d2 = triangleSign(pt, b, c)
+  const d3 = triangleSign(pt, c, a)
+  const hasNeg = d1 < 0 || d2 < 0 || d3 < 0
+  const hasPos = d1 > 0 || d2 > 0 || d3 > 0
+  return !(hasNeg && hasPos)
 }
 
 function compareByRecent(lhs: HomeGameItem, rhs: HomeGameItem): number {
@@ -76,34 +98,167 @@ export function LibraryView({
   const [sortMode, setSortMode] = useState<LibrarySortMode>('alphabetical')
   const [searchQuery, setSearchQuery] = useState('')
   const [hoveredCard, setHoveredCard] = useState<HoveredCardState | null>(null)
+  const [isClosingHover, setIsClosingHover] = useState(false)
+
   const hoverTimerRef = useRef<number | null>(null)
+  const graceTimerRef = useRef<number | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
+  const lastPointerRef = useRef<Point | null>(null)
+  const pointerInsideHoverCardRef = useRef(false)
   const shelfRef = useRef<HTMLDivElement>(null)
 
-  const clearHover = () => {
+  const clearAllTimers = useCallback(() => {
     if (hoverTimerRef.current !== null) {
       window.clearTimeout(hoverTimerRef.current)
       hoverTimerRef.current = null
     }
-    setHoveredCard(null)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimerRef.current !== null) {
-        window.clearTimeout(hoverTimerRef.current)
-      }
+    if (graceTimerRef.current !== null) {
+      window.clearTimeout(graceTimerRef.current)
+      graceTimerRef.current = null
+    }
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
     }
   }, [])
 
+  const clearHoverImmediately = useCallback(() => {
+    clearAllTimers()
+    pointerInsideHoverCardRef.current = false
+    setIsClosingHover(false)
+    setHoveredCard(null)
+  }, [clearAllTimers])
+
+  const startClosingHover = useCallback(() => {
+    if (graceTimerRef.current !== null) {
+      window.clearTimeout(graceTimerRef.current)
+      graceTimerRef.current = null
+    }
+    if (!hoveredCard || closeTimerRef.current !== null) {
+      return
+    }
+    setIsClosingHover(true)
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null
+      pointerInsideHoverCardRef.current = false
+      setIsClosingHover(false)
+      setHoveredCard(null)
+    }, 120)
+  }, [hoveredCard])
+
+  useEffect(() => {
+    return () => {
+      clearAllTimers()
+    }
+  }, [clearAllTimers])
+
+  useEffect(() => {
+    const handlePointerMove = (event: globalThis.PointerEvent) => {
+      const point = { x: event.clientX, y: event.clientY }
+      const previous = lastPointerRef.current
+      lastPointerRef.current = point
+
+      if (!hoveredCard || pointerInsideHoverCardRef.current || graceTimerRef.current === null) {
+        return
+      }
+      if (!previous) {
+        return
+      }
+
+      const pos = computeHoverCardPosition(hoveredCard.rect)
+      const nearEdgeX = pos.opensLeftward ? pos.left + pos.width + 8 : pos.left - 8
+      const cornerTop = { x: nearEdgeX, y: pos.top - 14 }
+      const cornerBottom = { x: nearEdgeX, y: pos.top + pos.height + 14 }
+
+      if (!isPointInTriangle(point, previous, cornerTop, cornerBottom)) {
+        startClosingHover()
+      }
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+    }
+  }, [hoveredCard, startClosingHover])
+
   const scheduleHover = (game: HomeGameItem, element: HTMLElement) => {
+    if (graceTimerRef.current !== null) {
+      window.clearTimeout(graceTimerRef.current)
+      graceTimerRef.current = null
+    }
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
     if (hoverTimerRef.current !== null) {
       window.clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
     }
+
+    setIsClosingHover(false)
     const rect = element.getBoundingClientRect()
+
+    if (hoveredCard && hoveredCard.game.id === game.id) {
+      return
+    }
+
+    const delayMs = hoveredCard ? 60 : 200
     hoverTimerRef.current = window.setTimeout(() => {
       hoverTimerRef.current = null
+      setIsClosingHover(false)
       setHoveredCard({ game, rect })
-    }, 220)
+    }, delayMs)
+  }
+
+  const handleCardPointerLeave = (event: PointerEvent<HTMLElement>) => {
+    if (hoverTimerRef.current !== null) {
+      window.clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
+    }
+
+    if (!hoveredCard) {
+      return
+    }
+
+    const point = { x: event.clientX, y: event.clientY }
+    const origin = lastPointerRef.current ?? point
+    const pos = computeHoverCardPosition(hoveredCard.rect)
+    const nearEdgeX = pos.opensLeftward ? pos.left + pos.width + 8 : pos.left - 8
+    const cornerTop = { x: nearEdgeX, y: pos.top - 14 }
+    const cornerBottom = { x: nearEdgeX, y: pos.top + pos.height + 14 }
+
+    if (isPointInTriangle(point, origin, cornerTop, cornerBottom)) {
+      if (graceTimerRef.current !== null) {
+        window.clearTimeout(graceTimerRef.current)
+      }
+      graceTimerRef.current = window.setTimeout(() => {
+        graceTimerRef.current = null
+        if (!pointerInsideHoverCardRef.current) {
+          startClosingHover()
+        }
+      }, 220)
+      return
+    }
+
+    startClosingHover()
+  }
+
+  const handleHoverCardEnter = () => {
+    pointerInsideHoverCardRef.current = true
+    if (graceTimerRef.current !== null) {
+      window.clearTimeout(graceTimerRef.current)
+      graceTimerRef.current = null
+    }
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+    setIsClosingHover(false)
+  }
+
+  const handleHoverCardLeave = () => {
+    pointerInsideHoverCardRef.current = false
+    startClosingHover()
   }
 
   const recentGames = useMemo(() => [...games].sort(compareByRecent), [games])
@@ -135,7 +290,7 @@ export function LibraryView({
   }, [games, searchQuery, sortMode])
 
   const scrollShelf = (direction: -1 | 1) => {
-    clearHover()
+    clearHoverImmediately()
     shelfRef.current?.scrollBy({ left: direction * 320, behavior: 'smooth' })
   }
 
@@ -143,19 +298,19 @@ export function LibraryView({
   const secondaryRecent = recentGames.slice(1)
 
   const openGame = (gameId: string) => {
-    clearHover()
+    clearHoverImmediately()
     onSelectGame(gameId)
   }
 
   const handleFeaturedPlayClick = (event: MouseEvent<HTMLButtonElement>, game: HomeGameItem) => {
     event.stopPropagation()
-    clearHover()
+    clearHoverImmediately()
     onPlayGame(game)
   }
 
   return (
     <div
-      onScroll={clearHover}
+      onScroll={clearHoverImmediately}
       className="flex-1 overflow-y-auto bg-white"
     >
       <div className="mx-auto w-full max-w-[1120px] px-9 pt-12 pb-16">
@@ -220,7 +375,7 @@ export function LibraryView({
 
               <div
                 ref={shelfRef}
-                onScroll={clearHover}
+                onScroll={clearHoverImmediately}
                 className="flex gap-4 overflow-x-auto pt-1 pb-3"
               >
                 {featuredRecent && (
@@ -238,8 +393,8 @@ export function LibraryView({
                           openGame(featuredRecent.id)
                         }
                       }}
-                      onMouseEnter={(event) => scheduleHover(featuredRecent, event.currentTarget)}
-                      onMouseLeave={clearHover}
+                      onPointerEnter={(event) => scheduleHover(featuredRecent, event.currentTarget)}
+                      onPointerLeave={handleCardPointerLeave}
                       className="app-no-drag group relative flex h-[216px] w-[304px] cursor-pointer flex-col overflow-hidden rounded-2xl bg-[#1A1414] shadow-[0_10px_24px_rgba(22,18,18,0.12)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(22,18,18,0.18)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
                     >
                       <div className="relative h-[144px] w-full overflow-hidden">
@@ -285,7 +440,7 @@ export function LibraryView({
                           disabled={launchingId !== null}
                           aria-label={`Play ${featuredRecent.name}`}
                           onClick={(event) => handleFeaturedPlayClick(event, featuredRecent)}
-                          className="app-no-drag relative z-10 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#1D4E89] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-150 hover:bg-[#163D6B] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="app-no-drag relative z-10 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[#007AFF] text-white shadow-[0_4px_14px_rgba(0,122,255,0.42)] transition-all duration-150 hover:bg-[#0066D6] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {launchingId === featuredRecent.id ? (
                             <SpinnerIcon className="h-4 w-4" />
@@ -328,8 +483,8 @@ export function LibraryView({
                       <button
                         type="button"
                         onClick={() => openGame(game.id)}
-                        onMouseEnter={(event) => scheduleHover(game, event.currentTarget)}
-                        onMouseLeave={clearHover}
+                        onPointerEnter={(event) => scheduleHover(game, event.currentTarget)}
+                        onPointerLeave={handleCardPointerLeave}
                         aria-label={game.name}
                         className="app-no-drag group relative block h-[216px] w-[144px] cursor-pointer overflow-hidden rounded-2xl bg-[#1C1515] text-left shadow-[0_8px_20px_rgba(22,18,18,0.1)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(22,18,18,0.17)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
                       >
@@ -408,8 +563,8 @@ export function LibraryView({
                         key={game.id}
                         type="button"
                         onClick={() => openGame(game.id)}
-                        onMouseEnter={(event) => scheduleHover(game, event.currentTarget)}
-                        onMouseLeave={clearHover}
+                        onPointerEnter={(event) => scheduleHover(game, event.currentTarget)}
+                        onPointerLeave={handleCardPointerLeave}
                         aria-label={game.name}
                         className="app-no-drag group relative aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-2xl bg-[#1C1515] text-left shadow-[0_8px_20px_rgba(22,18,18,0.09)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(22,18,18,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
                       >
@@ -442,7 +597,14 @@ export function LibraryView({
       </div>
 
       {hoveredCard && (
-        <GameHoverCard game={hoveredCard.game} anchorRect={hoveredCard.rect} />
+        <GameHoverCard
+          key={hoveredCard.game.id}
+          game={hoveredCard.game}
+          anchorRect={hoveredCard.rect}
+          isClosing={isClosingHover}
+          onPointerEnter={handleHoverCardEnter}
+          onPointerLeave={handleHoverCardLeave}
+        />
       )}
     </div>
   )

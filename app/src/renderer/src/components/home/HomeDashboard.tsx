@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import type { HomeGameItem, HomeLauncherItem, HomeSummary } from '../../../../shared/ipc'
 import { LauncherBrandImage } from '../icons/LauncherLogos'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
@@ -7,11 +7,13 @@ import { StatSparkline } from '../shared/StatSparkline'
 
 interface HomeDashboardProps {
   summary: HomeSummary | null
+  favoriteGames: HomeGameItem[]
   isLoading: boolean
   visitKey: number
   launchingId: string | null
   errorMessage: string | null
   onPlayGame: (game: HomeGameItem) => void
+  onOpenGame: (gameId: string) => void
   onOpenLauncher: (launcher: HomeLauncherItem) => void
   onSetupLauncher: (launcher: HomeLauncherItem) => void
   onOpenLibrary: () => void
@@ -144,13 +146,90 @@ function staggerStyle(delayMs: number): CSSProperties {
   return { '--stagger-delay': `${delayMs}ms` } as CSSProperties
 }
 
+function handleCardKeyDown(event: KeyboardEvent<HTMLElement>, onOpen: () => void) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    onOpen()
+  }
+}
+
+interface HomeGameTileProps {
+  game: HomeGameItem
+  isLaunching: boolean
+  disablePlay: boolean
+  onOpen: () => void
+  onPlay: () => void
+}
+
+function HomeGameTile({ game, isLaunching, disablePlay, onOpen, onPlay }: HomeGameTileProps) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Open ${game.name} in Library`}
+      onClick={onOpen}
+      onKeyDown={(event) => handleCardKeyDown(event, onOpen)}
+      className="app-no-drag group relative aspect-video cursor-pointer overflow-hidden rounded-2xl bg-[#1C1414] shadow-[0_6px_18px_rgba(22,18,18,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(22,18,18,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
+    >
+      {game.artworkDataUrl ? (
+        <img
+          src={game.artworkDataUrl}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+        />
+      ) : (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#2B1B1B] to-[#4A2525] text-white/30">
+          <GameControllerIcon className="h-9 w-9" />
+        </div>
+      )}
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/52 via-transparent to-black/72" />
+
+      <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 max-w-[180px]">
+        {game.logoDataUrl ? (
+          <img
+            src={game.logoDataUrl}
+            alt={game.name}
+            className="max-h-10 max-w-full object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+          />
+        ) : (
+          <span className="block truncate text-[15px] leading-tight font-bold tracking-[-0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)]">
+            {game.name}
+          </span>
+        )}
+      </div>
+
+      <div className="pointer-events-none absolute right-14 bottom-3.5 left-3.5 z-10 truncate text-[11.5px] font-medium text-white/75 tabular-nums">
+        {formatRecentPlaytime(game.totalPlaytimeSeconds)} &middot;{' '}
+        {formatRelativeDate(game.lastPlayedIso)}
+      </div>
+
+      <button
+        type="button"
+        disabled={disablePlay}
+        aria-label={`Play ${game.name}`}
+        onClick={(event) => {
+          event.stopPropagation()
+          onPlay()
+        }}
+        className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#007AFF] text-white shadow-[0_6px_18px_rgba(0,122,255,0.42)] transition-all duration-150 hover:scale-105 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isLaunching ? <SpinnerIcon className="h-4 w-4" /> : <PlayTriangleIcon className="h-4 w-4" />}
+      </button>
+    </div>
+  )
+}
+
 export function HomeDashboard({
   summary,
+  favoriteGames,
   isLoading,
   visitKey,
   launchingId,
   errorMessage,
   onPlayGame,
+  onOpenGame,
   onOpenLauncher,
   onSetupLauncher,
   onOpenLibrary,
@@ -280,7 +359,16 @@ export function HomeDashboard({
           </h2>
 
           {continuePlaying ? (
-            <div className="app-no-drag group relative min-h-[256px] overflow-hidden rounded-[20px] bg-[#241515] shadow-[0_14px_34px_rgba(22,18,18,0.1)] transition-all duration-200 hover:shadow-[0_18px_40px_rgba(22,18,18,0.15)]">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${continuePlaying.name} in Library`}
+              onClick={() => onOpenGame(continuePlaying.id)}
+              onKeyDown={(event) =>
+                handleCardKeyDown(event, () => onOpenGame(continuePlaying.id))
+              }
+              className="app-no-drag group relative min-h-[256px] cursor-pointer overflow-hidden rounded-[20px] bg-[#241515] shadow-[0_14px_34px_rgba(22,18,18,0.1)] transition-all duration-200 hover:shadow-[0_18px_40px_rgba(22,18,18,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#713131]/60"
+            >
               {continuePlaying.artworkDataUrl ? (
                 <>
                   <img
@@ -313,8 +401,11 @@ export function HomeDashboard({
                 type="button"
                 disabled={launchingId !== null}
                 aria-label={`Play ${continuePlaying.name}`}
-                onClick={() => onPlayGame(continuePlaying)}
-                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#1D4E89] text-white shadow-[0_8px_22px_rgba(16,42,76,0.38)] ring-1 ring-white/18 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#163D6B] hover:ring-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onPlayGame(continuePlaying)
+                }}
+                className="app-no-drag absolute bottom-6 left-7 z-10 inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#007AFF] text-white shadow-[0_6px_18px_rgba(0,122,255,0.42)] transition-all duration-150 hover:scale-105 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {launchingId === continuePlaying.id ? (
                   <SpinnerIcon className="h-5 w-5" />
@@ -373,9 +464,36 @@ export function HomeDashboard({
           )}
         </section>
 
+        {favoriteGames.length > 0 && (
+          <section
+            aria-label="Favorites"
+            style={staggerStyle(175)}
+            className="animate-home-rise mt-9"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold tracking-[-0.01em] text-[#5e5454]">
+                Favorites
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+              {favoriteGames.map((game) => (
+                <HomeGameTile
+                  key={game.id}
+                  game={game}
+                  isLaunching={launchingId === game.id}
+                  disablePlay={launchingId !== null}
+                  onOpen={() => onOpenGame(game.id)}
+                  onPlay={() => onPlayGame(game)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         <section
           aria-label="Recently played"
-          style={staggerStyle(200)}
+          style={staggerStyle(210)}
           className="animate-home-rise mt-9"
         >
           <div className="mb-3 flex items-center justify-between">
@@ -393,63 +511,16 @@ export function HomeDashboard({
 
           {recentlyPlayed.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-              {recentlyPlayed.map((game) => {
-                const isLaunching = launchingId === game.id
-                return (
-                  <div
-                    key={game.id}
-                    className="app-no-drag group relative aspect-video overflow-hidden rounded-2xl bg-[#1C1414] shadow-[0_6px_18px_rgba(22,18,18,0.08)] transition-shadow duration-200 hover:shadow-[0_12px_26px_rgba(22,18,18,0.14)]"
-                  >
-                    {game.artworkDataUrl ? (
-                      <img
-                        src={game.artworkDataUrl}
-                        alt=""
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                      />
-                    ) : (
-                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#2B1B1B] to-[#4A2525] text-white/30">
-                        <GameControllerIcon className="h-9 w-9" />
-                      </div>
-                    )}
-
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/52 via-transparent to-black/72" />
-
-                    <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 max-w-[180px]">
-                      {game.logoDataUrl ? (
-                        <img
-                          src={game.logoDataUrl}
-                          alt={game.name}
-                          className="max-h-10 max-w-full object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-                        />
-                      ) : (
-                        <span className="block truncate text-[15px] leading-tight font-bold tracking-[-0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)]">
-                          {game.name}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="pointer-events-none absolute right-14 bottom-3.5 left-3.5 z-10 truncate text-[11.5px] font-medium text-white/75 tabular-nums">
-                      {formatRecentPlaytime(game.totalPlaytimeSeconds)} &middot;{' '}
-                      {formatRelativeDate(game.lastPlayedIso)}
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={launchingId !== null}
-                      aria-label={`Play ${game.name}`}
-                      onClick={() => onPlayGame(game)}
-                      className="app-no-drag absolute right-3 bottom-3 z-10 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#1D4E89] text-white shadow-[0_6px_16px_rgba(16,42,76,0.36)] ring-1 ring-white/18 backdrop-blur-md transition-all duration-150 hover:scale-105 hover:bg-[#163D6B] hover:ring-white/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isLaunching ? (
-                        <SpinnerIcon className="h-4 w-4" />
-                      ) : (
-                        <PlayTriangleIcon className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                )
-              })}
+              {recentlyPlayed.map((game) => (
+                <HomeGameTile
+                  key={game.id}
+                  game={game}
+                  isLaunching={launchingId === game.id}
+                  disablePlay={launchingId !== null}
+                  onOpen={() => onOpenGame(game.id)}
+                  onPlay={() => onPlayGame(game)}
+                />
+              ))}
             </div>
           ) : (
             <div className="flex items-center justify-between rounded-2xl border border-dashed border-[#161212]/[0.1] bg-[#FAF9F8]/70 px-5 py-4 text-[13px] text-[#5e5454]">
