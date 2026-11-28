@@ -1,0 +1,115 @@
+//
+//  BridgeDiskImage.swift
+//  GmacBridge
+//
+//  This file is part of Gmac, a fork of Whisky.
+//
+//  Gmac is free software: you can redistribute it and/or modify it under the terms
+//  of the GNU General Public License as published by the Free Software Foundation,
+//  either version 3 of the License, or (at your option) any later version.
+//
+//  Gmac is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+//  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//  See the GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License along with Gmac.
+//  If not, see https://www.gnu.org/licenses/.
+//
+
+import Foundation
+import GmacKit
+
+enum BridgeDiskImage {
+    struct ResolvedPayload {
+        let libRoot: URL
+        let mounts: [URL]
+    }
+
+    enum DiskImageError: LocalizedError {
+        case attachFailed(String)
+
+        var errorDescription: String? {
+            switch self {
+            case let .attachFailed(detail):
+                "Could not mount \(detail)."
+            }
+        }
+    }
+
+    static func resolvePayload(at url: URL) throws -> ResolvedPayload {
+        guard url.pathExtension.lowercased() == "dmg" else {
+            guard let lib = GPTKImporter.locatePayload(under: url) else {
+                throw GPTKImportError.payloadNotFound
+            }
+            return ResolvedPayload(libRoot: lib, mounts: [])
+        }
+
+        var mounts: [URL] = []
+        do {
+            let outer = try attach(url)
+            mounts.append(outer)
+            if let lib = GPTKImporter.locatePayload(under: outer) {
+                return ResolvedPayload(libRoot: lib, mounts: mounts)
+            }
+
+            let contents = try FileManager.default.contentsOfDirectory(
+                at: outer,
+                includingPropertiesForKeys: nil
+            )
+            for nested in contents where nested.pathExtension.lowercased() == "dmg" {
+                let inner = try attach(nested)
+                mounts.append(inner)
+                if let lib = GPTKImporter.locatePayload(under: inner) {
+                    return ResolvedPayload(libRoot: lib, mounts: mounts)
+                }
+            }
+            throw GPTKImportError.payloadNotFound
+        } catch {
+            for mount in mounts.reversed() {
+                detach(mount)
+            }
+            throw error
+        }
+    }
+
+    static func attach(_ image: URL) throws -> URL {
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/hdiutil")
+        process.arguments = [
+            "attach", "-readonly", "-nobrowse", "-plist", image.path(percentEncoded: false)
+        ]
+        let stdout = Pipe()
+        process.standardInput = FileHandle.nullDevice
+        process.standardOutput = stdout
+        process.standardError = FileHandle.nullDevice
+        try process.run()
+        let data = stdout.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+
+        guard process.terminationStatus == 0,
+              let plist = try? PropertyListSerialization.propertyList(
+                  from: data,
+                  format: nil
+              ) as? [String: Any],
+              let entities = plist["system-entities"] as? [[String: Any]],
+              let mountPoint = entities.compactMap({ $0["mount-point"] as? String }).first
+        else {
+            throw DiskImageError.attachFailed(image.lastPathComponent)
+        }
+        return URL(filePath: mountPoint)
+    }
+
+    static func detach(_ mountPoint: URL) {
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/hdiutil")
+        process.arguments = ["detach", mountPoint.path(percentEncoded: false)]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return
+        }
+    }
+}

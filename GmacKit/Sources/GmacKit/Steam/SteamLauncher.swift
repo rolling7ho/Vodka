@@ -73,6 +73,8 @@ public enum SteamLauncher {
     public static func launch(
         appId: Int, bottle: Bottle, installURL: URL? = nil, record: Bool = true,
         clientIsRunning: Bool = false,
+        additionalArgs: [String] = [],
+        additionalEnvironment: [String: String] = [:],
         onOutput: (@MainActor (ProcessOutput) -> Void)? = nil
     ) throws -> Task<Wine.ProgramRunResult, any Error> {
         guard let steamRoot = SteamLibrary.detectInstall(bottleURL: bottle.url) else {
@@ -92,6 +94,8 @@ public enum SteamLauncher {
         let steamExe = steamRoot.appending(path: "steam.exe")
         let gameExecutables = gameExecutables(installURL: installURL, plan: plan)
         let overrides = automaticBackend(for: plan, installURL: installURL, bottle: bottle)
+        let mergedArgs = ["-applaunch", String(appId)] + plan.launchArguments + additionalArgs
+        let mergedEnvironment = plan.gameProfileEnvironment.merging(additionalEnvironment) { _, new in new }
 
         return Task {
             try await Wine.prepareBottlePrefix(bottle: bottle)
@@ -105,9 +109,9 @@ public enum SteamLauncher {
                 )
             }
             return try await Wine.runProgram(
-                at: steamExe, args: ["-applaunch", String(appId)] + plan.launchArguments, bottle: bottle,
+                at: steamExe, args: mergedArgs, bottle: bottle,
                 programOverrides: overrides,
-                gameProfileEnvironment: plan.gameProfileEnvironment,
+                gameProfileEnvironment: mergedEnvironment,
                 // The plan is the game's; steam.exe is only the vehicle. It goes
                 // into the game executables' own entries, so it reaches the game
                 // whichever process starts it, and the client keeps DXVK even

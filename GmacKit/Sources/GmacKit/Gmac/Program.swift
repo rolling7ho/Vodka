@@ -200,14 +200,14 @@ public final class Program: ObservableObject, Equatable, Hashable, Identifiable 
     /// A legacy filename-keyed plist is read in place; migrating it to the
     /// identity-keyed name stays with the initializer, as does quarantining
     /// an unreadable plist (an unreadable plist reads as no overrides here).
-    nonisolated static func persistedOverrides(for url: URL, bottleURL: URL) -> ProgramOverrides? {
+    public nonisolated static func persistedSettings(for url: URL, bottleURL: URL) -> ProgramSettings? {
         let locations = settingsLocations(for: url, bottleURL: bottleURL, legacyName: url.lastPathComponent)
         let settingsURL = FileManager.default.fileExists(atPath: locations.identity.path(percentEncoded: false))
             ? locations.identity
             : locations.legacy
 
         do {
-            return try ProgramSettings.decodeIfPresent(from: settingsURL)?.overrides
+            return try ProgramSettings.decodeIfPresent(from: settingsURL)
         } catch {
             Logger.wineKit.error(
                 """
@@ -217,6 +217,10 @@ public final class Program: ObservableObject, Equatable, Hashable, Identifiable 
             )
             return nil
         }
+    }
+
+    nonisolated static func persistedOverrides(for url: URL, bottleURL: URL) -> ProgramOverrides? {
+        persistedSettings(for: url, bottleURL: bottleURL)?.overrides
     }
 
     /// A stable identity for a program: the executable's stem plus a short

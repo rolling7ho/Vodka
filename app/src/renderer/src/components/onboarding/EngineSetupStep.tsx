@@ -1,0 +1,170 @@
+import { ArrowRightIcon } from '../icons/ArrowRightIcon'
+import { CheckIcon, SpinnerIcon } from '../icons/OnboardingIcons'
+import { stepParallaxClass, type ComponentInstallStatus, type SlideDirection } from './types'
+
+interface EngineSetupStepProps {
+  isActive: boolean
+  enterDirection: SlideDirection
+  rosettaStatus: ComponentInstallStatus
+  engineStatus: ComponentInstallStatus
+  downloadProgress: number
+  errorMessage?: string | null
+  onInstall: () => void
+  onRetry: () => void
+  onContinue: () => void
+}
+
+function StatusPill({ status }: { status: ComponentInstallStatus }) {
+  if (status === 'installed') {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/12 px-2.5 py-1 text-xs font-medium text-emerald-700">
+        <CheckIcon className="h-3.5 w-3.5" />
+        <span>Installed</span>
+      </span>
+    )
+  }
+
+  if (status === 'installing' || status === 'verifying' || status === 'checking') {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#007AFF]/10 px-2.5 py-1 text-xs font-medium text-[#007AFF]">
+        <SpinnerIcon className="h-3.5 w-3.5" />
+        <span>Installing</span>
+      </span>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <span className="inline-flex items-center rounded-full bg-red-500/12 px-2.5 py-1 text-xs font-medium text-red-700">
+        Failed
+      </span>
+    )
+  }
+
+  return (
+    <span className="inline-flex items-center rounded-full bg-[#161212]/[0.06] px-2.5 py-1 text-xs font-medium text-[#5e5454]">
+      Required
+    </span>
+  )
+}
+
+export function EngineSetupStep({
+  isActive,
+  enterDirection,
+  rosettaStatus,
+  engineStatus,
+  downloadProgress,
+  errorMessage,
+  onInstall,
+  onRetry,
+  onContinue
+}: EngineSetupStepProps) {
+  const isReady = rosettaStatus === 'installed' && engineStatus === 'installed'
+  const isBusy =
+    rosettaStatus === 'installing' ||
+    rosettaStatus === 'checking' ||
+    engineStatus === 'installing' ||
+    engineStatus === 'verifying' ||
+    engineStatus === 'checking'
+
+  const showProgress = engineStatus === 'installing' || engineStatus === 'verifying'
+  const clampedProgress = Math.round(Math.min(100, Math.max(0, downloadProgress)))
+
+  return (
+    <main className="relative z-10 flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 pb-16">
+      <div
+        className={`flex flex-col items-center ${stepParallaxClass(isActive, enterDirection, 1) ?? ''}`}
+      >
+        <h2 className="text-center text-[34px] leading-tight font-semibold tracking-[-0.03em] text-[#161212]">
+          Engine setup
+        </h2>
+        <p className="mt-2.5 max-w-lg text-center text-[15px] text-[#5e5454]">
+          Gmac requires specific engines to run Windows games.
+        </p>
+      </div>
+
+      <div
+        className={`mt-7 w-full max-w-lg divide-y divide-[#161212]/8 rounded-2xl border border-[#161212]/10 bg-white/75 px-5 shadow-xs backdrop-blur-md ${
+          stepParallaxClass(isActive, enterDirection, 2) ?? ''
+        }`}
+      >
+        <div className="flex items-center justify-between gap-4 py-4">
+          <p className="text-[15px] font-medium text-[#161212]">Rosetta 2</p>
+          <div className="shrink-0">
+            <StatusPill key={isActive ? `r-${rosettaStatus}` : 'r-idle'} status={rosettaStatus} />
+          </div>
+        </div>
+
+        <div className="py-4">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-[15px] font-medium text-[#161212]">Gmac Windows Engine</p>
+            <div className="shrink-0">
+              <StatusPill key={isActive ? `e-${engineStatus}` : 'e-idle'} status={engineStatus} />
+            </div>
+          </div>
+
+          {showProgress ? (
+            <div className="mt-3.5 flex items-center gap-3">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#161212]/8">
+                <div
+                  className="h-full rounded-full bg-[#007AFF] transition-all duration-200"
+                  style={{ width: `${clampedProgress}%` }}
+                />
+              </div>
+              <span className="w-10 text-right font-mono text-xs text-[#5e5454]">
+                {clampedProgress}%
+              </span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {errorMessage ? (
+        <div
+          role="alert"
+          className="mt-4 flex w-full max-w-lg items-center justify-between gap-3 rounded-xl border border-red-500/20 bg-red-50/90 px-4 py-3 text-[13px] text-red-700"
+        >
+          <span>{errorMessage}</span>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="app-no-drag shrink-0 cursor-pointer font-medium text-red-800 underline underline-offset-2"
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      <div
+        className={`mt-8 flex items-center gap-3 ${stepParallaxClass(isActive, enterDirection, 3) ?? ''}`}
+      >
+        {isReady ? (
+          <button
+            type="button"
+            onClick={onContinue}
+            className="app-no-drag group inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-7 py-3 text-[15px] font-medium text-white transition-all duration-150 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF] active:scale-[0.98]"
+          >
+            <span>Continue</span>
+            <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={onInstall}
+            className="app-no-drag inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-7 py-3 text-[15px] font-medium text-white transition-all duration-150 hover:bg-[#0066D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007AFF] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isBusy ? (
+              <>
+                <SpinnerIcon className="h-4 w-4" />
+                <span>Installing...</span>
+              </>
+            ) : (
+              <span>Install</span>
+            )}
+          </button>
+        )}
+      </div>
+    </main>
+  )
+}

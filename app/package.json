@@ -1,0 +1,42 @@
+{
+  "name": "gmac-app",
+  "productName": "Gmac",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gmac desktop application shell (Electron)",
+  "license": "GPL-3.0-or-later",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "build:bridge": "swift build --package-path ../GmacKit --product gmac-bridge",
+    "dev": "npm run build:bridge && electron-vite dev",
+    "dev:onboarding": "GMAC_SCREEN=onboarding npm run dev",
+    "dev:onboarding:fresh": "GMAC_SCREEN=onboarding GMAC_FRESH_INSTALL=1 npm run dev",
+    "dev:onboarding:mock": "GMAC_SCREEN=onboarding GMAC_FRESH_INSTALL=1 GMAC_MOCK_UI=1 npm run dev",
+    "dev:home": "GMAC_SCREEN=home npm run dev",
+    "dev:home:fresh": "GMAC_SCREEN=home GMAC_FRESH_INSTALL=1 npm run dev",
+    "dev:home:mock": "GMAC_SCREEN=home GMAC_FRESH_INSTALL=1 GMAC_MOCK_UI=1 npm run dev",
+    "dev:fresh": "GMAC_FRESH_INSTALL=1 npm run dev",
+    "build": "electron-vite build",
+    "package:local": "bash scripts/install-local.sh",
+    "start": "electron-vite preview",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "electron": "^45.5.0",
+    "electron-vite": "^6.0.0",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.4.0"
+  }
+}

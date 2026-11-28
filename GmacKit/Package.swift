@@ -28,6 +28,10 @@ let package = Package(
         .library(
             name: "GmacKit",
             targets: ["GmacKit"]
+        ),
+        .executable(
+            name: "gmac-bridge",
+            targets: ["GmacBridge"]
         )
     ],
     dependencies: [
@@ -50,6 +54,10 @@ let package = Package(
                 // is gitignored, so a plain checkout copies an empty directory.
                 .copy("Discord/Local")
             ]
+        ),
+        .executableTarget(
+            name: "GmacBridge",
+            dependencies: ["GmacKit", "SemanticVersion"]
         ),
         .testTarget(
             name: "GmacKitTests",

@@ -44,7 +44,7 @@ Gmac is a fork of [Whisky](https://github.com/whisky-app/whisky), via [frankea's
 - **Simple reset.** Deleting a PC stops any processes running inside it and moves the PC directory to the Trash.
 
 <p align="center">
-  <img src="./images/statistics.png" width="560" alt="Statistics in Gmac settings">
+  <img src="./images/statistics.png" width="560" alt="Gmac home dashboard showing playtime statistics and recently played games">
 </p>
 
 ## Requirements
