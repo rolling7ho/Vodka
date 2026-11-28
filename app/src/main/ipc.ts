@@ -1,3 +1,4 @@
+import { existsSync } from 'fs'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import {
   AppInfo,
@@ -285,6 +286,60 @@ export function registerIpcHandlers(bridge: GmacBridgeClient): void {
     }
     return result.filePaths[0]
   })
+
+  ipcMain.handle(
+    IPC_CHANNELS.PICK_EXECUTABLE_FILE,
+    async (_event, defaultPath?: string): Promise<string | null> => {
+      const focused = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+      const options: Electron.OpenDialogOptions = {
+        title: 'Run Windows Program',
+        properties: ['openFile'],
+        filters: [
+          { name: 'Windows Programs', extensions: ['exe', 'msi', 'bat', 'msix', 'appx'] }
+        ],
+        ...(defaultPath && existsSync(defaultPath) ? { defaultPath } : {})
+      }
+      const result = focused
+        ? await dialog.showOpenDialog(focused, options)
+        : await dialog.showOpenDialog(options)
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return null
+      }
+      return result.filePaths[0]
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.PICK_FOLDER,
+    async (_event, defaultPath?: string): Promise<string | null> => {
+      const focused = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+      const options: Electron.OpenDialogOptions = {
+        title: 'Choose Folder',
+        properties: ['openDirectory', 'createDirectory'],
+        ...(defaultPath && existsSync(defaultPath) ? { defaultPath } : {})
+      }
+      const result = focused
+        ? await dialog.showOpenDialog(focused, options)
+        : await dialog.showOpenDialog(options)
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return null
+      }
+      return result.filePaths[0]
+    }
+  )
+
+  ipcMain.handle(
+    IPC_CHANNELS.SHOW_IN_FINDER,
+    (_event, targetPath: string): { opened: boolean } => {
+      if (process.env.GMAC_FRESH_INSTALL === '1' || !targetPath || !existsSync(targetPath)) {
+        return { opened: false }
+      }
+      shell.showItemInFolder(targetPath)
+      return { opened: true }
+    }
+  )
 
   ipcMain.handle(IPC_CHANNELS.INSTALL_ENGINE, async (): Promise<{ installed: boolean }> => {
     if (process.env.GMAC_FRESH_INSTALL === '1') {

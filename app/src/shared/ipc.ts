@@ -14,6 +14,9 @@ export const IPC_CHANNELS = {
   LAUNCH_HOME_ITEM: 'gmac:launch-home-item',
   INSTALL_ENGINE: 'gmac:install-engine',
   PICK_TOOLKIT_FILE: 'gmac:pick-toolkit-file',
+  PICK_EXECUTABLE_FILE: 'gmac:pick-executable-file',
+  PICK_FOLDER: 'gmac:pick-folder',
+  SHOW_IN_FINDER: 'gmac:show-in-finder',
   INSTALL_TOOLKIT: 'gmac:install-toolkit',
   SET_DEFAULT_GRAPHICS: 'gmac:set-default-graphics',
   IMPORT_LEGACY_BOTTLES: 'gmac:import-legacy-bottles',
@@ -146,6 +149,9 @@ export interface GmacApi {
   launchHomeItem: (request: LaunchHomeItemRequest) => Promise<{ launched: boolean }>
   installEngine: () => Promise<{ installed: boolean }>
   pickToolkitFile: () => Promise<string | null>
+  pickExecutableFile: (defaultPath?: string) => Promise<string | null>
+  pickFolder: (defaultPath?: string) => Promise<string | null>
+  showInFinder: (targetPath: string) => Promise<{ opened: boolean }>
   installToolkit: (path: string) => Promise<ToolkitInstallResult>
   setDefaultGraphics: (choice: string) => Promise<{ choice: string }>
   importLegacyBottles: (paths: string[]) => Promise<ImportBottlesResult>

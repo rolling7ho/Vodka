@@ -18,6 +18,10 @@ const gmacApi: GmacApi = {
   launchHomeItem: (request) => ipcRenderer.invoke(IPC_CHANNELS.LAUNCH_HOME_ITEM, request),
   installEngine: () => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_ENGINE),
   pickToolkitFile: () => ipcRenderer.invoke(IPC_CHANNELS.PICK_TOOLKIT_FILE),
+  pickExecutableFile: (defaultPath?: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.PICK_EXECUTABLE_FILE, defaultPath),
+  pickFolder: (defaultPath?: string) => ipcRenderer.invoke(IPC_CHANNELS.PICK_FOLDER, defaultPath),
+  showInFinder: (targetPath: string) => ipcRenderer.invoke(IPC_CHANNELS.SHOW_IN_FINDER, targetPath),
   installToolkit: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.INSTALL_TOOLKIT, path),
   setDefaultGraphics: (choice: string) => ipcRenderer.invoke(IPC_CHANNELS.SET_DEFAULT_GRAPHICS, choice),
   importLegacyBottles: (paths: string[]) =>

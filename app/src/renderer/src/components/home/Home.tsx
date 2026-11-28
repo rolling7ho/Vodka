@@ -16,6 +16,7 @@ import {
 import { LibraryGamePage } from '../library/LibraryGamePage'
 import { LibraryView } from '../library/LibraryView'
 import { PcPage } from '../pc/PcPage'
+import { SettingsPage } from '../settings/SettingsPage'
 import { HomeDashboard } from './HomeDashboard'
 import { MOCK_HOME_SUMMARY } from './mockHomeData'
 
@@ -61,25 +62,6 @@ function launcherToPcIcon(id: string): PcIconId {
       return 'ubisoft'
     default:
       return 'pc'
-  }
-}
-
-function destinationTitle(
-  destination: SidebarDestination,
-  pcs: BottleSummary[],
-  games: HomeGameItem[]
-): string {
-  switch (destination.kind) {
-    case 'home':
-      return 'Home'
-    case 'library':
-      return 'Library'
-    case 'game':
-      return games.find((game) => game.id === destination.gameId)?.name ?? 'Game'
-    case 'settings':
-      return 'Settings'
-    case 'pc':
-      return pcs.find((pc) => pc.path === destination.path)?.name ?? 'PC'
   }
 }
 
@@ -182,6 +164,52 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
       window.removeEventListener('pointercancel', handlePointerStop)
     }
   }, [isResizing])
+
+  useEffect(() => {
+    const hasOpenModal = isCreateModalOpen || iconModalPc !== null || deleteModalPc !== null
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (!event.metaKey || event.ctrlKey || event.altKey || hasOpenModal) {
+        return
+      }
+      const target = event.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+
+      switch (event.key) {
+        case ',':
+          event.preventDefault()
+          handleSelectDestination({ kind: 'settings' })
+          break
+        case '1':
+          event.preventDefault()
+          handleSelectDestination({ kind: 'home' })
+          break
+        case '2':
+          event.preventDefault()
+          handleSelectDestination({ kind: 'library' })
+          break
+        case 'n':
+        case 'N':
+          event.preventDefault()
+          openCreatePcModal()
+          break
+        case '\\':
+          event.preventDefault()
+          setIsSidebarCollapsed((collapsed) => !collapsed)
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isCreateModalOpen, iconModalPc, deleteModalPc])
 
   const handleResizeStart = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -330,6 +358,29 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
     })
   }
 
+  const handleRunPcExecutable = async (pc: BottleSummary, programPath: string) => {
+    setHomeError(null)
+    if (isMockMode) {
+      runMockTransientFeedback(`run:${pc.path}`)
+      return
+    }
+    if (!window.gmac) {
+      return
+    }
+    setLaunchingId(`run:${pc.path}`)
+    try {
+      await window.gmac.launchHomeItem({
+        bottlePath: pc.path,
+        launchKind: 'program',
+        programPath
+      })
+    } catch (err) {
+      setHomeError(err instanceof Error ? err.message : `Unable to run ${programPath}.`)
+    } finally {
+      setLaunchingId(null)
+    }
+  }
+
   const handleToggleFavorite = (gameId: string) => {
     setFavoriteGameIds((previous) => {
       const next = previous.includes(gameId)
@@ -342,6 +393,15 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
       }
       return next
     })
+  }
+
+  const handleResetFavorites = () => {
+    setFavoriteGameIds([])
+    try {
+      window.localStorage.removeItem(FAVORITE_GAMES_STORAGE_KEY)
+    } catch {
+      // Ignore storage errors.
+    }
   }
 
   const displayedSummary = isMockMode ? MOCK_HOME_SUMMARY : homeSummary
@@ -383,7 +443,6 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
         })()
       : null
   const resolvedPc = managedPc ?? fallbackPc
-  const sectionTitle = destinationTitle(activeDestination, pcs, allGames)
   const toggleX = isSidebarCollapsed ? COLLAPSED_TOGGLE_X : sidebarWidth - 39
   const toggleTiming = isSidebarCollapsed ? SIDEBAR_COLLAPSE_EASING : SIDEBAR_EXPAND_EASING
 
@@ -485,29 +544,32 @@ export function Home({ enteredFromOnboarding = false, onOpenOnboarding }: HomePr
             onPlayGame={handlePlayGame}
             onOpenGame={(gameId) => handleSelectDestination({ kind: 'game', gameId })}
             onOpenLauncher={handleOpenLauncher}
+            onRunExecutable={handleRunPcExecutable}
             onRequestChangeIcon={setIconModalPc}
             onRenamePc={handleRenamePc}
             onRequestDeletePc={setDeleteModalPc}
           />
+        ) : activeDestination.kind === 'settings' ? (
+          <SettingsPage
+            onOpenOnboarding={onOpenOnboarding}
+            onResetFavorites={handleResetFavorites}
+          />
         ) : (
-          <>
-            <div className="h-11 w-full shrink-0" />
-            <main className="flex flex-1 flex-col items-center justify-center px-8 pb-12 text-center">
-              <h1 className="text-[28px] font-bold tracking-[-0.02em] text-[#161212]">
-                {sectionTitle}
-              </h1>
-              <p className="mt-2 text-[14px] text-[#5e5454]">Section placeholder.</p>
-              {onOpenOnboarding && (
-                <button
-                  type="button"
-                  onClick={onOpenOnboarding}
-                  className="app-no-drag mt-6 cursor-pointer rounded-full border border-[#161212]/15 bg-white px-4 py-2 text-[13px] font-medium text-[#161212] transition hover:bg-[#161212]/5"
-                >
-                  Open Onboarding
-                </button>
-              )}
-            </main>
-          </>
+          <main className="flex flex-1 flex-col items-center justify-center px-8 pb-12 text-center">
+            <h1 className="text-[24px] font-bold tracking-[-0.025em] text-[#161212]">
+              PC unavailable
+            </h1>
+            <p className="mt-2 max-w-sm text-[13.5px] text-[#5e5454]">
+              This PC could not be found. It may have been moved or deleted.
+            </p>
+            <button
+              type="button"
+              onClick={() => handleSelectDestination({ kind: 'home' })}
+              className="app-no-drag mt-6 cursor-pointer rounded-full bg-[#713131] px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[#5E2828]"
+            >
+              Back to Home
+            </button>
+          </main>
         )}
       </div>
 

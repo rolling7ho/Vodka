@@ -3,7 +3,14 @@ import type { BottleSummary, HomeGameItem, HomeLauncherItem } from '../../../../
 import { LauncherBrandImage } from '../icons/LauncherLogos'
 import { GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 import { PcGlyph } from '../icons/PcIcons'
-import { PencilIcon, PlayTriangleIcon, SearchIcon, TrashIcon } from '../icons/SidebarIcons'
+import {
+  ChevronDownIcon,
+  FolderOpenIcon,
+  PencilIcon,
+  PlayTriangleIcon,
+  SearchIcon,
+  TrashIcon
+} from '../icons/SidebarIcons'
 
 interface PcPageProps {
   pc: BottleSummary
@@ -15,6 +22,7 @@ interface PcPageProps {
   onPlayGame: (game: HomeGameItem) => void
   onOpenGame: (gameId: string) => void
   onOpenLauncher: (launcher: HomeLauncherItem) => void
+  onRunExecutable: (pc: BottleSummary, programPath: string) => Promise<void>
   onRequestChangeIcon: (pc: BottleSummary) => void
   onRenamePc: (path: string, newName: string) => Promise<void>
   onRequestDeletePc: (pc: BottleSummary) => void
@@ -145,6 +153,7 @@ export function PcPage({
   onPlayGame,
   onOpenGame,
   onOpenLauncher,
+  onRunExecutable,
   onRequestChangeIcon,
   onRenamePc,
   onRequestDeletePc
@@ -156,16 +165,20 @@ export function PcPage({
   const [renameDraft, setRenameDraft] = useState(pc.name)
   const [copiedPath, setCopiedPath] = useState(false)
   const [savedNoticeVisible, setSavedNoticeVisible] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [actionNotice, setActionNotice] = useState<string | null>(null)
 
   const renameInputRef = useRef<HTMLInputElement>(null)
   const savedTimerRef = useRef<number | null>(null)
   const copyTimerRef = useRef<number | null>(null)
+  const noticeTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     setConfig(loadPcConfig(pc))
     setRenameDraft(pc.name)
     setIsRenaming(false)
     setSearchQuery('')
+    setActionNotice(null)
   }, [pc])
 
   useEffect(() => {
@@ -185,6 +198,9 @@ export function PcPage({
       }
       if (copyTimerRef.current !== null) {
         window.clearTimeout(copyTimerRef.current)
+      }
+      if (noticeTimerRef.current !== null) {
+        window.clearTimeout(noticeTimerRef.current)
       }
     }
   }, [])
@@ -252,6 +268,17 @@ export function PcPage({
     await onRenamePc(pc.path, trimmed)
   }
 
+  const showTransientNotice = (message: string) => {
+    setActionNotice(message)
+    if (noticeTimerRef.current !== null) {
+      window.clearTimeout(noticeTimerRef.current)
+    }
+    noticeTimerRef.current = window.setTimeout(() => {
+      noticeTimerRef.current = null
+      setActionNotice(null)
+    }, 2400)
+  }
+
   const handleCopyPath = async () => {
     try {
       await navigator.clipboard.writeText(pc.path)
@@ -266,6 +293,34 @@ export function PcPage({
     } catch {
       // Clipboard unavailable.
     }
+  }
+
+  const handleRunProgramClick = async () => {
+    if (!pc.isAvailable || launchingId !== null) {
+      return
+    }
+    const picked = await window.gmac?.pickExecutableFile(`${pc.path}/drive_c`)
+    if (picked) {
+      await onRunExecutable(pc, picked)
+    }
+  }
+
+  const handleShowInFinder = async (targetPath: string) => {
+    const result = await window.gmac?.showInFinder(targetPath)
+    if (!result?.opened) {
+      showTransientNotice(`Folder not available on disk: ${targetPath}`)
+    }
+  }
+
+  const handleResetPcConfig = () => {
+    const fresh = buildDefaultPcConfig(pc)
+    setConfig(fresh)
+    try {
+      window.localStorage.removeItem(`gmac.pcConfig.${pc.path}`)
+    } catch {
+      // Ignore storage errors.
+    }
+    showTransientNotice('PC configuration restored to defaults.')
   }
 
   const renderGameCard = (game: HomeGameItem) => {
@@ -407,27 +462,61 @@ export function PcPage({
             </div>
           </div>
 
-          {isManagedPc && (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => onRequestChangeIcon(pc)}
-                className="app-no-drag cursor-pointer rounded-xl bg-[#FAF9F8] px-3.5 py-2 text-[12.5px] font-medium text-[#161212] transition-colors hover:bg-[#F3EFEF]"
-              >
-                Change Icon
-              </button>
-              <button
-                type="button"
-                aria-label={`Delete ${pc.name}`}
-                onClick={() => onRequestDeletePc(pc)}
-                className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-red-500/[0.08] px-3.5 py-2 text-[12.5px] font-medium text-red-600 transition-colors hover:bg-red-500/[0.14]"
-              >
-                <TrashIcon className="h-3.5 w-3.5" />
-                <span>Delete</span>
-              </button>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              disabled={!pc.isAvailable || launchingId !== null}
+              onClick={() => void handleRunProgramClick()}
+              className="app-no-drag inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#007AFF] px-4 py-2 text-[13px] font-semibold text-white shadow-[0_6px_16px_rgba(0,122,255,0.28)] transition-all duration-150 hover:bg-[#0066D6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {launchingId === `run:${pc.path}` ? (
+                <SpinnerIcon className="h-3.5 w-3.5" />
+              ) : (
+                <PlayTriangleIcon className="h-3.5 w-3.5" />
+              )}
+              <span>{launchingId === `run:${pc.path}` ? 'Running...' : 'Run...'}</span>
+            </button>
+
+            {isManagedPc && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onRequestChangeIcon(pc)}
+                  className="app-no-drag cursor-pointer rounded-xl bg-[#FAF9F8] px-3.5 py-2 text-[12.5px] font-medium text-[#161212] transition-colors hover:bg-[#F3EFEF]"
+                >
+                  Change Icon
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Delete ${pc.name}`}
+                  onClick={() => onRequestDeletePc(pc)}
+                  className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-red-500/[0.08] px-3.5 py-2 text-[12.5px] font-medium text-red-600 transition-colors hover:bg-red-500/[0.14]"
+                >
+                  <TrashIcon className="h-3.5 w-3.5" />
+                  <span>Delete</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
+
+        {!pc.isAvailable && (
+          <div
+            role="status"
+            className="mt-4 rounded-xl border border-amber-500/25 bg-amber-50/90 px-4 py-2.5 text-[13px] text-amber-800"
+          >
+            This PC is currently unavailable on disk. Reconnect its drive or remove it from the sidebar.
+          </div>
+        )}
+
+        {actionNotice && (
+          <div
+            role="status"
+            className="mt-4 rounded-xl bg-[#FAF9F8] px-4 py-2.5 text-[13px] text-[#4a4242] ring-1 ring-[#161212]/[0.06]"
+          >
+            {actionNotice}
+          </div>
+        )}
 
         {errorMessage && (
           <div
@@ -556,6 +645,57 @@ export function PcPage({
                 </div>
               </section>
             )}
+
+            <section aria-label="Advanced Windows tools" className="rounded-2xl bg-[#FAF9F8] p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-[13.5px] font-semibold text-[#161212]">Advanced Tools</h2>
+                  <p className="mt-0.5 text-[12px] text-[#5e5454]">
+                    Inspect the Windows C: drive, container folder, and runtime overrides.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  aria-expanded={showAdvanced}
+                  onClick={() => setShowAdvanced((open) => !open)}
+                  className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:text-[#713131]"
+                >
+                  <span>{showAdvanced ? 'Hide' : 'Show'}</span>
+                  <ChevronDownIcon
+                    className={`h-3.5 w-3.5 transition-transform duration-150 ${
+                      showAdvanced ? 'rotate-180' : 'rotate-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {showAdvanced && (
+                <div className="mt-4 flex flex-wrap items-center gap-2.5 border-t border-[#161212]/[0.06] pt-4">
+                  <button
+                    type="button"
+                    onClick={() => void handleShowInFinder(`${pc.path}/drive_c`)}
+                    className="app-no-drag inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:bg-[#F3EFEF]"
+                  >
+                    <FolderOpenIcon className="h-3.5 w-3.5" />
+                    <span>Open C: Drive</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleCopyPath()}
+                    className="app-no-drag cursor-pointer rounded-xl bg-white px-3.5 py-2 text-[12.5px] font-medium text-[#161212] ring-1 ring-[#161212]/[0.08] transition-colors hover:bg-[#F3EFEF]"
+                  >
+                    {copiedPath ? 'Path Copied' : 'Copy Container Path'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetPcConfig}
+                    className="app-no-drag cursor-pointer rounded-xl bg-white px-3.5 py-2 text-[12.5px] font-medium text-[#5e5454] ring-1 ring-[#161212]/[0.08] transition-colors hover:text-[#161212]"
+                  >
+                    Reset PC Configuration
+                  </button>
+                </div>
+              )}
+            </section>
           </div>
         )}
 
@@ -767,15 +907,27 @@ export function PcPage({
               <h3 className="text-[11.5px] font-semibold tracking-[0.06em] text-[#5e5454] uppercase">
                 Container Location
               </h3>
-              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-white px-3.5 py-2.5 ring-1 ring-[#161212]/[0.06]">
-                <span className="truncate font-mono text-[12px] text-[#4a4242]">{pc.path}</span>
-                <button
-                  type="button"
-                  onClick={() => void handleCopyPath()}
-                  className="app-no-drag shrink-0 cursor-pointer rounded-lg bg-[#FAF9F8] px-2.5 py-1 text-[12px] font-medium text-[#161212] transition-colors hover:bg-[#EFEBEB]"
-                >
-                  {copiedPath ? 'Copied' : 'Copy Path'}
-                </button>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3.5 py-2.5 ring-1 ring-[#161212]/[0.06]">
+                <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[#4a4242]">
+                  {pc.path}
+                </span>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => void handleShowInFinder(pc.path)}
+                    className="app-no-drag inline-flex cursor-pointer items-center gap-1 rounded-lg bg-[#FAF9F8] px-2.5 py-1 text-[12px] font-medium text-[#161212] transition-colors hover:bg-[#EFEBEB]"
+                  >
+                    <FolderOpenIcon className="h-3.5 w-3.5" />
+                    <span>Show in Finder</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleCopyPath()}
+                    className="app-no-drag cursor-pointer rounded-lg bg-[#FAF9F8] px-2.5 py-1 text-[12px] font-medium text-[#161212] transition-colors hover:bg-[#EFEBEB]"
+                  >
+                    {copiedPath ? 'Copied' : 'Copy Path'}
+                  </button>
+                </div>
               </div>
 
               {isManagedPc && (
