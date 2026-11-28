@@ -108,9 +108,17 @@ export function PcContextMenu({
       const target = event.target as Node
       const insideMenu = menuRef.current?.contains(target) ?? false
       const insideSubmenu = submenuRef.current?.contains(target) ?? false
-      if (!insideMenu && !insideSubmenu) {
-        triggerClose()
+      if (insideMenu || insideSubmenu) {
+        return
       }
+      if (
+        event.button === 2 &&
+        target instanceof Element &&
+        target.closest('[data-pc-context-trigger="true"]') !== null
+      ) {
+        return
+      }
+      triggerClose()
     }
 
     const handlePointerMove = (event: globalThis.PointerEvent) => {

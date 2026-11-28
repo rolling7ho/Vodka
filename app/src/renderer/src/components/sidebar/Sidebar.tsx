@@ -43,6 +43,7 @@ interface SidebarProps {
 }
 
 interface ContextMenuState {
+  id: number
   pc: BottleSummary
   x: number
   y: number
@@ -108,6 +109,7 @@ export function Sidebar({
   const [draggedPath, setDraggedPath] = useState<string | null>(null)
   const [dropTarget, setDropTarget] = useState<DropTargetState | null>(null)
   const renameInputRef = useRef<HTMLInputElement>(null)
+  const contextMenuSeqRef = useRef(0)
 
   useEffect(() => {
     if (!renamingPath) {
@@ -151,7 +153,9 @@ export function Sidebar({
   const handlePcContextMenu = (event: MouseEvent<HTMLButtonElement>, pc: BottleSummary) => {
     event.preventDefault()
     event.stopPropagation()
+    contextMenuSeqRef.current += 1
     setContextMenu({
+      id: contextMenuSeqRef.current,
       pc,
       x: event.clientX,
       y: event.clientY
@@ -330,6 +334,7 @@ export function Sidebar({
                       ) : (
                         <button
                           type="button"
+                          data-pc-context-trigger="true"
                           aria-current={isSelected ? 'page' : undefined}
                           onClick={() => onSelect({ kind: 'pc', path: pc.path })}
                           onContextMenu={(event) => handlePcContextMenu(event, pc)}
@@ -398,10 +403,13 @@ export function Sidebar({
 
       {contextMenu && (
         <PcContextMenu
+          key={contextMenu.id}
           pc={contextMenu.pc}
           x={contextMenu.x}
           y={contextMenu.y}
-          onClose={() => setContextMenu(null)}
+          onClose={() =>
+            setContextMenu((current) => (current?.id === contextMenu.id ? null : current))
+          }
           onRename={startInlineRename}
           onChangeIcon={onRequestChangeIcon}
           onSelectIcon={(targetPc, icon) => void onSelectPcIcon(targetPc, icon)}

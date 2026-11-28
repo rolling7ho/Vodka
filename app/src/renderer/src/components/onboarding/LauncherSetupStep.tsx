@@ -1,15 +1,6 @@
-import type { ReactNode } from 'react'
 import { ArrowRightIcon } from '../icons/ArrowRightIcon'
-import {
-  BattleNetLogo,
-  CheckIcon,
-  EAAppLogo,
-  EpicLogo,
-  RockstarLogo,
-  SpinnerIcon,
-  SteamLogo,
-  UbisoftLogo
-} from '../icons/OnboardingIcons'
+import { LauncherBrandImage } from '../icons/LauncherLogos'
+import { CheckIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 import {
   stepParallaxClass,
   type LauncherId,
@@ -21,41 +12,15 @@ interface LauncherOption {
   id: LauncherId
   name: string
   recommended?: boolean
-  icon: (className: string) => ReactNode
 }
 
 export const LAUNCHER_OPTIONS: LauncherOption[] = [
-  {
-    id: 'steam',
-    name: 'Steam',
-    recommended: true,
-    icon: (className) => <SteamLogo className={className} />
-  },
-  {
-    id: 'epicGames',
-    name: 'Epic Games Store',
-    icon: (className) => <EpicLogo className={className} />
-  },
-  {
-    id: 'battleNet',
-    name: 'Battle.net',
-    icon: (className) => <BattleNetLogo className={className} />
-  },
-  {
-    id: 'eaApp',
-    name: 'EA App',
-    icon: (className) => <EAAppLogo className={className} />
-  },
-  {
-    id: 'rockstar',
-    name: 'Rockstar Games Launcher',
-    icon: (className) => <RockstarLogo className={className} />
-  },
-  {
-    id: 'ubisoft',
-    name: 'Ubisoft Connect',
-    icon: (className) => <UbisoftLogo className={className} />
-  }
+  { id: 'steam', name: 'Steam', recommended: true },
+  { id: 'epicGames', name: 'Epic Games Store' },
+  { id: 'battleNet', name: 'Battle.net' },
+  { id: 'eaApp', name: 'EA App' },
+  { id: 'rockstar', name: 'Rockstar Games Launcher' },
+  { id: 'ubisoft', name: 'Ubisoft Connect' }
 ]
 
 export function getLauncherName(id: LauncherId): string {
@@ -143,14 +108,8 @@ export function LauncherSetupStep({
                 isSelected ? 'bg-[#007AFF]/[0.06]' : 'hover:bg-[#161212]/[0.02]'
               }`}
             >
-              <span
-                className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                  isSelected
-                    ? 'bg-[#007AFF] text-white'
-                    : 'bg-[#713131]/[0.08] text-[#713131]'
-                }`}
-              >
-                {launcher.icon('h-4 w-4')}
+              <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#161212]/[0.08] bg-white shadow-[0_1px_2px_rgba(22,18,18,0.04)]">
+                <LauncherBrandImage id={launcher.id} className="h-5 w-5 object-contain" />
               </span>
 
               <span className="flex min-w-0 flex-1 items-center gap-2">

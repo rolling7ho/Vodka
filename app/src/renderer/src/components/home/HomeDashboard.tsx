@@ -1,16 +1,7 @@
-import { useEffect, useId, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useId, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import type { HomeGameItem, HomeLauncherItem, HomeSummary, StatPoint } from '../../../../shared/ipc'
-import {
-  BattleNetLogo,
-  ClockIcon,
-  EAAppLogo,
-  EpicLogo,
-  GameControllerIcon,
-  RockstarLogo,
-  SpinnerIcon,
-  SteamLogo,
-  UbisoftLogo
-} from '../icons/OnboardingIcons'
+import { LauncherBrandImage } from '../icons/LauncherLogos'
+import { ClockIcon, GameControllerIcon, SpinnerIcon } from '../icons/OnboardingIcons'
 import { PlusIcon } from '../icons/SidebarIcons'
 
 interface HomeDashboardProps {
@@ -33,9 +24,9 @@ function useCountUp(
   triggerKey: number,
   options?: { durationMs?: number; delayMs?: number; power?: number }
 ): number {
-  const durationMs = options?.durationMs ?? 1450
+  const durationMs = options?.durationMs ?? 2400
   const delayMs = options?.delayMs ?? 0
-  const power = options?.power ?? 5.2
+  const power = options?.power ?? 6.5
   const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
@@ -239,25 +230,6 @@ function StatSparkline({ points }: { points: StatPoint[] }) {
   )
 }
 
-function launcherIcon(id: string, className: string): ReactNode {
-  switch (id) {
-    case 'steam':
-      return <SteamLogo className={className} />
-    case 'epicGames':
-      return <EpicLogo className={className} />
-    case 'battleNet':
-      return <BattleNetLogo className={className} />
-    case 'eaApp':
-      return <EAAppLogo className={className} />
-    case 'rockstar':
-      return <RockstarLogo className={className} />
-    case 'ubisoft':
-      return <UbisoftLogo className={className} />
-    default:
-      return <GameControllerIcon className={className} />
-  }
-}
-
 function PlayTriangleIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -329,19 +301,19 @@ export function HomeDashboard({
   const recentPlaytimeMetric = splitPlaytime(stats.lastTwoWeeksSeconds)
 
   const animatedTotal = useCountUp(totalPlaytimeMetric.value, visitKey, {
-    durationMs: 1450,
+    durationMs: 2500,
     delayMs: 40,
-    power: 5.2
+    power: 6.5
   })
   const animatedRecent = useCountUp(recentPlaytimeMetric.value, visitKey, {
-    durationMs: 1380,
+    durationMs: 2350,
     delayMs: 110,
-    power: 5.2
+    power: 6.5
   })
   const animatedGames = useCountUp(stats.gamesInstalled, visitKey, {
-    durationMs: 1250,
+    durationMs: 2100,
     delayMs: 180,
-    power: 4.5
+    power: 3.6
   })
 
   const continuePlaying = summary?.continuePlaying ?? null
@@ -477,7 +449,7 @@ export function HomeDashboard({
                   <img
                     src={continuePlaying.logoDataUrl}
                     alt={continuePlaying.name}
-                    className="max-h-[76px] max-w-[300px] object-contain object-right drop-shadow-[0_4px_14px_rgba(0,0,0,0.45)]"
+                    className="max-h-[82px] max-w-[300px] object-contain object-right drop-shadow-[0_4px_14px_rgba(0,0,0,0.5)]"
                   />
                 ) : (
                   <span className="max-w-[280px] truncate text-right text-[28px] leading-tight font-extrabold tracking-[-0.03em] text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.5)]">
@@ -502,6 +474,11 @@ export function HomeDashboard({
                   <PlayTriangleIcon className="h-5 w-5 translate-x-[1px]" />
                 )}
               </button>
+
+              <div className="pointer-events-none absolute right-7 bottom-6 z-10 text-right text-[12.5px] font-medium text-white/75 tabular-nums">
+                {formatRecentPlaytime(continuePlaying.totalPlaytimeSeconds)} &middot;{' '}
+                {formatRelativeDate(continuePlaying.lastPlayedIso)}
+              </div>
             </div>
           ) : (
             <div className="flex min-h-[196px] flex-col justify-between gap-5 rounded-[20px] border border-[#161212]/[0.075] bg-gradient-to-br from-[#FAF9F8] via-[#FAF8F8] to-[#F3EAEA]/55 p-7 sm:flex-row sm:items-center">
@@ -527,7 +504,7 @@ export function HomeDashboard({
                     {launchingId === `launcher:${steamLauncher.id}` ? (
                       <SpinnerIcon className="h-4 w-4" />
                     ) : (
-                      <SteamLogo className="h-4 w-4" />
+                      <LauncherBrandImage id="steam" className="h-4 w-4 object-contain" />
                     )}
                     <span>
                       {launchingId === `launcher:${steamLauncher.id}` ? 'Opening...' : 'Open Steam'}
@@ -600,7 +577,7 @@ export function HomeDashboard({
                         <img
                           src={game.logoDataUrl}
                           alt={game.name}
-                          className="max-h-9 max-w-full object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+                          className="max-h-10 max-w-full object-contain object-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
                         />
                       ) : (
                         <span className="block truncate text-[15px] leading-tight font-bold tracking-[-0.02em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.65)]">
@@ -668,17 +645,11 @@ export function HomeDashboard({
                   className="app-no-drag group flex cursor-pointer flex-col justify-between rounded-xl border border-[#161212]/[0.075] bg-[#FAF9F8] p-3.5 text-left transition-all duration-150 hover:border-[#713131]/25 hover:bg-white hover:shadow-xs disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <div className="flex items-center justify-between">
-                    <span
-                      className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                        launcher.installed
-                          ? 'bg-[#713131]/[0.1] text-[#713131]'
-                          : 'bg-[#161212]/[0.06] text-[#5e5454] group-hover:bg-[#713131]/[0.1] group-hover:text-[#713131]'
-                      }`}
-                    >
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#161212]/[0.07] bg-white shadow-[0_1px_2px_rgba(22,18,18,0.04)]">
                       {isBusy ? (
-                        <SpinnerIcon className="h-4 w-4" />
+                        <SpinnerIcon className="h-4 w-4 text-[#713131]" />
                       ) : (
-                        launcherIcon(launcher.id, 'h-4 w-4')
+                        <LauncherBrandImage id={launcher.id} className="h-5 w-5 object-contain" />
                       )}
                     </span>
 

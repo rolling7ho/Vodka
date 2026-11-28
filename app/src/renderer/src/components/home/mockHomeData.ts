@@ -1,4 +1,8 @@
 import type { BottleSummary, HomeSummary } from '../../../../shared/ipc'
+import cyberpunkHeroUrl from '../../assets/mock/cyberpunk-hero.jpg'
+import cyberpunkLogoUrl from '../../assets/mock/cyberpunk-logo.png'
+import eldenRingHeaderUrl from '../../assets/mock/elden-ring-header.jpg'
+import eldenRingLogoUrl from '../../assets/mock/elden-ring-logo.png'
 
 function svgToDataUrl(svg: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.trim())}`
@@ -11,83 +15,6 @@ function hoursAgoIso(hours: number): string {
 function daysAgoIso(days: number): string {
   return new Date(Date.now() - days * 86_400 * 1000).toISOString()
 }
-
-const ART_CYBERPUNK = svgToDataUrl(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430" fill="none">
-  <defs>
-    <linearGradient id="cp-sky" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0B0F1A"/>
-      <stop offset="52%" stop-color="#1E132B"/>
-      <stop offset="100%" stop-color="#3A1525"/>
-    </linearGradient>
-    <radialGradient id="cp-sun" cx="74%" cy="54%" r="36%">
-      <stop offset="0%" stop-color="#FDE047" stop-opacity="0.95"/>
-      <stop offset="45%" stop-color="#F43F5E" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#F43F5E" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="cp-beam" x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0%" stop-color="#22D3EE" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <rect width="920" height="430" fill="url(#cp-sky)"/>
-  <circle cx="670" cy="215" r="190" fill="url(#cp-sun)"/>
-  <path d="M510 430 L645 70 L705 70 L570 430 Z" fill="url(#cp-beam)"/>
-  <path d="M0 320 L78 320 L78 235 L125 235 L125 290 L185 290 L185 160 L252 160 L252 260 L300 260 L300 112 L378 112 L378 275 L430 275 L430 185 L495 185 L495 300 L565 300 L565 130 L640 130 L640 245 L702 245 L702 95 L780 95 L780 265 L845 265 L845 190 L920 190 L920 430 L0 430 Z" fill="#0D0B14"/>
-  <rect x="318" y="138" width="42" height="5" fill="#22D3EE"/>
-  <rect x="318" y="152" width="26" height="4" fill="#22D3EE" opacity="0.7"/>
-  <rect x="582" y="152" width="42" height="6" fill="#FDE047"/>
-  <rect x="718" y="122" width="44" height="5" fill="#F43F5E"/>
-  <rect x="202" y="182" width="32" height="4" fill="#F43F5E" opacity="0.8"/>
-  <path d="M0 358 H920 M0 384 H920 M0 410 H920" stroke="#22D3EE" stroke-opacity="0.16" stroke-width="1"/>
-  <path d="M360 330 L120 430 M440 330 L340 430 M520 330 L580 430 M600 330 L820 430" stroke="#F43F5E" stroke-opacity="0.22" stroke-width="1"/>
-</svg>
-`)
-
-const LOGO_CYBERPUNK = svgToDataUrl(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 92" fill="none">
-  <g transform="skewX(-12)">
-    <text x="36" y="54" fill="#FDE047" font-family="Impact, 'Arial Black', sans-serif" font-size="40" font-weight="900" letter-spacing="1.5">CYBERPUNK</text>
-    <text x="38" y="52" stroke="#22D3EE" stroke-width="1.2" fill="none" font-family="Impact, 'Arial Black', sans-serif" font-size="40" font-weight="900" letter-spacing="1.5" opacity="0.7">CYBERPUNK</text>
-  </g>
-  <rect x="202" y="61" width="96" height="22" rx="3" fill="#22D3EE" fill-opacity="0.18" stroke="#22D3EE" stroke-width="1.4"/>
-  <text x="250" y="77" text-anchor="middle" fill="#22D3EE" font-family="monospace" font-size="15" font-weight="700" letter-spacing="4">2077</text>
-</svg>
-`)
-
-const ART_ELDEN_RING = svgToDataUrl(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
-  <defs>
-    <linearGradient id="er-bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#13161B"/>
-      <stop offset="55%" stop-color="#262119"/>
-      <stop offset="100%" stop-color="#110E0B"/>
-    </linearGradient>
-    <radialGradient id="er-tree" cx="56%" cy="38%" r="48%">
-      <stop offset="0%" stop-color="#FCD34D" stop-opacity="0.9"/>
-      <stop offset="45%" stop-color="#D97706" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#D97706" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="640" height="360" fill="url(#er-bg)"/>
-  <circle cx="358" cy="136" r="190" fill="url(#er-tree)"/>
-  <path d="M342 360 C344 250 342 155 304 52 M356 360 C356 230 360 120 382 28 M366 360 C368 245 384 165 432 82 M348 210 C315 170 282 155 240 142" stroke="#FDE68A" stroke-width="3.2" stroke-linecap="round" opacity="0.82"/>
-  <circle cx="358" cy="112" r="34" stroke="#FCD34D" stroke-width="2" opacity="0.7"/>
-  <circle cx="338" cy="130" r="24" stroke="#FCD34D" stroke-width="1.5" opacity="0.5"/>
-  <path d="M0 305 Q160 255 315 292 T640 272 L640 360 L0 360 Z" fill="#18130F"/>
-  <path d="M0 330 Q210 295 420 322 T640 315 L640 360 L0 360 Z" fill="#0D0A08"/>
-</svg>
-`)
-
-const LOGO_ELDEN_RING = svgToDataUrl(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 68" fill="none">
-  <circle cx="24" cy="34" r="13" stroke="#FCD34D" stroke-width="1.8" opacity="0.9"/>
-  <circle cx="32" cy="34" r="9" stroke="#FDE68A" stroke-width="1.4" opacity="0.75"/>
-  <line x1="28" y1="14" x2="28" y2="54" stroke="#FCD34D" stroke-width="1.6"/>
-  <text x="52" y="42" fill="#FEF3C7" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="600" letter-spacing="4.5">ELDEN RING</text>
-  <line x1="52" y1="49" x2="296" y2="49" stroke="#F59E0B" stroke-width="1" opacity="0.55"/>
-</svg>
-`)
 
 const ART_BALDURS_GATE = svgToDataUrl(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
@@ -302,8 +229,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
     totalPlaytimeSeconds: Math.round(48.6 * 3600),
     lastTwoWeeksSeconds: Math.round(6.2 * 3600),
     lastPlayedIso: hoursAgoIso(2),
-    artworkDataUrl: ART_CYBERPUNK,
-    logoDataUrl: LOGO_CYBERPUNK
+    artworkDataUrl: cyberpunkHeroUrl,
+    logoDataUrl: cyberpunkLogoUrl
   },
   recentlyPlayed: [
     {
@@ -317,8 +244,8 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
       totalPlaytimeSeconds: Math.round(39.2 * 3600),
       lastTwoWeeksSeconds: Math.round(3.1 * 3600),
       lastPlayedIso: hoursAgoIso(26),
-      artworkDataUrl: ART_ELDEN_RING,
-      logoDataUrl: LOGO_ELDEN_RING
+      artworkDataUrl: eldenRingHeaderUrl,
+      logoDataUrl: eldenRingLogoUrl
     },
     {
       id: 'mock:baldurs-gate-3',
