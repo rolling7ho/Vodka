@@ -14,7 +14,7 @@
     "dev:onboarding:mock": "GMAC_SCREEN=onboarding GMAC_FRESH_INSTALL=1 GMAC_MOCK_UI=1 npm run dev",
     "dev:home": "GMAC_SCREEN=home npm run dev",
     "dev:home:fresh": "GMAC_SCREEN=home GMAC_FRESH_INSTALL=1 npm run dev",
-    "dev:home:mock": "GMAC_SCREEN=home GMAC_MOCK_UI=1 npm run dev",
+    "dev:home:mock": "GMAC_SCREEN=home GMAC_FRESH_INSTALL=1 GMAC_MOCK_UI=1 npm run dev",
     "dev:fresh": "GMAC_FRESH_INSTALL=1 npm run dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",

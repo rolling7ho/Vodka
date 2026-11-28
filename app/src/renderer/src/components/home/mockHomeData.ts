@@ -1,4 +1,4 @@
-import type { BottleSummary, HomeSummary } from '../../../../shared/ipc'
+import type { HomeSummary } from '../../../../shared/ipc'
 import cyberpunkHeroUrl from '../../assets/mock/cyberpunk-hero.jpg'
 import cyberpunkLogoUrl from '../../assets/mock/cyberpunk-logo.png'
 import eldenRingHeaderUrl from '../../assets/mock/elden-ring-header.jpg'
@@ -157,33 +157,6 @@ const LOGO_HOLLOW_KNIGHT = svgToDataUrl(`
 </svg>
 `)
 
-export const MOCK_PCS: BottleSummary[] = [
-  {
-    name: 'Steam',
-    path: '/Users/ivan/Mock/Bottles/steam',
-    windowsVersion: 'Windows 10',
-    graphicsBackend: 'recommended',
-    isAvailable: true,
-    icon: 'steam'
-  },
-  {
-    name: 'Night City Rig',
-    path: '/Users/ivan/Mock/Bottles/night-city',
-    windowsVersion: 'Windows 10',
-    graphicsBackend: 'd3dMetal',
-    isAvailable: true,
-    icon: 'bolt'
-  },
-  {
-    name: 'Indie Vault',
-    path: '/Users/ivan/Mock/Bottles/indie-vault',
-    windowsVersion: 'Windows 10',
-    graphicsBackend: 'recommended',
-    isAvailable: true,
-    icon: 'gamepad'
-  }
-]
-
 export const MOCK_HOME_SUMMARY: HomeSummary = {
   stats: {
     totalPlaytimeSeconds: Math.round(142.8 * 3600),
@@ -191,28 +164,28 @@ export const MOCK_HOME_SUMMARY: HomeSummary = {
     gamesInstalled: 14,
     pcsCount: 3,
     hoursHistory: [
-      { date: daysAgoIso(30), value: 94.2 },
-      { date: daysAgoIso(25), value: 101.6 },
-      { date: daysAgoIso(20), value: 112.4 },
-      { date: daysAgoIso(15), value: 121.0 },
-      { date: daysAgoIso(10), value: 130.5 },
-      { date: daysAgoIso(5), value: 137.9 },
+      { date: daysAgoIso(30), value: 86.0 },
+      { date: daysAgoIso(25), value: 89.4 },
+      { date: daysAgoIso(20), value: 104.2 },
+      { date: daysAgoIso(15), value: 109.1 },
+      { date: daysAgoIso(10), value: 126.8 },
+      { date: daysAgoIso(5), value: 132.2 },
       { date: daysAgoIso(0), value: 142.8 }
     ],
     recentHoursHistory: [
-      { date: daysAgoIso(12), value: 1.1 },
-      { date: daysAgoIso(10), value: 1.9 },
-      { date: daysAgoIso(8), value: 1.4 },
-      { date: daysAgoIso(6), value: 2.3 },
-      { date: daysAgoIso(4), value: 1.7 },
-      { date: daysAgoIso(2), value: 1.2 },
-      { date: daysAgoIso(0), value: 1.8 }
+      { date: daysAgoIso(12), value: 0.7 },
+      { date: daysAgoIso(10), value: 2.8 },
+      { date: daysAgoIso(8), value: 0.9 },
+      { date: daysAgoIso(6), value: 3.1 },
+      { date: daysAgoIso(4), value: 1.4 },
+      { date: daysAgoIso(2), value: 0.6 },
+      { date: daysAgoIso(0), value: 2.4 }
     ],
     gamesHistory: [
       { date: daysAgoIso(30), value: 6 },
-      { date: daysAgoIso(25), value: 7 },
+      { date: daysAgoIso(25), value: 6 },
       { date: daysAgoIso(20), value: 9 },
-      { date: daysAgoIso(15), value: 10 },
+      { date: daysAgoIso(15), value: 9 },
       { date: daysAgoIso(10), value: 12 },
       { date: daysAgoIso(5), value: 13 },
       { date: daysAgoIso(0), value: 14 }

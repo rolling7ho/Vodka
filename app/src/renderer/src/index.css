@@ -365,20 +365,20 @@
   animation: gmac-home-rise 460ms cubic-bezier(0.19, 1, 0.22, 1) var(--stagger-delay, 0ms) both;
 }
 
-@keyframes gmac-sparkline-draw {
+@keyframes gmac-sparkline-reveal {
   from {
-    stroke-dashoffset: 1;
+    clip-path: inset(0 100% 0 0);
+    opacity: 0.4;
   }
 
   to {
-    stroke-dashoffset: 0;
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
   }
 }
 
-.animate-sparkline-draw {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: gmac-sparkline-draw 920ms cubic-bezier(0.19, 1, 0.22, 1) 120ms both;
+.animate-sparkline-reveal {
+  animation: gmac-sparkline-reveal 900ms cubic-bezier(0.19, 1, 0.22, 1) 120ms both;
 }
 
 @keyframes gmac-context-in {
@@ -431,7 +431,7 @@
   .animate-onboarding-exit,
   .animate-home-enter,
   .animate-home-rise,
-  .animate-sparkline-draw,
+  .animate-sparkline-reveal,
   .animate-context-in,
   .animate-context-out {
     animation: none;

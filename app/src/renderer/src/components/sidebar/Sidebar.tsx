@@ -55,7 +55,7 @@ interface DropTargetState {
 }
 
 const NAV_BUTTON_BASE =
-  'app-no-drag flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#007AFF]'
+  'app-no-drag flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13.5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#713131]/60'
 
 function navButtonClass(isActive: boolean, muted = false): string {
   if (isActive) {
@@ -280,7 +280,7 @@ export function Sidebar({
                 onClick={onOpenCreatePc}
                 aria-label="Create PC"
                 title="Create PC"
-                className="app-no-drag inline-flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#007AFF]"
+                className="app-no-drag inline-flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-md text-[#5e5454] transition-colors hover:bg-[#161212]/[0.06] hover:text-[#713131] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#713131]/60"
               >
                 <PlusIcon className="h-[14px] w-[14px]" />
               </button>
@@ -328,7 +328,7 @@ export function Sidebar({
                             onBlur={() => void commitInlineRename(pc)}
                             onKeyDown={(event) => handleRenameKeyDown(event, pc)}
                             aria-label={`Rename ${pc.name}`}
-                            className="w-full min-w-0 rounded border border-[#713131]/30 bg-white px-1.5 py-0.5 text-[13px] font-medium text-[#161212] focus:border-[#007AFF] focus:outline-none"
+                            className="w-full min-w-0 rounded border border-[#713131]/30 bg-white px-1.5 py-0.5 text-[13px] font-medium text-[#161212] focus:border-[#713131] focus:outline-none"
                           />
                         </div>
                       ) : (

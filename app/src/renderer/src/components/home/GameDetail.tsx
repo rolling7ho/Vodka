@@ -73,7 +73,7 @@ export function GameDetail({
         <button
           type="button"
           onClick={onBack}
-          className="app-no-drag group inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#161212]/[0.1] bg-[#FAF9F8] px-3.5 py-1.5 text-[13px] font-medium text-[#4a4242] transition-colors hover:border-[#713131]/25 hover:text-[#713131]"
+          className="app-no-drag group inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#161212]/[0.08] bg-[#FAF9F8] px-3.5 py-1.5 text-[13px] font-medium text-[#4a4242] transition-colors hover:border-[#713131]/25 hover:text-[#713131]"
         >
           <ArrowLeftIcon className="h-3.5 w-3.5 transition-transform duration-150 group-hover:-translate-x-0.5" />
           <span>Back to Home</span>
@@ -88,7 +88,7 @@ export function GameDetail({
           </div>
         )}
 
-        <div className="relative mt-5 flex min-h-[268px] flex-col justify-end overflow-hidden rounded-[20px] border border-[#161212]/[0.08] bg-[#241515] p-7 text-white shadow-[0_14px_36px_rgba(22,18,18,0.1)]">
+        <div className="relative mt-5 flex min-h-[268px] flex-col justify-end overflow-hidden rounded-[20px] bg-[#241515] p-7 text-white shadow-[0_14px_36px_rgba(22,18,18,0.12)]">
           {game.artworkDataUrl ? (
             <>
               <img
@@ -108,7 +108,7 @@ export function GameDetail({
                 <img
                   src={game.logoDataUrl}
                   alt={game.name}
-                  className="max-h-20 max-w-[320px] object-contain object-left drop-shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
+                  className="max-h-24 max-w-[340px] object-contain object-left drop-shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
                 />
               ) : (
                 <h1 className="truncate text-[32px] leading-tight font-bold tracking-[-0.035em] text-white">
@@ -121,7 +121,7 @@ export function GameDetail({
               type="button"
               disabled={isLaunching}
               onClick={() => onPlay(game)}
-              className="app-no-drag inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-6 py-2.5 text-[14px] font-medium text-white shadow-sm transition-all duration-150 hover:bg-[#0066D6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="app-no-drag inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-white/92 px-6 py-2.5 text-[14px] font-semibold text-[#713131] shadow-[0_6px_18px_rgba(0,0,0,0.28)] ring-1 ring-white/40 backdrop-blur-md transition-all duration-150 hover:scale-[1.02] hover:bg-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLaunching ? (
                 <SpinnerIcon className="h-4 w-4" />
@@ -134,14 +134,14 @@ export function GameDetail({
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-5 py-4">
+          <div className="rounded-2xl border border-[#161212]/[0.04] bg-[#FAF9F8] px-5 py-4">
             <div className="text-[12px] font-medium text-[#5e5454]">Total Playtime</div>
             <div className="mt-2 text-[20px] font-bold tracking-[-0.02em] text-[#161212] tabular-nums">
               {formatDetailPlaytime(game.totalPlaytimeSeconds)}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-5 py-4">
+          <div className="rounded-2xl border border-[#161212]/[0.04] bg-[#FAF9F8] px-5 py-4">
             <div className="text-[12px] font-medium text-[#5e5454]">Last Played</div>
             <div className="mt-2 text-[20px] font-bold tracking-[-0.02em] text-[#161212]">
               {formatLastPlayed(game.lastPlayedIso)}
@@ -151,7 +151,7 @@ export function GameDetail({
           <button
             type="button"
             onClick={() => onOpenPc(game.bottlePath)}
-            className="app-no-drag group cursor-pointer rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] px-5 py-4 text-left transition-colors hover:border-[#713131]/25 hover:bg-white"
+            className="app-no-drag group cursor-pointer rounded-2xl border border-[#161212]/[0.04] bg-[#FAF9F8] px-5 py-4 text-left transition-colors hover:border-[#713131]/20 hover:bg-white"
           >
             <div className="flex items-center justify-between text-[12px] font-medium text-[#5e5454]">
               <span>PC</span>
@@ -163,7 +163,7 @@ export function GameDetail({
           </button>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-[#161212]/[0.075] bg-[#FAF9F8] p-6">
+        <div className="mt-6 rounded-2xl border border-[#161212]/[0.04] bg-[#FAF9F8] p-6">
           <div className="flex items-center gap-2 text-[13px] font-semibold text-[#161212]">
             <GameControllerIcon className="h-4 w-4 text-[#713131]" />
             <span>Game Details</span>

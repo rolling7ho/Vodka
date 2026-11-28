@@ -54,11 +54,13 @@ export function PcContextMenu({
   const [isSubmenuClosing, setIsSubmenuClosing] = useState(false)
 
   const menuWidth = 176
+  const submenuWidth = 254
+  const submenuHeight = 166
   const left = Math.min(x, window.innerWidth - menuWidth - 16)
   const top = Math.min(y, window.innerHeight - 156)
-  const openLeftward = left + menuWidth + 196 > window.innerWidth
-  const submenuLeft = openLeftward ? Math.max(8, left - 188) : left + menuWidth + 6
-  const submenuTop = Math.min(Math.max(8, top + 28), window.innerHeight - 166)
+  const openLeftward = left + menuWidth + submenuWidth + 12 > window.innerWidth
+  const submenuLeft = openLeftward ? Math.max(8, left - submenuWidth - 6) : left + menuWidth + 6
+  const submenuTop = Math.min(Math.max(8, top + 20), window.innerHeight - submenuHeight - 10)
 
   const triggerClose = useCallback(() => {
     if (closeTimerRef.current !== null) {
@@ -198,7 +200,7 @@ export function PcContextMenu({
         role="menu"
         aria-label={`Actions for ${pc.name}`}
         style={{ left, top }}
-        className={`app-no-drag fixed z-50 w-44 rounded-xl border border-[#161212]/[0.1] bg-white p-1 shadow-[0_12px_32px_rgba(22,18,18,0.14)] ${
+        className={`app-no-drag fixed z-50 w-44 rounded-xl border border-[#161212]/[0.08] bg-white p-1 shadow-[0_12px_32px_rgba(22,18,18,0.14)] ${
           isClosing ? 'animate-context-out pointer-events-none' : 'animate-context-in'
         }`}
       >
@@ -239,7 +241,7 @@ export function PcContextMenu({
           <span className="text-[11px] opacity-60">&rsaquo;</span>
         </button>
 
-        <div className="my-1 h-px bg-[#161212]/[0.08]" role="separator" />
+        <div className="my-1 h-px bg-[#161212]/[0.07]" role="separator" />
 
         <button
           type="button"
@@ -262,14 +264,14 @@ export function PcContextMenu({
           role="menu"
           aria-label={`Choose icon for ${pc.name}`}
           onPointerEnter={openSubmenu}
-          style={{ left: submenuLeft, top: submenuTop }}
-          className={`app-no-drag fixed z-50 w-[182px] rounded-xl border border-[#161212]/[0.1] bg-white p-2 shadow-[0_12px_32px_rgba(22,18,18,0.16)] ${
+          style={{ left: submenuLeft, top: submenuTop, width: submenuWidth }}
+          className={`app-no-drag fixed z-50 rounded-xl border border-[#161212]/[0.08] bg-white p-2 shadow-[0_12px_32px_rgba(22,18,18,0.16)] ${
             isSubmenuClosing || isClosing
               ? 'animate-context-out pointer-events-none'
               : 'animate-context-in'
           }`}
         >
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-6 gap-1">
             {PC_ICON_OPTIONS.map((option) => {
               const isSelected = currentIcon === option.id
               return (
@@ -302,11 +304,19 @@ export function PcContextMenu({
 
 interface CreatePcModalProps {
   isOpen: boolean
+  initialName?: string
+  initialIcon?: PcIconId
   onClose: () => void
   onCreate: (name: string, icon: PcIconId) => Promise<void>
 }
 
-export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps) {
+export function CreatePcModal({
+  isOpen,
+  initialName = '',
+  initialIcon = 'pc',
+  onClose,
+  onCreate
+}: CreatePcModalProps) {
   const [name, setName] = useState('')
   const [selectedIcon, setSelectedIcon] = useState<PcIconId>('pc')
   const [isCreating, setIsCreating] = useState(false)
@@ -317,12 +327,12 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
     if (!isOpen) {
       return
     }
-    setName('')
-    setSelectedIcon('pc')
+    setName(initialName)
+    setSelectedIcon(initialIcon)
     setIsCreating(false)
     setErrorMessage(null)
     requestAnimationFrame(() => inputRef.current?.focus())
-  }, [isOpen])
+  }, [isOpen, initialName, initialIcon])
 
   useEffect(() => {
     if (!isOpen) {
@@ -373,7 +383,7 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-pc-title"
-        className="w-full max-w-sm rounded-2xl border border-[#161212]/[0.1] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
+        className="w-full max-w-md rounded-2xl border border-[#161212]/[0.08] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="create-pc-title" className="text-[18px] font-semibold text-[#161212]">
@@ -399,13 +409,13 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
               onChange={(event) => setName(event.target.value)}
               disabled={isCreating}
               placeholder="Gaming PC"
-              className="mt-1.5 w-full rounded-xl border border-[#161212]/15 bg-white px-3.5 py-2 text-[14px] text-[#161212] placeholder-[#5e5454]/45 focus:border-[#007AFF] focus:outline-none disabled:opacity-60"
+              className="mt-1.5 w-full rounded-xl border border-[#161212]/12 bg-white px-3.5 py-2 text-[14px] text-[#161212] placeholder-[#5e5454]/45 focus:border-[#713131] focus:outline-none disabled:opacity-60"
             />
           </div>
 
           <div>
             <div className="text-[12.5px] font-medium text-[#4a4242]">Icon</div>
-            <div className="mt-1.5 grid grid-cols-4 gap-2">
+            <div className="mt-1.5 grid grid-cols-6 gap-1.5">
               {PC_ICON_OPTIONS.map((option) => {
                 const isSelected = selectedIcon === option.id
                 return (
@@ -420,10 +430,10 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
                     className={`flex h-10 cursor-pointer items-center justify-center rounded-xl border transition-colors ${
                       isSelected
                         ? 'border-[#713131]/35 bg-[#713131]/[0.1] text-[#713131]'
-                        : 'border-[#161212]/10 bg-white text-[#4a4242] hover:bg-[#161212]/[0.04] hover:text-[#713131]'
+                        : 'border-[#161212]/[0.07] bg-white text-[#4a4242] hover:bg-[#161212]/[0.04] hover:text-[#713131]'
                     }`}
                   >
-                    <PcGlyph icon={option.id} className="h-[18px] w-[18px]" />
+                    <PcGlyph icon={option.id} className="h-[17px] w-[17px]" />
                   </button>
                 )
               })}
@@ -451,7 +461,7 @@ export function CreatePcModal({ isOpen, onClose, onCreate }: CreatePcModalProps)
             <button
               type="submit"
               disabled={!trimmedName || isCreating}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#007AFF] px-5 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-[#0066D6] disabled:cursor-not-allowed disabled:opacity-45"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#713131] px-5 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-[#5E2828] disabled:cursor-not-allowed disabled:opacity-45"
             >
               {isCreating && <SpinnerIcon className="h-3.5 w-3.5" />}
               <span>{isCreating ? 'Creating...' : 'Create PC'}</span>
@@ -498,7 +508,7 @@ export function ChangePcIconModal({ pc, onClose, onSelectIcon }: ChangePcIconMod
         role="dialog"
         aria-modal="true"
         aria-labelledby="change-icon-title"
-        className="w-full max-w-xs rounded-2xl border border-[#161212]/[0.1] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
+        className="w-full max-w-sm rounded-2xl border border-[#161212]/[0.08] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="change-icon-title" className="text-[18px] font-semibold text-[#161212]">
@@ -506,7 +516,7 @@ export function ChangePcIconModal({ pc, onClose, onSelectIcon }: ChangePcIconMod
         </h2>
         <p className="mt-1 truncate text-[13px] text-[#5e5454]">{pc.name}</p>
 
-        <div className="mt-4 grid grid-cols-4 gap-2">
+        <div className="mt-4 grid grid-cols-6 gap-1.5">
           {PC_ICON_OPTIONS.map((option) => {
             const isSelected = currentIcon === option.id
             return (
@@ -520,13 +530,13 @@ export function ChangePcIconModal({ pc, onClose, onSelectIcon }: ChangePcIconMod
                   void onSelectIcon(pc, option.id)
                   onClose()
                 }}
-                className={`flex h-11 cursor-pointer items-center justify-center rounded-xl transition-colors ${
+                className={`flex h-10 cursor-pointer items-center justify-center rounded-xl transition-colors ${
                   isSelected
                     ? 'bg-[#713131]/[0.1] text-[#713131] ring-1 ring-[#713131]/30'
-                    : 'border border-[#161212]/10 bg-white text-[#4a4242] hover:bg-[#161212]/[0.04] hover:text-[#713131]'
+                    : 'border border-[#161212]/[0.07] bg-white text-[#4a4242] hover:bg-[#161212]/[0.04] hover:text-[#713131]'
                 }`}
               >
-                <PcGlyph icon={option.id} className="h-[19px] w-[19px]" />
+                <PcGlyph icon={option.id} className="h-[18px] w-[18px]" />
               </button>
             )
           })}
@@ -617,7 +627,7 @@ export function DeletePcModal({ pc, onClose, onConfirmDelete }: DeletePcModalPro
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-pc-title"
-        className="w-full max-w-sm rounded-2xl border border-[#161212]/[0.1] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
+        className="w-full max-w-sm rounded-2xl border border-[#161212]/[0.08] bg-white p-6 shadow-[0_18px_48px_rgba(22,18,18,0.18)]"
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="delete-pc-title" className="text-[18px] font-semibold text-[#161212]">
@@ -643,7 +653,7 @@ export function DeletePcModal({ pc, onClose, onConfirmDelete }: DeletePcModalPro
               onChange={(event) => setConfirmInput(event.target.value)}
               disabled={isDeleting}
               placeholder={pc.name}
-              className="mt-1.5 w-full rounded-xl border border-[#161212]/15 bg-white px-3.5 py-2 text-[14px] text-[#161212] placeholder-[#5e5454]/45 focus:border-red-500 focus:outline-none disabled:opacity-60"
+              className="mt-1.5 w-full rounded-xl border border-[#161212]/12 bg-white px-3.5 py-2 text-[14px] text-[#161212] placeholder-[#5e5454]/45 focus:border-red-500 focus:outline-none disabled:opacity-60"
             />
           </div>
 
